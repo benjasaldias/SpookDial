@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/desk/dial_gauge.gd" id="dial_script"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/dial_sprite.aseprite" id="face"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/arrow_sprite.aseprite" id="needle"]
+
+[node name="DialGauge" type="Node2D"]
+script = ExtResource("dial_script")
+
+[node name="Face" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("face")
+centered = false
+
+[node name="Needle" type="AnimatedSprite2D" parent="."]
+position = Vector2(56, 56)
+sprite_frames = ExtResource("needle")
+animation = &"green"
+centered = false
+offset = Vector2(-7, -43)
