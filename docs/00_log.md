@@ -10,24 +10,25 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 | | |
 | --- | --- |
-| **Qué se hace** | Escribir `docs/09_plan_*.md`: el Plan 3, con las solicitudes de los amigos, el armado de mensajes con las características entre asteriscos, la estática y el chat que responde desde el cuaderno (`docs/06` §2). |
+| **Qué se hace** | Escribir `docs/10_plan_*.md`: el Plan 3, con las solicitudes de los amigos, el armado de mensajes con las características entre asteriscos, la estática y el chat que responde desde el cuaderno (`docs/06` §2). |
 | **Tipo** | Escribir un plan. |
 | **Modelo** | **Opus 5.5** |
 | **Esfuerzo** | **xhigh** (es el plan más complejo) |
-| **Antes de empezar** | Tener **las 3 entidades diseñadas** (El Tue Tué, La Calchona y El Trauco) con la plantilla de `docs/02` §7. Revisar El Trauco en el Inspector (`docs/04`, F) si todavía no lo hiciste. |
+| **Antes de empezar** | Tener **las 3 entidades diseñadas** (El Tue Tué, La Calchona y El Trauco) con la plantilla de `docs/02` §7. Claude dejó un borrador para refinar en `docs/09_propuesta_entidades.md`. Revisar El Trauco en el Inspector (`docs/04`, F) si todavía no lo hiciste. |
 | **Qué escribirle a Claude** | "Escribe el Plan 3 (solicitudes y chat) con superpowers:writing-plans. Mis 3 entidades están en …" |
 | **Tu parte** | Las 3 entidades y responder las preguntas de diseño que salgan. |
-| **Está terminada cuando** | El Plan 3 queda en `docs/09` y S9 es la siguiente. |
+| **Está terminada cuando** | El Plan 3 queda en `docs/10` y S9 es la siguiente. |
 
 ---
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **no hay ninguno pendiente**: S8 escribe el siguiente (`docs/09`).
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **no hay ninguno pendiente**: S8 escribe el siguiente (`docs/10`).
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
+| `docs/09_propuesta_entidades.md` | Borrador de 3 entidades para que Benja las refine | No (referencia para Benja) |
 | `docs/08_plan_datos_textos.md` | **Plan 2**, paso a paso, con código | Ya ejecutado (S7) ✅ |
 | `docs/07_plan_escena_arte.md` | **Plan 1**, paso a paso, con código | Ya ejecutado (S5) ✅ |
 | `docs/06_plan_v1.md` | Hoja de ruta: los 9 planes de la v1 y el estado del arte | No; de aquí salen los planes 2 a 9 |
@@ -82,6 +83,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 26-oct | ✏️ `docs/09` es la propuesta de entidades de Claude, así que el Plan 3 pasa a `docs/10`. |
 | 26-oct | ✏️ S7 se adelantó al 26-oct y se ejecutó con Opus 5.5. Se corrigió el registro de las traducciones del plan (solo `.es`) y se agregaron guardas a 3 pruebas (detalle en `resumen.md`, Sesión 7). |
 | 26-oct | ✏️ S6 se adelantó al 26-oct. El Plan 2 quedó en `docs/08`. |
 | 26-oct | ✏️ S5 se adelantó al mismo 26-oct y se ejecutó con Opus 5.5. Se corrigieron 2 fallas del ejecutor de pruebas y el shader de contorno del plan (detalle en `resumen.md`, Sesión 5). |

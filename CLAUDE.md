@@ -23,6 +23,7 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 | `docs/06_plan_v1.md` | Hoja de ruta de la primera versión: los planes de implementación en orden y el estado del arte. |
 | `docs/07_plan_escena_arte.md` | Plan 1, paso a paso: la escena del escritorio con el arte de Benja. |
 | `docs/08_plan_datos_textos.md` | Plan 2, paso a paso: clases de datos, evaluador y validador de reglas, CSV y El Trauco de ejemplo. |
+| `docs/09_propuesta_entidades.md` | Borrador de Claude con El Tue Tué, La Calchona y El Trauco, para que Benja los refine. No es contenido decidido. |
 | `art/positions.md` | Posición de cada objeto recortado en la escena. |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1. Es **histórico**: su encabezado dice qué se aceptó y qué no. |
 | `spook_dial_design_v1.md` | Diseño original (histórico). |

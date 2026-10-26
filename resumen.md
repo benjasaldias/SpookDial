@@ -20,6 +20,8 @@ Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro pro
   - `docs/04`, sección F: revisar una entidad en el Inspector y cómo agregar una.
 - **Textos `[PROTO]`** (Benja los reemplaza): `data/text/messages.csv` (lugar, características y valores de las observaciones del Trauco) y `data/text/notebook.csv` (folclore, acciones, preguntas y reglas). Los nombres y los lugares de las noches, en `ui.csv`, no son prototipo.
 - `docs/06`: el Plan 2 queda marcado como ejecutado.
+- **Push a GitHub** de los 11 commits (autorizado por Benja).
+- **Pedido de Benja: nuevo `docs/09_propuesta_entidades.md`**, un borrador de El Tue Tué, La Calchona y El Trauco basado en el folclore (Wikipedia, BioBioChile, Currículum Nacional y Museo de Chiloé), para que Benja lo refine. Cada entidad trae características, acciones, observaciones, reglas, la intención de los mensajes, un ejemplo de solicitud e ideas de arte y sonido. Pasó el validador real (`validate_catalog`) sin errores. Por eso el Plan 3 pasa a `docs/10`.
 
 ### Errores encontrados
 
@@ -30,7 +32,8 @@ Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro pro
 ### Pendientes Código
 
 - [x] **S7: ejecutar el Plan 2.**
-- [ ] **S8: escribir el Plan 3** (solicitudes y chat), con Opus 5.5 en esfuerzo xhigh (`docs/00_log.md`).
+- [ ] **S8: escribir el Plan 3** (solicitudes y chat) en `docs/10`, con Opus 5.5 en esfuerzo xhigh (`docs/00_log.md`).
+- [ ] Pasar a `.tres` las entidades que Benja refine (en S8 o antes, si lo pide).
 - [ ] Planes 4 a 9 según `docs/00_log.md`.
 - [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos.
 - [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
@@ -39,7 +42,7 @@ Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro pro
 ### Pendientes Externos
 
 - [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
-- [ ] **Antes de S8 (2 de noviembre):** diseñar El Tue Tué, La Calchona y El Trauco con la plantilla de `docs/02` §7. Las características llevan su frase clickeable entre asteriscos.
+- [ ] **Antes de S8 (2 de noviembre):** refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos.
 - [ ] Reemplazar los textos `[PROTO]` de `data/text/messages.csv` y `notebook.csv` cuando el Trauco definitivo esté diseñado.
 - [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara: si convence, se queda; si no, se apaga (*Look Enabled*) y se quita el parallax.
 - [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
