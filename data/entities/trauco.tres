@@ -1,0 +1,120 @@
+[gd_resource type="Resource" script_class="EntityData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="1_entity"]
+[ext_resource type="Script" path="res://scripts/data/trait_data.gd" id="2_trait"]
+[ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
+[ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
+[ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+
+[sub_resource type="Resource" id="Trait_little_man"]
+script = ExtResource("2_trait")
+id = &"little_man"
+category = 0
+text_key = "TRAIT_LITTLE_MAN"
+
+[sub_resource type="Resource" id="Trait_plant_fiber_clothes"]
+script = ExtResource("2_trait")
+id = &"plant_fiber_clothes"
+category = 0
+text_key = "TRAIT_PLANT_FIBER_CLOTHES"
+
+[sub_resource type="Resource" id="Trait_damp_forest_smell"]
+script = ExtResource("2_trait")
+id = &"damp_forest_smell"
+category = 2
+text_key = "TRAIT_DAMP_FOREST_SMELL"
+
+[sub_resource type="Resource" id="Action_stare"]
+script = ExtResource("3_action")
+id = &"stare"
+label_key = "ACTION_TRAUCO_STARE"
+
+[sub_resource type="Resource" id="Action_turn_back"]
+script = ExtResource("3_action")
+id = &"turn_back"
+label_key = "ACTION_TRAUCO_TURN_BACK"
+
+[sub_resource type="Resource" id="Action_hide_behind_tree"]
+script = ExtResource("3_action")
+id = &"hide_behind_tree"
+label_key = "ACTION_TRAUCO_HIDE_BEHIND_TREE"
+
+[sub_resource type="Resource" id="Action_follow_closely"]
+script = ExtResource("3_action")
+id = &"follow_closely"
+label_key = "ACTION_TRAUCO_FOLLOW_CLOSELY"
+
+[sub_resource type="Resource" id="Observation_saw_first"]
+script = ExtResource("4_observation")
+id = &"saw_first"
+category = 0
+question_key = "OBS_TRAUCO_SAW_FIRST_Q"
+values = Dictionary[StringName, String]({
+&"friend": "OBS_TRAUCO_SAW_FIRST_FRIEND",
+&"trauco": "OBS_TRAUCO_SAW_FIRST_TRAUCO"
+})
+
+[sub_resource type="Resource" id="Observation_axe_in_hand"]
+script = ExtResource("4_observation")
+id = &"axe_in_hand"
+category = 0
+question_key = "OBS_TRAUCO_AXE_Q"
+values = Dictionary[StringName, String]({
+&"yes": "OBS_TRAUCO_AXE_YES",
+&"no": "OBS_TRAUCO_AXE_NO"
+})
+
+[sub_resource type="Resource" id="Observation_chopping_sounds"]
+script = ExtResource("4_observation")
+id = &"chopping_sounds"
+category = 1
+question_key = "OBS_TRAUCO_CHOPPING_Q"
+values = Dictionary[StringName, String]({
+&"yes": "OBS_TRAUCO_CHOPPING_YES",
+&"no": "OBS_TRAUCO_CHOPPING_NO"
+})
+
+[sub_resource type="Resource" id="Rule_1"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"saw_first": &"friend"
+})
+correct_action_id = &"stare"
+risky_action_id = &"follow_closely"
+text_key = "RULE_TRAUCO_1"
+
+[sub_resource type="Resource" id="Rule_2"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"saw_first": &"trauco",
+&"axe_in_hand": &"yes"
+})
+correct_action_id = &"turn_back"
+risky_action_id = &"stare"
+text_key = "RULE_TRAUCO_2"
+
+[sub_resource type="Resource" id="Rule_3"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"chopping_sounds": &"yes"
+})
+correct_action_id = &"hide_behind_tree"
+risky_action_id = &"follow_closely"
+text_key = "RULE_TRAUCO_3"
+
+[sub_resource type="Resource" id="Rule_otherwise"]
+script = ExtResource("5_rule")
+correct_action_id = &"turn_back"
+risky_action_id = &"follow_closely"
+text_key = "RULE_OTHERWISE"
+
+[resource]
+script = ExtResource("1_entity")
+id = &"trauco"
+name_key = "ENTITY_TRAUCO_NAME"
+lore_key = "ENTITY_TRAUCO_LORE"
+place_keys = Array[String](["PLACE_FOREST"])
+traits = Array[ExtResource("2_trait")]([SubResource("Trait_little_man"), SubResource("Trait_plant_fiber_clothes"), SubResource("Trait_damp_forest_smell")])
+actions = Array[ExtResource("3_action")]([SubResource("Action_stare"), SubResource("Action_turn_back"), SubResource("Action_hide_behind_tree"), SubResource("Action_follow_closely")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_saw_first"), SubResource("Observation_axe_in_hand"), SubResource("Observation_chopping_sounds")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_3"), SubResource("Rule_otherwise")])
