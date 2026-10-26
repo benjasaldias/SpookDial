@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/pc_sprite.aseprite-a76650b5c220a4e71d86f1af6b
 
 [params]
 
-layer/exclude_layers_pattern=""
+layer/exclude_layers_pattern="^Entry"
 layer/only_visible_layers=false
 sheet/sheet_type="packed"
 sheet/sheet_columns=12
