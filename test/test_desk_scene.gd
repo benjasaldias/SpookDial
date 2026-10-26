@@ -68,3 +68,17 @@ func test_cerrar_el_chat_deselecciona() -> bool:
 	check_eq(leon.state, ChatEntry.State.IDLE, "León vuelve a idle")
 	desk.free()
 	return true
+
+
+func test_camara_con_zoom_leve_y_centrada() -> bool:
+	var desk := _make_desk()
+	var camera := desk.get_node_or_null("LookCamera") as Camera2D
+	check(camera != null, "existe LookCamera")
+	if camera:
+		check(camera.has_method("_process") and camera.get("look_zoom") == 1.05, "tiene el script LookCamera cargado")
+		check(camera.is_current(), "es la cámara activa")
+		check(camera.zoom.is_equal_approx(Vector2(1.05, 1.05)), "zoom: %s" % camera.zoom)
+		check_eq(camera.position, Vector2(640, 360), "centrada al inicio")
+	check(desk.get_node_or_null("ParallaxRig") == null, "el parallax por planos ya no existe")
+	desk.free()
+	return true

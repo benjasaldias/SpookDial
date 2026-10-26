@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/desk/desk.gd" id="desk_script"]
-[ext_resource type="Script" path="res://scripts/desk/parallax_rig.gd" id="parallax_script"]
+[ext_resource type="Script" path="res://scripts/desk/look_camera.gd" id="camera_script"]
 [ext_resource type="Script" path="res://scripts/desk/clickable_sprite.gd" id="clickable_script"]
 [ext_resource type="SpriteFrames" path="res://art/sprites/background_sprite.aseprite" id="background"]
 [ext_resource type="SpriteFrames" path="res://art/sprites/window_sprite.aseprite" id="window"]
@@ -128,10 +128,10 @@ display_name = "Gonzalo"
 position = Vector2(518, 534)
 display_name = "Agustín"
 
-[node name="ParallaxRig" type="Node" parent="."]
-script = ExtResource("parallax_script")
-planes = Array[NodePath]([NodePath("../WallPlane"), NodePath("../WallPlane/ExteriorClip/Exterior")])
-max_offsets = Array[Vector2]([Vector2(3, 2), Vector2(2, 1)])
+[node name="LookCamera" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+zoom = Vector2(1.05, 1.05)
+script = ExtResource("camera_script")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
