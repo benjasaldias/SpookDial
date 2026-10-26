@@ -24,7 +24,6 @@ import/import_plugin/default_automatic_importer="SpriteFrames"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
 
 [editor_plugins]
 
@@ -36,9 +35,9 @@ enabled=PackedStringArray("res://addons/AsepriteWizard/plugin.cfg")
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/canvas_textures/default_texture_filter=0
-2d/snap/snap_2d_transforms_to_pixel=true
 environment/defaults/default_clear_color=Color(0.012, 0.024, 0.043, 1)
+2d/snap/snap_2d_transforms_to_pixel=true
