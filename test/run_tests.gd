@@ -20,6 +20,10 @@ func _initialize() -> void:
 
 func _run_suite(path: String) -> void:
 	var script: GDScript = load(path)
+	if script == null or not script.can_instantiate():
+		_failed += 1
+		print("FALLA  %s :: no se pudo cargar (revisa SCRIPT ERROR más arriba)" % path.get_file())
+		return
 	var suite: Object = script.new()
 	for method: Dictionary in script.get_script_method_list():
 		var method_name: String = method["name"]
