@@ -4,6 +4,70 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 5 — 26 de octubre de 2026 (noche) — Plan 1 ejecutado: escena del escritorio
+
+Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5. Benja autorizó todos los commits del plan en `main`, sin push.
+
+### Realizado
+
+- **Las 14 tareas de `docs/07`, con 32 pruebas OK y 0 fallidas** (`~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd`):
+  - ejecutor de pruebas propio en `test/`;
+  - pantalla de 1280×720, aspect `keep`, filtro Nearest, snap a píxel, color de fondo y `desk.tscn` como escena principal;
+  - `pc_sprite` sin las capas `Entry` y `screen_sprite` importado como textura (el cambio de importador por archivo funcionó, sin necesidad del plan B);
+  - matemática del dial, del parallax y de la opacidad por píxel;
+  - shader de contorno y `ClickableSprite`, `DialGauge`, `ChatEntry` y `ChatPanel` provisional;
+  - `scenes/desk/desk.tscn`, con todo el arte en su lugar, el parallax de la pared (±3, ±2) y el del exterior (±2, ±1 extra).
+- **Comparación con la maqueta (`tools/compare_png.py`): 89,6 % de píxeles iguales.** Fuera de las zonas explicadas solo difieren **63 px (0,01 %)**, así que todo el arte está en su posición exacta. Las diferencias por zona:
+
+  | Zona | Píxeles | Causa |
+  | --- | --- | --- |
+  | Esquina superior derecha (x ≥ 1000) | 9,70 % | El arte de `background_sprite` no coincide con la maqueta (ver Errores) |
+  | Diales | 0,28 % | Las agujas apuntan según su valor (1,0 = 120°), no hacia arriba |
+  | Última fila | 0,28 % | La maqueta tiene transparentes las filas y = 718–719 (error conocido del maestro) |
+  | Termómetro | 0,07 % | No está en `background_sprite` |
+  | Entradas | 0,07 % | Ahora tienen los nombres |
+
+- **Escalado a 1080p (Tarea 13):**
+  - `--write-movie` graba siempre a 1280×720, así que el ×1,5 se simuló con Nearest sobre recortes del teclado y de un dial;
+  - los grosores alternan entre 1 y 2 px; se nota de cerca, pero no rompe la imagen;
+  - **recomendación: mantener Nearest en la v1** y dejar el shader de escalado suave en la lista posterior a la v1. Benja decide tras probarlo en su monitor (`docs/04`, D).
+- `docs/04`: nuevas secciones C (revisar la escena), D (probar el escalado) y E (mover un objeto).
+- 14 commits en `main` (sin push).
+
+### Errores encontrados
+
+- **El ejecutor de pruebas del plan tenía dos fallas** (corregidas en `test/run_tests.gd`):
+  - una suite cuyo script no cargaba se saltaba en silencio y no contaba como falla;
+  - `SceneTree._initialize()` corre **antes** de que la raíz entre al árbol, así que los nodos agregados ahí no recibían `_ready` ni tenían viewport. Ahora las suites corren diferidas (`call_deferred`).
+- **El shader de contorno del plan no compilaba en GL Compatibility:** no acepta `TEXTURE` como argumento `sampler2D` de una función propia. Ahora el muestreo va dentro de `fragment()`.
+- **`background_sprite` no coincide con la maqueta** en la esquina superior derecha: la maqueta tiene una sombra grande y una pared en diagonal, y `background_sprite` una pared más clara con una puerta negra. Además le falta el termómetro. Hay que confirmar cuál es la versión buena (pregunta a Benja).
+- **La aguja rotada se ve dentada incluso a ×1**, porque girar pixel art con Nearest deforma sus bordes. Tenerlo en cuenta en el rediseño de los diales (por ejemplo, agujas pre-dibujadas en varios ángulos).
+- **Godot reescribe `project.godot` al importar:** quitó `aspect="keep"` porque es el valor por defecto, y reordenó líneas. No es un problema (la prueba lo confirma).
+- **Error de Claude:** una línea suelta (`cat >` sin entrada) colgó el primer comando 5 minutos. No afectó al proyecto.
+
+### Pendientes Código
+
+- [ ] **S6: escribir el Plan 2** (datos y textos), con Opus 5.5 en esfuerzo high (`docs/00_log.md`).
+- [ ] Commitear los `.uid` que Godot genere al abrir el editor (los de los scripts de `scripts/` y de algunos `test/`).
+- [ ] Según la respuesta de Benja sobre `background_sprite`, volver a comparar con la maqueta (≥ 90 %).
+- [ ] Planes 3 a 9 según `docs/00_log.md`.
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [x] **S5: ejecutar el Plan 1.**
+
+### Pendientes Externos
+
+- [ ] **Revisar la escena en Godot** (`docs/04`, C): unos 5 minutos.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] **Confirmar la esquina superior derecha y el termómetro de `background_sprite`** contra la maqueta.
+- [ ] **Antes de S8 (2 de noviembre):** diseñar El Tue Tué, La Calchona y El Trauco con la plantilla de `docs/02` §7.
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 3 a 6: interfaz del chat y del cuaderno, barras de señal, celular sin la hora y dígitos LCD, diales rediseñados, mixer en piezas y celular ampliado (`docs/06` §3).
+- [ ] Opcional: `exterior_sprite` y `background_sprite` con 8 px extra por lado.
+- [ ] Elegir una tipografía pixel (`docs/03` §10).
+- [ ] Autorizar el push a GitHub de los commits de esta sesión.
+
+---
+
 ## Sesión 4 — 26 de octubre de 2026 (tarde) — Orden del arte, repositorio y registro de sesiones
 
 ### Realizado

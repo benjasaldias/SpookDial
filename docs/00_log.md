@@ -6,30 +6,29 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ---
 
-## ▶ Siguiente sesión: S5 — Ejecutar el Plan 1
+## ▶ Siguiente sesión: S6 — Escribir el Plan 2 (datos y textos)
 
 | | |
 | --- | --- |
-| **Qué se hace** | Construir la escena del escritorio con tu arte, siguiendo `docs/07_plan_escena_arte.md` tarea por tarea (14 tareas y 32 pruebas). |
-| **Tipo** | Ejecución de un plan ya escrito, con todo el código incluido. |
-| **Modelo** | **Sonnet 5.5** |
+| **Qué se hace** | Escribir `docs/08_plan_datos_textos.md`, con código y pruebas, según `docs/06` §2: las clases `Resource` del contenido (`TraitData`, `ObservationData`, `ActionData`, `RuleData`, `EntityData`, `FriendData` y `NightData`), el evaluador de reglas, las traducciones CSV con textos `[PROTO]` y El Trauco de ejemplo como `.tres`. |
+| **Tipo** | Escribir un plan (decisiones técnicas). |
+| **Modelo** | **Opus 5.5** |
 | **Esfuerzo** | **high** |
-| **Si se traba** (errores de Godot, WSL u OneDrive que no se resuelven en 2 o 3 intentos) | Cambiar a **Opus 5.5**, esfuerzo **high**. |
-| **Antes de empezar** | Godot **cerrado**. Abre Claude Code en esta carpeta (OneDrive). |
-| **Qué escribirle a Claude** | "Ejecuta el Plan 1 (`docs/07`) inline, tarea por tarea." |
-| **Tu parte** | Tener Godot cerrado mientras Claude trabaja; al final, la revisión visual de la Tarea 14 (unos 5 minutos); aprobar los commits. |
-| **Está terminada cuando** | Pasan las 32 pruebas, la captura se parece a la maqueta en un 90 % o más y tú revisaste la escena en Godot. |
+| **Antes de empezar** | Haber hecho la revisión de la escena y la prueba de escalado de S5 (`docs/04`, C y D), y responder la pregunta sobre `background_sprite` (`resumen.md`, Sesión 5). Si Godot estuvo abierto, cerrarlo. |
+| **Qué escribirle a Claude** | "Escribe el Plan 2 (datos y textos) con superpowers:writing-plans." |
+| **Tu parte** | Responder las decisiones técnicas que Claude pregunte. |
+| **Está terminada cuando** | `docs/08` está escrito, revisado y anotado aquí como el plan que ejecuta S7. |
 
 ---
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy hay **uno**: `docs/07`.
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **no hay ninguno pendiente**: `docs/07` ya se ejecutó en S5, y el siguiente (`docs/08`) se escribe en S6.
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
-| `docs/07_plan_escena_arte.md` | **Plan 1**, paso a paso, con código | **Sí: es la sesión S5** |
+| `docs/07_plan_escena_arte.md` | **Plan 1**, paso a paso, con código | Ya ejecutado (S5) ✅ |
 | `docs/06_plan_v1.md` | Hoja de ruta: los 9 planes de la v1 y el estado del arte | No; de aquí salen los planes 2 a 9 |
 | `docs/05_plan_produccion.md` | Alcance por prioridad y calendario por semana | No |
 | `docs/02_bucle_central.md` | Detalle de la mecánica central y plantilla de entidades | No (referencia) |
@@ -54,8 +53,8 @@ Hay dos tipos de sesión, que se alternan:
 | S2 | 15-oct | Decisiones, diseño v2 y alcance | Diseño | Opus 5.5 · high | — | ✅ |
 | S3 | 26-oct | Diseño cerrado, revisión del arte y Plan 1 escrito | Diseño y plan | Opus 5.5 · high | — | ✅ |
 | S4 | 26-oct | Orden del arte, repositorio y este registro | Mantenimiento | Opus 5.5 · low | — | ✅ |
-| **S5** | 27–28 oct | **Ejecutar el Plan 1: escena y arte** | Ejecución | **Sonnet 5.5 · high** | Godot cerrado | ▶ |
-| S6 | 29 oct | Escribir el Plan 2: datos y textos | Plan | Opus 5.5 · high | — | ⏳ |
+| S5 | 26 oct | Ejecutar el Plan 1: escena y arte | Ejecución | Opus 5.5 (se adelantó) | Revisión visual y escalado | ✅ |
+| **S6** | 27–29 oct | **Escribir el Plan 2: datos y textos** | Plan | **Opus 5.5 · high** | — | ▶ |
 | S7 | 30 oct – 1 nov | Ejecutar el Plan 2 | Ejecución | Sonnet 5.5 · high | — | ⏳ |
 | S8 | 2 nov | Escribir el Plan 3: solicitudes y chat | Plan | Opus 5.5 · xhigh (es el más complejo) | **3 entidades diseñadas** | ⏳ |
 | S9 | 3–5 nov | Ejecutar el Plan 3 | Ejecución | Sonnet 5.5 · high | — | ⏳ |
@@ -82,6 +81,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 26-oct | ✏️ S5 se adelantó al mismo 26-oct y se ejecutó con Opus 5.5. Se corrigieron 2 fallas del ejecutor de pruebas y el shader de contorno del plan (detalle en `resumen.md`, Sesión 5). |
 | 26-oct | ✏️ Plan 1 actualizado: usa `background_sprite` y `exterior_sprite` (con parallax propio del exterior), `arrow_sprite`, y la maqueta en `art/_layout/`. |
 | 26-oct | ❌ Cancelado el cambio del proyecto a `C:\dev`: el proyecto se queda en OneDrive, con git fuera. |
 | 26-oct | ✏️ El "Hito 1" del calendario original se reemplazó por los Planes 1 a 4, y el calendario se corrió una semana. |
@@ -96,3 +96,4 @@ Hay dos tipos de sesión, que se alternan:
 | S2 | 15-oct | Diseño v2, alcance y calendario; MCP, wrapper de Godot y git | `resumen.md`, Sesión 2 |
 | S3 | 26-oct | Identificación por características, "Grabar" corregido, arte revisado, `docs/06` y Plan 1 | `resumen.md`, Sesión 3 |
 | S4 | 26-oct | Fondo y exterior integrados al plan, arte ordenado, primer commit en GitHub y este registro | `resumen.md`, Sesión 4 |
+| S5 | 26-oct | Plan 1 ejecutado: 32 pruebas OK, escena del escritorio con el arte, parallax y comparación con la maqueta (89,6 %, diferencias explicadas) | `resumen.md`, Sesión 5 |

@@ -93,7 +93,9 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 - **Reimportar un `.aseprite`:** Godot no reintenta un archivo cuyo `.import` quedó con `valid=false`. Para forzar la reimportación, hay que borrar su `.import` (o su `.md5` y su `.res` en `.godot/imported/`) y correr `godot-wsl.sh --headless --path "$PWD" --import` con el editor cerrado.
 - **Arte:** los sprites están en `art/sprites/` (posiciones en `art/positions.md`). La maqueta está en `art/_layout/` (`scene_layout.aseprite` y `scene_layout.png`), que Godot ignora.
 - **Git:** remoto `origin` = `https://github.com/benjasaldias/SpookDial.git` (privado; `gh` está autenticado como `benjasaldias`). Rama `main`. Usar `core.filemode=false` (el disco es NTFS).
-- **Pantalla prevista** (se confirma con la prueba de escalado): viewport de 1280×720, stretch mode `canvas_items`, aspect `keep` y filtro de texturas por defecto `Nearest`. Hoy `project.godot` tiene aspect `expand`.
+- **Pantalla:** viewport de 1280×720, stretch mode `canvas_items`, aspect `keep` (Godot no lo escribe en `project.godot` porque es el valor por defecto), filtro `Nearest` y snap a píxel. Falta que Benja confirme el escalado a 1080p (`docs/04`, D).
+- **Pruebas:** `~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd` ejecuta todos los `test/test_*.gd` (sin addons). Una suite que no carga cuenta como falla.
+- **Capturas:** `--write-movie` graba siempre al tamaño del viewport (1280×720), aunque se pida otra resolución. `tools/compare_png.py` compara una captura con la maqueta.
 
 ## Convenciones de código
 

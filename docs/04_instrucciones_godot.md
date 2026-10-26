@@ -13,6 +13,9 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | Ruta de Aseprite | ✅ Corregida por Claude en la configuración del editor (26-10-2026) |
 | Prueba de importación | ✅ Verificada por Claude: los 16 `.aseprite` importan bien, con sus animaciones |
 | **A.** Volver al proyecto de OneDrive en el Project Manager | ⬜ Pendiente |
+| **C.** Revisar la escena del escritorio (Plan 1) | ⬜ Pendiente (unos 5 minutos) |
+| **D.** Probar el escalado a pantalla completa y decidir | ⬜ Pendiente |
+| **E.** Cómo mover un objeto de la escena | Referencia |
 
 ---
 
@@ -51,3 +54,46 @@ El proyecto se queda en `C:\Users\benja\OneDrive\Documents\spook-dial`. La copia
 
   También puede hacerlo Claude, con Godot cerrado.
 - **Si un archivo no se importa** (en FileSystem aparece con un ícono de error): avísale a Claude. Godot no reintenta los archivos que fallaron una vez, y hay que forzarlo.
+
+---
+
+## C. Revisar la escena del escritorio (Plan 1)
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. Abre Godot y el proyecto `spook-dial`. La primera vez, Godot crea algunos archivos `.uid` nuevos junto a los scripts: es normal, y van en el siguiente commit.
+2. En el panel **FileSystem** (Sistema de archivos), abajo a la izquierda, haz doble clic en `scenes/desk/desk.tscn`. La escena se abre en el centro.
+3. Presiona **F5** (Run Project, Ejecutar proyecto). Se abre la ventana del juego.
+4. Prueba:
+   - **Resaltado:** pasa el mouse sobre el cuaderno, el celular y el mixer. Cada uno muestra un contorno claro de 1 píxel; fuera de ellos, el contorno desaparece.
+   - **Chat:** haz clic en la entrada de León en la pantalla del PC. La entrada se ilumina y a la izquierda aparece el panel con el título "León".
+   - **Cerrar:** presiona `Esc` o haz clic derecho. El panel se cierra y la entrada vuelve a su color.
+   - **Parallax:** mueve el mouse de una esquina a otra. La pared, la ventana y los diales se mueven unos 3 px, y el paisaje de la ventana un poco más; el escritorio no se mueve.
+   - **Clics:** al hacer clic en el cuaderno, el celular o el mixer, en el panel **Output** (Salida) de Godot aparece "Clic en Notebook", "Clic en Phone" o "Clic en Mixer".
+
+**Verifica:** las cinco pruebas anteriores se cumplen. Si alguna falla, anota cuál y qué pasó.
+
+---
+
+## D. Probar el escalado a pantalla completa
+
+El juego mide 1280×720. En un monitor de 1920×1080, Godot lo amplía ×1,5 con filtro Nearest (sin suavizado), y algunos píxeles del arte quedan de 1 px y otros de 2 px de ancho.
+
+1. Ejecuta el juego con **F5**.
+2. Maximiza la ventana con el botón de maximizar de Windows, o con **Win + ↑**.
+3. Mira de cerca el teclado del PC y las marcas de los diales, y mueve el mouse para ver el parallax.
+
+**Decide:** si los grosores desparejos se notan lo suficiente como para que valga la pena, se agrega en el futuro un shader de escalado suave (va a la lista posterior a la v1). Si no, se queda Nearest. Díselo a Claude.
+
+---
+
+## E. Cómo mover un objeto de la escena
+
+Si algo quedó corrido un píxel, o quieres probar otra ubicación:
+
+1. Abre `scenes/desk/desk.tscn` (doble clic en **FileSystem**).
+2. En el panel **Scene** (Escena), arriba a la izquierda, selecciona el nodo. Por ejemplo, `DeskPlane > Phone`.
+3. En el **Inspector**, a la derecha, abre **Transform** (Transformación) y cambia **Position** (Posición): `x` e `y` en píxeles, siempre en números enteros.
+4. Guarda con **Ctrl + S**.
+
+**Verifica:** el objeto se ve en su nuevo lugar en el editor y al ejecutar con **F5**. Anota la nueva posición en `art/positions.md` y avísale a Claude: la prueba `test_cada_objeto_en_su_posicion` revisa las posiciones y habrá que actualizarla.
