@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/night_data.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="2_entity"]
+
+[resource]
+script = ExtResource("1_night")
+number = 5
+place_key = "NIGHT_5_PLACE"
+new_entities = Array[ExtResource("2_entity")]([])
+requests_total = 18
+max_simultaneous = 3
+base_decision_time = 30.0
+first_message_observations = 2
+signal_decays = true
+signal_decay_interval = Vector2(3, 6)
+interference_count = 6
+audio_sync_beats = 8
+sanity_drain_interval = 6.0
+content_quota = 4

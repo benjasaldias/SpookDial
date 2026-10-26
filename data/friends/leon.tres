@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FriendData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/friend_data.gd" id="1_friend"]
+
+[resource]
+script = ExtResource("1_friend")
+id = &"leon"
+name_key = "FRIEND_LEON_NAME"
+color = Color(0.95, 0.75, 0.35, 1)
