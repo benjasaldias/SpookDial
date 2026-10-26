@@ -51,3 +51,21 @@ static func make_rule(conditions: Dictionary, correct: StringName, risky: String
 	rule.risky_action_id = risky
 	rule.text_key = "K_RULE"
 	return rule
+
+
+## Catálogo válido: 3 amigos y 5 noches; "beast" aparece la noche 1 y "ghost" la noche 2.
+static func make_catalog() -> ContentCatalog:
+	var catalog := ContentCatalog.new()
+	for friend_id: StringName in [&"leon", &"gonzalo", &"agustin"]:
+		var friend := FriendData.new()
+		friend.id = friend_id
+		friend.name_key = "K_FRIEND_%s" % friend_id
+		catalog.friends.append(friend)
+	for number in range(1, 6):
+		var night := NightData.new()
+		night.number = number
+		night.place_key = "K_NIGHT_%d" % number
+		catalog.nights.append(night)
+	catalog.nights[0].new_entities.append(make_entity(&"beast"))
+	catalog.nights[1].new_entities.append(make_entity(&"ghost"))
+	return catalog
