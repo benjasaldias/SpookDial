@@ -1,0 +1,138 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/desk/desk.gd" id="desk_script"]
+[ext_resource type="Script" path="res://scripts/desk/parallax_rig.gd" id="parallax_script"]
+[ext_resource type="Script" path="res://scripts/desk/clickable_sprite.gd" id="clickable_script"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/background_sprite.aseprite" id="background"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/window_sprite.aseprite" id="window"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/exterior_sprite.aseprite" id="exterior"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/enemy_sprite.aseprite" id="enemy"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/glasspane_sprite.aseprite" id="glasspane"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/curtains_sprite.aseprite" id="curtains"]
+[ext_resource type="PackedScene" path="res://scenes/desk/dial_gauge.tscn" id="dial"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/desk_sprite.aseprite" id="desk_surface"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/notebook_sprite.aseprite" id="notebook"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/microphone_sprite.aseprite" id="microphone"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/phone_sprite.aseprite" id="phone"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/mixer_sprite.aseprite" id="mixer"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/cables_sprite.aseprite" id="cables"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/pc_sprite.aseprite" id="pc"]
+[ext_resource type="PackedScene" path="res://scenes/ui/chat_entry.tscn" id="entry"]
+[ext_resource type="PackedScene" path="res://scenes/ui/chat_panel.tscn" id="chat_panel"]
+
+[node name="Desk" type="Node2D"]
+script = ExtResource("desk_script")
+
+[node name="WallPlane" type="Node2D" parent="."]
+
+[node name="Background" type="AnimatedSprite2D" parent="WallPlane"]
+sprite_frames = ExtResource("background")
+centered = false
+
+[node name="Window" type="AnimatedSprite2D" parent="WallPlane"]
+position = Vector2(266, 114)
+sprite_frames = ExtResource("window")
+centered = false
+
+[node name="ExteriorClip" type="Control" parent="WallPlane"]
+clip_contents = true
+layout_mode = 3
+offset_left = 273.0
+offset_top = 121.0
+offset_right = 524.0
+offset_bottom = 418.0
+mouse_filter = 2
+
+[node name="Exterior" type="AnimatedSprite2D" parent="WallPlane/ExteriorClip"]
+sprite_frames = ExtResource("exterior")
+centered = false
+
+[node name="Enemy" type="AnimatedSprite2D" parent="WallPlane"]
+position = Vector2(300, 172)
+sprite_frames = ExtResource("enemy")
+centered = false
+
+[node name="GlassPane" type="AnimatedSprite2D" parent="WallPlane"]
+position = Vector2(273, 121)
+sprite_frames = ExtResource("glasspane")
+centered = false
+
+[node name="Curtains" type="AnimatedSprite2D" parent="WallPlane"]
+position = Vector2(219, 92)
+sprite_frames = ExtResource("curtains")
+centered = false
+
+[node name="DialConnection" parent="WallPlane" instance=ExtResource("dial")]
+position = Vector2(840, 89)
+needle_color = &"green"
+
+[node name="DialSanity" parent="WallPlane" instance=ExtResource("dial")]
+position = Vector2(840, 219)
+needle_color = &"red"
+
+[node name="DialTrust" parent="WallPlane" instance=ExtResource("dial")]
+position = Vector2(840, 348)
+needle_color = &"yellow"
+
+[node name="DeskPlane" type="Node2D" parent="."]
+
+[node name="DeskSurface" type="AnimatedSprite2D" parent="DeskPlane"]
+position = Vector2(0, 505)
+sprite_frames = ExtResource("desk_surface")
+centered = false
+
+[node name="Notebook" type="AnimatedSprite2D" parent="DeskPlane"]
+position = Vector2(1017, 562)
+sprite_frames = ExtResource("notebook")
+centered = false
+script = ExtResource("clickable_script")
+
+[node name="Microphone" type="AnimatedSprite2D" parent="DeskPlane"]
+position = Vector2(830, 571)
+sprite_frames = ExtResource("microphone")
+centered = false
+
+[node name="Phone" type="AnimatedSprite2D" parent="DeskPlane"]
+position = Vector2(357, 618)
+sprite_frames = ExtResource("phone")
+centered = false
+script = ExtResource("clickable_script")
+
+[node name="Mixer" type="AnimatedSprite2D" parent="DeskPlane"]
+position = Vector2(130, 565)
+sprite_frames = ExtResource("mixer")
+centered = false
+script = ExtResource("clickable_script")
+
+[node name="Cables" type="AnimatedSprite2D" parent="DeskPlane"]
+position = Vector2(241, 504)
+sprite_frames = ExtResource("cables")
+centered = false
+
+[node name="PC" type="AnimatedSprite2D" parent="DeskPlane"]
+position = Vector2(479, 433)
+sprite_frames = ExtResource("pc")
+centered = false
+
+[node name="Entries" type="Node2D" parent="DeskPlane"]
+
+[node name="EntryLeon" parent="DeskPlane/Entries" instance=ExtResource("entry")]
+position = Vector2(518, 454)
+display_name = "León"
+
+[node name="EntryGonzalo" parent="DeskPlane/Entries" instance=ExtResource("entry")]
+position = Vector2(518, 494)
+display_name = "Gonzalo"
+
+[node name="EntryAgustin" parent="DeskPlane/Entries" instance=ExtResource("entry")]
+position = Vector2(518, 534)
+display_name = "Agustín"
+
+[node name="ParallaxRig" type="Node" parent="."]
+script = ExtResource("parallax_script")
+planes = Array[NodePath]([NodePath("../WallPlane"), NodePath("../WallPlane/ExteriorClip/Exterior")])
+max_offsets = Array[Vector2]([Vector2(3, 2), Vector2(2, 1)])
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="ChatPanel" parent="UI" instance=ExtResource("chat_panel")]
