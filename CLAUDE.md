@@ -22,6 +22,7 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 | `docs/05_plan_produccion.md` | Alcance por prioridad (v1 y lo que viene después), calendario y riesgos. |
 | `docs/06_plan_v1.md` | Hoja de ruta de la primera versión: los planes de implementación en orden y el estado del arte. |
 | `docs/07_plan_escena_arte.md` | Plan 1, paso a paso: la escena del escritorio con el arte de Benja. |
+| `docs/08_plan_datos_textos.md` | Plan 2, paso a paso: clases de datos, evaluador y validador de reglas, CSV y El Trauco de ejemplo. |
 | `art/positions.md` | Posición de cada objeto recortado en la escena. |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1. Es **histórico**: su encabezado dice qué se aceptó y qué no. |
 | `spook_dial_design_v1.md` | Diseño original (histórico). |
@@ -63,6 +64,7 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 26-10-2026 | **Cada entidad tiene 4 acciones propias** y **reglas estilo Keep Talking**. Cada regla marca la acción correcta y la de mayor riesgo; las otras dos son incorrectas. |
 | 26-10-2026 | **Los amigos nunca dicen el nombre de la entidad.** Se identifica de memoria, o **clickeando todas las características destacadas** del mensaje; tras una espera de unos 3 s aparece el nombre. |
 | 26-10-2026 | **Se responde desde el cuaderno:** las opciones del chat son las acciones de la página abierta para ese amigo. |
+| 26-10-2026 | **La frase clickeable de una característica va entre asteriscos** en el CSV: `vio un *hombrecito*` (no corchetes, que chocan con `[PROTO]` y con BBCode). |
 | 15-10-2026 | **Estática:** con poca señal se tapan palabras. Una característica tapada no se puede clickear; hay que preguntar para recuperarla. |
 | 26-10-2026 | **Si cualquiera de los 3 diales llega a 0, se pierde la noche.** El dial de Connection es el promedio de las tres señales. |
 | 15-10-2026 | **Señal por amigo:** baja gradualmente y con interferencias anunciadas; Audio Sync individual en cualquier momento. |

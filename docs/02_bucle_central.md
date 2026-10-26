@@ -205,29 +205,38 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
   - `ui.csv`: los botones, los menús y la interfaz.
   - `notebook.csv`: las páginas del cuaderno.
 - Mientras tanto, Claude deja textos de prototipo que empiezan con `[PROTO]` y **describen la intención**. Por ejemplo: `[PROTO] León dice que vio al ser antes de que él lo viera`. Tú los reemplazas por el texto real.
-- Cada característica tiene que estar marcada como palabra o frase destacable dentro de su fragmento, por ejemplo con corchetes: `había un [hombrecito] entre los árboles`.
+- Cada característica marca su frase destacable (la que se clickea) **entre asteriscos** dentro de su fragmento: `había un *hombrecito* entre los árboles`. Se eligió así (26-oct) porque los corchetes chocaban con `[PROTO]` y con el BBCode del chat. Las pruebas avisan si un texto no tiene exactamente una frase marcada.
 
 ---
 
 ## 10. Modelo de datos (Resources editables en el Inspector)
 
+Implementado en el Plan 2 (`docs/08`). Las clases están en `scripts/data/` y el contenido en `data/`.
+
 ```text
-TraitData        id, category (VISTA/SONIDO/AMBIENTE/RASTRO), text_key (fragmento con
-                 la frase destacable entre corchetes)
-ObservationData  id, category, values[] (ej. "amigo_primero", "trauco_primero"),
-                 text_keys por valor
+TraitData        id, category (SIGHT/SOUND/ENVIRONMENT/TRACES = Vista/Sonido/Ambiente/Rastro),
+                 text_key (fragmento con la frase destacable entre asteriscos)
+ObservationData  id, category, question_key (la pregunta en el cuaderno),
+                 values {valor → clave de su fragmento} (ej. friend, trauco)
 ActionData       id, label_key
-RuleData         conditions {observation_id: valor}, correct_action: ActionData,
-                 risky_action: ActionData
-EntityData       id, name_key, sketch, lore_key, traits[2-4], actions[4],
-                 observations[2-3], rules[] (ordenadas; la última sin condiciones),
-                 intro_night, places[]
+RuleData         conditions {id de observación → valor}, correct_action_id,
+                 risky_action_id, text_key (la regla en el cuaderno)
+EntityData       id, name_key, lore_key, sketch, place_keys[], traits[2-4], actions[4],
+                 observations[2-3], rules[] (ordenadas; la última sin condiciones)
 FriendData       id, name_key, avatar, color
-NightData        number, place_key, entities[], requests_total, max_simultaneous,
-                 base_decision_time, observations_in_first_message,
-                 signal_decay_range, interference_count, audio_sync_beats,
-                 screamer_rate, sanity_drain, content_quota (= envíos programados)
+NightData        number, place_key, new_entities[], requests_total, max_simultaneous,
+                 base_decision_time, first_message_observations (todas / todas menos 1 / 1),
+                 signal_decays, signal_decay_interval, interference_count,
+                 audio_sync_beats, sanity_drain_interval, content_quota
+ContentCatalog   friends[3], nights[5] (data/catalog.tres)
 ```
+
+- Una entidad es **un solo `.tres`** en `data/entities/`, con todas sus partes dentro.
+- Las reglas nombran las acciones por su id. Responder desde la página equivocada es incorrecto aunque la otra entidad tenga una acción con el mismo id.
+- Las entidades conocidas en una noche son las `new_entities` de esa noche y de las anteriores (ya no existe `intro_night`).
+- Dos entidades comparten una característica si usan el mismo id.
+- Al correr las pruebas, un validador revisa el contenido real y avisa en español: cantidades de la plantilla (§7), ids que no existen, reglas que nunca se aplican, características compartidas por más de 2 entidades y claves de texto que faltan.
+- `screamer_rate` se agrega a `NightData` en el Plan 7.
 
 ---
 

@@ -4,6 +4,59 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 6 — 26 de octubre de 2026 (noche) — Plan 2 escrito: datos y textos
+
+Plan escrito con `superpowers:writing-plans`, en Opus 5.5.
+
+### Realizado
+
+- **Nuevo `docs/08_plan_datos_textos.md`:** el Plan 2 en 10 tareas con código completo. Lleva las pruebas de 36 a 78:
+  - clases `Resource` con `class_name` en `scripts/data/`: `TraitData`, `ActionData`, `ObservationData`, `RuleData`, `EntityData`, `FriendData`, `NightData` y `ContentCatalog`;
+  - `scripts/core/rule_evaluator.gd`: qué regla se aplica, si una respuesta es correcta, de mayor riesgo o incorrecta, y todas las situaciones posibles;
+  - `scripts/core/content_validator.gd`: revisa el contenido real al correr las pruebas y avisa en español (cantidades de la plantilla, ids que no existen, reglas que nunca se aplican, características compartidas por más de 2 entidades y textos que faltan);
+  - `data/text/messages.csv`, `notebook.csv` y `ui.csv`, con textos `[PROTO]`;
+  - El Trauco de ejemplo, los 3 amigos, las 5 noches (valores de `docs/02` §6) y `data/catalog.tres`;
+  - sección F de `docs/04`: revisar una entidad en el Inspector y cómo agregar una.
+- **Decisión de Benja:** la frase clickeable de una característica va **entre asteriscos** (`vio un *hombrecito*`). Anotada en `CLAUDE.md` y en `docs/02` §9.
+- **Decisiones técnicas** (detalle en `docs/08`):
+  - las reglas nombran las acciones por id;
+  - cada noche lista sus entidades nuevas (ya no existe `intro_night`);
+  - un catálogo reúne amigos y noches;
+  - la columna `en` queda vacía.
+
+  `docs/02` §10 ya está actualizado con el modelo nuevo.
+- **Formato verificado en Godot 4.7.2** con un proyecto de prueba aparte, ya borrado:
+  - arrays y diccionarios tipados en `.tres`;
+  - el CSV se importa a `data/text/<archivo>.<idioma>.translation`;
+  - una celda `en` vacía muestra el español;
+  - `TranslationServer` funciona en las pruebas sin interfaz.
+
+### Errores encontrados
+
+- **Los corchetes de `docs/02` §9 chocaban con `[PROTO]` y con el BBCode del chat.** Se reemplazaron por asteriscos.
+- **Enlazar el mismo sub-recurso de una acción desde una regla es frágil en el Inspector:** si se crea uno nuevo en vez de copiarlo, la regla queda apuntando a otra acción. Por eso las reglas usan ids.
+- **Un `class_name` nuevo no existe para Godot hasta actualizar la caché de clases.** El plan importa (`--import`) después de crear cada clase.
+
+### Pendientes Código
+
+- [ ] **S7: ejecutar el Plan 2** (`docs/08`), con Sonnet 5.5 en esfuerzo high y Godot cerrado (`docs/00_log.md`).
+- [x] **S6: escribir el Plan 2.**
+- [ ] Planes 3 a 9 según `docs/00_log.md`.
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Después de S7:** revisar El Trauco en el Inspector (`docs/04`, F).
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara: si convence, se queda; si no, se apaga (*Look Enabled*) y se quita el parallax.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] **Antes de S8 (2 de noviembre):** diseñar El Tue Tué, La Calchona y El Trauco con la plantilla de `docs/02` §7. Las características llevan su frase clickeable entre asteriscos.
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 3 a 6: interfaz del chat y del cuaderno, barras de señal, celular sin la hora y dígitos LCD, diales rediseñados, mixer en piezas y celular ampliado (`docs/06` §3).
+- [ ] Elegir una tipografía pixel (`docs/03` §10).
+
+---
+
 ## Sesión 5 — 26 de octubre de 2026 (noche) — Plan 1 ejecutado: escena del escritorio
 
 Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5. Benja autorizó todos los commits del plan en `main`, sin push.

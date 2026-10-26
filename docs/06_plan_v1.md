@@ -2,7 +2,8 @@
 
 Hoja de ruta para construir la v1 (`docs/05` §1) antes del 10 de diciembre. Divide el trabajo en **9 planes**. Cada uno deja algo que funciona y se puede probar por sí solo.
 
-- El **Plan 1** está escrito paso a paso en `docs/07_plan_escena_arte.md`.
+- El **Plan 1** está escrito paso a paso en `docs/07_plan_escena_arte.md` (ejecutado).
+- El **Plan 2** está escrito paso a paso en `docs/08_plan_datos_textos.md`.
 - Cada plan siguiente se escribe en detalle al comenzar su sesión, con el mismo formato (skill `superpowers:writing-plans`).
 
 ---
