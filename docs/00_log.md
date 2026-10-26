@@ -14,7 +14,7 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 | **Tipo** | Escribir un plan (decisiones técnicas). |
 | **Modelo** | **Opus 5.5** |
 | **Esfuerzo** | **high** |
-| **Antes de empezar** | Haber hecho la revisión de la escena y la prueba de escalado de S5 (`docs/04`, C y D), y responder la pregunta sobre `background_sprite` (`resumen.md`, Sesión 5). Si Godot estuvo abierto, cerrarlo. |
+| **Antes de empezar** | Haber hecho la revisión de la escena y la prueba de escalado de S5 (`docs/04`, C y D). Si Godot estuvo abierto, cerrarlo. |
 | **Qué escribirle a Claude** | "Escribe el Plan 2 (datos y textos) con superpowers:writing-plans." |
 | **Tu parte** | Responder las decisiones técnicas que Claude pregunte. |
 | **Está terminada cuando** | `docs/08` está escrito, revisado y anotado aquí como el plan que ejecuta S7. |
@@ -96,4 +96,4 @@ Hay dos tipos de sesión, que se alternan:
 | S2 | 15-oct | Diseño v2, alcance y calendario; MCP, wrapper de Godot y git | `resumen.md`, Sesión 2 |
 | S3 | 26-oct | Identificación por características, "Grabar" corregido, arte revisado, `docs/06` y Plan 1 | `resumen.md`, Sesión 3 |
 | S4 | 26-oct | Fondo y exterior integrados al plan, arte ordenado, primer commit en GitHub y este registro | `resumen.md`, Sesión 4 |
-| S5 | 26-oct | Plan 1 ejecutado: 32 pruebas OK, escena del escritorio con el arte, parallax y comparación con la maqueta (89,6 %, diferencias explicadas) | `resumen.md`, Sesión 5 |
+| S5 | 26-oct | Plan 1 ejecutado: 32 pruebas OK, escena del escritorio con el arte, parallax y comparación con la maqueta (99,3 % tras integrar la sombra del fondo) | `resumen.md`, Sesión 5 |
