@@ -15,6 +15,8 @@ const FRIEND_COUNT := Vector2i(3, 3)
 const NIGHT_COUNT := Vector2i(5, 5)
 ## Una característica se comparte con otra entidad como máximo: lo que identifica es la combinación.
 const MAX_ENTITIES_PER_TRAIT := 2
+## Marca de la frase clickeable de una característica: "vio un *hombrecito*".
+const HIGHLIGHT_MARK := "*"
 
 
 static func validate_entity(entity: EntityData) -> Array[String]:
@@ -76,6 +78,53 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 		errors.append_array(validate_entity(entity))
 	_check_shared_traits(errors, entities)
 	return errors
+
+
+## Revisa que cada clave de texto exista y que cada característica tenga una sola frase entre asteriscos.
+## `translate` recibe una clave y devuelve su texto, o la misma clave si no existe
+## (como TranslationServer.translate). Supone un catálogo sin errores en validate_catalog().
+static func validate_texts(catalog: ContentCatalog, translate: Callable) -> Array[String]:
+	var errors: Array[String] = []
+	for entry: Array in _text_keys(catalog):
+		var where: String = entry[0]
+		var key: String = entry[1]
+		if key.is_empty():
+			errors.append("%s: falta la clave de texto" % where)
+		elif String(translate.call(key)) == key:
+			errors.append("%s: la clave '%s' no está en ningún CSV" % [where, key])
+	for entity: EntityData in catalog.all_entities():
+		for trait_data: TraitData in entity.traits:
+			var text := String(translate.call(trait_data.text_key))
+			if text != trait_data.text_key and text.count(HIGHLIGHT_MARK) != 2:
+				errors.append("Característica '%s': su texto debe tener una sola frase entre asteriscos, como 'un *hombrecito*'"
+						% trait_data.id)
+	return errors
+
+
+## Pares [dónde, clave] con todas las claves de texto del contenido.
+static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
+	var keys: Array[Array] = []
+	for friend: FriendData in catalog.friends:
+		keys.append(["Amigo '%s'" % friend.id, friend.name_key])
+	for night: NightData in catalog.nights:
+		keys.append(["Noche %d" % night.number, night.place_key])
+	for entity: EntityData in catalog.all_entities():
+		var who := "Entidad '%s'" % entity.id
+		keys.append([who + ", nombre", entity.name_key])
+		keys.append([who + ", folclore", entity.lore_key])
+		for place_key: String in entity.place_keys:
+			keys.append([who + ", lugar", place_key])
+		for trait_data: TraitData in entity.traits:
+			keys.append(["%s, característica '%s'" % [who, trait_data.id], trait_data.text_key])
+		for action: ActionData in entity.actions:
+			keys.append(["%s, acción '%s'" % [who, action.id], action.label_key])
+		for observation: ObservationData in entity.observations:
+			keys.append(["%s, observación '%s'" % [who, observation.id], observation.question_key])
+			for value: StringName in observation.values:
+				keys.append(["%s, observación '%s' = '%s'" % [who, observation.id, value], observation.values[value]])
+		for index in entity.rules.size():
+			keys.append(["%s, regla %d" % [who, index + 1], entity.rules[index].text_key])
+	return keys
 
 
 static func _check_count(errors: Array[String], who: String, what: String, count: int, limits: Vector2i) -> void:
