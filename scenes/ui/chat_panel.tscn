@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/chat_panel.gd" id="panel_script"]
+[ext_resource type="Texture2D" path="res://art/sprites/screen_sprite.aseprite" id="panel_texture"]
+
+[node name="ChatPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("panel_script")
+
+[node name="Panel" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 11.0
+offset_right = 460.0
+offset_bottom = 707.0
+texture = ExtResource("panel_texture")
+
+[node name="Title" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 424.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 16
