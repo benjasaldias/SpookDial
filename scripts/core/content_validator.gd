@@ -11,6 +11,10 @@ const ACTION_COUNT := Vector2i(4, 4)
 const OBSERVATION_COUNT := Vector2i(2, 3)
 const RULE_COUNT := Vector2i(2, 4)
 const MIN_VALUES := 2
+const FRIEND_COUNT := Vector2i(3, 3)
+const NIGHT_COUNT := Vector2i(5, 5)
+## Una característica se comparte con otra entidad como máximo: lo que identifica es la combinación.
+const MAX_ENTITIES_PER_TRAIT := 2
 
 
 static func validate_entity(entity: EntityData) -> Array[String]:
@@ -40,6 +44,37 @@ static func validate_entity(entity: EntityData) -> Array[String]:
 	# Buscar reglas que nunca se aplican solo tiene sentido si todo lo anterior está bien.
 	if errors.is_empty():
 		_check_reachable(errors, who, entity)
+	return errors
+
+
+## Revisa amigos, noches y todas las entidades, también las relaciones entre entidades.
+static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
+	var errors: Array[String] = []
+	var who := "Catálogo"
+	if catalog.friends.has(null) or catalog.nights.has(null):
+		errors.append("%s: hay un espacio vacío en 'friends' o en 'nights'" % who)
+		return errors
+	_check_count(errors, who, "amigos", catalog.friends.size(), FRIEND_COUNT)
+	_check_unique_ids(errors, who, "amigos", catalog.friends)
+	_check_count(errors, who, "noches", catalog.nights.size(), NIGHT_COUNT)
+	var entities: Array[EntityData] = []
+	for index in catalog.nights.size():
+		var night: NightData = catalog.nights[index]
+		if night.number != index + 1:
+			errors.append("%s: la noche en la posición %d tiene el número %d; deben ir en orden desde 1"
+					% [who, index + 1, night.number])
+		if night.new_entities.has(null):
+			errors.append("Noche %d: hay un espacio vacío en 'new_entities'" % night.number)
+			continue
+		for entity: EntityData in night.new_entities:
+			if entities.has(entity):
+				errors.append("Entidad '%s': aparece como nueva en más de una noche" % entity.id)
+			else:
+				entities.append(entity)
+	_check_unique_ids(errors, who, "entidades", entities)
+	for entity: EntityData in entities:
+		errors.append_array(validate_entity(entity))
+	_check_shared_traits(errors, entities)
 	return errors
 
 
@@ -95,3 +130,34 @@ static func _check_reachable(errors: Array[String], who: String, entity: EntityD
 		if not applied.has(entity.rules[index]):
 			errors.append("%s, regla %d: nunca se aplica, porque las reglas anteriores cubren todos sus casos"
 					% [who, index + 1])
+
+
+## Una misma característica (mismo id) debe ser igual en todas sus entidades, la usan 2 como máximo,
+## y dos entidades no pueden tener exactamente las mismas características.
+static func _check_shared_traits(errors: Array[String], entities: Array[EntityData]) -> void:
+	var first_seen := {}  # id de característica → TraitData de la primera entidad que la usa
+	var users := {}  # id de característica → ids de las entidades que la usan
+	var trait_sets := {}  # ids de características, ordenados y unidos → id de la entidad
+	for entity: EntityData in entities:
+		var ids := PackedStringArray()
+		for trait_data: TraitData in entity.traits:
+			if trait_data == null:
+				continue
+			ids.append(trait_data.id)
+			if not users.has(trait_data.id):
+				users[trait_data.id] = []
+				first_seen[trait_data.id] = trait_data
+			users[trait_data.id].append(entity.id)
+			var first: TraitData = first_seen[trait_data.id]
+			if first.category != trait_data.category or first.text_key != trait_data.text_key:
+				errors.append("Característica '%s': tiene otra categoría o texto en '%s'" % [trait_data.id, entity.id])
+		ids.sort()
+		var key := ",".join(ids)
+		if trait_sets.has(key):
+			errors.append("Entidades '%s' y '%s': tienen las mismas características; no se pueden distinguir"
+					% [trait_sets[key], entity.id])
+		trait_sets[key] = entity.id
+	for trait_id: StringName in users:
+		if users[trait_id].size() > MAX_ENTITIES_PER_TRAIT:
+			errors.append("Característica '%s': la usan %d entidades; el máximo es %d"
+					% [trait_id, users[trait_id].size(), MAX_ENTITIES_PER_TRAIT])
