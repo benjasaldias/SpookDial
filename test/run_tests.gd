@@ -9,6 +9,11 @@ var _failed := 0
 
 
 func _initialize() -> void:
+	# _initialize corre antes de que la raíz entre al árbol: se difiere para que los nodos reciban _ready.
+	_run_all.call_deferred()
+
+
+func _run_all() -> void:
 	var files := Array(DirAccess.get_files_at(TEST_DIR))
 	files.sort()
 	for file_name: String in files:
