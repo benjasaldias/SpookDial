@@ -76,7 +76,6 @@ Cada objeto cumple una función:
 | **Diales** (en la pared) | Connection, Sanity y Trust. Tienen cara de manómetro, un ícono propio y un LED de alerta, para que no dependan del color. |
 | **Micrófono** | Su LED se enciende al responder (ambientación). |
 | **Ventana y cortinas** | Ambientación y blanco de screamers. |
-| **Termómetro** | Decorativo. |
 
 ## 7. Interfaz
 
@@ -290,7 +289,7 @@ El guion de las cinemáticas lo escribe Benja.
 ## 16. Arte
 
 - **Pixel art 2D** a 1280×720, en perspectiva de un punto de fuga.
-- **Parallax con el mouse:** el exterior que se ve por la ventana se mueve unos ±6 px, y la pared, levemente. El escritorio y los objetos clickeables quedan fijos.
+- **Cámara que mira hacia el mouse (a prueba):** toda la escena tiene un zoom leve (×1,05) y se desplaza hacia donde apunta el mouse, como si el jugador mirara hacia ese lado. El desplazamiento no supera el margen del zoom, así que todos los objetos siguen alcanzables. Si no funciona, se quita.
 - **Iluminación baja.** La pantalla del PC y la ventana son las fuentes principales. Cada entidad puede teñir la luz, pero siempre con sonido además del color.
 - **Detalle técnico:** `docs/03_plan_arte.md`.
 

@@ -56,7 +56,8 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | --- | --- |
 | 15-10-2026 | Si un amigo muere, **se pierde la noche** y se reinicia (estilo FNAF). |
 | 15-10-2026 | Resolución base **1280×720** (el arte es nativo). El escalado ×1,5 a 1080p se resuelve en Godot (prueba pendiente). |
-| 15-10-2026 | **Audio Sync se juega en el mixer**, por amigo (un fader por canal). El **termómetro es decorativo**. |
+| 15-10-2026 | **Audio Sync se juega en el mixer**, por amigo (un fader por canal). |
+| 26-10-2026 | **No hay termómetro:** queda fuera del arte y del juego. |
 | 15-10-2026 | **Final único:** se gana sobreviviendo las 5 noches. La **cuota de contenido es condición para ganar cada noche**. |
 | 26-10-2026 | **La cuota la cubren los envíos programados** si se reciben todos. La **acción de mayor riesgo** da un video extra si el amigo sobrevive. **No existe una acción "Grabar"**: fue un error de Claude, que nunca se acordó. |
 | 26-10-2026 | **Cada entidad tiene 4 acciones propias** y **reglas estilo Keep Talking**. Cada regla marca la acción correcta y la de mayor riesgo; las otras dos son incorrectas. |
@@ -69,7 +70,7 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 15-10-2026 | Preguntas de seguimiento sí. Pedir contenido y personalidades con efecto mecánico, no (las personalidades son solo de sabor). |
 | 15-10-2026 | Nombres: **Matías, León, Gonzalo y Agustín**. Matías está en una cabaña. León es el poseído, solo en la historia. |
 | 15-10-2026 | **7 entidades:** El Tue Tué, La Calchona, El Cuero, La Viuda, El Trauco, El Basilisco y El Imbunche. Los **Brujos de Chiloé** son antagonistas de la historia. |
-| 15-10-2026 | Parallax: la ventana y, levemente, la pared. |
+| 26-10-2026 | **Cámara que mira hacia el mouse (a prueba):** toda la escena con un zoom leve (×1,05) y desplazada hacia donde apunta el mouse, hasta el margen que deja el zoom, para que todo siga alcanzable. Reemplaza al parallax por planos. Es una excepción a la regla 10. Si no funciona, se quita el parallax por completo. |
 | 15-10-2026 | Idioma: español para la entrega; inglés antes del 10-dic si alcanza. Textos en CSV desde el inicio. |
 | 26-10-2026 | El proyecto **se queda en OneDrive** (así se conserva el historial del chat), con la carpeta de git **fuera de OneDrive**. GitHub privado (Benja crea el repositorio). |
 

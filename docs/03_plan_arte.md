@@ -46,7 +46,7 @@ Coordenadas de cada capa: x, y es la esquina superior izquierda del contenido, e
 | pcLightOver (oculta) | 443 | 384 | 387 | 200 | Luz semitransparente |
 | Dials | 840 | 89 | 112 | 372 | |
 | Arrows | 889 | 102 | 16 | 306 | Las 3 agujas en una sola capa |
-| Thermometer | 49 | 230 | 13 | 55 | Decorativo |
+| Thermometer | 49 | 230 | 13 | 55 | **Fuera del juego** (decisión de Benja, 26-10-2026) |
 | Shading | 0 | 0 | 1280 | 593 | Casi todo está en x ≥ 960 y no tapa ningún objeto: se puede fusionar con el fondo |
 | Guidelines (oculta) | 0 | 0 | 1280 | 720 | Guías de perspectiva |
 
@@ -96,7 +96,9 @@ Coordenadas de cada capa: x, y es la esquina superior izquierda del contenido, e
 
 ---
 
-## 4. Parallax: la ventana y, levemente, la pared (decidido)
+## 4. Parallax: la ventana y, levemente, la pared (reemplazado)
+
+> **26-10-2026:** reemplazado por una cámara con zoom leve que mira hacia el mouse (`CLAUDE.md`, Decisiones). Esta sección queda como referencia.
 
 | Plano | Qué contiene | Movimiento con el mouse |
 | --- | --- | --- |

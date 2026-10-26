@@ -67,8 +67,9 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 4. Prueba:
    - **Resaltado:** pasa el mouse sobre el cuaderno, el celular y el mixer. Cada uno muestra un contorno claro de 1 píxel; fuera de ellos, el contorno desaparece.
    - **Chat:** haz clic en la entrada de León en la pantalla del PC. La entrada se ilumina y a la izquierda aparece el panel con el título "León".
-   - **Cerrar:** presiona `Esc` o haz clic derecho. El panel se cierra y la entrada vuelve a su color.
-   - **Parallax:** mueve el mouse de una esquina a otra. La pared, la ventana y los diales se mueven unos 3 px, y el paisaje de la ventana un poco más; el escritorio no se mueve.
+   - **Cerrar:** presiona `Esc`, haz clic derecho o haz clic en cualquier parte fuera del panel. El panel se cierra y la entrada vuelve a su color. Si el clic cae en la entrada de otro amigo, se abre directamente su chat.
+   - **Cámara:** mueve el mouse de una esquina a otra. Toda la escena se corre hacia el lado contrario (al mirar a la derecha, la escena va a la izquierda), unos 30 px como máximo. Comprueba que alcanzas el cuaderno, el mixer y las tres entradas.
+   - **Si la cámara no te convence:** selecciona el nodo `LookCamera` en el panel **Scene** y, en el **Inspector**, desmarca **Look Enabled** (la escena queda fija y sin zoom), o cambia **Look Zoom** (1,00 a 1,20) y **Follow Speed** (más alto, más rápido). Guarda con **Ctrl + S** y vuelve a probar con **F5**.
    - **Clics:** al hacer clic en el cuaderno, el celular o el mixer, en el panel **Output** (Salida) de Godot aparece "Clic en Notebook", "Clic en Phone" o "Clic en Mixer".
 
 **Verifica:** las cinco pruebas anteriores se cumplen. Si alguna falla, anota cuál y qué pasó.
@@ -81,7 +82,7 @@ El juego mide 1280×720. En un monitor de 1920×1080, Godot lo amplía ×1,5 con
 
 1. Ejecuta el juego con **F5**.
 2. Maximiza la ventana con el botón de maximizar de Windows, o con **Win + ↑**.
-3. Mira de cerca el teclado del PC y las marcas de los diales, y mueve el mouse para ver el parallax.
+3. Mira de cerca el teclado del PC y las marcas de los diales, y mueve el mouse para ver la cámara. Con el zoom de la cámara, los grosores desparejos también pueden aparecer sin maximizar, y titilar al moverse.
 
 **Decide:** si los grosores desparejos se notan lo suficiente como para que valga la pena, se agrega en el futuro un shader de escalado suave (va a la lista posterior a la v1). Si no, se queda Nearest. Díselo a Claude.
 

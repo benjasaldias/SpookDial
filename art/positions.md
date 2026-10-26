@@ -6,7 +6,7 @@ Coordenadas en píxeles del lienzo de 1280×720, medidas desde la esquina superi
 
 | Archivo | Posición (x, y) | Tamaño | Plano | Notas |
 | --- | --- | --- | --- | --- |
-| `background_sprite` | 0, 0 | 1280×720 | Pared | Pared, sombreado y termómetro |
+| `background_sprite` | 0, 0 | 1280×720 | Pared | Pared y sombreado (sin termómetro, por decisión de Benja) |
 | `window_sprite` | 266, 114 | 265×311 | Pared | Todavía trae el exterior pintado; sirve de respaldo bajo el exterior que se mueve |
 | `exterior_sprite` | 273, 121 | 251×297 | Exterior (dentro de un recorte del tamaño del vidrio) | Calza al 100 % con el hueco del vidrio |
 | `enemy_sprite` | 300, 172 | 177×237 | Pared | |

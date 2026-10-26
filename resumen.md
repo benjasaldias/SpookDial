@@ -24,7 +24,7 @@ Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5. Benja autorizó
   | Esquina superior derecha (x ≥ 1000) | 9,70 % → 0,03 % | A `background_sprite` le faltaba la capa de sombra; Benja la integró |
   | Diales | 0,28 % | Las agujas apuntan según su valor (1,0 = 120°), no hacia arriba |
   | Última fila | 0,28 % | La maqueta tiene transparentes las filas y = 718–719 (error conocido del maestro) |
-  | Termómetro | 0,07 % | No está en `background_sprite` |
+  | Termómetro | 0,07 % | No está en `background_sprite`; Benja decidió dejarlo fuera |
   | Entradas | 0,07 % | Ahora tienen los nombres |
 
 - **Escalado a 1080p (Tarea 13):**
@@ -32,7 +32,12 @@ Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5. Benja autorizó
   - los grosores alternan entre 1 y 2 px; se nota de cerca, pero no rompe la imagen;
   - **recomendación: mantener Nearest en la v1** y dejar el shader de escalado suave en la lista posterior a la v1. Benja decide tras probarlo en su monitor (`docs/04`, D).
 - `docs/04`: nuevas secciones C (revisar la escena), D (probar el escalado) y E (mover un objeto).
-- 15 commits en `main`, con push a GitHub (autorizado por Benja).
+- **Cambios pedidos por Benja tras probar el juego:**
+  - **Termómetro fuera** del arte y del juego (`CLAUDE.md`, diseño v2, `docs/03`, `docs/06` y `art/positions.md`).
+  - **El chat se cierra con un clic fuera del panel.** El clic no se consume: si cae en la entrada de otro amigo, se abre su chat.
+  - **Cámara que mira hacia el mouse (a prueba)**, en lugar del parallax por planos: zoom ×1,05 y desplazamiento hacia el mouse hasta el margen del zoom. Una prueba confirma que el punto bajo el mouse es el mismo que sin zoom, así que todo sigue alcanzable. Se ajusta o se apaga en el Inspector (`LookCamera`: *Look Enabled*, *Look Zoom* y *Follow Speed*). `parallax_rig.gd` se borró.
+  - 36 pruebas OK, 0 fallidas; la comparación con la maqueta (sin cámara) sigue en 99,3 %.
+- 15 commits en `main`, con push a GitHub (autorizado por Benja). Después, 3 commits más por los cambios pedidos, sin push.
 
 ### Errores encontrados
 
@@ -40,9 +45,11 @@ Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5. Benja autorizó
   - una suite cuyo script no cargaba se saltaba en silencio y no contaba como falla;
   - `SceneTree._initialize()` corre **antes** de que la raíz entre al árbol, así que los nodos agregados ahí no recibían `_ready` ni tenían viewport. Ahora las suites corren diferidas (`call_deferred`).
 - **El shader de contorno del plan no compilaba en GL Compatibility:** no acepta `TEXTURE` como argumento `sampler2D` de una función propia. Ahora el muestreo va dentro de `fragment()`.
-- **A `background_sprite` le faltaba la capa de sombra** de la esquina superior derecha. Benja la integró y aplanó el archivo: corregido. **Todavía le falta el termómetro** (x ≈ 50, y ≈ 230–285).
+- **A `background_sprite` le faltaba la capa de sombra** de la esquina superior derecha. Benja la integró y aplanó el archivo: corregido. El termómetro queda fuera por decisión de Benja.
 - **La aguja rotada se ve dentada incluso a ×1**, porque girar pixel art con Nearest deforma sus bordes. Tenerlo en cuenta en el rediseño de los diales (por ejemplo, agujas pre-dibujadas en varios ángulos).
 - **Godot reescribe `project.godot` al importar:** quitó `aspect="keep"` porque es el valor por defecto, y reordenó líneas. No es un problema (la prueba lo confirma).
+- **`Camera2D` ya tiene una propiedad `enabled`**: la de la cámara nueva se llama `look_enabled`.
+- **El zoom de la cámara (×1,05) escala el pixel art** y puede dar píxeles de ancho desparejo que titilan al moverse. Es una excepción a la regla 10, aceptada para probar.
 - **Error de Claude:** una línea suelta (`cat >` sin entrada) colgó el primer comando 5 minutos. No afectó al proyecto.
 
 ### Pendientes Código
@@ -56,14 +63,13 @@ Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5. Benja autorizó
 
 ### Pendientes Externos
 
-- [ ] **Revisar la escena en Godot** (`docs/04`, C): unos 5 minutos.
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara: si convence, se queda; si no, se apaga (*Look Enabled*) y se quita el parallax.
 - [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
-- [ ] **Termómetro:** agregarlo a `background_sprite`, o confirmar que se quitó a propósito.
+- [x] Termómetro: queda fuera del juego.
 - [x] Sombra de la esquina superior derecha integrada en `background_sprite`.
 - [ ] **Antes de S8 (2 de noviembre):** diseñar El Tue Tué, La Calchona y El Trauco con la plantilla de `docs/02` §7.
 - [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
 - [ ] Arte para los planes 3 a 6: interfaz del chat y del cuaderno, barras de señal, celular sin la hora y dígitos LCD, diales rediseñados, mixer en piezas y celular ampliado (`docs/06` §3).
-- [ ] Opcional: `exterior_sprite` y `background_sprite` con 8 px extra por lado.
 - [ ] Elegir una tipografía pixel (`docs/03` §10).
 - [x] Push a GitHub de los commits de esta sesión (autorizado).
 

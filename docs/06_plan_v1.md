@@ -62,7 +62,7 @@ Revisé tus archivos de `art/sprites/` comparando sus píxeles con las capas del
 | --- | --- | --- | --- | --- |
 | `curtains_sprite` | 374×352 | — | (219, 92) | ✅ |
 | `window_sprite` | 265×311 | — | (266, 114) | ✅ Trae el exterior pintado, que sirve de respaldo bajo `exterior_sprite` |
-| `background_sprite` | 1280×720 | — | (0, 0) | ✅ Pared, sombreado y termómetro |
+| `background_sprite` | 1280×720 | — | (0, 0) | ✅ Pared y sombreado (sin termómetro) |
 | `exterior_sprite` | 251×297 | — | (273, 121), recortado al vidrio | ✅ Opcional: 8 px más grande por lado para un parallax más amplio |
 | `enemy_sprite` | 177×237 | — | (300, 172) | ✅ (parpadeo de ojos, más adelante) |
 | `glasspane_sprite` | 251×297 | — | (273, 121) | ✅ |
