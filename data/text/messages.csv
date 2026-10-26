@@ -1,0 +1,11 @@
+keys,es,en
+PLACE_FOREST,"[PROTO] El amigo dice que está en el bosque, entre los árboles",
+TRAIT_LITTLE_MAN,[PROTO] Vio a un *hombrecito* entre los árboles,
+TRAIT_PLANT_FIBER_CLOTHES,"[PROTO] Lleva *ropa de fibra vegetal*, como de paja",
+TRAIT_DAMP_FOREST_SMELL,[PROTO] Todo *huele a bosque húmedo*,
+OBS_TRAUCO_SAW_FIRST_FRIEND,[PROTO] El amigo lo vio antes de que el ser lo viera a él,
+OBS_TRAUCO_SAW_FIRST_TRAUCO,[PROTO] El ser lo vio primero y lo está mirando,
+OBS_TRAUCO_AXE_YES,[PROTO] Lleva un hacha de piedra en la mano,
+OBS_TRAUCO_AXE_NO,[PROTO] No lleva nada en las manos,
+OBS_TRAUCO_CHOPPING_YES,[PROTO] Se oyen hachazos en los árboles,
+OBS_TRAUCO_CHOPPING_NO,[PROTO] No se oye nada más que el viento,

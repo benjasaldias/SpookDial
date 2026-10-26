@@ -29,6 +29,11 @@ window/stretch/mode="canvas_items"
 
 enabled=PackedStringArray("res://addons/AsepriteWizard/plugin.cfg")
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://data/text/messages.es.translation", "res://data/text/notebook.es.translation", "res://data/text/ui.es.translation")
+locale/fallback="es"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
