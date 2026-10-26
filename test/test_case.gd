@@ -17,3 +17,11 @@ func check(condition: bool, message: String) -> void:
 func check_eq(actual: Variant, expected: Variant, message: String = "") -> void:
 	if actual != expected:
 		errors.append("%s: esperado <%s>, obtenido <%s>" % [message, str(expected), str(actual)])
+
+
+## Pasa si algún texto de `texts` contiene `fragment`.
+func check_contains(texts: Array, fragment: String) -> void:
+	for text: String in texts:
+		if text.contains(fragment):
+			return
+	errors.append("ningún texto contiene <%s>: %s" % [fragment, str(texts)])
