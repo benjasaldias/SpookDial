@@ -29,3 +29,29 @@ func test_esc_lo_cierra() -> bool:
 	check(not panel.visible, "oculto tras Esc")
 	panel.free()
 	return true
+
+
+func _left_click_at(position: Vector2) -> InputEventMouseButton:
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = position
+	return click
+
+
+func test_clic_fuera_del_panel_lo_cierra() -> bool:
+	var panel := _make_panel()
+	panel.open_for("Gonzalo")
+	panel._unhandled_input(_left_click_at(Vector2(800, 300)))
+	check(not panel.visible, "oculto tras clic fuera")
+	panel.free()
+	return true
+
+
+func test_clic_dentro_del_panel_no_lo_cierra() -> bool:
+	var panel := _make_panel()
+	panel.open_for("Gonzalo")
+	panel._unhandled_input(_left_click_at(Vector2(100, 100)))
+	check(panel.visible, "sigue visible tras clic dentro")
+	panel.free()
+	return true
