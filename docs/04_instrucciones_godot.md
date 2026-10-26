@@ -16,6 +16,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **C.** Revisar la escena del escritorio (Plan 1) | ⬜ Pendiente (unos 5 minutos) |
 | **D.** Probar el escalado a pantalla completa y decidir | ⬜ Pendiente |
 | **E.** Cómo mover un objeto de la escena | Referencia |
+| **F.** Revisar una entidad en el Inspector (Plan 2) | ⬜ Pendiente (unos 5 minutos) |
 
 ---
 
@@ -98,3 +99,31 @@ Si algo quedó corrido un píxel, o quieres probar otra ubicación:
 4. Guarda con **Ctrl + S**.
 
 **Verifica:** el objeto se ve en su nuevo lugar en el editor y al ejecutar con **F5**. Anota la nueva posición en `art/positions.md` y avísale a Claude: la prueba `test_cada_objeto_en_su_posicion` revisa las posiciones y habrá que actualizarla.
+
+---
+
+## F. Revisar una entidad en el Inspector (Plan 2)
+
+Cada entidad es un archivo `.tres` en `data/entities/`. Todo lo suyo (características, acciones, observaciones y reglas) vive dentro de ese archivo. Sus textos están en `data/text/*.csv`.
+
+1. Abre Godot y el proyecto.
+2. En el panel **FileSystem** (Sistema de archivos), abre `data` > `entities` y haz doble clic en `trauco.tres`.
+3. En el **Inspector** (a la derecha) aparecen `Id`, `Name Key`, `Lore Key`, `Sketch`, `Place Keys`, `Traits`, `Actions`, `Observations` y `Rules`. Si dejas el mouse sobre un campo, aparece su explicación.
+4. Despliega **Rules** y haz clic en el primer elemento (`RuleData`). Debe mostrar:
+   - **Conditions**: `saw_first` → `friend`;
+   - **Correct Action Id**: `stare`;
+   - **Risky Action Id**: `follow_closely`;
+   - **Text Key**: `RULE_TRAUCO_1`.
+5. Despliega **Observations** > el primer elemento > **Values**: deben aparecer `friend` y `trauco`, cada uno con su clave de texto.
+6. Abre `data/catalog.tres`: **Friends** debe tener 3 elementos y **Nights**, 5. Abre `data/nights/night_3.tres`: en **New Entities** está `trauco.tres`.
+7. **No guardes cambios** en esta revisión. Si cambiaste algo sin querer, deshazlo con `Ctrl+Z`, o cierra la pestaña sin guardar.
+
+**Verifica:** todos los campos se ven y se pueden editar. Si un campo aparece vacío o en rojo, avísale a Claude.
+
+### Para más adelante: agregar una entidad
+
+1. En **FileSystem**, haz clic derecho en `trauco.tres` > **Duplicate…** (Duplicar…) y ponle el nombre de la nueva entidad, por ejemplo `tue_tue.tres`. La copia trae sus partes por dentro, independientes del Trauco.
+2. Cambia el `Id` y edita sus partes. En las reglas, las acciones se escriben con su id (`Correct Action Id`, `Risky Action Id`). Las condiciones se agregan en **Conditions** con *Add Key/Value Pair* (Agregar par clave/valor): a la izquierda el id de la observación y a la derecha el valor.
+3. Abre la noche en que aparece (`data/nights/night_N.tres`) y arrastra el archivo a **New Entities**.
+4. Agrega sus textos a los CSV. La frase clickeable de cada característica va entre asteriscos: `vio un *hombrecito*`.
+5. Pídele a Claude que corra las pruebas: si algo quedó mal (una regla que nunca se aplica, un id que no existe, un texto que falta), el error lo dice en español.

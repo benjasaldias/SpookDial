@@ -6,29 +6,29 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ---
 
-## ▶ Siguiente sesión: S7 — Ejecutar el Plan 2 (datos y textos)
+## ▶ Siguiente sesión: S8 — Escribir el Plan 3 (solicitudes y chat)
 
 | | |
 | --- | --- |
-| **Qué se hace** | Ejecutar `docs/08_plan_datos_textos.md`: 10 tareas que llevan las pruebas de 36 a 78. Se crean las clases de datos, el evaluador y el validador de reglas, los CSV con textos `[PROTO]`, El Trauco de ejemplo, los 3 amigos, las 5 noches y el catálogo. |
-| **Tipo** | Ejecutar un plan. |
-| **Modelo** | **Sonnet 5.5** |
-| **Esfuerzo** | **high** |
-| **Antes de empezar** | **Cerrar Godot** por completo: el plan usa `--import`. |
-| **Qué escribirle a Claude** | "Ejecuta el Plan 2 (docs/08) con superpowers:executing-plans. Autorizo todos los commits del plan en main, sin push." (o sin la autorización, y Claude pregunta antes de cada commit). |
-| **Tu parte** | Al final, revisar El Trauco en el Inspector (`docs/04`, F, unos 5 minutos). |
-| **Está terminada cuando** | Pasan 78 pruebas, revisaste el Inspector y S8 queda como la siguiente. |
+| **Qué se hace** | Escribir `docs/09_plan_*.md`: el Plan 3, con las solicitudes de los amigos, el armado de mensajes con las características entre asteriscos, la estática y el chat que responde desde el cuaderno (`docs/06` §2). |
+| **Tipo** | Escribir un plan. |
+| **Modelo** | **Opus 5.5** |
+| **Esfuerzo** | **xhigh** (es el plan más complejo) |
+| **Antes de empezar** | Tener **las 3 entidades diseñadas** (El Tue Tué, La Calchona y El Trauco) con la plantilla de `docs/02` §7. Revisar El Trauco en el Inspector (`docs/04`, F) si todavía no lo hiciste. |
+| **Qué escribirle a Claude** | "Escribe el Plan 3 (solicitudes y chat) con superpowers:writing-plans. Mis 3 entidades están en …" |
+| **Tu parte** | Las 3 entidades y responder las preguntas de diseño que salgan. |
+| **Está terminada cuando** | El Plan 3 queda en `docs/09` y S9 es la siguiente. |
 
 ---
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy hay **uno pendiente: `docs/08`**, que ejecuta S7.
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **no hay ninguno pendiente**: S8 escribe el siguiente (`docs/09`).
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
-| `docs/08_plan_datos_textos.md` | **Plan 2**, paso a paso, con código | **Sí, en S7** ▶ |
+| `docs/08_plan_datos_textos.md` | **Plan 2**, paso a paso, con código | Ya ejecutado (S7) ✅ |
 | `docs/07_plan_escena_arte.md` | **Plan 1**, paso a paso, con código | Ya ejecutado (S5) ✅ |
 | `docs/06_plan_v1.md` | Hoja de ruta: los 9 planes de la v1 y el estado del arte | No; de aquí salen los planes 2 a 9 |
 | `docs/05_plan_produccion.md` | Alcance por prioridad y calendario por semana | No |
@@ -56,8 +56,8 @@ Hay dos tipos de sesión, que se alternan:
 | S4 | 26-oct | Orden del arte, repositorio y este registro | Mantenimiento | Opus 5.5 · low | — | ✅ |
 | S5 | 26 oct | Ejecutar el Plan 1: escena y arte | Ejecución | Opus 5.5 (se adelantó) | Revisión visual y escalado | ✅ |
 | S6 | 26 oct | Escribir el Plan 2: datos y textos | Plan | Opus 5.5 · high | — | ✅ |
-| **S7** | 27 oct – 1 nov | **Ejecutar el Plan 2** | Ejecución | **Sonnet 5.5 · high** | Revisar el Inspector (`docs/04`, F) | ▶ |
-| S8 | 2 nov | Escribir el Plan 3: solicitudes y chat | Plan | Opus 5.5 · xhigh (es el más complejo) | **3 entidades diseñadas** | ⏳ |
+| S7 | 26 oct | Ejecutar el Plan 2 | Ejecución | Opus 5.5 (se adelantó) | Revisar el Inspector (`docs/04`, F) | ✅ |
+| **S8** | 2 nov | **Escribir el Plan 3: solicitudes y chat** | Plan | **Opus 5.5 · xhigh** (es el más complejo) | **3 entidades diseñadas** | ▶ |
 | S9 | 3–5 nov | Ejecutar el Plan 3 | Ejecución | Sonnet 5.5 · high | — | ⏳ |
 | S10 | 6 nov | Escribir el Plan 4: cuaderno | Plan | Opus 5.5 · high | Interfaz del cuaderno (si está) | ⏳ |
 | S11 | 7–8 nov | Ejecutar el Plan 4 → **el bucle central se juega** | Ejecución | Sonnet 5.5 · high | Probarlo | ⏳ |
@@ -82,6 +82,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 26-oct | ✏️ S7 se adelantó al 26-oct y se ejecutó con Opus 5.5. Se corrigió el registro de las traducciones del plan (solo `.es`) y se agregaron guardas a 3 pruebas (detalle en `resumen.md`, Sesión 7). |
 | 26-oct | ✏️ S6 se adelantó al 26-oct. El Plan 2 quedó en `docs/08`. |
 | 26-oct | ✏️ S5 se adelantó al mismo 26-oct y se ejecutó con Opus 5.5. Se corrigieron 2 fallas del ejecutor de pruebas y el shader de contorno del plan (detalle en `resumen.md`, Sesión 5). |
 | 26-oct | ✏️ Plan 1 actualizado: usa `background_sprite` y `exterior_sprite` (con parallax propio del exterior), `arrow_sprite`, y la maqueta en `art/_layout/`. |
@@ -100,3 +101,4 @@ Hay dos tipos de sesión, que se alternan:
 | S4 | 26-oct | Fondo y exterior integrados al plan, arte ordenado, primer commit en GitHub y este registro | `resumen.md`, Sesión 4 |
 | S5 | 26-oct | Plan 1 ejecutado: 32 pruebas OK, escena del escritorio con el arte, parallax y comparación con la maqueta (99,3 % tras integrar la sombra del fondo). Luego: chat que se cierra con un clic fuera, cámara con zoom que mira hacia el mouse (a prueba) y termómetro fuera | `resumen.md`, Sesión 5 |
 | S6 | 26-oct | Plan 2 escrito (`docs/08`): 10 tareas y 42 pruebas nuevas. Asteriscos para las características (decisión de Benja). `docs/02` §9–10 actualizado | `resumen.md`, Sesión 6 |
+| S7 | 26-oct | Plan 2 ejecutado: 78 pruebas OK. Clases de datos, evaluador y validador de reglas, CSV `[PROTO]`, El Trauco de ejemplo, 3 amigos, 5 noches y catálogo. `docs/04`, F | `resumen.md`, Sesión 7 |

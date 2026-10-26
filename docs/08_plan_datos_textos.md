@@ -40,6 +40,7 @@ Tomadas en la sesión 6. Las que cambian `docs/02` §9–10 ya están actualizad
 | Las entidades no tienen `intro_night`: cada `NightData` lista sus `new_entities`, y las conocidas en una noche son las nuevas de esa noche y de las anteriores. | Una sola fuente de verdad. |
 | Un `ContentCatalog` (`data/catalog.tres`) lista amigos y noches. | Es seguro en el juego exportado, a diferencia de recorrer carpetas. |
 | La columna `en` queda vacía. | Verificado en Godot 4.7.2: una celda vacía muestra el texto en español. |
+| **(Corregido en S7)** Solo se registran los `.es.translation`. | Godot 4.7.2 no genera el `.en.translation` si la columna `en` está **entera** vacía. El idioma de respaldo `es` cubre el inglés, y el `.en` se registra en el Plan 8 con la opción de idioma. Los pasos 4 y 5 de la Tarea 7 y `test_translations.gd` ya usan solo `es`. |
 | Los `.translation` generados no se suben a git. | Godot los regenera al importar; el `.csv.import` sí se sube. |
 | El validador corre como prueba sobre el contenido real. | Si Benja deja una regla que nunca se aplica, una acción inexistente o un texto sin su clave, las pruebas lo dicen en español. |
 
@@ -1312,12 +1313,15 @@ Los textos que empiezan con `[PROTO]` son de prototipo: **describen la intenció
 extends "res://test/test_case.gd"
 
 const FILES := ["messages", "notebook", "ui"]
+## Godot no genera el .translation de un idioma cuya columna está entera vacía. Mientras la
+## columna "en" esté vacía, solo se registra el español; el inglés se agrega con la opción de idioma (Plan 8).
+const LOCALES := ["es"]
 
 
 func test_las_traducciones_estan_registradas() -> bool:
 	var registered: PackedStringArray = ProjectSettings.get_setting("internationalization/locale/translations", PackedStringArray())
 	for file_name: String in FILES:
-		for locale: String in ["es", "en"]:
+		for locale: String in LOCALES:
 			var path := "res://data/text/%s.%s.translation" % [file_name, locale]
 			check(registered.has(path), "registrada: " + path)
 			check(ResourceLoader.exists(path), "importada: " + path)
@@ -1409,7 +1413,7 @@ En `project.godot`, agregar esta sección (por ejemplo, después de `[editor_plu
 ```ini
 [internationalization]
 
-locale/translations=PackedStringArray("res://data/text/messages.es.translation", "res://data/text/messages.en.translation", "res://data/text/notebook.es.translation", "res://data/text/notebook.en.translation", "res://data/text/ui.es.translation", "res://data/text/ui.en.translation")
+locale/translations=PackedStringArray("res://data/text/messages.es.translation", "res://data/text/notebook.es.translation", "res://data/text/ui.es.translation")
 locale/fallback="es"
 ```
 
@@ -1428,7 +1432,7 @@ data/text/*.translation
 ls data/text/
 ```
 
-Esperado: `import listo` y, para cada CSV, su `.csv.import`, `.es.translation` y `.en.translation`. Si falta alguno, revisar que el CSV empiece con `keys,es,en` y no tenga BOM (`head -c 3 data/text/ui.csv | xxd` no debe mostrar `efbbbf`).
+Esperado: `import listo` y, para cada CSV, su `.csv.import` y su `.es.translation` (sin `.en`, porque la columna está vacía). Si falta alguno, revisar que el CSV empiece con `keys,es,en` y no tenga BOM (`head -c 3 data/text/ui.csv | xxd` no debe mostrar `efbbbf`).
 
 - [ ] **Paso 6: Correr las pruebas**
 

@@ -4,6 +4,51 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 7 — 26 de octubre de 2026 (noche) — Plan 2 ejecutado: datos y textos
+
+Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro proponía Sonnet 5.5). Benja autorizó todos los commits del plan en `main`, sin push.
+
+### Realizado
+
+- **Commit previo** con el trabajo de S6 que había quedado sin commitear: `docs/08`, los cambios de los documentos y `look_camera.gd.uid`.
+- **Las 10 tareas de `docs/08`, con 78 pruebas OK y 0 fallidas** (`~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd`):
+  - clases de datos con `class_name` en `scripts/data/`: `ClueCategory`, `TraitData`, `ActionData`, `ObservationData`, `RuleData`, `EntityData`, `FriendData`, `NightData` y `ContentCatalog`;
+  - `scripts/core/rule_evaluator.gd` (regla que se aplica, resultado de una respuesta y todas las situaciones posibles) y `scripts/core/content_validator.gd` (entidad, catálogo y textos, con los errores en español);
+  - `data/text/messages.csv`, `notebook.csv` y `ui.csv`, con textos `[PROTO]`, registrados en `project.godot` con el español como idioma de respaldo;
+  - `data/entities/trauco.tres` (ejemplo de formato), `data/friends/*.tres`, `data/nights/night_1.tres` a `night_5.tres` (valores de `docs/02` §6) y `data/catalog.tres`;
+  - `test_catalog.gd` valida el contenido real cada vez que se corren las pruebas;
+  - `docs/04`, sección F: revisar una entidad en el Inspector y cómo agregar una.
+- **Textos `[PROTO]`** (Benja los reemplaza): `data/text/messages.csv` (lugar, características y valores de las observaciones del Trauco) y `data/text/notebook.csv` (folclore, acciones, preguntas y reglas). Los nombres y los lugares de las noches, en `ui.csv`, no son prototipo.
+- `docs/06`: el Plan 2 queda marcado como ejecutado.
+
+### Errores encontrados
+
+- **Godot 4.7.2 no genera el `.en.translation` si la columna `en` está entera vacía**, y el plan registraba los seis archivos `.translation`. Hay que tener al menos una celda `en` llena para que exista el `.en`. Se registran solo los tres `.es`; con `locale/fallback="es"` el inglés muestra el español (la prueba lo confirma). El `.en` se registra en el Plan 8, junto con la opción de idioma. `docs/08` está corregido.
+- **Dos pruebas del plan pasaban aunque faltara el archivo que revisan.** En GDScript, un error en tiempo de ejecución (`null.rules`) corta la función sin registrar una falla, así que `test_reglas_del_ejemplo` y dos pruebas de `test_catalog.gd` daban OK sin el `.tres`. Se agregaron guardas que fallan si el archivo no carga y luego salen de la prueba. **Para los próximos planes:** comprobar con `check()` que lo cargado no sea `null` antes de usarlo.
+- Al importar con las traducciones ya registradas pero sin generar, Godot muestra `Cannot open file …translation` una vez. Es esperado y desaparece en el import siguiente.
+
+### Pendientes Código
+
+- [x] **S7: ejecutar el Plan 2.**
+- [ ] **S8: escribir el Plan 3** (solicitudes y chat), con Opus 5.5 en esfuerzo xhigh (`docs/00_log.md`).
+- [ ] Planes 4 a 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos.
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] **Antes de S8 (2 de noviembre):** diseñar El Tue Tué, La Calchona y El Trauco con la plantilla de `docs/02` §7. Las características llevan su frase clickeable entre asteriscos.
+- [ ] Reemplazar los textos `[PROTO]` de `data/text/messages.csv` y `notebook.csv` cuando el Trauco definitivo esté diseñado.
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara: si convence, se queda; si no, se apaga (*Look Enabled*) y se quita el parallax.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 3 a 6: interfaz del chat y del cuaderno, barras de señal, celular sin la hora y dígitos LCD, diales rediseñados, mixer en piezas y celular ampliado (`docs/06` §3).
+- [ ] Elegir una tipografía pixel (`docs/03` §10).
+
+---
+
 ## Sesión 6 — 26 de octubre de 2026 (noche) — Plan 2 escrito: datos y textos
 
 Plan escrito con `superpowers:writing-plans`, en Opus 5.5.
