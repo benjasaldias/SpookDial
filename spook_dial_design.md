@@ -7,7 +7,7 @@
 - El detalle de la mecánica central (reglas, valores numéricos, modelo de datos) está en `docs/02_bucle_central.md`.
 - El orden de trabajo y el calendario están en `docs/05_plan_produccion.md`.
 
-Última actualización: 26 de octubre de 2026 (identificación por características, acción de mayor riesgo y cuota cubierta por los envíos).
+Última actualización: 26 de octubre de 2026 (identificación por características, acción de mayor riesgo y cuota cubierta por los envíos; en la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos).
 
 ---
 
@@ -105,33 +105,35 @@ Cada objeto cumple una función:
 Según la **señal de ese amigo** (§10), algunas palabras de su mensaje llegan tapadas por estática (▒▒▒).
 
 - Puede taparse cualquier palabra: **también una característica** o el dato que decide la regla.
+- Una frase destacada de varias palabras se tapa entera o no se tapa.
 - Con la señal alta no hay estática; mientras más baja, más palabras se pierden.
 - Así, mantener la señal es mantener la información.
 
 ### 8.3 Identificar la entidad
 
-Los mensajes traen dos tipos de información:
+Los mensajes traen tres tipos de información:
 
 - **Características.** Son fijas de cada entidad (por ejemplo, "un hombrecito" o "huele a azufre"). Aparecen **destacadas** y se pueden clickear.
+- **Señuelos.** Aparecen destacados igual que las características, pero no ayudan a identificar: describen el lugar, un olor, un sonido o algo que se ve. Sirven para camuflar las características.
 - **Observaciones.** Cambian en cada situación y deciden qué regla se aplica. Van como texto normal.
 
 Hay dos formas de identificar a la entidad:
 
 - **De memoria:** quien la reconoce abre su página directamente.
-- **Con las características:** el jugador clickea **todas** las características destacadas. Tras una breve espera (unos 3 segundos, mientras Matías piensa), aparece el nombre de la entidad, y al clickearlo se abre su página.
+- **Con las características:** el jugador clickea las frases destacadas. Una característica queda marcada; un señuelo vibra y se pone rojo. Una barra muestra cuántas características van marcadas (1 de 2). Con las 2 marcadas, tras una breve espera (unos 3 segundos, mientras Matías piensa), aparece el nombre de la entidad, y al clickearlo se abre su página.
 
 Detalles:
 
 - Así se premia a quien memoriza, sin castigar demasiado a quien no.
 - Una característica tapada por la estática no se puede clickear: hay que preguntar (§8.4) para recuperarla.
-- Cada mensaje trae las características suficientes para distinguir a la entidad entre las conocidas.
+- El mensaje inicial trae **2 características** que distinguen a la entidad entre las conocidas, mezcladas con señuelos: 1 en la noche 1 y hasta 3 en la noche 5. Clickear un señuelo no cuesta nada, aparte del tiempo.
 
 ### 8.4 Preguntas de seguimiento
 
 Junto a las respuestas hay preguntas: **¿Qué ves? · ¿Qué oyes? · ¿Cómo está el ambiente? · ¿Hay rastros?**
 
-- Cada pregunta cuesta **5 segundos** del temporizador (el amigo tarda en mirar).
-- La respuesta repite las características y observaciones de esa categoría, y también puede llegar con estática si la señal sigue baja.
+- Cada pregunta cuesta **5 segundos** del temporizador (el amigo tarda en mirar). Con 5 segundos o menos ya no se puede preguntar.
+- La respuesta repite las características y los señuelos de esa categoría que traía el mensaje, y todas las observaciones de esa categoría. También puede llegar con estática si la señal sigue baja.
 - Se pueden repetir.
 
 ### 8.5 Responder desde el cuaderno

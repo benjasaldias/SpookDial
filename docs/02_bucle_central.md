@@ -4,7 +4,8 @@ Detalle de la mecánica central del diseño v2 (`spook_dial_design.md` §8–§1
 
 - la identificación ahora es por características clickeables;
 - ya no existe la acción "Grabar": el video extra viene de la acción de mayor riesgo;
-- la cuota la cubren los envíos programados.
+- la cuota la cubren los envíos programados;
+- (sesión 8) el mensaje inicial trae 2 características camufladas entre señuelos, hay una barra con el avance de la identificación, la estática tapa una frase entera o nada, y con 5 s o menos no se puede preguntar.
 
 Los valores numéricos (§6) son un punto de partida para el prototipo; se ajustan probando.
 
@@ -28,7 +29,7 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
    - un valor al azar para cada observación de esa entidad.
 3. **Se arma el mensaje inicial** con fragmentos de texto:
    - el lugar;
-   - las **características** necesarias para distinguir a la entidad entre las conocidas (destacadas y clickeables);
+   - **2 características** que distinguen a la entidad entre las conocidas (ninguna otra entidad conocida tiene las dos), mezcladas con **señuelos** del lugar (cuántos, según la noche, §6). Todas se ven destacadas y se pueden clickear;
    - N **observaciones** (según la noche, §6), en texto normal.
 4. **Se aplica la estática** según la señal del amigo (§4).
 5. **Empieza el temporizador:** tiempo base de la noche × factor de Trust (§6).
@@ -43,8 +44,10 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 
 ### 3.1 Características clickeables
 
-- Las características del mensaje aparecen destacadas. Al clickear una, queda marcada.
-- Con **todas** marcadas, empieza una espera de **3 segundos** (Matías piensa) y aparece el nombre de la entidad. Clickear el nombre abre su página en el cuaderno.
+- Las 2 características y los señuelos del mensaje se ven destacados igual. Al clickear una característica, queda marcada; al clickear un señuelo, vibra y se pone rojo, sin otro costo.
+- Los **señuelos** describen el lugar, un olor, un sonido o algo que se ve, y no ayudan a identificar. Viven en el catálogo, cada uno con su categoría y los lugares donde sirve (o en cualquiera).
+- Una barra fija, sobre las preguntas, muestra cuántas características van marcadas ("1 de 2").
+- Con **las 2** marcadas (en cualquier mensaje de esa solicitud), la barra dice "Matías piensa…" durante **3 segundos** y aparece el nombre de la entidad. Clickear el nombre abre su página en el cuaderno.
 - Si una característica está tapada por la estática, no se puede marcar: hay que preguntar en su categoría (§3.2) para que vuelva a aparecer.
 - Quien reconoce a la entidad de memoria puede saltarse todo esto y abrir la página desde el índice.
 
@@ -57,7 +60,8 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 | ¿Cómo está el ambiente? | Las de Ambiente |
 | ¿Hay rastros? | Las de Rastro |
 
-- Cada pregunta descuenta **5 segundos** del temporizador y se puede repetir.
+- La respuesta repite las características y los señuelos del mensaje inicial que son de esa categoría, y **todas** las observaciones de esa categoría, también las que el mensaje inicial no traía. No agrega señuelos nuevos (decisión de Benja: se prueba así).
+- Cada pregunta descuenta **5 segundos** del temporizador y se puede repetir. Con 5 s o menos ya no se puede preguntar: los botones se desactivan.
 - Si no hay nada en esa categoría, el amigo responde "nada", que también es información.
 - Las respuestas pasan por la misma estática que los mensajes.
 
@@ -75,6 +79,7 @@ Cada palabra de un mensaje del amigo se tapa (▒▒▒) con una probabilidad qu
 | 1 a 29 | 45 % |
 
 - Las características y las observaciones se tapan con la misma probabilidad que cualquier palabra.
+- Una frase clickeable (característica o señuelo) cuenta como una sola palabra: se tapa entera o no se tapa. Los espacios y los signos sueltos nunca se tapan.
 - El tamaño del ▒▒▒ no revela cuántas letras tenía la palabra tapada.
 
 ---
@@ -110,6 +115,7 @@ Cada palabra de un mensaje del amigo se tapa (▒▒▒) con una probabilidad qu
 | Solicitudes simultáneas máx. | 1 | 2 | 2 | 3 | 3 |
 | Tiempo base para responder (s) | 45 | 40 | 35 | 32 | 30 |
 | Observaciones en el mensaje inicial | Todas | Todas | Todas menos 1 | 1 | 1 |
+| Señuelos en el mensaje inicial | 1 | 1 | 2 | 2 | 3 |
 | La señal baja | No | Sí | Sí | Sí | Sí |
 | Interferencias (aprox. por noche) | 0 | 2 | 3 | 4 | 6 |
 | Audio Sync (tiempos) | — | 4 | 4 | 8 | 8 |
@@ -206,14 +212,18 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
   - `notebook.csv`: las páginas del cuaderno.
 - Mientras tanto, Claude deja textos de prototipo que empiezan con `[PROTO]` y **describen la intención**. Por ejemplo: `[PROTO] León dice que vio al ser antes de que él lo viera`. Tú los reemplazas por el texto real.
 - Cada característica marca su frase destacable (la que se clickea) **entre asteriscos** dentro de su fragmento: `había un *hombrecito* entre los árboles`. Se eligió así (26-oct) porque los corchetes chocaban con `[PROTO]` y con el BBCode del chat. Las pruebas avisan si un texto no tiene exactamente una frase marcada.
+- Los **señuelos** también van en `messages.csv`, con su frase clickeable entre asteriscos.
+- **Cada fragmento es una oración completa, con su puntuación.** El mensaje los une con un espacio, en este orden: el lugar, las características y los señuelos mezclados, y las observaciones.
+- Los textos con datos usan marcadores con nombre: `{action}` (la acción que eligió el amigo) y `{marked}` y `{total}` (la barra de identificación).
 
 ---
 
 ## 10. Modelo de datos (Resources editables en el Inspector)
 
-Implementado en el Plan 2 (`docs/08`). Las clases están en `scripts/data/` y el contenido en `data/`.
+Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`docs/10`). Las clases están en `scripts/data/` y el contenido en `data/`.
 
 ```text
+DecoyData        señuelo: como TraitData (id, category, text_key), más place_keys[] (vacío = cualquier lugar)
 TraitData        id, category (SIGHT/SOUND/ENVIRONMENT/TRACES = Vista/Sonido/Ambiente/Rastro),
                  text_key (fragmento con la frase destacable entre asteriscos)
 ObservationData  id, category, question_key (la pregunta en el cuaderno),
@@ -226,15 +236,16 @@ EntityData       id, name_key, lore_key, sketch, place_keys[], traits[2-4], acti
 FriendData       id, name_key, avatar, color
 NightData        number, place_key, new_entities[], requests_total, max_simultaneous,
                  base_decision_time, first_message_observations (todas / todas menos 1 / 1),
+                 decoys_in_first_message,
                  signal_decays, signal_decay_interval, interference_count,
                  audio_sync_beats, sanity_drain_interval, content_quota
-ContentCatalog   friends[3], nights[5] (data/catalog.tres)
+ContentCatalog   friends[3], nights[5], decoys[] (data/catalog.tres)
 ```
 
 - Una entidad es **un solo `.tres`** en `data/entities/`, con todas sus partes dentro.
 - Las reglas nombran las acciones por su id. Responder desde la página equivocada es incorrecto aunque la otra entidad tenga una acción con el mismo id.
 - Las entidades conocidas en una noche son las `new_entities` de esa noche y de las anteriores (ya no existe `intro_night`).
-- Dos entidades comparten una característica si usan el mismo id.
+- Dos entidades comparten una característica si usan el mismo id. Ninguna entidad puede tener todas sus características dentro de las de otra: así siempre hay un par que la distingue.
 - Al correr las pruebas, un validador revisa el contenido real y avisa en español: cantidades de la plantilla (§7), ids que no existen, reglas que nunca se aplican, características compartidas por más de 2 entidades y claves de texto que faltan.
 - `screamer_rate` se agrega a `NightData` en el Plan 7.
 

@@ -4,6 +4,70 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 8 — 26 y 27 de octubre de 2026 (noche) — Plan 3 escrito: solicitudes y chat
+
+Benja pidió **ejecutar** el Plan 3, pero `docs/10` no existía: S8, que lo escribe, seguía pendiente. Benja eligió escribirlo ahora, sin esperar las entidades refinadas. Se usó `superpowers:writing-plans`, en Opus 5.5.
+
+### Realizado
+
+- **Nuevo `docs/10_plan_solicitudes_chat.md`:** el Plan 3 en 12 tareas con código completo. Lleva las pruebas de 78 a 148:
+  - datos: `DecoyData` (señuelo), `ContentCatalog.decoys` y `NightData.decoys_in_first_message`;
+  - validador: ninguna entidad puede tener todas sus características dentro de las de otra; además revisa los señuelos (ids, lugares y cantidad por lugar y noche);
+  - lógica pura en `scripts/core/`: `FriendRequest`, `ChatMessage` (mensaje separado en piezas), `ChatStatic`, `RequestGenerator` y `MessageBuilder`;
+  - `RequestManager`, un nodo de `desk.tscn` con un ritmo provisional hasta el director del Plan 7;
+  - `ChatMessageView` (burbuja con enlaces, escritura progresiva y vibración) y `ChatPanel` reescrito: pestañas, barra de identificación, preguntas y "Abre el cuaderno para responder";
+  - las entradas del PC parpadean y muestran el tiempo; el panel ya no deja pasar los clics al mixer y al celular;
+  - 6 señuelos `[PROTO]` y los textos nuevos en `data/text/*.csv` (los diálogos, como `[PROTO]`);
+  - la sección G de `docs/04` (probar el chat), que se agrega al ejecutar el plan.
+- **Decisiones de Benja** (en `CLAUDE.md`, el diseño v2 §8.2–8.4 y `docs/02` §2–4, §6, §9 y §10):
+  - el mensaje inicial trae **2 características camufladas entre señuelos**. Los señuelos son frases clickeables que no ayudan a identificar; al clickearlos vibran y se ponen rojos, sin otro costo;
+  - hay **1, 1, 2, 2 y 3 señuelos** por noche;
+  - una **barra fija** muestra el avance de la identificación;
+  - la estática tapa una frase **entera o nada**;
+  - con **5 s o menos no se puede preguntar**;
+  - las respuestas repiten solo lo del mensaje inicial, sin señuelos nuevos (se prueba así).
+- **El plan se verificó en Godot 4.7.2:**
+  - todo su código se ejecutó en una copia aparte del proyecto, con 148 pruebas OK y una captura del chat revisada (`C:\dev\capturas\chat_probe.png`);
+  - después, el plan **tal como está escrito** se aplicó a una copia limpia: los 25 conteos de pruebas que indica coinciden, y el código resultante es idéntico al probado;
+  - las copias ya se borraron.
+- `docs/06` y `docs/00_log.md` actualizados: S8 ✅ y S9 ▶.
+
+### Errores encontrados
+
+- **Se pidió ejecutar un plan que no existía.** El registro decía que S8 (escribirlo) era la siguiente. Se resolvió preguntándole a Benja.
+- **Error heredado del Plan 1: el clic atravesaba el panel del chat.** El panel no detenía el mouse, así que un clic sobre él llegaba al mixer o al celular, que quedan debajo, y además se resaltaban. El plan lo corrige: el panel pasa a `mouse_filter = STOP` y los objetos no se resaltan si el mouse está sobre un panel. Esto se revisa a mano (`docs/04`, G), porque sin ventana Godot no mueve el mouse.
+- **Sin ventana, Godot no informa las advertencias del analizador de GDScript** (ni con `treat_warnings_as_errors`, ni con `--check-only`). Se revisaron a mano y se corrigieron dos nombres que tapaban otros: `free` y `log`.
+- **Una copia hecha con `git archive` no trae los `.translation`** (están en `.gitignore`), y sus pruebas de traducción fallan hasta el primer import. No afecta al proyecto.
+- **`▒` no está en la fuente por defecto:** se ve gracias a la fuente de respaldo del sistema. La tipografía pixel que se elija debe incluirlo.
+- **Camuflaje en las respuestas:** si ningún señuelo es de la categoría preguntada, la respuesta delata las características. Benja decidió probarlo así.
+- **Se borró el scratchpad de la sesión a mitad del trabajo.** Se rehízo el plan, se volvió a validar y no se perdió nada del proyecto.
+
+### Pendientes Código
+
+- [x] **S8: escribir el Plan 3.**
+- [ ] **S9: ejecutar el Plan 3** (`docs/10`), con Sonnet 5.5 en esfuerzo high y Godot cerrado (`docs/00_log.md`).
+- [ ] Pasar a `.tres` las entidades que Benja refine, y agregar El Tue Tué y La Calchona a la noche 1.
+- [ ] Planes 4 a 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Después de S9:** probar el chat en Godot (`docs/04`, G, unos 10 minutos).
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] Refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos.
+- [ ] **Escribir los señuelos** (`data/catalog.tres` y `messages.csv`). Cada lugar necesita al menos los que pide la noche (hasta 3); las pruebas avisan si faltan.
+- [ ] Reemplazar los textos `[PROTO]` de `data/text/messages.csv` y `notebook.csv`.
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 3 a 6. Para el chat: burbujas, botones (4 estados), pestañas y "escribiendo…". El tema `scenes/ui/chat_theme.tres` está listo para recibirlos. También faltan las barras de señal, el celular sin la hora y los dígitos LCD, los diales rediseñados, el mixer en piezas y el celular ampliado (`docs/06` §3).
+- [ ] Elegir una tipografía pixel (`docs/03` §10). Debe tener `▒` (U+2592).
+
+---
+
 ## Sesión 7 — 26 de octubre de 2026 (noche) — Plan 2 ejecutado: datos y textos
 
 Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro proponía Sonnet 5.5). Benja autorizó todos los commits del plan en `main`, sin push.
