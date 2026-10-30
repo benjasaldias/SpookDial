@@ -17,6 +17,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **D.** Probar el escalado a pantalla completa y decidir | ⬜ Pendiente |
 | **E.** Cómo mover un objeto de la escena | Referencia |
 | **F.** Revisar una entidad en el Inspector (Plan 2) | ⬜ Pendiente (unos 5 minutos) |
+| **G.** Probar las solicitudes y el chat (Plan 3) | ⬜ Pendiente (unos 10 minutos) |
 
 ---
 
@@ -127,3 +128,38 @@ Cada entidad es un archivo `.tres` en `data/entities/`. Todo lo suyo (caracterí
 3. Abre la noche en que aparece (`data/nights/night_N.tres`) y arrastra el archivo a **New Entities**.
 4. Agrega sus textos a los CSV. La frase clickeable de cada característica va entre asteriscos: `vio un *hombrecito*`.
 5. Pídele a Claude que corra las pruebas: si algo quedó mal (una regla que nunca se aplica, un id que no existe, un texto que falta), el error lo dice en español.
+
+---
+
+## G. Probar las solicitudes y el chat (Plan 3)
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. Abre Godot y el proyecto. Abre `scenes/desk/desk.tscn` y presiona **F5**.
+2. **Llega una solicitud:** a los 5 segundos, una entrada del PC parpadea y muestra los segundos que le quedan al amigo.
+3. **Abre el chat:** haz clic en esa entrada. A la izquierda se abre el chat en la conversación de ese amigo:
+   - arriba hay una pestaña por amigo, con su tiempo y un `•` si tiene mensajes sin leer;
+   - el mensaje aparece escrito de a poco;
+   - las frases en ámbar y subrayadas se pueden clickear.
+4. **Identifica:** clickea las frases en ámbar.
+   - Las características reales se ponen verdes y la barra cuenta "Características marcadas: 1 de 2".
+   - Los señuelos vibran y se ponen rojos.
+   - Con las 2 marcadas, la barra dice "Matías piensa…" y a los 3 segundos aparece el nombre (El Trauco).
+   - Al clickear el nombre, en el panel **Output** (Salida) aparece "Abrir en el cuaderno la página de El Trauco (Plan 4)".
+5. **Pregunta:** cada botón (¿Qué ves?, ¿Qué oyes?…) resta 5 segundos, y el amigo responde con lo de esa categoría. Con 5 segundos o menos, los botones se desactivan.
+6. **Sin respuesta:** si se acaba el tiempo, el amigo cuenta que decidió solo y su entrada deja de parpadear. Responder desde el cuaderno llega en el Plan 4.
+7. **Estática:**
+   - en el panel **Scene**, selecciona el nodo `RequestManager`;
+   - en el **Inspector**, baja **Test Signal** a 40 (se tapa el 25 % de las palabras) o a 20 (el 45 %);
+   - vuelve a probar con **F5**: algunas palabras aparecen como `▒▒▒`. Una frase tapada no se puede clickear: pregunta por su categoría para recuperarla.
+8. **El panel tapa el escritorio:** con el chat abierto, pasa el mouse por donde están el mixer y el celular, detrás del panel. No deben resaltarse, y un clic no debe escribir "Clic en Mixer" en **Output**. Cierra el chat (`Esc` o clic derecho) y vuelve a probar: ahora sí se resaltan.
+9. **Al terminar, deja Test Signal en 100**, o cierra la escena sin guardar.
+
+**Verifica:** los pasos 2 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
+
+### Para ajustar
+
+- **Noche que se juega:** **Night Number**, en el Inspector de `RequestManager`. Por ahora solo la noche 3 tiene una entidad. Cuando agregues El Tue Tué y La Calchona a la noche 1, cámbialo a 1.
+- **Señuelos por noche:** `data/nights/night_N.tres` > **Decoys In First Message**.
+- **Los señuelos:** `data/catalog.tres` > **Decoys**. Cada uno tiene `Id`, `Category`, `Text Key` y `Place Keys` (vacío: sirve en cualquier lugar; si no, las claves de sus lugares, como `PLACE_FOREST`). Su texto va en `data/text/messages.csv`, con la frase clickeable entre asteriscos.
+- Después de cambiar datos, pídele a Claude que corra las pruebas: el validador avisa en español si falta algo, como un lugar sin suficientes señuelos.

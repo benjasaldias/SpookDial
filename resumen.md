@@ -4,6 +4,68 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 9 — 30 de octubre de 2026 — Plan 3 ejecutado: solicitudes y chat
+
+Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro proponía Sonnet 5.5), primero en esfuerzo xhigh y después en max. Benja autorizó todos los commits del plan en `main`, sin push.
+
+### Realizado
+
+- **Las 12 tareas de `docs/10`, con 148 pruebas OK y 0 fallidas** (`~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd`). Los 25 conteos de pruebas del plan coincidieron, incluidas las fallas esperadas. El código se copió de los bloques del plan con un script, para conservar sus tabuladores exactos.
+  - **Datos:** `DecoyData` (señuelo), `ContentCatalog.decoys` con `decoys_for_place()`, y `NightData.decoys_in_first_message` (1, 1, 2, 2 y 3 en las noches).
+  - **Validador:** avisa si una entidad tiene todas sus características dentro de las de otra, y revisa los señuelos (ids, lugares, cantidad por lugar y noche, y sus textos).
+  - **Lógica pura en `scripts/core/`:** `FriendRequest`, `ChatMessage`, `ChatStatic`, `RequestGenerator` y `MessageBuilder`.
+  - **`RequestManager`**, un nodo de `desk.tscn` que juega la noche 3 (El Trauco) con el ritmo provisional.
+  - **Chat:** `ChatMessageView` (burbuja) y `ChatPanel` reescrito, con el tema provisional `scenes/ui/chat_theme.tres`.
+  - **Escritorio:** las entradas del PC parpadean y muestran el tiempo. El panel se queda con los clics de su área, y lo que tiene debajo no se resalta.
+- **Textos nuevos:**
+  - `data/text/messages.csv`, como `[PROTO]` (Benja los reemplaza): los 6 señuelos (`DECOY_*`), las respuestas "nada" (`ANSWER_NOTHING_*`) y "decidí solo" (`FRIEND_DECIDED_ALONE`, con `{action}`);
+  - `data/text/ui.csv`, sin `[PROTO]`: las 4 preguntas del diseño (§8.4), "Abre el cuaderno para responder", la barra de identificación (con `{marked}` y `{total}`) y "Matías piensa…".
+- **Captura del chat revisada** (`C:\dev\capturas\chat.png`). Se cumple todo lo que pide el plan:
+  - pestañas con su tiempo y el `•` de mensajes sin leer;
+  - palabras tapadas con `▒▒▒`, frases en ámbar, una característica en verde y un señuelo en rojo;
+  - la pregunta de Matías a la derecha y la respuesta debajo;
+  - la barra en "1 de 2", con las 4 preguntas y el aviso del cuaderno;
+  - en el PC, León seleccionada (brillo ×1,3) y Gonzalo en alerta.
+- `docs/04`: nueva sección **G** (probar el chat). `docs/06`: el Plan 3 queda ejecutado. `docs/00_log.md`: S9 ✅ y S10 ▶; además, el historial quedó en orden (S7 antes de S8).
+- 12 commits en `main`, sin push.
+
+### Errores encontrados
+
+- **El plan no necesitó correcciones:** se aplicó tal como está escrito.
+- **Las entradas del PC van un frame atrás de las pestañas del chat.** `desk.gd` las actualiza antes de que `RequestManager` avance el tiempo en ese frame. En la captura se nota como 1 s de diferencia (pestaña 23, entrada 24) porque cayó justo en un cambio de segundo: sus esperas son de 4 s y 3 s exactos. Al jugar no se nota (un frame dura unos 16 ms).
+- **Las oraciones de un mensaje quedan pegadas** ("…entre los árboles [PROTO] Vio a un…"), porque los textos `[PROTO]` no terminan en punto. Se arregla cuando Benja escriba cada fragmento como una oración completa, con su punto (`docs/02` §9).
+- **En la captura se ve el caso de camuflaje ya conocido:** los 2 señuelos eran de Ambiente y de Sonido, así que la respuesta a "¿Qué ves?" trajo solo las 2 características. Benja decidió probarlo así (pendiente abajo).
+- Al cambiar el esfuerzo a max se interrumpió una llamada de la Tarea 1. No alcanzó a escribir nada y se repitió.
+
+### Pendientes Código
+
+- [x] **S9: ejecutar el Plan 3.**
+- [ ] **S10: escribir el Plan 4 (cuaderno)** en `docs/11`, con Opus 5.5 en esfuerzo high (`docs/00_log.md`).
+- [ ] Pasar a `.tres` las entidades que Benja refine, agregar El Tue Tué y La Calchona a la noche 1, y cambiar a 1 el **Night Number** de `RequestManager`.
+- [ ] Planes 4 a 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar las solicitudes y el chat en Godot** (`docs/04`, G, unos 10 minutos). Lo ideal es antes de S10.
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] Refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos.
+- [ ] **Escribir los señuelos** (`data/catalog.tres` y `messages.csv`). Cada lugar necesita al menos los que pide la noche (hasta 3); las pruebas avisan si faltan.
+- [ ] Reemplazar los textos `[PROTO]` de `data/text/messages.csv` y `notebook.csv`. Cada fragmento, como una oración completa con su punto.
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 4 a 6:
+  - para S10, si se puede, **la interfaz del cuaderno**: la página, las pestañas del índice y los bocetos de las entidades;
+  - para el chat: burbujas, botones (4 estados), pestañas y "escribiendo…". El tema `scenes/ui/chat_theme.tres` está listo para recibirlos;
+  - también faltan las barras de señal, el celular sin la hora y los dígitos LCD, los diales rediseñados, el mixer en piezas y el celular ampliado (`docs/06` §3).
+- [ ] Elegir una tipografía pixel (`docs/03` §10). Debe tener `▒` (U+2592).
+
+---
+
 ## Sesión 8 — 26 y 27 de octubre de 2026 (noche) — Plan 3 escrito: solicitudes y chat
 
 Benja pidió **ejecutar** el Plan 3, pero `docs/10` no existía: S8, que lo escribe, seguía pendiente. Benja eligió escribirlo ahora, sin esperar las entidades refinadas. Se usó `superpowers:writing-plans`, en Opus 5.5.
