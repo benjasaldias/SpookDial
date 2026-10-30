@@ -19,6 +19,8 @@
 [ext_resource type="SpriteFrames" path="res://art/sprites/pc_sprite.aseprite" id="pc"]
 [ext_resource type="PackedScene" path="res://scenes/ui/chat_entry.tscn" id="entry"]
 [ext_resource type="PackedScene" path="res://scenes/ui/chat_panel.tscn" id="chat_panel"]
+[ext_resource type="Script" path="res://scripts/desk/request_manager.gd" id="requests_script"]
+[ext_resource type="Resource" path="res://data/catalog.tres" id="catalog"]
 
 [node name="Desk" type="Node2D"]
 script = ExtResource("desk_script")
@@ -132,6 +134,10 @@ display_name = "Agustín"
 position = Vector2(640, 360)
 zoom = Vector2(1.05, 1.05)
 script = ExtResource("camera_script")
+
+[node name="RequestManager" type="Node" parent="."]
+script = ExtResource("requests_script")
+catalog = ExtResource("catalog")
 
 [node name="UI" type="CanvasLayer" parent="."]
 

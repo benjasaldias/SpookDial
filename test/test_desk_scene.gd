@@ -60,6 +60,32 @@ func test_clic_en_una_entrada_abre_el_chat() -> bool:
 	return true
 
 
+func test_las_entradas_usan_los_nombres_del_catalogo() -> bool:
+	var desk := _make_desk()
+	var names := {"EntryLeon": "León", "EntryGonzalo": "Gonzalo", "EntryAgustin": "Agustín"}
+	for entry_name: String in names:
+		var label := desk.get_node("DeskPlane/Entries/%s/NameLabel" % entry_name) as Label
+		check_eq(label.text, names[entry_name], entry_name)
+	desk.free()
+	return true
+
+
+func test_una_solicitud_hace_parpadear_su_entrada() -> bool:
+	var desk := _make_desk()
+	var request: RefCounted = desk.get_node("RequestManager").start_request(1)
+	check(request != null, "la noche del escritorio tiene entidades")
+	desk._process(0.0)
+	var gonzalo := desk.get_node("DeskPlane/Entries/EntryGonzalo")
+	check_eq(gonzalo.state, ChatEntry.State.WARNING, "Gonzalo en alerta")
+	var timer := gonzalo.get_node("TimerLabel") as Label
+	check(timer.visible, "muestra el tiempo")
+	if request != null:
+		check_eq(timer.text, str(ceili(request.get("time_left"))), "segundos")
+	check_eq(desk.get_node("DeskPlane/Entries/EntryLeon").state, ChatEntry.State.IDLE, "León sin solicitud")
+	desk.free()
+	return true
+
+
 func test_cerrar_el_chat_deselecciona() -> bool:
 	var desk := _make_desk()
 	var leon := desk.get_node("DeskPlane/Entries/EntryLeon")
