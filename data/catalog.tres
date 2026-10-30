@@ -11,8 +11,48 @@
 [ext_resource type="Resource" path="res://data/nights/night_3.tres" id="9_night_3"]
 [ext_resource type="Resource" path="res://data/nights/night_4.tres" id="10_night_4"]
 [ext_resource type="Resource" path="res://data/nights/night_5.tres" id="11_night_5"]
+[ext_resource type="Script" path="res://scripts/data/decoy_data.gd" id="12_decoy"]
+
+[sub_resource type="Resource" id="Decoy_cold_breath"]
+script = ExtResource("12_decoy")
+id = &"cold_breath"
+category = 2
+text_key = "DECOY_COLD_BREATH"
+
+[sub_resource type="Resource" id="Decoy_distant_dog"]
+script = ExtResource("12_decoy")
+id = &"distant_dog"
+category = 1
+text_key = "DECOY_DISTANT_DOG"
+
+[sub_resource type="Resource" id="Decoy_flickering_light"]
+script = ExtResource("12_decoy")
+id = &"flickering_light"
+category = 0
+text_key = "DECOY_FLICKERING_LIGHT"
+
+[sub_resource type="Resource" id="Decoy_wet_grass"]
+script = ExtResource("12_decoy")
+id = &"wet_grass"
+category = 3
+text_key = "DECOY_WET_GRASS"
+
+[sub_resource type="Resource" id="Decoy_trunk_moss"]
+script = ExtResource("12_decoy")
+id = &"trunk_moss"
+category = 0
+text_key = "DECOY_TRUNK_MOSS"
+place_keys = Array[String](["PLACE_FOREST"])
+
+[sub_resource type="Resource" id="Decoy_creaking_branches"]
+script = ExtResource("12_decoy")
+id = &"creaking_branches"
+category = 1
+text_key = "DECOY_CREAKING_BRANCHES"
+place_keys = Array[String](["PLACE_FOREST"])
 
 [resource]
 script = ExtResource("1_catalog")
 friends = Array[ExtResource("2_friend")]([ExtResource("4_leon"), ExtResource("5_gonzalo"), ExtResource("6_agustin")])
 nights = Array[ExtResource("3_night")]([ExtResource("7_night_1"), ExtResource("8_night_2"), ExtResource("9_night_3"), ExtResource("10_night_4"), ExtResource("11_night_5")])
+decoys = Array[ExtResource("12_decoy")]([SubResource("Decoy_cold_breath"), SubResource("Decoy_distant_dog"), SubResource("Decoy_flickering_light"), SubResource("Decoy_wet_grass"), SubResource("Decoy_trunk_moss"), SubResource("Decoy_creaking_branches")])

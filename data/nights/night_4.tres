@@ -12,6 +12,7 @@ requests_total = 15
 max_simultaneous = 3
 base_decision_time = 32.0
 first_message_observations = 2
+decoys_in_first_message = 2
 signal_decays = true
 signal_decay_interval = Vector2(3, 6)
 interference_count = 4

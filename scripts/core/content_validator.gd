@@ -77,6 +77,7 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 	for entity: EntityData in entities:
 		errors.append_array(validate_entity(entity))
 	_check_shared_traits(errors, entities)
+	_check_decoys(errors, catalog, entities)
 	return errors
 
 
@@ -94,11 +95,17 @@ static func validate_texts(catalog: ContentCatalog, translate: Callable) -> Arra
 			errors.append("%s: la clave '%s' no está en ningún CSV" % [where, key])
 	for entity: EntityData in catalog.all_entities():
 		for trait_data: TraitData in entity.traits:
-			var text := String(translate.call(trait_data.text_key))
-			if text != trait_data.text_key and text.count(HIGHLIGHT_MARK) != 2:
-				errors.append("Característica '%s': su texto debe tener una sola frase entre asteriscos, como 'un *hombrecito*'"
-						% trait_data.id)
+			_check_highlight(errors, "Característica '%s'" % trait_data.id, trait_data.text_key, translate)
+	for decoy: DecoyData in catalog.decoys:
+		_check_highlight(errors, "Señuelo '%s'" % decoy.id, decoy.text_key, translate)
 	return errors
+
+
+## Una característica o un señuelo necesita exactamente una frase clickeable entre asteriscos.
+static func _check_highlight(errors: Array[String], who: String, key: String, translate: Callable) -> void:
+	var text := String(translate.call(key))
+	if text != key and text.count(HIGHLIGHT_MARK) != 2:
+		errors.append("%s: su texto debe tener una sola frase entre asteriscos, como 'un *hombrecito*'" % who)
 
 
 ## Pares [dónde, clave] con todas las claves de texto del contenido.
@@ -124,6 +131,8 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 				keys.append(["%s, observación '%s' = '%s'" % [who, observation.id, value], observation.values[value]])
 		for index in entity.rules.size():
 			keys.append(["%s, regla %d" % [who, index + 1], entity.rules[index].text_key])
+	for decoy: DecoyData in catalog.decoys:
+		keys.append(["Señuelo '%s'" % decoy.id, decoy.text_key])
 	return keys
 
 
@@ -182,11 +191,12 @@ static func _check_reachable(errors: Array[String], who: String, entity: EntityD
 
 
 ## Una misma característica (mismo id) debe ser igual en todas sus entidades, la usan 2 como máximo,
-## y dos entidades no pueden tener exactamente las mismas características.
+## y ninguna entidad puede tener todas sus características dentro de las de otra: el mensaje
+## trae 2 características que la distinguen, y así no habría ningún par.
 static func _check_shared_traits(errors: Array[String], entities: Array[EntityData]) -> void:
 	var first_seen := {}  # id de característica → TraitData de la primera entidad que la usa
 	var users := {}  # id de característica → ids de las entidades que la usan
-	var trait_sets := {}  # ids de características, ordenados y unidos → id de la entidad
+	var trait_ids: Array[PackedStringArray] = []  # ids de las características de cada entidad
 	for entity: EntityData in entities:
 		var ids := PackedStringArray()
 		for trait_data: TraitData in entity.traits:
@@ -200,13 +210,65 @@ static func _check_shared_traits(errors: Array[String], entities: Array[EntityDa
 			var first: TraitData = first_seen[trait_data.id]
 			if first.category != trait_data.category or first.text_key != trait_data.text_key:
 				errors.append("Característica '%s': tiene otra categoría o texto en '%s'" % [trait_data.id, entity.id])
-		ids.sort()
-		var key := ",".join(ids)
-		if trait_sets.has(key):
-			errors.append("Entidades '%s' y '%s': tienen las mismas características; no se pueden distinguir"
-					% [trait_sets[key], entity.id])
-		trait_sets[key] = entity.id
+		trait_ids.append(ids)
 	for trait_id: StringName in users:
 		if users[trait_id].size() > MAX_ENTITIES_PER_TRAIT:
 			errors.append("Característica '%s': la usan %d entidades; el máximo es %d"
 					% [trait_id, users[trait_id].size(), MAX_ENTITIES_PER_TRAIT])
+	for i in entities.size():
+		for j in range(i + 1, entities.size()):
+			var first_in_second := _contains_all(trait_ids[j], trait_ids[i])
+			var second_in_first := _contains_all(trait_ids[i], trait_ids[j])
+			if first_in_second and second_in_first:
+				errors.append("Entidades '%s' y '%s': tienen las mismas características; no se pueden distinguir"
+						% [entities[i].id, entities[j].id])
+			elif first_in_second:
+				_append_contained(errors, entities[i], entities[j])
+			elif second_in_first:
+				_append_contained(errors, entities[j], entities[i])
+
+
+static func _contains_all(container: PackedStringArray, items: PackedStringArray) -> bool:
+	for item: String in items:
+		if not container.has(item):
+			return false
+	return true
+
+
+static func _append_contained(errors: Array[String], contained: EntityData, container: EntityData) -> void:
+	errors.append("Entidad '%s': todas sus características las tiene también '%s'; ningún mensaje podría distinguirla"
+			% [contained.id, container.id])
+
+
+## Los señuelos tienen ids únicos y distintos de los de las características, sus lugares existen,
+## y en cada noche cada lugar tiene los señuelos que la noche pide.
+static func _check_decoys(errors: Array[String], catalog: ContentCatalog, entities: Array[EntityData]) -> void:
+	if catalog.decoys.has(null):
+		errors.append("Catálogo: hay un espacio vacío en 'decoys'")
+		return
+	_check_unique_ids(errors, "Catálogo", "señuelos", catalog.decoys)
+	var trait_ids := {}
+	var places := {}
+	for entity: EntityData in entities:
+		for trait_data: TraitData in entity.traits:
+			if trait_data != null:
+				trait_ids[trait_data.id] = true
+		for place_key: String in entity.place_keys:
+			places[place_key] = true
+	for decoy: DecoyData in catalog.decoys:
+		if trait_ids.has(decoy.id):
+			errors.append("Señuelo '%s': usa el id de una característica; debe ser distinto" % decoy.id)
+		for place_key: String in decoy.place_keys:
+			if not places.has(place_key):
+				errors.append("Señuelo '%s': el lugar '%s' no es de ninguna entidad" % [decoy.id, place_key])
+	var known_places := {}  # lugares de las entidades conocidas hasta la noche que se revisa
+	for night: NightData in catalog.nights:
+		for entity: EntityData in night.new_entities:
+			if entity != null:
+				for place_key: String in entity.place_keys:
+					known_places[place_key] = true
+		for place_key: String in known_places:
+			var count := catalog.decoys_for_place(place_key).size()
+			if count < night.decoys_in_first_message:
+				errors.append("Noche %d: el lugar '%s' tiene %d señuelos y la noche pide %d"
+						% [night.number, place_key, count, night.decoys_in_first_message])
