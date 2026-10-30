@@ -53,9 +53,19 @@ func test_clic_en_una_entrada_abre_el_chat() -> bool:
 	var leon := desk.get_node("DeskPlane/Entries/EntryLeon")
 	var gonzalo := desk.get_node("DeskPlane/Entries/EntryGonzalo")
 	leon.pressed.emit()
-	check((desk.get_node("UI/ChatPanel") as Control).visible, "panel visible")
+	var panel := desk.get_node("UI/ChatPanel") as Control
+	check(panel.visible, "panel visible")
+	check_eq(panel.get("selected_friend"), 0, "en la conversación de León")
 	check_eq(leon.state, ChatEntry.State.SELECTED, "León seleccionado")
 	check_eq(gonzalo.state, ChatEntry.State.IDLE, "Gonzalo sin seleccionar")
+	desk.free()
+	return true
+
+
+func test_el_chat_recibe_los_mensajes_de_las_solicitudes() -> bool:
+	var desk := _make_desk()
+	desk.get_node("RequestManager").start_request(2)
+	check_eq(desk.get_node("UI/ChatPanel").message_views(2).size(), 1, "mensaje de Agustín en su conversación")
 	desk.free()
 	return true
 

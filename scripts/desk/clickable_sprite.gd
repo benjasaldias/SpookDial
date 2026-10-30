@@ -26,7 +26,9 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	hovered = is_visible_in_tree() and PixelHit.is_opaque(_bitmap, get_local_mouse_position() - offset)
+	# Si un panel abierto (como el chat) tapa el objeto, el mouse está sobre el panel: no se resalta.
+	hovered = is_visible_in_tree() and get_viewport().gui_get_hovered_control() == null \
+			and PixelHit.is_opaque(_bitmap, get_local_mouse_position() - offset)
 
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/chat_panel.gd" id="panel_script"]
 [ext_resource type="Texture2D" path="res://art/sprites/screen_sprite.aseprite" id="panel_texture"]
+[ext_resource type="Theme" path="res://scenes/ui/chat_theme.tres" id="chat_theme"]
 
 [node name="ChatPanel" type="Control"]
 layout_mode = 3
@@ -9,6 +10,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+theme = ExtResource("chat_theme")
 script = ExtResource("panel_script")
 
 [node name="Panel" type="TextureRect" parent="."]
@@ -17,12 +19,56 @@ offset_left = 11.0
 offset_top = 11.0
 offset_right = 460.0
 offset_bottom = 707.0
+mouse_filter = 0
 texture = ExtResource("panel_texture")
 
-[node name="Title" type="Label" parent="Panel"]
+[node name="Tabs" type="HBoxContainer" parent="Panel"]
 layout_mode = 0
-offset_left = 24.0
-offset_top = 20.0
-offset_right = 424.0
-offset_bottom = 44.0
-theme_override_font_sizes/font_size = 16
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 423.0
+offset_bottom = 55.0
+
+[node name="Conversations" type="Control" parent="Panel"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 61.0
+offset_right = 423.0
+offset_bottom = 509.0
+mouse_filter = 2
+
+[node name="IdentifyBar" type="HBoxContainer" parent="Panel"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 515.0
+offset_right = 423.0
+offset_bottom = 543.0
+
+[node name="Progress" type="Label" parent="Panel/IdentifyBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EntityName" type="Button" parent="Panel/IdentifyBar"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Questions" type="GridContainer" parent="Panel"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 549.0
+offset_right = 423.0
+offset_bottom = 613.0
+columns = 2
+
+[node name="AnswerHint" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 619.0
+offset_right = 423.0
+offset_bottom = 670.0
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
