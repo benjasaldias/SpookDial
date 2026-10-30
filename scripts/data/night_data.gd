@@ -17,6 +17,8 @@ enum FirstMessageObservations { ALL, ALL_BUT_ONE, ONE }
 @export var base_decision_time := 45.0
 ## Cuántas observaciones trae el mensaje inicial; las demás hay que preguntarlas.
 @export var first_message_observations: FirstMessageObservations = FirstMessageObservations.ALL
+## Señuelos del mensaje inicial: frases clickeables que camuflan sus 2 características.
+@export var decoys_in_first_message := 1
 
 @export_group("Señal")
 @export var signal_decays := false

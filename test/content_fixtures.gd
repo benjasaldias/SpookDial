@@ -53,7 +53,18 @@ static func make_rule(conditions: Dictionary, correct: StringName, risky: String
 	return rule
 
 
-## Catálogo válido: 3 amigos y 5 noches; "beast" aparece la noche 1 y "ghost" la noche 2.
+static func make_decoy(decoy_id: StringName, category := ClueCategory.Kind.SIGHT,
+		place_keys: Array[String] = []) -> DecoyData:
+	var decoy := DecoyData.new()
+	decoy.id = decoy_id
+	decoy.category = category
+	decoy.text_key = "K_DECOY_%s" % decoy_id
+	decoy.place_keys = place_keys
+	return decoy
+
+
+## Catálogo válido: 3 amigos, 5 noches y 2 señuelos que sirven en cualquier lugar
+## ("decoy_sight" y "decoy_sound"); "beast" aparece la noche 1 y "ghost" la noche 2.
 static func make_catalog() -> ContentCatalog:
 	var catalog := ContentCatalog.new()
 	for friend_id: StringName in [&"leon", &"gonzalo", &"agustin"]:
@@ -68,4 +79,6 @@ static func make_catalog() -> ContentCatalog:
 		catalog.nights.append(night)
 	catalog.nights[0].new_entities.append(make_entity(&"beast"))
 	catalog.nights[1].new_entities.append(make_entity(&"ghost"))
+	catalog.decoys.append(make_decoy(&"decoy_sight"))
+	catalog.decoys.append(make_decoy(&"decoy_sound", ClueCategory.Kind.SOUND))
 	return catalog
