@@ -15,3 +15,8 @@ DECOY_FLICKERING_LIGHT,[PROTO] Algo que ve y que no importa: *la linterna parpad
 DECOY_WET_GRASS,[PROTO] Un rastro común: *el pasto está mojado*,
 DECOY_TRUNK_MOSS,[PROTO] Algo del bosque sin importancia: *musgo en los troncos*,
 DECOY_CREAKING_BRANCHES,[PROTO] Un sonido del bosque: *crujen las ramas con el viento*,
+ANSWER_NOTHING_SIGHT,[PROTO] El amigo dice que no ve nada fuera de lo común,
+ANSWER_NOTHING_SOUND,[PROTO] El amigo dice que no se oye nada fuera de lo común,
+ANSWER_NOTHING_ENVIRONMENT,[PROTO] El amigo dice que el ambiente está normal,
+ANSWER_NOTHING_TRACES,[PROTO] El amigo dice que no ve rastros,
+FRIEND_DECIDED_ALONE,"[PROTO] Como Matías no respondió a tiempo, el amigo cuenta que decidió solo: {action}",
