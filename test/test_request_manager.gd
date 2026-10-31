@@ -4,6 +4,7 @@ const Fixtures := preload("res://test/content_fixtures.gd")
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
+const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
 
 ## Manager con el catálogo de prueba, en la noche 1 (solo "beast"), sin que las solicitudes lleguen solas.
@@ -108,6 +109,37 @@ func test_sin_respuesta_el_amigo_decide_solo() -> bool:
 		check_eq(events[1], ["request_finished", 2, request], "terminó")
 	check_eq(manager.click_clue(_messages(events)[0], request.traits[0].id), FriendRequest.ClueState.UNMARKED,
 			"los mensajes de una solicitud terminada ya no se clickean")
+	manager.free()
+	return true
+
+
+func test_responder_termina_la_solicitud() -> bool:
+	var manager := _make_manager()
+	var request := manager.start_request(0)
+	var events := []
+	_record(manager, events)
+	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
+	check(manager.answer(0, request.entity.find_action(rule.correct_action_id)), "se pudo responder")
+	check(request.finished and request.answered_by_player, "respondió Matías")
+	check_eq(request.outcome, RuleEvaluator.Outcome.CORRECT, "la acción correcta")
+	check_eq(manager.requests[0], null, "León queda libre")
+	check_eq(events.size(), 3, "respuesta, reacción y fin")
+	if events.size() == 3:
+		check_eq((events[0][2] as ChatMessage).sender, ChatMessage.Sender.PLAYER, "responde Matías")
+		check_eq((events[1][2] as ChatMessage).sender, ChatMessage.Sender.FRIEND, "reacciona el amigo")
+		check_eq(events[2], ["request_finished", 0, request], "terminó")
+	check(not manager.answer(0, request.entity.actions[0]), "ya no espera respuesta")
+	manager.free()
+	return true
+
+
+func test_responder_desde_otra_pagina_es_incorrecto() -> bool:
+	var manager := _make_manager()
+	var request := manager.start_request(1)
+	var other := Fixtures.make_entity(&"ghost")
+	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
+	manager.answer(1, other.find_action(rule.correct_action_id))
+	check_eq(request.outcome, RuleEvaluator.Outcome.WRONG, "la misma acción, pero de otra página")
 	manager.free()
 	return true
 

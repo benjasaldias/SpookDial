@@ -1,6 +1,6 @@
 extends Node
-## Las solicitudes de la noche (Plan 3): las genera, avanza sus temporizadores, recibe las preguntas
-## y los clics del chat, y arma los mensajes con estática.
+## Las solicitudes de la noche (planes 3 y 4): las genera, avanza sus temporizadores, recibe las preguntas,
+## los clics y las respuestas del chat, y arma los mensajes con estática.
 ## El ritmo es provisional, hasta el director del Plan 7: llega una solicitud cada
 ## (duración de la noche ÷ solicitudes de la noche) segundos, sin pasar de las simultáneas.
 
@@ -110,6 +110,21 @@ func click_clue(message: ChatMessage, clue_id: StringName) -> FriendRequest.Clue
 	var state := request.click_clue(clue_id)
 	request_changed.emit(request.friend_index, request)
 	return state
+
+
+## Matías responde con `action`, desde la página abierta en el cuaderno, y la solicitud termina.
+## Una acción de la página de otra entidad es incorrecta (docs/02 §5.2).
+## Devuelve false si el amigo no espera respuesta.
+func answer(friend_index: int, action: ActionData) -> bool:
+	var request := requests[friend_index]
+	if request == null or action == null:
+		return false
+	request.finish(action, true)
+	requests[friend_index] = null
+	message_added.emit(friend_index, MessageBuilder.player_answer(request, tr))
+	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
+	request_finished.emit(friend_index, request)
+	return true
 
 
 func _decide_alone(friend_index: int) -> void:
