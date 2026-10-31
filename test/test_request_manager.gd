@@ -3,6 +3,7 @@ extends "res://test/test_case.gd"
 const Fixtures := preload("res://test/content_fixtures.gd")
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
+const FriendState := preload("res://scripts/core/friend_state.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
@@ -33,7 +34,9 @@ func _messages(events: Array) -> Array:
 func test_empieza_sin_solicitudes() -> bool:
 	var manager := _make_manager()
 	check_eq(manager.requests, [null, null, null], "sin solicitudes")
-	check_eq(manager.signal_levels, [100.0, 100.0, 100.0], "señal llena")
+	check_eq(manager.state.friends.map(func(friend: FriendState) -> float: return friend.signal_level),
+			[100.0, 100.0, 100.0], "señal llena")
+	check_eq(manager.state.trust, 100.0, "Trust lleno")
 	check_eq(manager.active_count(), 0, "activas")
 	manager.free()
 	return true
@@ -103,10 +106,11 @@ func test_sin_respuesta_el_amigo_decide_solo() -> bool:
 	manager.advance(request.time_left + 0.1)
 	check_eq(manager.requests[2], null, "Agustín queda libre")
 	check(request.finished and not request.answered_by_player, "decidió solo")
-	check_eq(events.size(), 2, "mensaje y fin")
-	if events.size() == 2:
+	check_eq(events.size(), 3, "lo que hizo, cómo le fue y fin")
+	if events.size() == 3:
 		check_eq(events[0][0], "message_added", "cuenta lo que hizo")
-		check_eq(events[1], ["request_finished", 2, request], "terminó")
+		check_eq(events[1][0], "message_added", "cuenta cómo le fue")
+		check_eq(events[2], ["request_finished", 2, request], "terminó")
 	check_eq(manager.click_clue(_messages(events)[0], request.traits[0].id), FriendRequest.ClueState.UNMARKED,
 			"los mensajes de una solicitud terminada ya no se clickean")
 	manager.free()
@@ -181,8 +185,11 @@ func test_la_estatica_depende_de_la_senal() -> bool:
 	var manager := _make_manager()
 	var events := []
 	_record(manager, events)
-	manager.signal_levels[0] = 100.0
-	manager.signal_levels[1] = 1.0
+	manager.state.friends[0].signal_level = 100.0
+	manager.state.friends[1].signal_level = 1.0
+	# Sin heridas: un amigo aturdido o muerto no recibiría más solicitudes.
+	manager.catalog.balance.risky_hurt_chance = 0.0
+	manager.catalog.balance.wrong_hurt_chance = 0.0
 	for _i in 10:
 		manager.start_request(0)
 		manager.start_request(1)
@@ -195,5 +202,67 @@ func test_la_estatica_depende_de_la_senal() -> bool:
 					covered[entry[1]] += 1
 	check_eq(covered[0], 0, "con señal 100 no hay estática")
 	check(covered[1] > 0, "con señal 1 hay estática")
+	manager.free()
+	return true
+
+
+## Una acción incorrecta para la situación de `request`: ni la correcta ni la de mayor riesgo.
+func _wrong_action(request: FriendRequest) -> ActionData:
+	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
+	for action: ActionData in request.entity.actions:
+		if action.id != rule.correct_action_id and action.id != rule.risky_action_id:
+			return action
+	return null
+
+
+func test_responder_aplica_la_consecuencia() -> bool:
+	var manager := _make_manager()
+	manager.catalog.balance.wrong_hurt_chance = 1.0
+	var request := manager.start_request(0)
+	var events := []
+	_record(manager, events)
+	manager.answer(0, _wrong_action(request))
+	check(request.consequence != null and request.consequence.is_hurt(), "quedó herido")
+	check_eq(manager.state.friends[0].health, 2, "León pierde 1 PV")
+	check(not manager.state.is_available(0), "y queda aturdido")
+	check_eq(manager.state.trust, 90.0, "Trust −10")
+	var messages := _messages(events)
+	if messages.size() == 2:
+		check_eq((messages[1] as ChatMessage).plain_text(), String(TranslationServer.translate("REACTION_WRONG_HURT")),
+				"cuenta que quedó herido")
+	manager.free()
+	return true
+
+
+func test_un_amigo_aturdido_o_muerto_no_recibe_solicitudes() -> bool:
+	var manager := _make_manager()
+	manager.state.friends[0].hurt(1, 15.0)
+	check_eq(manager.start_request(0), null, "León está aturdido")
+	manager.state.friends[1].hurt(3, 15.0)
+	check_eq(manager.start_request(1), null, "Gonzalo está muerto")
+	manager.requests_arrive = true
+	manager.advance(5.1)
+	check(manager.requests[2] != null, "la solicitud le llega a Agustín")
+	manager.free()
+	return true
+
+
+func test_con_trust_bajo_hay_menos_tiempo() -> bool:
+	var manager := _make_manager()
+	manager.state.trust = 50.0
+	var request := manager.start_request(0)
+	check(is_equal_approx(request.time_left, 36.0), "45 s × (0,6 + 0,4 × 0,5): %s" % request.time_left)
+	manager.free()
+	return true
+
+
+func test_sin_respuesta_trust_baja_ademas() -> bool:
+	var manager := _make_manager()
+	var request := manager.start_request(2)
+	manager.advance(request.time_left + 0.1)
+	check(request.consequence != null, "se resolvió igual")
+	if request.consequence != null:
+		check(request.consequence.trust_change <= -15.0, "−15 por no contestar, además de lo que eligió")
+		check_eq(manager.state.trust, 100.0 + request.consequence.trust_change, "se aplicó")
 	manager.free()
 	return true

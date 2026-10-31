@@ -1,23 +1,25 @@
 extends Node
-## Las solicitudes de la noche (planes 3 y 4): las genera, avanza sus temporizadores, recibe las preguntas,
-## los clics y las respuestas del chat, y arma los mensajes con estática.
+## Las solicitudes de la noche (planes 3 a 5): las genera, avanza sus temporizadores, recibe las preguntas,
+## los clics y las respuestas del chat, arma los mensajes con estática y resuelve las consecuencias.
 ## El ritmo es provisional, hasta el director del Plan 7: llega una solicitud cada
 ## (duración de la noche ÷ solicitudes de la noche) segundos, sin pasar de las simultáneas.
+## En el escritorio lo avanza NightManager, junto con el estado de la noche.
 
 signal message_added(friend_index: int, message: ChatMessage)
 signal request_started(friend_index: int, request: FriendRequest)
 ## Cambió algo que se ve: una frase marcada o en rojo, Matías pensando, el nombre o el tiempo tras preguntar.
 signal request_changed(friend_index: int, request: FriendRequest)
+## Terminó una solicitud, con su consecuencia ya aplicada al estado de la noche.
 signal request_finished(friend_index: int, request: FriendRequest)
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatStatic := preload("res://scripts/core/chat_static.gd")
+const Consequence := preload("res://scripts/core/consequence.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const MessageBuilder := preload("res://scripts/core/message_builder.gd")
+const NightState := preload("res://scripts/core/night_state.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
 
-## Duración de una noche en segundos reales (diseño §5).
-const NIGHT_SECONDS := 420.0
 ## Segundos hasta la primera solicitud.
 const FIRST_REQUEST_DELAY := 5.0
 
@@ -34,8 +36,9 @@ const FIRST_REQUEST_DELAY := 5.0
 var rng := RandomNumberGenerator.new()
 ## La solicitud activa de cada amigo, o null si no tiene.
 var requests: Array[FriendRequest] = []
-## Señal de cada amigo (0–100).
-var signal_levels: Array[float] = []
+## El estado de la noche: la hora, Sanity, Trust, cómo está cada amigo y los videos. Lo crea el manager,
+## que tiene el catálogo y la noche; NightManager lo avanza.
+var state: NightState
 
 var _since_last_request := 0.0
 var _started_count := 0
@@ -46,9 +49,10 @@ func _ready() -> void:
 		rng.seed = random_seed
 	else:
 		rng.randomize()
-	for _friend: FriendData in catalog.friends:
+	state = NightState.new(night(), catalog.balance, catalog.friends.size(), rng)
+	for index in catalog.friends.size():
 		requests.append(null)
-		signal_levels.append(float(test_signal))
+		state.friends[index].signal_level = test_signal
 
 
 func _process(delta: float) -> void:
@@ -77,11 +81,12 @@ func advance(delta: float) -> void:
 		_maybe_start_request(delta)
 
 
-## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una o si no hay entidades.
+## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una, si no está disponible
+## (aturdido o muerto) o si no hay entidades. Con Trust bajo, el temporizador es más corto.
 func start_request(friend_index: int) -> FriendRequest:
-	if requests[friend_index] != null:
+	if requests[friend_index] != null or not state.is_available(friend_index):
 		return null
-	var request := RequestGenerator.generate(catalog, night(), friend_index, rng)
+	var request := RequestGenerator.generate(catalog, night(), friend_index, rng, state.trust)
 	if request == null:
 		return null
 	requests[friend_index] = request
@@ -107,9 +112,9 @@ func click_clue(message: ChatMessage, clue_id: StringName) -> FriendRequest.Clue
 	var request := message.request
 	if request == null or request.finished:
 		return FriendRequest.ClueState.UNMARKED
-	var state := request.click_clue(clue_id)
+	var clue_state := request.click_clue(clue_id)
 	request_changed.emit(request.friend_index, request)
-	return state
+	return clue_state
 
 
 ## Matías responde con `action`, desde la página abierta en el cuaderno, y la solicitud termina.
@@ -120,6 +125,7 @@ func answer(friend_index: int, action: ActionData) -> bool:
 	if request == null or action == null:
 		return false
 	request.finish(action, true)
+	_resolve(request)
 	requests[friend_index] = null
 	message_added.emit(friend_index, MessageBuilder.player_answer(request, tr))
 	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
@@ -127,30 +133,40 @@ func answer(friend_index: int, action: ActionData) -> bool:
 	return true
 
 
+## Sin respuesta a tiempo, el amigo elige solo y cuenta qué hizo y cómo le fue.
 func _decide_alone(friend_index: int) -> void:
 	var request := requests[friend_index]
 	request.decide_alone(rng)
+	_resolve(request)
 	requests[friend_index] = null
 	_add_friend_message(friend_index, MessageBuilder.decided_alone(request, tr))
+	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
 	request_finished.emit(friend_index, request)
 
 
+## Tira la consecuencia y la aplica al estado de la noche. Va antes de la reacción del amigo, que
+## depende de si quedó herido.
+func _resolve(request: FriendRequest) -> void:
+	request.consequence = Consequence.new(request.outcome, request.answered_by_player, catalog.balance, rng)
+	state.apply(request.friend_index, request.consequence)
+
+
 func _add_friend_message(friend_index: int, message: ChatMessage) -> void:
-	ChatStatic.apply(message, signal_levels[friend_index], rng)
+	ChatStatic.apply(message, state.friends[friend_index].signal_level, rng)
 	message_added.emit(friend_index, message)
 
 
 func _maybe_start_request(delta: float) -> void:
 	_since_last_request += delta
 	var current := night()
-	var wait := FIRST_REQUEST_DELAY if _started_count == 0 else NIGHT_SECONDS / current.requests_total
+	var wait := FIRST_REQUEST_DELAY if _started_count == 0 else catalog.balance.night_seconds / current.requests_total
 	if _since_last_request < wait or _started_count >= current.requests_total:
 		return
 	if active_count() >= current.max_simultaneous:
 		return
 	var free_friends: Array[int] = []
 	for index in requests.size():
-		if requests[index] == null:
+		if requests[index] == null and state.is_available(index):
 			free_friends.append(index)
 	if free_friends.is_empty():
 		return

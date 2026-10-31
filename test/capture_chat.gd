@@ -18,7 +18,7 @@ func _capture() -> void:
 	var panel := desk.get_node("UI/ChatPanel")
 	manager.requests_arrive = false
 	manager.rng.seed = 5
-	manager.signal_levels[0] = 40.0
+	manager.state.friends[0].signal_level = 40.0
 	var request: RefCounted = manager.start_request(0)
 	manager.start_request(1)
 	panel.open_for(0)

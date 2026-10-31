@@ -2,6 +2,7 @@ extends RefCounted
 ## Una solicitud de un amigo (docs/02 §2): la entidad, la situación y lo que el jugador va descubriendo.
 ## Lógica pura: RequestManager la avanza en el tiempo y el chat la muestra.
 
+const Consequence := preload("res://scripts/core/consequence.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
 enum Identification { PENDING, THINKING, REVEALED }
@@ -34,6 +35,8 @@ var finished := false
 var chosen_action: ActionData
 var answered_by_player := false
 var outcome := RuleEvaluator.Outcome.WRONG
+## Lo que le pasó al amigo (Plan 5). Es null hasta que RequestManager la resuelve, al terminar.
+var consequence: Consequence
 
 var _clue_states := {}  # id de una frase clickeable → ClueState
 

@@ -23,12 +23,16 @@ const NOTHING_KEYS := {
 }
 ## El amigo decidió solo porque nadie respondió a tiempo. {action} es la acción que eligió (messages.csv).
 const DECIDED_ALONE_KEY := "FRIEND_DECIDED_ALONE"
-## Lo que cuenta el amigo después de hacer lo que dijo Matías, según el resultado (messages.csv).
-## Es provisional: en el Plan 5 la reacción también depende de si el amigo quedó herido.
+## Lo que cuenta el amigo después de la acción, según el resultado, si no quedó herido (messages.csv).
 const REACTION_KEYS := {
 	RuleEvaluator.Outcome.CORRECT: "REACTION_CORRECT",
 	RuleEvaluator.Outcome.RISKY: "REACTION_RISKY",
 	RuleEvaluator.Outcome.WRONG: "REACTION_WRONG",
+}
+## Lo que cuenta si quedó herido. La acción correcta nunca hiere (messages.csv).
+const HURT_REACTION_KEYS := {
+	RuleEvaluator.Outcome.RISKY: "REACTION_RISKY_HURT",
+	RuleEvaluator.Outcome.WRONG: "REACTION_WRONG_HURT",
 }
 
 
@@ -80,10 +84,13 @@ static func player_answer(request: FriendRequest, translate: Callable) -> ChatMe
 	return message
 
 
-## Lo que cuenta el amigo después de hacer lo que dijo Matías. La solicitud ya debe estar terminada.
+## Lo que cuenta el amigo después de la acción, la haya elegido Matías o él solo: según el resultado
+## y si quedó herido. La solicitud ya debe estar terminada.
 static func reaction(request: FriendRequest, translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
-	message.add_fragment(_text(translate, REACTION_KEYS[request.outcome]))
+	var hurt := request.consequence != null and request.consequence.is_hurt()
+	var key: String = HURT_REACTION_KEYS[request.outcome] if hurt else REACTION_KEYS[request.outcome]
+	message.add_fragment(_text(translate, key))
 	return message
 
 

@@ -2,6 +2,7 @@ extends "res://test/test_case.gd"
 
 const Fixtures := preload("res://test/content_fixtures.gd")
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
+const Consequence := preload("res://scripts/core/consequence.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const MessageBuilder := preload("res://scripts/core/message_builder.gd")
 
@@ -105,11 +106,25 @@ func test_la_reaccion_depende_del_resultado() -> bool:
 	return true
 
 
+func test_si_quedo_herido_la_reaccion_cambia() -> bool:
+	# o1 = yes: a2 es la de mayor riesgo y a3, incorrecta. Con probabilidad 1, siempre hieren.
+	var balance := BalanceData.new()
+	balance.risky_hurt_chance = 1.0
+	balance.wrong_hurt_chance = 1.0
+	var expected := {&"a2": "REACTION_RISKY_HURT.", &"a3": "REACTION_WRONG_HURT."}
+	for action_id: StringName in expected:
+		var request := _make_request()
+		request.finish(request.entity.find_action(action_id), true)
+		request.consequence = Consequence.new(request.outcome, true, balance, RandomNumberGenerator.new())
+		check_eq(MessageBuilder.reaction(request, _translate).plain_text(), expected[action_id], "reacción a %s" % action_id)
+	return true
+
+
 func test_sus_textos_existen() -> bool:
 	var previous := TranslationServer.get_locale()
 	TranslationServer.set_locale("es")
 	var keys: Array = MessageBuilder.QUESTION_KEYS.values() + MessageBuilder.NOTHING_KEYS.values() \
-			+ MessageBuilder.REACTION_KEYS.values()
+			+ MessageBuilder.REACTION_KEYS.values() + MessageBuilder.HURT_REACTION_KEYS.values()
 	keys.append(MessageBuilder.DECIDED_ALONE_KEY)
 	for key: String in keys:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en los CSV" % key)
