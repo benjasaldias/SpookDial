@@ -2,6 +2,7 @@ extends "res://test/test_case.gd"
 
 const DESK := preload("res://scenes/desk/desk.tscn")
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
+const NightState := preload("res://scripts/core/night_state.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
 const POSITIONS := {
@@ -248,5 +249,66 @@ func test_camara_con_zoom_leve_y_centrada() -> bool:
 		check(camera.zoom.is_equal_approx(Vector2(1.05, 1.05)), "zoom: %s" % camera.zoom)
 		check_eq(camera.position, Vector2(640, 360), "centrada al inicio")
 	check(desk.get_node_or_null("ParallaxRig") == null, "el parallax por planos ya no existe")
+	desk.free()
+	return true
+
+
+## El estado de la noche del escritorio (noche 3: cuota de 3 videos).
+func _state(desk: Node2D) -> NightState:
+	return desk.get_node("RequestManager").state
+
+
+func test_la_noche_avanza_con_su_reloj() -> bool:
+	var desk := _make_desk()
+	check(not desk.get_node("RequestManager").is_processing(), "las solicitudes las avanza el reloj de la noche")
+	desk.get_node("NightManager").advance(2.0)
+	check_eq(_state(desk).elapsed, 2.0, "la hora avanzó")
+	desk.free()
+	return true
+
+
+func test_los_diales_muestran_los_medidores() -> bool:
+	var desk := _make_desk()
+	var state := _state(desk)
+	state.sanity = 40.0
+	state.trust = 70.0
+	for friend in state.friends:
+		friend.signal_level = 50.0
+	desk._process(0.0)
+	check(is_equal_approx(desk.get_node("WallPlane/DialConnection").value, 0.5), "Connection: el promedio de las señales")
+	check(is_equal_approx(desk.get_node("WallPlane/DialSanity").value, 0.4), "Sanity")
+	check(is_equal_approx(desk.get_node("WallPlane/DialTrust").value, 0.7), "Trust")
+	desk.free()
+	return true
+
+
+func test_el_celular_muestra_la_hora() -> bool:
+	var desk := _make_desk()
+	_state(desk).elapsed = 210.0
+	desk._process(0.0)
+	check_eq((desk.get_node("DeskPlane/Phone/Clock") as Label).text, "03:00", "a la mitad de la noche")
+	desk.free()
+	return true
+
+
+func test_el_pc_cuenta_los_videos() -> bool:
+	var desk := _make_desk()
+	_state(desk).videos.received = 1
+	desk._process(0.0)
+	var expected := String(TranslationServer.translate("PC_VIDEOS")).format({"received": 1, "quota": 3})
+	check_eq((desk.get_node("DeskPlane/PC/Videos") as Label).text, expected, "1 de 3")
+	check(expected.contains("1") and expected.contains("3"), "el texto lleva {received} y {quota}")
+	desk.free()
+	return true
+
+
+func test_la_vineta_sigue_a_sanity() -> bool:
+	var desk := _make_desk()
+	var vignette := desk.get_node("Overlay/Vignette") as ColorRect
+	check_eq(vignette.mouse_filter, Control.MOUSE_FILTER_IGNORE, "no tapa los clics")
+	_state(desk).sanity = 30.0
+	desk._process(0.0)
+	var strength: float = (vignette.material as ShaderMaterial).get_shader_parameter(&"strength")
+	check(is_equal_approx(strength, 0.5), "con Sanity 30, a la mitad: %s" % strength)
 	desk.free()
 	return true

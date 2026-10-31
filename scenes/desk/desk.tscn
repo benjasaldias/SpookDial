@@ -22,6 +22,15 @@
 [ext_resource type="Script" path="res://scripts/desk/request_manager.gd" id="requests_script"]
 [ext_resource type="Resource" path="res://data/catalog.tres" id="catalog"]
 [ext_resource type="PackedScene" path="res://scenes/ui/notebook_panel.tscn" id="notebook_panel"]
+[ext_resource type="Script" path="res://scripts/desk/night_manager.gd" id="night_script"]
+[ext_resource type="Shader" path="res://shaders/vignette.gdshader" id="vignette_shader"]
+[ext_resource type="FontFile" path="res://fonts/departure_mono/DepartureMono-Regular.otf" id="pixel_font"]
+
+[sub_resource type="ShaderMaterial" id="vignette_material"]
+shader = ExtResource("vignette_shader")
+shader_parameter/strength = 0.0
+shader_parameter/bands = 5.0
+shader_parameter/max_darkness = 0.92
 
 [node name="Desk" type="Node2D"]
 script = ExtResource("desk_script")
@@ -101,6 +110,22 @@ sprite_frames = ExtResource("phone")
 centered = false
 script = ExtResource("clickable_script")
 
+[node name="ClockCover" type="Polygon2D" parent="DeskPlane/Phone"]
+color = Color(0.298, 0.42, 0.655, 1)
+polygon = PackedVector2Array(30, 6, 80, 6, 76, 18, 25, 18)
+
+[node name="Clock" type="Label" parent="DeskPlane/Phone"]
+offset_left = 26.0
+offset_top = 4.0
+offset_right = 80.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.76, 0.835, 0.929, 1)
+theme_override_fonts/font = ExtResource("pixel_font")
+theme_override_font_sizes/font_size = 11
+text = "00:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Mixer" type="AnimatedSprite2D" parent="DeskPlane"]
 position = Vector2(130, 565)
 sprite_frames = ExtResource("mixer")
@@ -116,6 +141,17 @@ centered = false
 position = Vector2(479, 433)
 sprite_frames = ExtResource("pc")
 centered = false
+
+[node name="Videos" type="Label" parent="DeskPlane/PC"]
+offset_left = 39.0
+offset_top = 7.0
+offset_right = 282.0
+offset_bottom = 21.0
+theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
+theme_override_fonts/font = ExtResource("pixel_font")
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="Entries" type="Node2D" parent="DeskPlane"]
 
@@ -140,8 +176,21 @@ script = ExtResource("camera_script")
 script = ExtResource("requests_script")
 catalog = ExtResource("catalog")
 
+[node name="NightManager" type="Node" parent="."]
+script = ExtResource("night_script")
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="ChatPanel" parent="UI" instance=ExtResource("chat_panel")]
 
 [node name="NotebookPanel" parent="UI" instance=ExtResource("notebook_panel")]
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="Vignette" type="ColorRect" parent="Overlay"]
+material = SubResource("vignette_material")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2

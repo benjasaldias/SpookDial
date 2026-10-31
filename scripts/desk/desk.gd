@@ -5,11 +5,19 @@ extends Node2D
 ## cuaderno son independientes y pueden estar abiertos a la vez (decisión de Benja). Cada uno se cierra
 ## con clic derecho sobre él; Esc o un clic fuera de los paneles cierra los dos.
 ## Un clic en el celular o el mixer cierra los paneles y por ahora solo se registra (sus vistas, en el Plan 6).
+## Desde el Plan 5, los diales, el celular y el PC muestran el estado de la noche, y la viñeta oscurece
+## la vista cuando baja Sanity.
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
+const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
+const NightManager := preload("res://scripts/desk/night_manager.gd")
+const NightState := preload("res://scripts/core/night_state.gd")
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
+
+## Videos recibidos, en el PC (ui.csv). Lleva {received} y {quota}.
+const VIDEOS_KEY := "PC_VIDEOS"
 
 ## Qué página del cuaderno tiene abierta cada amigo. La usan el cuaderno y los botones de respuesta del chat.
 var notebook_memory: NotebookMemory
@@ -18,11 +26,19 @@ var notebook_memory: NotebookMemory
 @onready var _chat_panel: Control = $UI/ChatPanel
 @onready var _notebook_panel: Control = $UI/NotebookPanel
 @onready var _requests: RequestManager = $RequestManager
+@onready var _night: NightManager = $NightManager
+@onready var _dial_connection: DialGauge = $WallPlane/DialConnection
+@onready var _dial_sanity: DialGauge = $WallPlane/DialSanity
+@onready var _dial_trust: DialGauge = $WallPlane/DialTrust
+@onready var _clock: Label = $DeskPlane/Phone/Clock
+@onready var _videos: Label = $DeskPlane/PC/Videos
+@onready var _vignette: ColorRect = $Overlay/Vignette
 
 
 func _ready() -> void:
 	var friends := _requests.catalog.friends
 	notebook_memory = NotebookMemory.new(friends.size())
+	_night.setup(_requests)
 	_chat_panel.setup(_requests, friends, notebook_memory)
 	_notebook_panel.setup(notebook_memory, _requests.catalog.known_entities(_requests.night_number), friends)
 	for index in _entries.size():
@@ -42,6 +58,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	_refresh_entries()
+	_refresh_meters()
 
 
 ## Cierra el chat y el cuaderno. El celular y el mixer se usan sin ningún panel abierto (decisión de Benja).
@@ -96,3 +113,15 @@ func _refresh_entries() -> void:
 		if entry.state != state:
 			entry.set_state(state)
 		entry.set_seconds_left(ceili(request.time_left) if request != null else -1)
+
+
+## Los diales (cada uno con su color fijo, decisión de Benja), la hora del celular, los videos del PC
+## y la viñeta de Sanity.
+func _refresh_meters() -> void:
+	var state := _requests.state
+	_dial_connection.value = state.connection() / NightState.METER_MAX
+	_dial_sanity.value = state.sanity / NightState.METER_MAX
+	_dial_trust.value = state.trust / NightState.METER_MAX
+	_clock.text = state.clock_text()
+	_videos.text = tr(VIDEOS_KEY).format({"received": state.videos.received, "quota": state.videos.quota})
+	(_vignette.material as ShaderMaterial).set_shader_parameter(&"strength", state.vignette_strength())
