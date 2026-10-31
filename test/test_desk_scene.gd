@@ -312,3 +312,16 @@ func test_la_vineta_sigue_a_sanity() -> bool:
 	check(is_equal_approx(strength, 0.5), "con Sanity 30, a la mitad: %s" % strength)
 	desk.free()
 	return true
+
+
+func test_un_amigo_herido_se_ve_en_su_entrada() -> bool:
+	var desk := _make_desk()
+	_state(desk).friends[1].hurt(1, 15.0)
+	desk._process(0.0)
+	var gonzalo := desk.get_node("DeskPlane/Entries/EntryGonzalo")
+	check_eq(gonzalo.state, ChatEntry.State.STUNNED, "aturdido")
+	check_eq(gonzalo.health, 2, "con 2 PV")
+	check((gonzalo.get_node("TimerLabel") as Label).text.contains("15"), "muestra cuánto le queda")
+	check_eq(desk.get_node("DeskPlane/Entries/EntryLeon").health, 3, "León, sano")
+	desk.free()
+	return true

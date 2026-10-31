@@ -100,19 +100,29 @@ func _on_request_started(friend_index: int, _request: FriendRequest) -> void:
 	notebook_memory.close_page(friend_index)
 
 
-## Seleccionada si su chat está abierto; si no, en alerta mientras espera respuesta. El tiempo, mientras espera.
+## Seleccionada si su chat está abierto; si no, en alerta mientras espera respuesta, o más oscura si el amigo
+## está aturdido. El tiempo que le queda para responder o para recuperarse, y su vida.
 func _refresh_entries() -> void:
 	for index in _entries.size():
 		var entry := _entries[index]
 		var request := _requests.requests[index]
+		var friend := _requests.state.friends[index]
 		var state := ChatEntry.State.IDLE
 		if _chat_panel.visible and index == _chat_panel.selected_friend:
 			state = ChatEntry.State.SELECTED
 		elif request != null:
 			state = ChatEntry.State.WARNING
+		elif friend.is_stunned():
+			state = ChatEntry.State.STUNNED
 		if entry.state != state:
 			entry.set_state(state)
-		entry.set_seconds_left(ceili(request.time_left) if request != null else -1)
+		entry.set_health(friend.health, friend.max_health)
+		if request != null:
+			entry.set_seconds_left(ceili(request.time_left))
+		elif friend.is_stunned():
+			entry.show_stun(ceili(friend.stun_left))
+		else:
+			entry.set_seconds_left(-1)
 
 
 ## Los diales (cada uno con su color fijo, decisión de Benja), la hora del celular, los videos del PC
