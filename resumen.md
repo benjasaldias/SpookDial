@@ -4,6 +4,64 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 11 — 31 de octubre de 2026 — Plan 4 ejecutado: cuaderno
+
+Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro proponía Sonnet 5.5). Benja autorizó todos los commits del plan en `main`, sin push.
+
+### Realizado
+
+- **Las 7 tareas de `docs/11`, con 177 pruebas OK y 0 fallidas** (`~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd`), sin errores al correr. Coincidieron todos los conteos del plan, incluidas las fallas esperadas (148 → 151, 156, 158, 160, 168 y 177). El código se copió de los bloques del plan con un script, para conservar sus tabuladores exactos.
+  - **Lógica pura en `scripts/core/`:** `NotebookMemory` (la página abierta de cada amigo) y `NotebookPage` (la página de una entidad en BBCode).
+  - **`MessageBuilder`** agrega la respuesta de Matías y la reacción del amigo según el resultado. **`RequestManager`** agrega `answer()`: una acción de la página de otra entidad es incorrecta.
+  - **Cuaderno:** `scenes/ui/notebook_panel.tscn` y `scripts/ui/notebook_panel.gd`, a la derecha (449×696, en x 820–1269), con el tema provisional `scenes/ui/notebook_theme.tres`.
+  - **Chat:** 4 botones de respuesta con las acciones de la página abierta para ese amigo, y la señal `friend_selected`. La conversación se achicó de 448 a 370 px.
+  - **Escritorio:** crea la memoria, conecta el chat con el cuaderno, vuelve al índice cuando llega una solicitud nueva y cierra los paneles con `Esc` o con un clic fuera. El celular y el mixer cierran los paneles.
+- **Textos nuevos:**
+  - `data/text/notebook.csv`, sin `[PROTO]`: los títulos de las secciones y los formatos de las líneas (`NOTEBOOK_*`);
+  - `data/text/ui.csv`, sin `[PROTO]`: "Elige una entidad en el índice", "Ayudando a {friend}" y "Acciones de {entity}";
+  - `data/text/messages.csv`, como `[PROTO]` (Benja los reemplaza): las 3 reacciones (`REACTION_CORRECT`, `REACTION_RISKY` y `REACTION_WRONG`).
+- **Captura del cuaderno revisada** (`C:\dev\capturas\notebook.png`). Se cumple todo lo que pide el plan:
+  - en el chat de León, las 2 características en verde, la barra con "El Trauco", las 4 preguntas, "Acciones de El Trauco" y los 4 botones;
+  - en el cuaderno, "Ayudando a León", la pestaña de El Trauco marcada, el folclore, las características y las observaciones con su pregunta entre paréntesis, y las reglas con la acción correcta en verde y la de mayor riesgo en rojo, después de "Mayor riesgo:";
+  - en el PC, León seleccionada, y los diales tapados por el cuaderno.
+- `docs/04`: nueva sección **H** (probar el cuaderno), y las secciones C y G ya no dicen que el cuaderno llega en el Plan 4. `docs/06`: el Plan 4 queda ejecutado. `docs/00_log.md`: S11 ✅ y S12 ▶.
+- 7 commits en `main`, sin push.
+
+### Errores encontrados
+
+- **El plan no necesitó correcciones:** se aplicó tal como está escrito.
+- En la captura siguen los dos detalles conocidos de la Sesión 9: la pestaña de León dice 29 y su entrada 30 (el desfase de un frame), y las oraciones del mensaje quedan pegadas porque los textos `[PROTO]` no terminan en punto.
+
+### Pendientes Código
+
+- [x] **S11: ejecutar el Plan 4.**
+- [ ] **S12: escribir el Plan 5 (consecuencias, medidores y noche)**, con Opus 5.5 en esfuerzo high (`docs/00_log.md`).
+- [ ] Pasar a `.tres` las entidades que Benja refine, agregar El Tue Tué y La Calchona a la noche 1, y cambiar a 1 el **Night Number** de `RequestManager`.
+- [ ] Planes 5 a 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar el cuaderno en Godot** (`docs/04`, H, unos 10 minutos). Lo ideal es antes de S12.
+- [ ] **Probar las solicitudes y el chat en Godot** (`docs/04`, G, unos 10 minutos). Ojo: desde el Plan 4, el chat se cierra con clic derecho sobre él, con `Esc` o con un clic fuera de los paneles.
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] Refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos, y esa frase tiene que entenderse sola: también es su nombre en el cuaderno.
+- [ ] **Escribir los señuelos** (`data/catalog.tres` y `messages.csv`). Cada lugar necesita al menos los que pide la noche (hasta 3); las pruebas avisan si faltan.
+- [ ] Reemplazar los textos `[PROTO]` de `data/text/messages.csv` (ahora también las 3 reacciones) y `notebook.csv`. Cada fragmento, como una oración completa con su punto.
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 4 a 6:
+  - **la interfaz del cuaderno:** la página (449×696, como `screen_sprite`; va a la derecha), las pestañas del índice y los bocetos de las entidades (unos 96×96). El tema `scenes/ui/notebook_theme.tres` ya existe y los recibe;
+  - para el chat: burbujas, botones (4 estados), pestañas y "escribiendo…". El tema `scenes/ui/chat_theme.tres` está listo para recibirlos;
+  - también faltan las barras de señal, el celular sin la hora y los dígitos LCD, los diales rediseñados, el mixer en piezas y el celular ampliado (`docs/06` §3).
+- [ ] Elegir una tipografía pixel (`docs/03` §10). Debe tener `▒` (U+2592).
+
+---
+
 ## Sesión 10 — 30 y 31 de octubre de 2026 — Plan 4 escrito: cuaderno
 
 Benja pidió escribir el Plan 4 con `superpowers:writing-plans`, justo después de ejecutar el Plan 3. Se escribió en Opus 5.5, con esfuerzo max. La sesión se interrumpió una vez (el equipo se reinició) y no se perdió nada del proyecto.

@@ -18,6 +18,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **E.** Cómo mover un objeto de la escena | Referencia |
 | **F.** Revisar una entidad en el Inspector (Plan 2) | ⬜ Pendiente (unos 5 minutos) |
 | **G.** Probar las solicitudes y el chat (Plan 3) | ⬜ Pendiente (unos 10 minutos) |
+| **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 
 ---
 
@@ -72,7 +73,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - **Cerrar:** presiona `Esc`, haz clic derecho o haz clic en cualquier parte fuera del panel. El panel se cierra y la entrada vuelve a su color. Si el clic cae en la entrada de otro amigo, se abre directamente su chat.
    - **Cámara:** mueve el mouse de una esquina a otra. Toda la escena se corre hacia el lado contrario (al mirar a la derecha, la escena va a la izquierda), unos 30 px como máximo. Comprueba que alcanzas el cuaderno, el mixer y las tres entradas.
    - **Si la cámara no te convence:** selecciona el nodo `LookCamera` en el panel **Scene** y, en el **Inspector**, desmarca **Look Enabled** (la escena queda fija y sin zoom), o cambia **Look Zoom** (1,00 a 1,20) y **Follow Speed** (más alto, más rápido). Guarda con **Ctrl + S** y vuelve a probar con **F5**.
-   - **Clics:** al hacer clic en el cuaderno, el celular o el mixer, en el panel **Output** (Salida) de Godot aparece "Clic en Notebook", "Clic en Phone" o "Clic en Mixer".
+   - **Clics:** al hacer clic en el celular o el mixer, en el panel **Output** (Salida) de Godot aparece "Clic en Phone" o "Clic en Mixer". Al hacer clic en el cuaderno, se abre su panel (Plan 4).
 
 **Verifica:** las cinco pruebas anteriores se cumplen. Si alguna falla, anota cuál y qué pasó.
 
@@ -145,9 +146,9 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - Las características reales se ponen verdes y la barra cuenta "Características marcadas: 1 de 2".
    - Los señuelos vibran y se ponen rojos.
    - Con las 2 marcadas, la barra dice "Matías piensa…" y a los 3 segundos aparece el nombre (El Trauco).
-   - Al clickear el nombre, en el panel **Output** (Salida) aparece "Abrir en el cuaderno la página de El Trauco (Plan 4)".
+   - Al clickear el nombre, se abre el cuaderno en la página de El Trauco (se prueba en la sección H).
 5. **Pregunta:** cada botón (¿Qué ves?, ¿Qué oyes?…) resta 5 segundos, y el amigo responde con lo de esa categoría. Con 5 segundos o menos, los botones se desactivan.
-6. **Sin respuesta:** si se acaba el tiempo, el amigo cuenta que decidió solo y su entrada deja de parpadear. Responder desde el cuaderno llega en el Plan 4.
+6. **Sin respuesta:** si se acaba el tiempo, el amigo cuenta que decidió solo y su entrada deja de parpadear. Responder desde el cuaderno se prueba en la sección H.
 7. **Estática:**
    - en el panel **Scene**, selecciona el nodo `RequestManager`;
    - en el **Inspector**, baja **Test Signal** a 40 (se tapa el 25 % de las palabras) o a 20 (el 45 %);
@@ -163,3 +164,33 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 - **Señuelos por noche:** `data/nights/night_N.tres` > **Decoys In First Message**.
 - **Los señuelos:** `data/catalog.tres` > **Decoys**. Cada uno tiene `Id`, `Category`, `Text Key` y `Place Keys` (vacío: sirve en cualquier lugar; si no, las claves de sus lugares, como `PLACE_FOREST`). Su texto va en `data/text/messages.csv`, con la frase clickeable entre asteriscos.
 - Después de cambiar datos, pídele a Claude que corra las pruebas: el validador avisa en español si falta algo, como un lugar sin suficientes señuelos.
+
+---
+
+## H. Probar el cuaderno (Plan 4)
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. Abre Godot y el proyecto. Abre `scenes/desk/desk.tscn` y presiona **F5**.
+2. **Identifica y abre la página:** cuando una entrada del PC parpadee, haz clic en ella. En el chat, clickea las 2 características hasta que aparezca el nombre (El Trauco) y haz clic en él.
+   - A la derecha se abre el cuaderno, del mismo tamaño que el chat, en la página de El Trauco. Arriba dice "Ayudando a" y el nombre del amigo.
+   - La página tiene el folclore, las características y las observaciones (cada una con la pregunta que la trae, entre paréntesis), las reglas y las acciones. Se scrollea con la rueda del mouse.
+   - En cada regla, la acción correcta va en verde y la de mayor riesgo, después de "Mayor riesgo:", en rojo.
+3. **Responde:** en el chat, bajo las preguntas, dice "Acciones de El Trauco" y hay 4 botones. Aplica las reglas a lo que cuenta el amigo y haz clic en una acción.
+   - Tu acción aparece a la derecha del chat, y el amigo reacciona con un texto `[PROTO]` según si fue la correcta, la de mayor riesgo o una incorrecta.
+   - La entrada del amigo deja de parpadear.
+4. **Los paneles son independientes:**
+   - con los dos abiertos, haz clic derecho sobre el cuaderno: se cierra solo el cuaderno;
+   - haz clic en el cuaderno del escritorio (sobre la mesa, a la derecha): se vuelve a abrir, y el chat no cambia;
+   - haz clic derecho sobre el chat: se cierra solo el chat, y el cuaderno sigue abierto;
+   - con el cuaderno abierto, haz clic en otra entrada del PC: se abre el chat de ese amigo, y el cuaderno salta a su página. Si no tiene una, dice "Elige una entidad en el índice".
+5. **Memoria por amigo:** abre la página de El Trauco para un amigo y cambia de pestaña en el chat: el cuaderno muestra la página de cada amigo. Cuando a un amigo le llega una solicitud nueva, su cuaderno vuelve al índice.
+6. **Cerrar todo:** con los dos paneles abiertos, presiona `Esc`: se cierran los dos. Ábrelos de nuevo y haz clic en una parte vacía de la escena, como la pared sobre el PC: también se cierran los dos.
+7. **El celular y el mixer:** con solo el cuaderno abierto, haz clic en el mixer. El cuaderno se cierra, y en el panel **Output** (Salida) aparece "Clic en Mixer".
+8. **El cuaderno tapa el escritorio:** con el cuaderno abierto, pasa el mouse por donde está el cuaderno del escritorio, detrás del panel. No debe resaltarse.
+
+**Verifica:** los pasos 2 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
+
+### Para más adelante
+
+- **El arte del cuaderno:** la página (449×696, como `screen_sprite`), las pestañas del índice y los bocetos de las entidades (unos 96×96). Cuando estén, Claude los pone en `scenes/ui/notebook_theme.tres` y en el **Sketch** de cada entidad.

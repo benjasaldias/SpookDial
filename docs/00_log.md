@@ -6,29 +6,29 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ---
 
-## ▶ Siguiente sesión: S11 — Ejecutar el Plan 4 (cuaderno)
+## ▶ Siguiente sesión: S12 — Escribir el Plan 5 (consecuencias, medidores y noche)
 
 | | |
 | --- | --- |
-| **Qué se hace** | Ejecutar `docs/11_plan_cuaderno.md`: 7 tareas, de 148 a 177 pruebas. Al final se responde una solicitud desde el cuaderno: el bucle central se juega. |
-| **Tipo** | Ejecutar un plan. |
-| **Modelo** | **Sonnet 5.5** |
-| **Esfuerzo** | **high**. El código del plan ya se probó completo en una copia aparte, y el plan se validó sobre una copia limpia, así que la ejecución es mecánica. |
-| **Antes de empezar** | **Godot cerrado** (el plan usa `--import`). Si todavía no probaste el chat (`docs/04`, G), conviene hacerlo antes: el Plan 4 cambia cómo se cierra. |
-| **Qué escribirle a Claude** | "Ejecuta el Plan 4 (docs/11) con superpowers:executing-plans" |
-| **Tu parte** | Autorizar los commits (de a uno o todos juntos). Después, probar el cuaderno en Godot (`docs/04`, H, que agrega el plan). |
-| **Está terminada cuando** | Hay 177 pruebas OK, la captura del cuaderno está revisada y S12 es la siguiente. |
+| **Qué se hace** | Escribir `docs/12_plan_*.md`: las consecuencias de cada respuesta (daño, aturdimiento, Trust y el video extra), los 3 diales y el ciclo de la noche (cuota, ganar y perder). `request_finished` ya lleva la acción, quién respondió y el resultado. |
+| **Tipo** | Escribir un plan. |
+| **Modelo** | **Opus 5.5** |
+| **Esfuerzo** | **high** |
+| **Antes de empezar** | Conviene que hayas probado el chat y el cuaderno en Godot (`docs/04`, G y H): lo que encuentres puede cambiar el Plan 5. |
+| **Qué escribirle a Claude** | "Escribe el Plan 5 (consecuencias, medidores y noche) con superpowers:writing-plans" |
+| **Tu parte** | Responder las decisiones de las consecuencias y los medidores que Claude pregunte. |
+| **Está terminada cuando** | El Plan 5 está escrito y validado, y S13 es la siguiente. |
 
 ---
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy hay **uno pendiente**: `docs/11` (Plan 4), que se ejecuta en S11.
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **no hay ninguno pendiente**: el siguiente (Plan 5) se escribe en S12.
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
-| `docs/11_plan_cuaderno.md` | **Plan 4**, paso a paso, con código | **Sí, en S11** ▶ |
+| `docs/11_plan_cuaderno.md` | **Plan 4**, paso a paso, con código | Ya ejecutado (S11) ✅ |
 | `docs/10_plan_solicitudes_chat.md` | **Plan 3**, paso a paso, con código | Ya ejecutado (S9) ✅ |
 | `docs/09_propuesta_entidades.md` | Borrador de 3 entidades para que Benja las refine | No (referencia para Benja) |
 | `docs/08_plan_datos_textos.md` | **Plan 2**, paso a paso, con código | Ya ejecutado (S7) ✅ |
@@ -63,8 +63,8 @@ Hay dos tipos de sesión, que se alternan:
 | S8 | 26 oct | Escribir el Plan 3: solicitudes y chat | Plan | Opus 5.5 (se adelantó) | Decisiones del chat | ✅ |
 | S9 | 30 oct | Ejecutar el Plan 3 | Ejecución | Opus 5.5 · max (en vez de Sonnet) | Autorizar commits; probar (`docs/04`, G) | ✅ |
 | S10 | 30–31 oct | Escribir el Plan 4: cuaderno | Plan | Opus 5.5 · max (se adelantó) | Decisiones del cuaderno | ✅ |
-| **S11** | 1–8 nov | **Ejecutar el Plan 4 → el bucle central se juega** | Ejecución | **Sonnet 5.5 · high** | Autorizar commits; probar (`docs/04`, H) | ▶ |
-| S12 | 9 nov | Escribir el Plan 5: consecuencias, medidores y noche | Plan | Opus 5.5 · high | — | ⏳ |
+| S11 | 31 oct | Ejecutar el Plan 4 → el bucle central se juega | Ejecución | Opus 5.5 (se adelantó; en vez de Sonnet) | Autorizar commits; probar (`docs/04`, H) | ✅ |
+| **S12** | 9 nov | **Escribir el Plan 5: consecuencias, medidores y noche** | Plan | **Opus 5.5 · high** | Decisiones de las consecuencias | ▶ |
 | S13 | 10–12 nov | Ejecutar el Plan 5 | Ejecución | Sonnet 5.5 · high | — | ⏳ |
 | S14 | 12 nov | Escribir el Plan 6: mantenimiento | Plan | Opus 5.5 · high | Mixer en piezas, celular ampliado | ⏳ |
 | S15 | 13–15 nov | Ejecutar el Plan 6 → **una noche completa** | Ejecución | Sonnet 5.5 · high | Probarlo | ⏳ |
@@ -85,6 +85,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 31-oct | ✏️ S11 se adelantó al 31 de octubre (fecha objetivo: 1 a 8 de noviembre) y se ejecutó inline con `superpowers:executing-plans` en Opus 5.5 (el registro proponía Sonnet 5.5). El plan se aplicó tal como está escrito, sin correcciones. |
 | 31-oct | ✏️ S10 se adelantó al 30 y 31 de octubre (fecha objetivo: 6 de noviembre), justo después de S9, y se escribió en Opus 5.5 con esfuerzo max. Benja decidió que el cuaderno va a la derecha y es independiente del chat (detalle en `resumen.md`, Sesión 10). La sesión se interrumpió una vez, sin pérdidas. |
 | 30-oct | ✏️ S9 se ejecutó inline con `superpowers:executing-plans` en Opus 5.5 (el registro proponía Sonnet 5.5), primero en esfuerzo xhigh y después en max. El plan se aplicó tal como está escrito, sin correcciones. |
 | 26-oct | ✏️ S8 se adelantó al 26-oct sin las entidades refinadas: Benja pidió ejecutar el Plan 3, que no estaba escrito, y eligió escribirlo. El plan usa El Trauco y entidades de prueba; El Tue Tué y La Calchona entran como datos cuando estén. |
@@ -112,3 +113,4 @@ Hay dos tipos de sesión, que se alternan:
 | S8 | 26-oct | Plan 3 escrito (`docs/10`): 12 tareas, de 78 a 148 pruebas. Señuelos (decisión de Benja), barra de identificación, estática por frase y preguntas con 5 s o menos. Código probado en una copia aparte y el plan validado sobre una copia limpia | `resumen.md`, Sesión 8 |
 | S9 | 30-oct | Plan 3 ejecutado: 148 pruebas OK. Señuelos, solicitudes con temporizador, estática, preguntas, identificación por clics y panel del chat con pestañas. Captura del chat revisada. `docs/04`, G | `resumen.md`, Sesión 9 |
 | S10 | 30 y 31-oct | Plan 4 escrito (`docs/11`): 7 tareas, de 148 a 177 pruebas. Cuaderno a la derecha e independiente del chat, memoria por amigo que vuelve al índice y reacción provisional (decisiones de Benja). Código probado en una copia aparte y plan validado sobre una copia limpia | `resumen.md`, Sesión 10 |
+| S11 | 31-oct | Plan 4 ejecutado: 177 pruebas OK. Memoria de páginas por amigo, página de la entidad, respuesta y reacción provisional, panel del cuaderno a la derecha y respuestas desde el chat. Captura del cuaderno revisada. `docs/04`, H | `resumen.md`, Sesión 11 |
