@@ -5,6 +5,7 @@ extends RefCounted
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
+const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
 ## Botón y mensaje de Matías para cada pregunta (ui.csv).
 const QUESTION_KEYS := {
@@ -22,6 +23,13 @@ const NOTHING_KEYS := {
 }
 ## El amigo decidió solo porque nadie respondió a tiempo. {action} es la acción que eligió (messages.csv).
 const DECIDED_ALONE_KEY := "FRIEND_DECIDED_ALONE"
+## Lo que cuenta el amigo después de hacer lo que dijo Matías, según el resultado (messages.csv).
+## Es provisional: en el Plan 5 la reacción también depende de si el amigo quedó herido.
+const REACTION_KEYS := {
+	RuleEvaluator.Outcome.CORRECT: "REACTION_CORRECT",
+	RuleEvaluator.Outcome.RISKY: "REACTION_RISKY",
+	RuleEvaluator.Outcome.WRONG: "REACTION_WRONG",
+}
 
 
 ## Mensaje inicial: dónde está, las características y los señuelos mezclados, y sus observaciones.
@@ -62,6 +70,20 @@ static func decided_alone(request: FriendRequest, translate: Callable) -> ChatMe
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
 	var action := _text(translate, request.chosen_action.label_key)
 	message.add_fragment(_text(translate, DECIDED_ALONE_KEY).format({"action": action}))
+	return message
+
+
+## La respuesta de Matías: la acción que eligió en el cuaderno. La solicitud ya debe estar terminada.
+static func player_answer(request: FriendRequest, translate: Callable) -> ChatMessage:
+	var message := ChatMessage.new(ChatMessage.Sender.PLAYER, request)
+	message.add_fragment(_text(translate, request.chosen_action.label_key))
+	return message
+
+
+## Lo que cuenta el amigo después de hacer lo que dijo Matías. La solicitud ya debe estar terminada.
+static func reaction(request: FriendRequest, translate: Callable) -> ChatMessage:
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
+	message.add_fragment(_text(translate, REACTION_KEYS[request.outcome]))
 	return message
 
 

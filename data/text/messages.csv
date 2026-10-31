@@ -20,3 +20,6 @@ ANSWER_NOTHING_SOUND,[PROTO] El amigo dice que no se oye nada fuera de lo común
 ANSWER_NOTHING_ENVIRONMENT,[PROTO] El amigo dice que el ambiente está normal,
 ANSWER_NOTHING_TRACES,[PROTO] El amigo dice que no ve rastros,
 FRIEND_DECIDED_ALONE,"[PROTO] Como Matías no respondió a tiempo, el amigo cuenta que decidió solo: {action}",
+REACTION_CORRECT,[PROTO] El amigo hizo lo que dijo Matías y funcionó: cuenta que la entidad lo dejó tranquilo,
+REACTION_RISKY,[PROTO] El amigo hizo lo más arriesgado: cuenta que estuvo muy cerca de la entidad,
+REACTION_WRONG,[PROTO] El amigo hizo lo que dijo Matías y salió mal: cuenta que la entidad se puso agresiva,

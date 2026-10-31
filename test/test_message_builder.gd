@@ -83,10 +83,33 @@ func test_el_amigo_decidio_solo() -> bool:
 	return true
 
 
+func test_la_respuesta_de_matias() -> bool:
+	var request := _make_request()
+	request.finish(request.entity.find_action(&"a1"), true)
+	var message := MessageBuilder.player_answer(request, _translate)
+	check_eq(message.sender, ChatMessage.Sender.PLAYER, "la envía Matías")
+	check_eq(message.request, request, "es de la solicitud")
+	check_eq(message.plain_text(), "K_beast_A1.", "la acción que eligió")
+	return true
+
+
+func test_la_reaccion_depende_del_resultado() -> bool:
+	# o1 = yes: se aplica la regla 1 (correcta a1, mayor riesgo a2), y a3 es incorrecta.
+	var expected := {&"a1": "REACTION_CORRECT.", &"a2": "REACTION_RISKY.", &"a3": "REACTION_WRONG."}
+	for action_id: StringName in expected:
+		var request := _make_request()
+		request.finish(request.entity.find_action(action_id), true)
+		var message := MessageBuilder.reaction(request, _translate)
+		check_eq(message.sender, ChatMessage.Sender.FRIEND, "la envía el amigo")
+		check_eq(message.plain_text(), expected[action_id], "reacción a %s" % action_id)
+	return true
+
+
 func test_sus_textos_existen() -> bool:
 	var previous := TranslationServer.get_locale()
 	TranslationServer.set_locale("es")
-	var keys: Array = MessageBuilder.QUESTION_KEYS.values() + MessageBuilder.NOTHING_KEYS.values()
+	var keys: Array = MessageBuilder.QUESTION_KEYS.values() + MessageBuilder.NOTHING_KEYS.values() \
+			+ MessageBuilder.REACTION_KEYS.values()
 	keys.append(MessageBuilder.DECIDED_ALONE_KEY)
 	for key: String in keys:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en los CSV" % key)
