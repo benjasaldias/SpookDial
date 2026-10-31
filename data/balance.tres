@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BalanceData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/balance_data.gd" id="1_balance"]
+
+[resource]
+script = ExtResource("1_balance")
+night_seconds = 420.0
+friend_health = 3
+stun_seconds = 15.0
+risky_hurt_chance = 0.7
+risky_damage = 2
+risky_trust = -20.0
+wrong_hurt_chance = 0.6
+wrong_damage = 1
+wrong_trust = -10.0
+no_answer_trust = -15.0
+trust_recovery_interval = 8.0
+trust_recovery_delay = 20.0
+vignette_start = 60.0

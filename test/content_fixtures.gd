@@ -63,10 +63,11 @@ static func make_decoy(decoy_id: StringName, category := ClueCategory.Kind.SIGHT
 	return decoy
 
 
-## Catálogo válido: 3 amigos, 5 noches y 2 señuelos que sirven en cualquier lugar
-## ("decoy_sight" y "decoy_sound"); "beast" aparece la noche 1 y "ghost" la noche 2.
+## Catálogo válido: 3 amigos, 5 noches, 2 señuelos que sirven en cualquier lugar ("decoy_sight" y
+## "decoy_sound") y los valores de equilibrio por defecto; "beast" aparece la noche 1 y "ghost" la noche 2.
 static func make_catalog() -> ContentCatalog:
 	var catalog := ContentCatalog.new()
+	catalog.balance = BalanceData.new()
 	for friend_id: StringName in [&"leon", &"gonzalo", &"agustin"]:
 		var friend := FriendData.new()
 		friend.id = friend_id

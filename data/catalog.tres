@@ -12,6 +12,7 @@
 [ext_resource type="Resource" path="res://data/nights/night_4.tres" id="10_night_4"]
 [ext_resource type="Resource" path="res://data/nights/night_5.tres" id="11_night_5"]
 [ext_resource type="Script" path="res://scripts/data/decoy_data.gd" id="12_decoy"]
+[ext_resource type="Resource" path="res://data/balance.tres" id="13_balance"]
 
 [sub_resource type="Resource" id="Decoy_cold_breath"]
 script = ExtResource("12_decoy")
@@ -56,3 +57,4 @@ script = ExtResource("1_catalog")
 friends = Array[ExtResource("2_friend")]([ExtResource("4_leon"), ExtResource("5_gonzalo"), ExtResource("6_agustin")])
 nights = Array[ExtResource("3_night")]([ExtResource("7_night_1"), ExtResource("8_night_2"), ExtResource("9_night_3"), ExtResource("10_night_4"), ExtResource("11_night_5")])
 decoys = Array[ExtResource("12_decoy")]([SubResource("Decoy_cold_breath"), SubResource("Decoy_distant_dog"), SubResource("Decoy_flickering_light"), SubResource("Decoy_wet_grass"), SubResource("Decoy_trunk_moss"), SubResource("Decoy_creaking_branches")])
+balance = ExtResource("13_balance")

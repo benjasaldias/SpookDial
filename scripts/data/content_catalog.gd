@@ -8,6 +8,8 @@ extends Resource
 @export var nights: Array[NightData] = []
 ## Frases clickeables que camuflan las características en los mensajes (DecoyData).
 @export var decoys: Array[DecoyData] = []
+## Valores de equilibrio de todas las noches (data/balance.tres).
+@export var balance: BalanceData
 
 
 ## Entidades conocidas en una noche: las nuevas de esa noche y de todas las anteriores.
