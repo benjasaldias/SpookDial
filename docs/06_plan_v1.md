@@ -6,6 +6,7 @@ Hoja de ruta para construir la v1 (`docs/05` §1) antes del 10 de diciembre. Div
 - El **Plan 2** está escrito paso a paso en `docs/08_plan_datos_textos.md` (ejecutado).
 - El **Plan 3** está escrito paso a paso en `docs/10_plan_solicitudes_chat.md` (ejecutado).
 - El **Plan 4** está escrito paso a paso en `docs/11_plan_cuaderno.md` (ejecutado).
+- El **Plan 5** está escrito paso a paso en `docs/12_plan_consecuencias_noche.md` (por ejecutar).
 - Cada plan siguiente se escribe en detalle al comenzar su sesión, con el mismo formato (skill `superpowers:writing-plans`).
 
 ---
@@ -47,8 +48,8 @@ res://
 | **2. Datos y textos** | Clases `TraitData`, `ObservationData`, `ActionData`, `RuleData`, `EntityData`, `FriendData` y `NightData`; evaluador de reglas; traducciones CSV con textos `[PROTO]`; El Trauco de ejemplo como `.tres` | — | Las pruebas del evaluador pasan; la entidad se edita en el Inspector | 1 |
 | **3. Solicitudes y chat** | Generador de solicitudes, armado de mensajes con características marcadas, estática, preguntas, panel de chat (pestañas, mensajes, escritura progresiva), identificación por clic con espera, temporizadores | 1, 2 | Llegan solicitudes; se identifican clickeando; se pregunta | 2 |
 | **4. Cuaderno** | Índice, páginas generadas desde `EntityData`, memoria de página por amigo y botones de respuesta desde la página abierta | 2, 3 | Se responde una solicitud desde el cuaderno | 2 |
-| **5. Consecuencias, medidores y noche** | Resolución, vida y aturdimiento, Trust, Sanity y Connection con sus efectos graduales, diales conectados, reloj en el celular, victoria, derrota y pantalla explicativa | 3, 4 | Una noche completa se gana o se pierde | 3 |
-| **6. Mantenimiento** | Señal por amigo con interferencias, Audio Sync en el mixer, recepción de videos con contador de cuota y scroll del celular | 5 | Las tres tareas de mantenimiento funcionan en la noche | 3 |
+| **5. Consecuencias, medidores y noche** | Resolución, vida y aturdimiento, Trust, Sanity y Connection con sus efectos graduales, diales conectados, reloj en el celular, cuota con envíos programados (por ahora se reciben solos), victoria, derrota y pantalla explicativa | 3, 4 | Una noche completa se gana o se pierde | 3 |
+| **6. Mantenimiento** | Señal por amigo con interferencias, Audio Sync en el mixer, recepción de videos (aceptar en 10 s y descargar manteniendo presionado) y scroll del celular | 5 | Las tres tareas de mantenimiento funcionan en la noche | 3 |
 | **7. Screamers y director** | Director de ritmo (con reglas y pruebas), tipos de screamer con sus reglas de justicia y alucinaciones auditivas | 5, 6 | Una noche con ritmo controlado y screamers justos | 4 |
 | **8. Noches, menú, guardado y opciones** | 5 `NightData`, menú principal, guardado al inicio de cada noche, resumen entre noches, victoria final y opciones | 7 | El juego se puede terminar | 4 |
 | **9. Sonido, pulido y versión** | Buses de audio, efectos, ambiente, pulido y exportación a Windows | 8 | Versión candidata el 5 de diciembre | 6 |
@@ -89,7 +90,7 @@ Revisé tus archivos de `art/sprites/` comparando sus píxeles con las capas del
 | 1 | Nada obligatorio. Opcional: `exterior_sprite` y `background_sprite` con 8 px extra por lado, para un parallax más amplio. | Baja |
 | 3 | Interfaz del chat: burbujas, botones de respuesta y de pregunta, y pestañas de amigo. Barras de señal (5 niveles) para las entradas. | Alta |
 | 4 | Interfaz del cuaderno: página (449×696, como `screen_sprite`; va a la derecha), pestañas del índice y bocetos de las entidades (unos 96×96). | Alta |
-| 5 | `phone_sprite` sin la hora y una tira de dígitos LCD "0123456789:". Diales rediseñados (manómetro con ícono). Pantallas de victoria y derrota. | Alta |
+| 5 | `phone_sprite` sin la hora y una tira de dígitos LCD "0123456789:". Diales rediseñados (manómetro con ícono). Pantallas de victoria y derrota. Opcional: marcas de vida para las entradas del PC. | Alta |
 | 6 | Mixer en piezas (base, VU-metro de 5 niveles, perilla de fader y LED). Celular ampliado y unas 12 publicaciones. | Alta |
 | 7 | Luces (`pcLightOver`, `pcLightUnder` y `pcDesklight`) como archivos aparte. Arte de screamers. | Media |
 | 8 | Menú principal y logo. | Media |

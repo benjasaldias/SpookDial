@@ -6,7 +6,8 @@ Detalle de la mecánica central del diseño v2 (`spook_dial_design.md` §8–§1
 - ya no existe la acción "Grabar": el video extra viene de la acción de mayor riesgo;
 - la cuota la cubren los envíos programados;
 - (sesión 8) el mensaje inicial trae 2 características camufladas entre señuelos, hay una barra con el avance de la identificación, la estática tapa una frase entera o nada, y con 5 s o menos no se puede preguntar;
-- (sesión 10) cuando a un amigo le llega una solicitud nueva, su página del cuaderno vuelve al índice, y la frase entre asteriscos de una característica también es su nombre en el cuaderno.
+- (sesión 10) cuando a un amigo le llega una solicitud nueva, su página del cuaderno vuelve al índice, y la frase entre asteriscos de una característica también es su nombre en el cuaderno;
+- (sesión 12) el video de un amigo aturdido llega cuando se recupera.
 
 Los valores numéricos (§6) son un punto de partida para el prototipo; se ajustan probando.
 
@@ -104,6 +105,7 @@ Cada palabra de un mensaje del amigo se tapa (▒▒▒) con una probabilidad qu
 | Sin respuesta | El amigo elige al azar y se resuelve igual | −15 extra | Según lo que elija |
 
 - Cada amigo tiene **3 PV por noche**. Al quedar herido, está **aturdido 15 s**. Con 0 PV muere y se pierde la noche.
+- Un amigo aturdido no envía nada: si le tocaba enviar un video (programado o el extra), lo envía apenas se recupera (decisión de Benja, 31-oct).
 
 ---
 

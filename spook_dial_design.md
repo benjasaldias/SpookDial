@@ -11,6 +11,7 @@
 
 - 26 de octubre: identificación por características, acción de mayor riesgo y cuota cubierta por los envíos. En la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos.
 - 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
+- 31 de octubre (sesión 12): cada dial conserva el color de su aguja, y el video de un amigo aturdido llega cuando se recupera.
 
 ---
 
@@ -76,7 +77,7 @@ Cada objeto cumple una función:
 | **Cuaderno** | El manual: un índice con el nombre de cada entidad y una página por entidad con sus reglas (§12). |
 | **Mixer** | Audio Sync. Sus 3 faders son los canales de los 3 amigos (§10). |
 | **Celular** | Muestra la hora. Al abrirlo se scrollea con la rueda del mouse para recuperar Sanity (§10). |
-| **Diales** (en la pared) | Connection, Sanity y Trust. Tienen cara de manómetro, un ícono propio y un LED de alerta, para que no dependan del color. |
+| **Diales** (en la pared) | Connection, Sanity y Trust. Tienen cara de manómetro, un ícono propio y un LED de alerta, para que no dependan del color. Cada uno conserva el color de su aguja: Connection verde, Sanity roja y Trust amarilla. |
 | **Micrófono** | Su LED se enciende al responder (ambientación). |
 | **Ventana y cortinas** | Ambientación y blanco de screamers. |
 
@@ -169,7 +170,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 ## 9. Consecuencias
 
 - **Vida:** cada amigo tiene **3 PV por noche**, que se restauran al empezar la siguiente.
-- **Herido:** queda **aturdido 15 segundos**; en ese tiempo no pide ayuda ni envía nada.
+- **Herido:** queda **aturdido 15 segundos**; en ese tiempo no pide ayuda ni envía nada. Si le tocaba enviar un video, lo envía apenas se recupera.
 - **Muerte:** con 0 PV el amigo muere y **se pierde la noche**.
 
 | Elección | Daño | Trust | Contenido |
@@ -216,7 +217,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 - Cada noche tiene una **cuota de videos**. Cumplirla es condición para ganar la noche.
 - El contenido llega por dos vías:
   - **Envíos programados.** Los amigos graban y mandan videos durante la noche, y **son justo los suficientes para cumplir la cuota** si el jugador los recibe todos.
-  - **La acción de mayor riesgo.** Si el amigo sobrevive, llega un video extra. Sirve para compensar los envíos perdidos, a cambio de arriesgar al amigo y su confianza.
+  - **La acción de mayor riesgo.** Si el amigo sobrevive, llega un video extra (si quedó herido, cuando se recupera). Sirve para compensar los envíos perdidos, a cambio de arriesgar al amigo y su confianza.
 
 ### 10.5 Recibir videos (Receive Media)
 

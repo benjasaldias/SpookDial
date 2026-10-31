@@ -4,6 +4,69 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 12 — 31 de octubre de 2026 — Plan 5 escrito: consecuencias, medidores y noche
+
+Benja pidió escribir el Plan 5 con `superpowers:writing-plans`, justo después de ejecutar el Plan 4 (la fecha objetivo era el 9 de noviembre). Se escribió en Opus 5.5, con esfuerzo high.
+
+### Realizado
+
+- **Nuevo `docs/12_plan_consecuencias_noche.md`:** el Plan 5 en 12 tareas con código completo. Lleva las pruebas de 177 a 239:
+  - `data/balance.tres` (`BalanceData`): los valores de equilibrio que valen para todas las noches, editables en el Inspector;
+  - lógica pura en `scripts/core/`: `Consequence` (daño, Trust y mayor riesgo), `FriendState` (vida, aturdimiento y señal de un amigo), `VideoSchedule` (los envíos y la cuota), `NightState` (la hora, Sanity, Trust, los amigos, los videos y cómo termina la noche) y `EndingText` (los textos de la pantalla final);
+  - `RequestManager` crea el estado de la noche y aplica cada consecuencia antes de la reacción del amigo, que ahora depende de si quedó herido. Un amigo aturdido o muerto no recibe solicitudes. Sin respuesta, el amigo cuenta qué hizo y, en otro mensaje, cómo le fue;
+  - `NightManager`, el reloj de la noche: avanza las solicitudes y el estado, y avisa cuando la noche se gana o se pierde. Al terminar, todo se detiene;
+  - en el escritorio: los diales conectados, la hora en el celular, "Videos: 1 de 3" en el PC, las marcas de vida y el aturdimiento en las entradas, la viñeta de Sanity (un shader en bandas) y la pantalla final, que explica la derrota y permite reintentar;
+  - los textos: los del PC, de la entrada y de la pantalla final en `ui.csv`, sin `[PROTO]`; en `messages.csv`, 2 reacciones `[PROTO]` nuevas (herido), y las 3 que había cambian, porque ahora también siguen a una decisión del amigo;
+  - la sección I de `docs/04` (probar la noche), que se agrega al ejecutar el plan.
+- **Decisiones de Benja:**
+  - los videos se reciben solos hasta el Plan 6, que agrega aceptarlos en 10 s y descargarlos. Así, una noche ya se gana o se pierde con el Plan 5 (`docs/06` §2);
+  - si a un amigo aturdido le toca enviar un video, lo envía apenas se recupera. Vale también para el video extra (`CLAUDE.md`, diseño v2 §9 y §10.4, y `docs/02` §5.2);
+  - cada dial conserva el color de su aguja: Connection verde, Sanity roja y Trust amarilla (`CLAUDE.md` y diseño v2 §6).
+- **El plan se verificó en Godot 4.7.2:**
+  - todo su código se ejecutó en una copia aparte, con 239 pruebas OK y dos capturas revisadas: el escritorio a las 03:00 con la viñeta (`C:\dev\capturas\night.png`) y la pantalla de derrota (`C:\dev\capturas\night_lost.png`);
+  - después, un script aplicó el plan **tal como está escrito** a una copia limpia: los 23 conteos de pruebas que indica coinciden, incluidas las fallas esperadas, y el código resultante es idéntico al probado;
+  - las copias ya se borraron.
+- `docs/06`: el Plan 5 queda escrito, y las filas de los planes 5 y 6 dicen qué parte de los videos va en cada uno. `docs/00_log.md`: S12 ✅ y S13 ▶.
+
+### Errores encontrados
+
+- **La primera viñeta casi no se veía:** con Sanity en 25, la escena oscura la escondía. Se ajustó el shader para que el borde avance más hacia el centro. En la captura final se nota, y el chat sigue legible.
+- **En la primera captura, el contador de videos no era el esperado:** al poner la hora en 03:00, llegaron también los envíos programados anteriores. La captura del plan ahora vacía los envíos antes de empezar.
+- **Un texto `[PROTO]` con una coma iba sin comillas** en `messages.csv`, y habría partido la línea en dos columnas. Se corrigió antes de escribir el plan.
+
+### Pendientes Código
+
+- [x] **S12: escribir el Plan 5.**
+- [ ] **S13: ejecutar el Plan 5** (`docs/12`), con Sonnet 5.5 en esfuerzo high y Godot cerrado (`docs/00_log.md`).
+- [ ] Pasar a `.tres` las entidades que Benja refine, agregar El Tue Tué y La Calchona a la noche 1, y cambiar a 1 el **Night Number** de `RequestManager`.
+- [ ] Planes 6 a 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar el cuaderno en Godot** (`docs/04`, H, unos 10 minutos).
+- [ ] **Probar las solicitudes y el chat en Godot** (`docs/04`, G, unos 10 minutos). Ojo: desde el Plan 4, el chat se cierra con clic derecho sobre él, con `Esc` o con un clic fuera de los paneles.
+- [ ] **Después de S13:** probar la noche (`docs/04`, I, unos 15 minutos).
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] Refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos, y esa frase tiene que entenderse sola: también es su nombre en el cuaderno.
+- [ ] **Escribir los señuelos** (`data/catalog.tres` y `messages.csv`). Cada lugar necesita al menos los que pide la noche (hasta 3); las pruebas avisan si faltan.
+- [ ] Reemplazar los textos `[PROTO]` de `data/text/messages.csv` (desde S13, son 5 reacciones: las 3 de antes, que cambian, y las 2 de un amigo herido) y `notebook.csv`. Cada fragmento, como una oración completa con su punto.
+- [ ] Revisar los textos de la pantalla final (`END_*` en `ui.csv`, desde S13). Son de interfaz y están escritos, pero puedes cambiarlos conservando los marcadores entre llaves.
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 4 a 6:
+  - **la interfaz del cuaderno:** la página (449×696, como `screen_sprite`; va a la derecha), las pestañas del índice y los bocetos de las entidades (unos 96×96). El tema `scenes/ui/notebook_theme.tres` ya existe y los recibe;
+  - para el chat: burbujas, botones (4 estados), pestañas y "escribiendo…". El tema `scenes/ui/chat_theme.tres` está listo para recibirlos;
+  - **para el Plan 5:** el celular sin la hora y una tira de dígitos LCD "0123456789:", los diales rediseñados (manómetro con ícono y LED) y las pantallas de victoria y derrota. Opcional: las marcas de vida de las entradas;
+  - también faltan las barras de señal, el mixer en piezas y el celular ampliado (`docs/06` §3).
+- [ ] Elegir una tipografía pixel (`docs/03` §10). Debe tener `▒` (U+2592).
+
+---
+
 ## Sesión 11 — 31 de octubre de 2026 — Plan 4 ejecutado: cuaderno
 
 Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro proponía Sonnet 5.5). Benja autorizó todos los commits del plan en `main`, sin push.
