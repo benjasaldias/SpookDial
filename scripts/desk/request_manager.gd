@@ -129,6 +129,7 @@ func answer(friend_index: int, action: ActionData) -> bool:
 	requests[friend_index] = null
 	message_added.emit(friend_index, MessageBuilder.player_answer(request, tr))
 	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
+	_add_damage_notice(friend_index, request)
 	request_finished.emit(friend_index, request)
 	return true
 
@@ -141,6 +142,7 @@ func _decide_alone(friend_index: int) -> void:
 	requests[friend_index] = null
 	_add_friend_message(friend_index, MessageBuilder.decided_alone(request, tr))
 	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
+	_add_damage_notice(friend_index, request)
 	request_finished.emit(friend_index, request)
 
 
@@ -149,6 +151,16 @@ func _decide_alone(friend_index: int) -> void:
 func _resolve(request: FriendRequest) -> void:
 	request.consequence = Consequence.new(request.outcome, request.answered_by_player, catalog.balance, rng)
 	state.apply(request.friend_index, request.consequence)
+
+
+## Si el amigo quedó herido, el juego lo avisa en el chat con la vida que le queda. El aviso no pasa
+## por la estática.
+func _add_damage_notice(friend_index: int, request: FriendRequest) -> void:
+	if not request.consequence.is_hurt():
+		return
+	var friend := state.friends[friend_index]
+	var friend_name := tr(catalog.friends[friend_index].name_key)
+	message_added.emit(friend_index, MessageBuilder.damage_notice(request, friend_name, friend.health, friend.max_health, tr))
 
 
 func _add_friend_message(friend_index: int, message: ChatMessage) -> void:

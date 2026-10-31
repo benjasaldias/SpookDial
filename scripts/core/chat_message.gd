@@ -4,7 +4,8 @@ extends RefCounted
 
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 
-enum Sender { FRIEND, PLAYER }
+## Quién escribe: un amigo, Matías o el juego (sus avisos, como el de daño).
+enum Sender { FRIEND, PLAYER, SYSTEM }
 
 ## Lo que se ve en lugar de una palabra tapada. Siempre igual, para no revelar cuántas letras tenía.
 const COVER_TEXT := "▒▒▒"

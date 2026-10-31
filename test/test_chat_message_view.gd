@@ -146,3 +146,19 @@ func test_matias_tambien_lleva_su_nombre() -> bool:
 	check(_label(view).get_parsed_text().begins_with("MATÍAS: "), "su nombre: %s" % _label(view).get_parsed_text())
 	view.free()
 	return true
+
+
+func test_el_aviso_de_dano_va_centrado_y_en_rojo() -> bool:
+	var message := ChatMessage.new(ChatMessage.Sender.SYSTEM, _make_request())
+	message.add_fragment("León recibió daño: 2/3")
+	var view := _make_view(message)
+	var label := _label(view)
+	check_eq(label.get_parsed_text(), "── León recibió daño: 2/3 ──", "entre líneas y sin nombre")
+	check(label.text.begins_with("[center]"), "centrado")
+	check(label.text.contains(ChatMessageView.DANGER_COLOR), "en rojo")
+	check_eq(label.visible_ratio, 1.0, "aparece de una vez")
+	check_eq((view.get_node("Bubble") as PanelContainer).theme_type_variation, &"SystemNotice", "sin burbuja")
+	check_eq(view.get_theme_constant(&"margin_left"), 0, "de borde a borde, a la izquierda")
+	check_eq(view.get_theme_constant(&"margin_right"), 0, "y a la derecha")
+	view.free()
+	return true

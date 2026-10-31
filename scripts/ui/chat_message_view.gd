@@ -3,7 +3,7 @@ extends MarginContainer
 ## una barra a la izquierda del color del amigo. Las frases clickeables son enlaces [url] de un
 ## RichTextLabel, y la estática se ve como ▒▒▒. El nombre aparece de una vez y el mensaje, de a poco.
 ## Características y señuelos se ven iguales hasta que se clickean: la característica queda marcada
-## y el señuelo vibra y queda rojo.
+## y el señuelo vibra y queda rojo. Los avisos del juego, como el de daño, van centrados y en rojo.
 
 signal clue_clicked(view: Node, clue_id: StringName)
 
@@ -20,6 +20,8 @@ const CLUE_COLOR := "ffb347"
 const MARKED_COLOR := "7ee08a"
 const DECOY_COLOR := "ff4d5e"
 const STATIC_COLOR := "56637f"
+## Los avisos del juego, como el de daño.
+const DANGER_COLOR := "ff4d5e"
 
 var message: ChatMessage
 ## Quién escribe, en mayúsculas ("LEÓN"), y su color. Sin nombre, el mensaje va sin etiqueta.
@@ -37,10 +39,14 @@ func _init(chat_message: ChatMessage, speaker_name := "", color := Color.WHITE) 
 	speaker_color = color
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	var from_player := message.sender == ChatMessage.Sender.PLAYER
-	add_theme_constant_override(&"margin_left" if from_player else &"margin_right", INDENT)
 	var bubble := PanelContainer.new()
 	bubble.name = "Bubble"
-	bubble.theme_type_variation = &"PlayerBubble" if from_player else &"FriendBubble"
+	if message.sender == ChatMessage.Sender.SYSTEM:
+		# Los avisos del juego van de borde a borde, sin burbuja.
+		bubble.theme_type_variation = &"SystemNotice"
+	else:
+		add_theme_constant_override(&"margin_left" if from_player else &"margin_right", INDENT)
+		bubble.theme_type_variation = &"PlayerBubble" if from_player else &"FriendBubble"
 	# PASS deja que la rueda del mouse llegue al ScrollContainer de la conversación.
 	bubble.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(bubble)
@@ -54,10 +60,13 @@ func _init(chat_message: ChatMessage, speaker_name := "", color := Color.WHITE) 
 	_label.meta_clicked.connect(_on_meta_clicked)
 	bubble.add_child(_label)
 	refresh()
-	_label.visible_ratio = 0.0
+	# Los avisos del juego aparecen de una vez; los mensajes se escriben de a poco.
+	_label.visible_ratio = 1.0 if message.sender == ChatMessage.Sender.SYSTEM else 0.0
 
 
 func _ready() -> void:
+	if message.sender == ChatMessage.Sender.SYSTEM:
+		return
 	if message.sender == ChatMessage.Sender.FRIEND and not speaker.is_empty():
 		# La barra de la izquierda, del color del amigo. Si la burbuja llega a ser una textura (el arte del
 		# chat), se queda como está.
@@ -83,6 +92,9 @@ func finish_typing() -> void:
 
 ## Vuelve a armar el texto. Se llama cuando cambia el estado de una frase o termina la solicitud.
 func refresh() -> void:
+	if message.sender == ChatMessage.Sender.SYSTEM:
+		_label.text = "[center]%s[/center]" % _colored("── %s ──" % message.plain_text().replace("[", "[lb]"), DANGER_COLOR)
+		return
 	var parts := PackedStringArray()
 	if not speaker.is_empty():
 		parts.append(_colored(speaker + ":", speaker_color.to_html(false)) + " ")

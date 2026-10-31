@@ -34,6 +34,8 @@ const HURT_REACTION_KEYS := {
 	RuleEvaluator.Outcome.RISKY: "REACTION_RISKY_HURT",
 	RuleEvaluator.Outcome.WRONG: "REACTION_WRONG_HURT",
 }
+## El aviso del juego cuando un amigo queda herido (ui.csv). Lleva {friend}, {health} y {max}.
+const DAMAGE_KEY := "CHAT_DAMAGE"
 
 
 ## Mensaje inicial: dónde está, las características y los señuelos mezclados, y sus observaciones.
@@ -91,6 +93,15 @@ static func reaction(request: FriendRequest, translate: Callable) -> ChatMessage
 	var hurt := request.consequence != null and request.consequence.is_hurt()
 	var key: String = HURT_REACTION_KEYS[request.outcome] if hurt else REACTION_KEYS[request.outcome]
 	message.add_fragment(_text(translate, key))
+	return message
+
+
+## El aviso del juego, centrado y en rojo, cuando un amigo queda herido: "León recibió daño: 2/3"
+## (decisión de Benja). `health` es la vida que le queda.
+static func damage_notice(request: FriendRequest, friend_name: String, health: int, max_health: int,
+		translate: Callable) -> ChatMessage:
+	var message := ChatMessage.new(ChatMessage.Sender.SYSTEM, request)
+	message.add_fragment(_text(translate, DAMAGE_KEY).format({"friend": friend_name, "health": health, "max": max_health}))
 	return message
 
 

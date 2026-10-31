@@ -192,6 +192,9 @@ func test_responde_con_las_acciones_de_la_pagina_abierta() -> bool:
 	check_eq(buttons.map(func(button: Button) -> String: return button.text),
 			_beast().actions.map(func(action: ActionData) -> String: return tr(action.label_key)), "las 4 acciones")
 	check((buttons[0] as Button).disabled, "sin solicitud no se responde")
+	# Sin heridas: si quedara herido, llegaría además el aviso de daño.
+	_manager.catalog.balance.risky_hurt_chance = 0.0
+	_manager.catalog.balance.wrong_hurt_chance = 0.0
 	var request := _manager.start_request(0)
 	panel._process(0.0)
 	check(not (buttons[0] as Button).disabled, "con solicitud se responde")
@@ -253,5 +256,21 @@ func test_pestanas_y_preguntas_como_en_una_terminal() -> bool:
 	check(tab.text.begins_with(tr(friend.name_key).to_upper()), "el nombre en mayúsculas: %s" % tab.text)
 	check_eq((_question_buttons(panel)[0] as Button).text, String(TranslationServer.translate("QUESTION_SIGHT")).to_upper(),
 			"las preguntas en mayúsculas")
+	_free(panel)
+	return true
+
+
+func test_el_aviso_de_dano_no_lleva_nombre_y_marca_la_pestana() -> bool:
+	var panel := _make_panel()
+	var request := _manager.start_request(0)
+	panel.open_for(0)
+	panel.open_for(1)
+	var notice := ChatMessage.new(ChatMessage.Sender.SYSTEM, request)
+	notice.add_fragment("León recibió daño: 2/3")
+	_manager.message_added.emit(0, notice)
+	var views: Array[Node] = panel.message_views(0)
+	check_eq(views[-1].speaker, "", "lo escribe el juego: sin nombre")
+	panel._process(0.0)
+	check((panel.get_node("Panel/Tabs").get_child(0) as Button).text.contains(panel.UNREAD_MARK), "la pestaña de León avisa")
 	_free(panel)
 	return true

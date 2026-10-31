@@ -100,6 +100,9 @@ func test_clic_en_las_caracteristicas_hasta_el_nombre() -> bool:
 
 func test_sin_respuesta_el_amigo_decide_solo() -> bool:
 	var manager := _make_manager()
+	# Sin heridas: si quedara herido, llegaría además el aviso de daño.
+	manager.catalog.balance.risky_hurt_chance = 0.0
+	manager.catalog.balance.wrong_hurt_chance = 0.0
 	var request := manager.start_request(2)
 	var events := []
 	_record(manager, events)
@@ -227,9 +230,16 @@ func test_responder_aplica_la_consecuencia() -> bool:
 	check(not manager.state.is_available(0), "y queda aturdido")
 	check_eq(manager.state.trust, 90.0, "Trust −10")
 	var messages := _messages(events)
-	if messages.size() == 2:
+	check_eq(messages.size(), 3, "la respuesta, la reacción y el aviso de daño")
+	if messages.size() == 3:
 		check_eq((messages[1] as ChatMessage).plain_text(), String(TranslationServer.translate("REACTION_WRONG_HURT")),
 				"cuenta que quedó herido")
+		var notice := messages[2] as ChatMessage
+		var friend: FriendData = manager.catalog.friends[0]
+		check_eq(notice.sender, ChatMessage.Sender.SYSTEM, "el aviso lo escribe el juego")
+		check_eq(notice.plain_text(), String(TranslationServer.translate("CHAT_DAMAGE")).format(
+				{"friend": String(TranslationServer.translate(friend.name_key)), "health": 2, "max": 3}),
+				"con la vida que le queda")
 	manager.free()
 	return true
 
@@ -264,5 +274,22 @@ func test_sin_respuesta_trust_baja_ademas() -> bool:
 	if request.consequence != null:
 		check(request.consequence.trust_change <= -15.0, "−15 por no contestar, además de lo que eligió")
 		check_eq(manager.state.trust, 100.0 + request.consequence.trust_change, "se aplicó")
+	manager.free()
+	return true
+
+
+func test_si_decide_solo_y_queda_herido_tambien_hay_aviso() -> bool:
+	var manager := _make_manager()
+	manager.catalog.balance.risky_hurt_chance = 1.0
+	manager.catalog.balance.wrong_hurt_chance = 1.0
+	var request := manager.start_request(2)
+	var events := []
+	_record(manager, events)
+	manager.advance(request.time_left + 0.1)
+	var messages := _messages(events)
+	var hurt := request.consequence.is_hurt()
+	check_eq(messages.size(), 3 if hurt else 2, "lo que hizo, cómo le fue y, si quedó herido, el aviso")
+	if not messages.is_empty():
+		check_eq((messages[-1] as ChatMessage).sender == ChatMessage.Sender.SYSTEM, hurt, "el aviso, solo si quedó herido")
 	manager.free()
 	return true

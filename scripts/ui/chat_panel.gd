@@ -203,7 +203,7 @@ func _update_answers() -> void:
 
 
 func _on_message_added(friend_index: int, message: ChatMessage) -> void:
-	# Quién escribe, en mayúsculas y con su color: el amigo o Matías.
+	# Quién escribe, en mayúsculas y con su color: el amigo o Matías. Los avisos del juego van sin nombre.
 	var speaker := ""
 	var color := PLAYER_COLOR
 	match message.sender:
@@ -215,7 +215,7 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 	var view := ChatMessageView.new(message, speaker, color)
 	view.clue_clicked.connect(_on_clue_clicked)
 	_lists[friend_index].add_child(view)
-	if message.sender == ChatMessage.Sender.FRIEND and not (visible and friend_index == selected_friend):
+	if message.sender != ChatMessage.Sender.PLAYER and not (visible and friend_index == selected_friend):
 		_unread[friend_index] = true
 
 

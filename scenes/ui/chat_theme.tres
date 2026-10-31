@@ -99,6 +99,10 @@ border_color = Color(0.25, 0.76, 0.79, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_notice"]
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+
 [resource]
 default_font = ExtResource("font")
 default_font_size = 11
@@ -127,5 +131,7 @@ FriendBubble/styles/panel = SubResource("StyleBoxFlat_friend")
 Label/colors/font_color = Color(0.48, 0.55, 0.68, 1)
 PlayerBubble/base_type = &"PanelContainer"
 PlayerBubble/styles/panel = SubResource("StyleBoxFlat_player")
+SystemNotice/base_type = &"PanelContainer"
+SystemNotice/styles/panel = SubResource("StyleBoxEmpty_notice")
 RichTextLabel/colors/default_color = Color(0.82, 0.87, 0.97, 1)
 RichTextLabel/constants/line_separation = 3

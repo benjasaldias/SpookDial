@@ -13,6 +13,8 @@ func _translate(key: String) -> String:
 		return "Hay *%s*." % key
 	if key == MessageBuilder.DECIDED_ALONE_KEY:
 		return "Decidí solo: {action}"
+	if key == MessageBuilder.DAMAGE_KEY:
+		return "{friend} recibió daño: {health}/{max}"
 	return key + "."
 
 
@@ -120,12 +122,25 @@ func test_si_quedo_herido_la_reaccion_cambia() -> bool:
 	return true
 
 
+func test_el_aviso_de_dano() -> bool:
+	var request := _make_request()
+	var message := MessageBuilder.damage_notice(request, "León", 2, 3, _translate)
+	check_eq(message.sender, ChatMessage.Sender.SYSTEM, "lo escribe el juego, no el amigo")
+	check_eq(message.request, request, "es de la solicitud")
+	check_eq(message.plain_text(), "León recibió daño: 2/3", "con la vida que le queda")
+	return true
+
+
 func test_sus_textos_existen() -> bool:
 	var previous := TranslationServer.get_locale()
 	TranslationServer.set_locale("es")
 	var keys: Array = MessageBuilder.QUESTION_KEYS.values() + MessageBuilder.NOTHING_KEYS.values() \
 			+ MessageBuilder.REACTION_KEYS.values() + MessageBuilder.HURT_REACTION_KEYS.values()
 	keys.append(MessageBuilder.DECIDED_ALONE_KEY)
+	keys.append(MessageBuilder.DAMAGE_KEY)
+	for placeholder: String in ["{friend}", "{health}", "{max}"]:
+		check(String(TranslationServer.translate(MessageBuilder.DAMAGE_KEY)).contains(placeholder),
+				"CHAT_DAMAGE debe tener %s" % placeholder)
 	for key: String in keys:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en los CSV" % key)
 	check(String(TranslationServer.translate(MessageBuilder.DECIDED_ALONE_KEY)).contains("{action}"),
