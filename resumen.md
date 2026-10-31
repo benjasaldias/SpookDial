@@ -6,7 +6,7 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ## Sesión 13 — 31 de octubre de 2026 — Plan 5 ejecutado: consecuencias, medidores y noche
 
-Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 con esfuerzo max (el registro proponía Sonnet 5.5 · high). Se adelantó al 31 de octubre (la fecha objetivo era del 10 al 12 de noviembre). Benja autorizó todos los commits del plan en `main`, sin push.
+Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 con esfuerzo max (el registro proponía Sonnet 5.5 · high). Se adelantó al 31 de octubre (la fecha objetivo era del 10 al 12 de noviembre). Benja autorizó todos los commits del plan en `main` y, al terminar, el push.
 
 ### Realizado
 
@@ -25,7 +25,7 @@ Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 con esfuerzo max
   - a las 03:00, el celular dice "03:01" sin restos del "00:00" dibujado, y el PC, "Videos: 1 de 3". León está oscurecido, con 1 marca llena y 2 vacías y "Aturdido 14"; Gonzalo está en alerta, con su tiempo. Las agujas marcan Connection 100, Sanity 25 y Trust 55, y la viñeta oscurece los bordes en bandas;
   - en la derrota: "Perdiste la noche", "Gonzalo murió.", la entidad, las 3 observaciones, la regla 4, la acción correcta en verde, la elegida en rojo y el botón "Reintentar". Detrás, en el chat, están el grito y el aviso "── Gonzalo recibió daño: 0/3 ──", muy tenues porque la pantalla final tapa el 92 %.
 - `docs/04`: nueva sección **I** (probar la noche). `docs/06`: el Plan 5 queda ejecutado. `docs/02`: `BalanceData` en §6 y §10. `docs/00_log.md`: S13 ✅ y S14 ▶.
-- 13 commits en `main`, sin push.
+- 13 commits en `main` (uno por tarea), subidos a GitHub al terminar.
 
 ### Errores encontrados
 
