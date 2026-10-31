@@ -6,7 +6,7 @@ Hoja de ruta para construir la v1 (`docs/05` §1) antes del 10 de diciembre. Div
 - El **Plan 2** está escrito paso a paso en `docs/08_plan_datos_textos.md` (ejecutado).
 - El **Plan 3** está escrito paso a paso en `docs/10_plan_solicitudes_chat.md` (ejecutado).
 - El **Plan 4** está escrito paso a paso en `docs/11_plan_cuaderno.md` (ejecutado).
-- El **Plan 5** está escrito paso a paso en `docs/12_plan_consecuencias_noche.md` (por ejecutar).
+- El **Plan 5** está escrito paso a paso en `docs/12_plan_consecuencias_noche.md` (ejecutado).
 - Cada plan siguiente se escribe en detalle al comenzar su sesión, con el mismo formato (skill `superpowers:writing-plans`).
 
 ---

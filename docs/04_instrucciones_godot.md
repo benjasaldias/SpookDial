@@ -19,6 +19,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **F.** Revisar una entidad en el Inspector (Plan 2) | ⬜ Pendiente (unos 5 minutos) |
 | **G.** Probar las solicitudes y el chat (Plan 3) | ⬜ Pendiente (unos 10 minutos) |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
+| **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
 
 ---
 
@@ -194,3 +195,38 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 ### Para más adelante
 
 - **El arte del cuaderno:** la página (449×696, como `screen_sprite`), las pestañas del índice y los bocetos de las entidades (unos 96×96). Cuando estén, Claude los pone en `scenes/ui/notebook_theme.tres` y en el **Sketch** de cada entidad.
+
+---
+
+## I. Probar la noche (Plan 5)
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. Abre Godot y el proyecto. Abre `scenes/desk/desk.tscn` y presiona **F5**.
+2. **Los medidores:**
+   - el celular muestra la hora: empieza en 00:00 y avanza un minuto cada poco más de un segundo. La noche dura 7 minutos, hasta las 06:00;
+   - arriba de la pantalla del PC dice "Videos: 0 de 3". A las 01:30, a las 03:00 y a las 04:30 llega un video, y el contador sube solo (por ahora no hay que aceptarlo);
+   - en la pared, el dial del medio (Sanity, aguja roja) baja de a poco. El de abajo (Trust, aguja amarilla) baja cuando eliges mal. El de arriba (Connection, aguja verde) no se mueve hasta el Plan 6;
+   - cada entrada del PC muestra 3 marcas de vida.
+3. **Una acción incorrecta:** cuando llegue una solicitud, ábrela, identifica a la entidad y elige una acción que no sea la correcta ni la de mayor riesgo (míralo en las reglas del cuaderno). El amigo cuenta cómo le fue:
+   - si quedó herido, grita en el chat ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y debajo aparece un aviso rojo y centrado con la vida que le queda ("León recibió daño: 2/3"). Pierde una marca de vida en su entrada del PC, que se oscurece y dice "Aturdido" con los segundos que faltan. Durante 15 segundos no le llegan solicitudes;
+   - el dial de Trust baja. Si pasas 20 segundos sin errores, empieza a subir de a poco.
+4. **La acción de mayor riesgo:** en otra solicitud, elige la de mayor riesgo. Si el amigo sobrevive, el contador de videos sube uno más; si quedó herido, el video llega cuando se recupera. Trust baja más que con una acción incorrecta.
+5. **Sin respuesta:** deja que se acabe el tiempo de una solicitud. El amigo cuenta qué hizo y, en otro mensaje, cómo le fue. Trust baja más que si hubieras respondido.
+6. **Perder:** sigue respondiendo mal al mismo amigo hasta que pierda sus 3 marcas. La pantalla se oscurece de a poco y dice "Perdiste la noche", que el amigo murió y por qué: la entidad, lo que observaba, la regla que se aplicaba, la acción correcta (en verde) y la que elegiste (en rojo). Haz clic en **Reintentar**: la noche empieza de nuevo, con otras solicitudes.
+7. **La viñeta y Sanity:** para no esperar, acelera Sanity.
+   - En el panel **FileSystem**, haz doble clic en `data/nights/night_3.tres`.
+   - En el **Inspector**, dentro de **Sanity y cuota**, cambia **Sanity Drain Interval** de 6 a 1 y guarda con **Ctrl + S**.
+   - Presiona **F5**. Hacia los 40 segundos, los bordes de la pantalla se oscurecen en bandas, cada vez más hacia el centro, también sobre el chat. A los 100 segundos, Sanity llega a 0 y se pierde la noche ("Matías entró en pánico").
+   - **Al terminar, vuelve Sanity Drain Interval a 6** y guarda.
+8. **Ganar:** juega una noche completa (7 minutos) sin que muera nadie. A las 06:00, si llegaron los 3 videos, aparece "Llegaste a las 06:00" con el botón **Jugar de nuevo**.
+
+**Verifica:** los pasos 2 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
+
+### Para ajustar
+
+- **Los valores de equilibrio** están en `data/balance.tres`. Haz doble clic en él y cámbialos en el **Inspector**: la duración de la noche (**Night Seconds**), la vida y el aturdimiento (**Amigos**), la probabilidad de herir, el daño y lo que baja Trust en cada caso (**Consecuencias**), cómo se recupera Trust (**Trust**) y desde qué valor de Sanity aparece la viñeta (**Sanity**).
+  - Para probar más rápido, baja **Night Seconds** a 120: la noche entera dura 2 minutos. Al terminar, vuélvelo a 420.
+  - Si cambias un valor a propósito, avísale a Claude: `test_balance.gd` compara el archivo con `docs/02`, y hay que actualizar los dos.
+- **Por noche** (`data/nights/night_N.tres`): **Content Quota** (los videos de la cuota) y **Sanity Drain Interval** (los segundos por cada punto de Sanity).
+- **La forma de la viñeta:** en `desk.tscn`, selecciona `Overlay/Vignette`. En el **Inspector**, en **Material** > **Shader Parameters**, cambia **Bands** (cuántos niveles de oscuridad hay) y **Max Darkness** (lo más oscuro, en los bordes).

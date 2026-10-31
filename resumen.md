@@ -4,6 +4,70 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 13 — 31 de octubre de 2026 — Plan 5 ejecutado: consecuencias, medidores y noche
+
+Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 con esfuerzo max (el registro proponía Sonnet 5.5 · high). Se adelantó al 31 de octubre (la fecha objetivo era del 10 al 12 de noviembre). Benja autorizó todos los commits del plan en `main`, sin push.
+
+### Realizado
+
+- **Las 13 tareas de `docs/12`, con 251 pruebas OK y 0 fallidas** (`~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd`), sin errores ni avisos al correr. Coincidieron todos los conteos del plan, incluidas las fallas esperadas (185 → 188, 193, 196, 201, 215, 220, 224, 231, 236, 239, 246 y 251).
+  - El código se copió de los bloques del plan con un script, para conservar sus tabuladores. Antes de tocar el proyecto, el mismo script aplicó el plan completo a una copia, para comprobar que cada texto a reemplazar aparecía una sola vez. El código final es idéntico al de esa copia.
+  - **Valores de equilibrio:** `data/balance.tres` (`BalanceData`), que el catálogo referencia. Se ajusta en el Inspector (`docs/04`, I, "Para ajustar").
+  - **Lógica pura en `scripts/core/`:** `Consequence`, `FriendState`, `VideoSchedule`, `NightState` y `EndingText`.
+  - **`RequestManager`** crea el estado de la noche y aplica cada consecuencia antes de la reacción del amigo. No le da solicitudes a un amigo aturdido o muerto, y con Trust bajo hay menos tiempo para responder. Sin respuesta, el amigo cuenta qué hizo y, en otro mensaje, cómo le fue.
+  - **Aviso de daño en el chat:** el amigo herido grita y, debajo, el juego avisa en rojo y centrado cuánta vida le queda ("León recibió daño: 2/3"). Marca la pestaña del amigo.
+  - **`NightManager`**, el reloj de la noche: avanza las solicitudes y el estado, y al terminar la noche todo se detiene.
+  - **Escritorio:** los diales conectados, la hora en el celular, "Videos: 1 de 3" en el PC, las marcas de vida y el aturdimiento en las entradas, la viñeta de Sanity (`shaders/vignette.gdshader`) y la pantalla final (`scenes/ui/end_screen.tscn`), que explica la derrota y permite reintentar.
+- **Textos nuevos**, borradores reales que tú corriges:
+  - `data/text/messages.csv`: las 2 reacciones de un amigo herido (`REACTION_RISKY_HURT` y `REACTION_WRONG_HURT`);
+  - `data/text/ui.csv`: el aviso de daño (`CHAT_DAMAGE`), los videos del PC (`PC_VIDEOS`), el aturdimiento de la entrada (`ENTRY_STUNNED`) y los textos de la pantalla final (`END_*`).
+- **Capturas revisadas** (`C:\dev\capturas\night.png` y `night_lost.png`). Se cumple todo lo que pide el plan:
+  - a las 03:00, el celular dice "03:01" sin restos del "00:00" dibujado, y el PC, "Videos: 1 de 3". León está oscurecido, con 1 marca llena y 2 vacías y "Aturdido 14"; Gonzalo está en alerta, con su tiempo. Las agujas marcan Connection 100, Sanity 25 y Trust 55, y la viñeta oscurece los bordes en bandas;
+  - en la derrota: "Perdiste la noche", "Gonzalo murió.", la entidad, las 3 observaciones, la regla 4, la acción correcta en verde, la elegida en rojo y el botón "Reintentar". Detrás, en el chat, están el grito y el aviso "── Gonzalo recibió daño: 0/3 ──", muy tenues porque la pantalla final tapa el 92 %.
+- `docs/04`: nueva sección **I** (probar la noche). `docs/06`: el Plan 5 queda ejecutado. `docs/02`: `BalanceData` en §6 y §10. `docs/00_log.md`: S13 ✅ y S14 ▶.
+- 13 commits en `main`, sin push.
+
+### Errores encontrados
+
+- **El plan no necesitó correcciones:** se aplicó tal como está escrito.
+
+### Pendientes Código
+
+- [x] **S13: ejecutar el Plan 5.**
+- [ ] **S14: escribir el Plan 6 (mantenimiento)**, con Opus 5.5 en esfuerzo high (`docs/00_log.md`).
+- [ ] Pasar a `.tres` las entidades que Benja refine, agregar El Tue Tué y La Calchona a la noche 1, y cambiar a 1 el **Night Number** de `RequestManager`.
+- [ ] Planes 6 a 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos.
+- [ ] Plan 9: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si Benja quiere ajustarlos en el Inspector: pasar `QUESTION_COST`, `THINKING_TIME` y `FIRST_REQUEST_DELAY` a `BalanceData` (`docs/12`, "Fuera de este plan").
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar la noche** (`docs/04`, I, unos 15 minutos). Si cambias un valor de `data/balance.tres` a propósito, avísale a Claude: `test_balance.gd` lo compara con `docs/02`.
+- [ ] **Probar el chat y el cuaderno con el estilo nuevo** (`docs/04`, G y H, unos 20 minutos). En la noche 3, si el mensaje inicial no trae lo que decide la regla, pregunta: así está diseñada.
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] Refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos, y esa frase tiene que entenderse sola: también es su nombre en el cuaderno.
+- [ ] **Escribir los señuelos** (`data/catalog.tres` y `messages.csv`). Cada lugar necesita al menos los que pide la noche (hasta 3); las pruebas avisan si faltan.
+- [ ] **Corregir los textos que escribió Claude:**
+  - `messages.csv`: el lugar, las características, las observaciones, los señuelos, las respuestas "nada", la decisión del amigo, las reacciones y las 2 reacciones nuevas de un amigo herido;
+  - `notebook.csv`: el folclore, las acciones, las preguntas y las reglas de El Trauco;
+  - `ui.csv`: el aviso de daño (`CHAT_DAMAGE`), `PC_VIDEOS`, `ENTRY_STUNNED` y los textos de la pantalla final (`END_*`). Conserva los marcadores entre llaves, como `{friend}`.
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 4 a 6:
+  - **la interfaz del cuaderno:** la página (449×696, como `screen_sprite`; va a la derecha), las pestañas del índice y los bocetos de las entidades (unos 96×96). El tema `scenes/ui/notebook_theme.tres` los recibe;
+  - para el chat, ahora es opcional: el estilo de terminal ya está hecho en Godot, y el arte de burbujas, botones y pestañas puede reemplazarlo;
+  - **para el Plan 5, que hoy usa piezas provisionales:** el celular sin la hora y una tira de dígitos LCD "0123456789:", los diales rediseñados (manómetro con ícono y LED) y las pantallas de victoria y derrota. Opcional: las marcas de vida de las entradas;
+  - **para el Plan 6 (S14):** el mixer en piezas (base, VU-metro de 5 niveles, perilla de fader y LED), el celular ampliado con unas 12 publicaciones y las barras de señal (`docs/06` §3).
+- [ ] Al probar con personas (semana 5): fijarse si notan que en la noche 3 hay que preguntar. Si no, una ayuda posible es marcar en el cuaderno qué observaciones ya contó el amigo (iría a la lista de `docs/05`).
+
+---
+
 ## Sesión 12 (continuación) — 31 de octubre de 2026 — Notas de prueba: chat de terminal, textos reales y aviso de daño
 
 Benja probó el juego (estado del Plan 4) y dejó tres notas: había demasiado texto y marcas `[PROTO]`, el chat se veía aburrido, y siempre "salía mal" aunque eligiera la acción correcta. Se resolvieron en la misma sesión, en Opus 5.5, con las skills de depuración sistemática, brainstorming y diseño. La sesión se cortó una vez por falta de créditos. Al retomar se comprobó que no había nada a medias: el proyecto seguía limpio y el trabajo estaba en copias aparte.

@@ -112,6 +112,8 @@ Cada palabra de un mensaje del amigo se tapa (▒▒▒) con una probabilidad qu
 
 ## 6. Valores iniciales para el prototipo
 
+Los valores que valen para todas las noches están en `data/balance.tres` (`BalanceData`), y los de cada noche, en `data/nights/night_N.tres` (`NightData`). Se ajustan en el Inspector.
+
 ### Por noche
 
 | Parámetro | N1 | N2 | N3 | N4 | N5 |
@@ -227,7 +229,7 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
 
 ## 10. Modelo de datos (Resources editables en el Inspector)
 
-Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`docs/10`). Las clases están en `scripts/data/` y el contenido en `data/`.
+Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`docs/10`), y `BalanceData`, en el Plan 5 (`docs/12`). Las clases están en `scripts/data/` y el contenido en `data/`.
 
 ```text
 DecoyData        señuelo: como TraitData (id, category, text_key), más place_keys[] (vacío = cualquier lugar)
@@ -246,7 +248,8 @@ NightData        number, place_key, new_entities[], requests_total, max_simultan
                  decoys_in_first_message,
                  signal_decays, signal_decay_interval, interference_count,
                  audio_sync_beats, sanity_drain_interval, content_quota
-ContentCatalog   friends[3], nights[5], decoys[] (data/catalog.tres)
+BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start
+ContentCatalog   friends[3], nights[5], decoys[], balance (data/catalog.tres)
 ```
 
 - Una entidad es **un solo `.tres`** en `data/entities/`, con todas sus partes dentro.
