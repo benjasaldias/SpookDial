@@ -25,6 +25,7 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 | `docs/08_plan_datos_textos.md` | Plan 2, paso a paso: clases de datos, evaluador y validador de reglas, CSV y El Trauco de ejemplo. |
 | `docs/09_propuesta_entidades.md` | Borrador de Claude con El Tue Tué, La Calchona y El Trauco, para que Benja los refine. No es contenido decidido. |
 | `docs/10_plan_solicitudes_chat.md` | Plan 3, paso a paso: solicitudes, mensajes con señuelos, estática, preguntas y panel del chat. |
+| `docs/11_plan_cuaderno.md` | Plan 4, paso a paso: el cuaderno, la memoria de página por amigo y las respuestas desde el chat. |
 | `art/positions.md` | Posición de cada objeto recortado en la escena. |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1. Es **histórico**: su encabezado dice qué se aceptó y qué no. |
 | `spook_dial_design_v1.md` | Diseño original (histórico). |
@@ -66,6 +67,8 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 26-10-2026 | **Cada entidad tiene 4 acciones propias** y **reglas estilo Keep Talking**. Cada regla marca la acción correcta y la de mayor riesgo; las otras dos son incorrectas. |
 | 26-10-2026 | **Los amigos nunca dicen el nombre de la entidad.** Se identifica de memoria, o **clickeando todas las características destacadas** del mensaje; tras una espera de unos 3 s aparece el nombre. |
 | 26-10-2026 | **Se responde desde el cuaderno:** las opciones del chat son las acciones de la página abierta para ese amigo. |
+| 30-10-2026 | **Memoria del cuaderno por amigo:** cuando a un amigo le llega una solicitud nueva, su cuaderno vuelve al índice. |
+| 31-10-2026 | **El chat y el cuaderno son independientes** y son los únicos paneles que pueden estar abiertos a la vez. El cuaderno va **a la derecha, como espejo del chat** (tapa los diales mientras está abierto). El clic derecho sobre un panel lo cierra; `Esc` o un clic fuera de los paneles cierra los dos. **El celular y el mixer son modos exclusivos**, sin ningún panel abierto. |
 | 26-10-2026 | **La frase clickeable de una característica va entre asteriscos** en el CSV: `vio un *hombrecito*` (no corchetes, que chocan con `[PROTO]` y con BBCode). |
 | 26-10-2026 | **El mensaje inicial trae 2 características camufladas entre señuelos:** frases clickeables que no ayudan a identificar (describen el lugar, un olor, un sonido o algo que se ve). Al clickear un señuelo, vibra y se pone rojo, sin otro costo. Señuelos por noche: 1, 1, 2, 2 y 3. |
 | 26-10-2026 | **La identificación tiene una barra fija con el avance** ("1 de 2"), luego "Matías piensa…" y el nombre. **La estática tapa una frase clickeable entera o nada.** Con **5 s o menos no se puede preguntar.** Las respuestas repiten solo lo del mensaje inicial, sin señuelos nuevos (a prueba). |

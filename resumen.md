@@ -4,6 +4,72 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 10 — 30 y 31 de octubre de 2026 — Plan 4 escrito: cuaderno
+
+Benja pidió escribir el Plan 4 con `superpowers:writing-plans`, justo después de ejecutar el Plan 3. Se escribió en Opus 5.5, con esfuerzo max. La sesión se interrumpió una vez (el equipo se reinició) y no se perdió nada del proyecto.
+
+### Realizado
+
+- **Push a GitHub** de los 12 commits de S9 (autorizado por Benja).
+- **Nuevo `docs/11_plan_cuaderno.md`:** el Plan 4 en 7 tareas con código completo. Lleva las pruebas de 148 a 177:
+  - lógica pura en `scripts/core/`: `NotebookMemory` (la página abierta de cada amigo) y `NotebookPage` (la página de una entidad en BBCode);
+  - `MessageBuilder` agrega la respuesta de Matías y la reacción del amigo, y `RequestManager` agrega `answer()`;
+  - `NotebookPanel`: el índice, con una pestaña por entidad conocida, y la página: folclore, boceto, características y observaciones con la pregunta que las trae, reglas (la correcta en verde y la de mayor riesgo en rojo, también nombrada) y acciones. Tema provisional de papel;
+  - el chat: 4 botones de respuesta con las acciones de la página abierta para ese amigo. Sin página, dice "Abre el cuaderno para responder";
+  - el escritorio conecta el chat con el cuaderno y cierra los paneles con `Esc` o con un clic fuera. Cada panel se cierra con clic derecho, y el celular y el mixer cierran los paneles;
+  - los textos: los títulos y formatos de la página en `notebook.csv`, los de los paneles en `ui.csv` y las reacciones `[PROTO]` en `messages.csv`;
+  - la sección H de `docs/04` (probar el cuaderno), que se agrega al ejecutar el plan.
+- **Decisiones de Benja** (en `CLAUDE.md`, el diseño v2 §7 y §12, y `docs/02` §5.1):
+  - cuando a un amigo le llega una solicitud nueva, su cuaderno vuelve al índice;
+  - mientras no existan las consecuencias (Plan 5), el amigo reacciona según el resultado, con textos `[PROTO]`;
+  - el chat y el cuaderno son independientes: abrir uno no abre ni cierra el otro, y son los únicos paneles que pueden estar abiertos a la vez. El celular y el mixer son modos exclusivos;
+  - el cuaderno va a la derecha, como espejo del chat (449×696, en x 820–1269), y tapa los diales mientras está abierto;
+  - el clic derecho sobre un panel lo cierra; `Esc` o un clic fuera de los paneles cierra los dos.
+- **El plan se verificó en Godot 4.7.2:**
+  - todo su código se ejecutó en una copia aparte, con 177 pruebas OK y una captura del cuaderno junto al chat (`C:\dev\capturas\notebook.png`);
+  - después, el plan **tal como está escrito** se aplicó a una copia limpia: los 14 conteos de pruebas que indica coinciden, y el código resultante es idéntico al probado;
+  - las copias ya se borraron.
+- `docs/02` §9: la frase entre asteriscos de una característica también es su nombre en el cuaderno, así que tiene que entenderse sola. `docs/03` y `docs/06` §3: el tamaño de la página del cuaderno.
+- `docs/06` y `docs/00_log.md` actualizados: S10 ✅ y S11 ▶.
+
+### Errores encontrados
+
+- **El cuaderno al centro tapaba el PC.** Así lo decía el diseño (§7), pero si se abría solo, no había cómo llegar a las entradas para abrir el chat y responder. Benja decidió que va a la derecha y es independiente del chat. El diseño v2 está actualizado.
+- **Con dos paneles, el chat ya no puede cerrarse solo con un clic fuera** (Plan 3): un clic en el cuaderno del escritorio lo habría cerrado. Por eso el cierre con `Esc` y con un clic fuera pasa al escritorio, que es el último en recibir la entrada.
+- **En dos pasos "Verificar que fallan", la falla real no era la que Claude predijo** (tareas 4 y 6). Godot carga un archivo de pruebas que llama a un método que todavía no existe, y la prueba falla al correr. El plan tiene las salidas reales, comprobadas en la copia limpia.
+- **La interrupción borró el scratchpad.** La copia de trabajo estaba en `C:\dev`, así que no se perdió nada; se rehicieron los ayudantes.
+- **Error de Claude:** un ayudante de la validación usaba `sys.path[0]`, que con `python3 -I` no es la carpeta del script, y no agregó los textos de la Tarea 2. Se corrigió y se repitió el paso. El plan no tenía el error.
+
+### Pendientes Código
+
+- [x] **S10: escribir el Plan 4.**
+- [ ] **S11: ejecutar el Plan 4** (`docs/11`), con Sonnet 5.5 en esfuerzo high y Godot cerrado (`docs/00_log.md`).
+- [ ] Pasar a `.tres` las entidades que Benja refine, agregar El Tue Tué y La Calchona a la noche 1, y cambiar a 1 el **Night Number** de `RequestManager`.
+- [ ] Planes 5 a 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar las solicitudes y el chat en Godot** (`docs/04`, G, unos 10 minutos). Lo ideal es antes de S11, porque el Plan 4 cambia cómo se cierra el chat.
+- [ ] **Después de S11:** probar el cuaderno (`docs/04`, H, unos 10 minutos).
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] Refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos, y esa frase tiene que entenderse sola: también es su nombre en el cuaderno.
+- [ ] **Escribir los señuelos** (`data/catalog.tres` y `messages.csv`). Cada lugar necesita al menos los que pide la noche (hasta 3); las pruebas avisan si faltan.
+- [ ] Reemplazar los textos `[PROTO]` de `data/text/messages.csv` y `notebook.csv`. Cada fragmento, como una oración completa con su punto.
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 4 a 6:
+  - **la interfaz del cuaderno:** la página (449×696, como `screen_sprite`; va a la derecha), las pestañas del índice y los bocetos de las entidades (unos 96×96). El tema `scenes/ui/notebook_theme.tres`, que se crea en S11, los recibe;
+  - para el chat: burbujas, botones (4 estados), pestañas y "escribiendo…". El tema `scenes/ui/chat_theme.tres` está listo para recibirlos;
+  - también faltan las barras de señal, el celular sin la hora y los dígitos LCD, los diales rediseñados, el mixer en piezas y el celular ampliado (`docs/06` §3).
+- [ ] Elegir una tipografía pixel (`docs/03` §10). Debe tener `▒` (U+2592).
+
+---
+
 ## Sesión 9 — 30 de octubre de 2026 — Plan 3 ejecutado: solicitudes y chat
 
 Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro proponía Sonnet 5.5), primero en esfuerzo xhigh y después en max. Benja autorizó todos los commits del plan en `main`, sin push.

@@ -5,6 +5,7 @@ Hoja de ruta para construir la v1 (`docs/05` §1) antes del 10 de diciembre. Div
 - El **Plan 1** está escrito paso a paso en `docs/07_plan_escena_arte.md` (ejecutado).
 - El **Plan 2** está escrito paso a paso en `docs/08_plan_datos_textos.md` (ejecutado).
 - El **Plan 3** está escrito paso a paso en `docs/10_plan_solicitudes_chat.md` (ejecutado).
+- El **Plan 4** está escrito paso a paso en `docs/11_plan_cuaderno.md` (por ejecutar).
 - Cada plan siguiente se escribe en detalle al comenzar su sesión, con el mismo formato (skill `superpowers:writing-plans`).
 
 ---
@@ -87,7 +88,7 @@ Revisé tus archivos de `art/sprites/` comparando sus píxeles con las capas del
 | --- | --- | --- |
 | 1 | Nada obligatorio. Opcional: `exterior_sprite` y `background_sprite` con 8 px extra por lado, para un parallax más amplio. | Baja |
 | 3 | Interfaz del chat: burbujas, botones de respuesta y de pregunta, y pestañas de amigo. Barras de señal (5 niveles) para las entradas. | Alta |
-| 4 | Interfaz del cuaderno: página, pestañas del índice y bocetos de las entidades. | Alta |
+| 4 | Interfaz del cuaderno: página (449×696, como `screen_sprite`; va a la derecha), pestañas del índice y bocetos de las entidades (unos 96×96). | Alta |
 | 5 | `phone_sprite` sin la hora y una tira de dígitos LCD "0123456789:". Diales rediseñados (manómetro con ícono). Pantallas de victoria y derrota. | Alta |
 | 6 | Mixer en piezas (base, VU-metro de 5 niveles, perilla de fader y LED). Celular ampliado y unas 12 publicaciones. | Alta |
 | 7 | Luces (`pcLightOver`, `pcLightUnder` y `pcDesklight`) como archivos aparte. Arte de screamers. | Media |

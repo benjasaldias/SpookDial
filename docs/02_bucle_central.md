@@ -5,7 +5,8 @@ Detalle de la mecánica central del diseño v2 (`spook_dial_design.md` §8–§1
 - la identificación ahora es por características clickeables;
 - ya no existe la acción "Grabar": el video extra viene de la acción de mayor riesgo;
 - la cuota la cubren los envíos programados;
-- (sesión 8) el mensaje inicial trae 2 características camufladas entre señuelos, hay una barra con el avance de la identificación, la estática tapa una frase entera o nada, y con 5 s o menos no se puede preguntar.
+- (sesión 8) el mensaje inicial trae 2 características camufladas entre señuelos, hay una barra con el avance de la identificación, la estática tapa una frase entera o nada, y con 5 s o menos no se puede preguntar;
+- (sesión 10) cuando a un amigo le llega una solicitud nueva, su página del cuaderno vuelve al índice, y la frase entre asteriscos de una característica también es su nombre en el cuaderno.
 
 Los valores numéricos (§6) son un punto de partida para el prototipo; se ajustan probando.
 
@@ -90,6 +91,7 @@ Cada palabra de un mensaje del amigo se tapa (▒▒▒) con una probabilidad qu
 
 - Cada entidad tiene **4 acciones propias**, con el sabor de su leyenda.
 - Los botones de respuesta del chat muestran las acciones de **la página abierta en el cuaderno para ese amigo**. Si no hay ninguna abierta, el chat dice "Abre el cuaderno para responder".
+- Cuando a un amigo le llega una solicitud nueva, su página del cuaderno vuelve al índice (decisión de Benja, 30-oct).
 - Cada regla de la página marca la **acción correcta** y la **acción de mayor riesgo**. Las otras dos son incorrectas en esa situación.
 
 ### 5.2 Consecuencias
@@ -212,6 +214,7 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
   - `notebook.csv`: las páginas del cuaderno.
 - Mientras tanto, Claude deja textos de prototipo que empiezan con `[PROTO]` y **describen la intención**. Por ejemplo: `[PROTO] León dice que vio al ser antes de que él lo viera`. Tú los reemplazas por el texto real.
 - Cada característica marca su frase destacable (la que se clickea) **entre asteriscos** dentro de su fragmento: `había un *hombrecito* entre los árboles`. Se eligió así (26-oct) porque los corchetes chocaban con `[PROTO]` y con el BBCode del chat. Las pruebas avisan si un texto no tiene exactamente una frase marcada.
+- **La frase entre asteriscos de una característica también es su nombre en la página del cuaderno** (Plan 4), así que tiene que entenderse sola: `*ropa de fibra vegetal*`, no `*ropa*`.
 - Los **señuelos** también van en `messages.csv`, con su frase clickeable entre asteriscos.
 - **Cada fragmento es una oración completa, con su puntuación.** El mensaje los une con un espacio, en este orden: el lugar, las características y los señuelos mezclados, y las observaciones.
 - Los textos con datos usan marcadores con nombre: `{action}` (la acción que eligió el amigo) y `{marked}` y `{total}` (la barra de identificación).

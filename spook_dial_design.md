@@ -7,7 +7,10 @@
 - El detalle de la mecánica central (reglas, valores numéricos, modelo de datos) está en `docs/02_bucle_central.md`.
 - El orden de trabajo y el calendario están en `docs/05_plan_produccion.md`.
 
-Última actualización: 26 de octubre de 2026 (identificación por características, acción de mayor riesgo y cuota cubierta por los envíos; en la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos).
+Última actualización: 31 de octubre de 2026.
+
+- 26 de octubre: identificación por características, acción de mayor riesgo y cuota cubierta por los envíos. En la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos.
+- 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
 
 ---
 
@@ -84,8 +87,9 @@ Cada objeto cumple una función:
   - una pestaña por amigo, con aviso y temporizador;
   - el historial de la conversación, que se scrollea con la rueda del mouse;
   - los botones de preguntas y de respuesta.
-- **Cuaderno** al centro. Los diales siguen visibles a la derecha.
-- **Para usar el celular o el mixer** hay que cerrar los paneles (`Esc` o clic derecho). Ese es el costo de oportunidad.
+- **Cuaderno** a la derecha, como espejo del chat y del mismo tamaño. Mientras está abierto tapa los diales; el PC queda visible entre los dos paneles.
+- **El chat y el cuaderno son independientes:** abrir uno no abre ni cierra el otro, y son los únicos paneles que pueden estar abiertos a la vez. El clic derecho sobre un panel lo cierra; `Esc`, o un clic en el escritorio fuera de los paneles, cierra los dos.
+- **El celular (redes sociales) y el mixer (Audio Sync) son modos exclusivos:** se usan sin ningún otro panel ni objeto abierto. Ese es el costo de oportunidad.
 - **Mensajes:** aparecen escritos progresivamente, con un sonido breve por mensaje.
 - **Alarma:** cuando un amigo espera respuesta, su entrada parpadea y suena una alarma.
 
@@ -248,7 +252,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
   - las observaciones y a qué pregunta pertenece cada una;
   - las reglas ordenadas, cada una con su acción correcta y su acción de mayor riesgo;
   - las 4 acciones.
-- **Memoria por amigo:** el cuaderno recuerda la página abierta de cada amigo y salta a ella al cambiar de chat.
+- **Memoria por amigo:** el cuaderno recuerda la página abierta de cada amigo y salta a ella al cambiar de chat. Cuando a un amigo le llega una solicitud nueva, su cuaderno vuelve al índice.
 - **Está deliberadamente limitado:** no tiene todas las páginas desde el principio; las nuevas llegan entre noches.
 
 ## 13. Entidades

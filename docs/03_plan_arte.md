@@ -178,7 +178,7 @@ Prioridades:
 - **Avatares:** 3 amigos × 3 expresiones (normal, asustado, herido), de unos 24×24.
 - **Íconos:** Grabar y las 5 preguntas. Las acciones propias de cada entidad pueden ir solo con texto.
 - **Cuaderno:**
-  - página (9-slice);
+  - página (9-slice): el panel mide 449×696, como `screen_sprite`, y va a la derecha (decisión de Benja, 31-oct);
   - pestañas del índice;
   - 7 bocetos de entidades, de unos 96×96.
 - **Diales** rediseñados como manómetros con ícono (`docs/01` §3.12).
