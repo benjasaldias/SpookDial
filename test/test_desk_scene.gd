@@ -325,3 +325,16 @@ func test_un_amigo_herido_se_ve_en_su_entrada() -> bool:
 	check_eq(desk.get_node("DeskPlane/Entries/EntryLeon").health, 3, "León, sano")
 	desk.free()
 	return true
+
+
+func test_al_terminar_la_noche_aparece_la_pantalla() -> bool:
+	var desk := _make_desk()
+	var screen := desk.get_node("Overlay/EndScreen") as Control
+	check(not screen.visible, "oculta mientras dura la noche")
+	_state(desk).sanity = 0.1
+	desk.get_node("NightManager").advance(1.0)
+	check(screen.visible, "aparece al perder")
+	check_eq((screen.get_node("Center/Box/Title") as Label).text, String(TranslationServer.translate("END_LOST_TITLE")),
+			"perdió")
+	desk.free()
+	return true

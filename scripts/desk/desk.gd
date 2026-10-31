@@ -5,8 +5,8 @@ extends Node2D
 ## cuaderno son independientes y pueden estar abiertos a la vez (decisión de Benja). Cada uno se cierra
 ## con clic derecho sobre él; Esc o un clic fuera de los paneles cierra los dos.
 ## Un clic en el celular o el mixer cierra los paneles y por ahora solo se registra (sus vistas, en el Plan 6).
-## Desde el Plan 5, los diales, el celular y el PC muestran el estado de la noche, y la viñeta oscurece
-## la vista cuando baja Sanity.
+## Desde el Plan 5, los diales, el celular y el PC muestran el estado de la noche, la viñeta oscurece
+## la vista cuando baja Sanity, y al terminar la noche aparece una pantalla que explica qué pasó.
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
@@ -33,6 +33,7 @@ var notebook_memory: NotebookMemory
 @onready var _clock: Label = $DeskPlane/Phone/Clock
 @onready var _videos: Label = $DeskPlane/PC/Videos
 @onready var _vignette: ColorRect = $Overlay/Vignette
+@onready var _end_screen: Control = $Overlay/EndScreen
 
 
 func _ready() -> void:
@@ -48,6 +49,8 @@ func _ready() -> void:
 	_chat_panel.friend_selected.connect(_notebook_panel.select_friend)
 	_chat_panel.entity_page_requested.connect(_on_entity_page_requested)
 	_requests.request_started.connect(_on_request_started)
+	_night.night_ended.connect(_on_night_ended)
+	_end_screen.retry_pressed.connect(_on_retry_pressed)
 	$DeskPlane/Notebook.clicked.connect(_open_notebook)
 	for clickable_name in ["Phone", "Mixer"]:
 		var clickable := get_node("DeskPlane/" + clickable_name)
@@ -98,6 +101,19 @@ func _on_entity_page_requested(friend_index: int, entity: EntityData) -> void:
 ## Una solicitud nueva empieza en el índice: la página de la anterior casi nunca sirve (decisión de Benja).
 func _on_request_started(friend_index: int, _request: FriendRequest) -> void:
 	notebook_memory.close_page(friend_index)
+
+
+## Muestra cómo terminó la noche. Los paneles quedan como estaban, debajo: así se ve lo que pasó.
+func _on_night_ended(ending: NightState.Ending, fatal_request: FriendRequest) -> void:
+	var names: Array[String] = []
+	for friend: FriendData in _requests.catalog.friends:
+		names.append(tr(friend.name_key))
+	_end_screen.show_ending(ending, _requests.state, fatal_request, names)
+
+
+## La noche empieza de nuevo y se vuelve a generar, así que no se repite de memoria (diseño §5).
+func _on_retry_pressed() -> void:
+	get_tree().reload_current_scene()
 
 
 ## Seleccionada si su chat está abierto; si no, en alerta mientras espera respuesta, o más oscura si el amigo

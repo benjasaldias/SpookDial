@@ -24,6 +24,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/notebook_panel.tscn" id="notebook_panel"]
 [ext_resource type="Script" path="res://scripts/desk/night_manager.gd" id="night_script"]
 [ext_resource type="Shader" path="res://shaders/vignette.gdshader" id="vignette_shader"]
+[ext_resource type="PackedScene" path="res://scenes/ui/end_screen.tscn" id="end_screen"]
 [ext_resource type="FontFile" path="res://fonts/departure_mono/DepartureMono-Regular.otf" id="pixel_font"]
 
 [sub_resource type="ShaderMaterial" id="vignette_material"]
@@ -194,3 +195,5 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+
+[node name="EndScreen" parent="Overlay" instance=ExtResource("end_screen")]
