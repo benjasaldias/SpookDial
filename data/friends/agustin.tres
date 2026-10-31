@@ -6,4 +6,4 @@
 script = ExtResource("1_friend")
 id = &"agustin"
 name_key = "FRIEND_AGUSTIN_NAME"
-color = Color(0.6, 0.9, 0.5, 1)
+color = Color(0.8, 0.63, 1, 1)

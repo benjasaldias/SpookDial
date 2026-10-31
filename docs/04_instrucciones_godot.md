@@ -140,7 +140,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 2. **Llega una solicitud:** a los 5 segundos, una entrada del PC parpadea y muestra los segundos que le quedan al amigo.
 3. **Abre el chat:** haz clic en esa entrada. A la izquierda se abre el chat en la conversación de ese amigo:
    - arriba hay una pestaña por amigo, con su tiempo y un `•` si tiene mensajes sin leer;
-   - el mensaje aparece escrito de a poco;
+   - el mensaje aparece escrito de a poco, después del nombre de quien escribe ("LEÓN:"), en su color;
    - las frases en ámbar y subrayadas se pueden clickear.
 4. **Identifica:** clickea las frases en ámbar.
    - Las características reales se ponen verdes y la barra cuenta "Características marcadas: 1 de 2".
@@ -177,7 +177,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - La página tiene el folclore, las características y las observaciones (cada una con la pregunta que la trae, entre paréntesis), las reglas y las acciones. Se scrollea con la rueda del mouse.
    - En cada regla, la acción correcta va en verde y la de mayor riesgo, después de "Mayor riesgo:", en rojo.
 3. **Responde:** en el chat, bajo las preguntas, dice "Acciones de El Trauco" y hay 4 botones. Aplica las reglas a lo que cuenta el amigo y haz clic en una acción.
-   - Tu acción aparece a la derecha del chat, y el amigo reacciona con un texto `[PROTO]` según si fue la correcta, la de mayor riesgo o una incorrecta.
+   - Tu acción aparece en el chat, después de "MATÍAS:", y el amigo reacciona según si fue la correcta, la de mayor riesgo o una incorrecta.
    - La entrada del amigo deja de parpadear.
 4. **Los paneles son independientes:**
    - con los dos abiertos, haz clic derecho sobre el cuaderno: se cierra solo el cuaderno;

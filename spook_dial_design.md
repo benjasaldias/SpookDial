@@ -11,7 +11,7 @@
 
 - 26 de octubre: identificación por características, acción de mayor riesgo y cuota cubierta por los envíos. En la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos.
 - 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
-- 31 de octubre (sesión 12): cada dial conserva el color de su aguja, y el video de un amigo aturdido llega cuando se recupera.
+- 31 de octubre (sesión 12): cada dial conserva el color de su aguja, y el video de un amigo aturdido llega cuando se recupera. Después de probar el juego: el chat con estilo de terminal, los textos reales en primera persona y el aviso de daño en el chat.
 
 ---
 
@@ -22,7 +22,7 @@
 - **Género:** terror psicológico, simulación de escritorio, puzzle de reglas bajo presión.
 - **Audiencia:** 13 años o más.
 - **Motor:** Godot 4.7.2.
-- **Arte:** pixel art 2D a 1280×720, hecho en Aseprite. Tipografía: una fuente pixel existente.
+- **Arte:** pixel art 2D a 1280×720, hecho en Aseprite. Tipografía: Departure Mono, una fuente pixel monoespaciada con licencia libre (OFL).
 - **Idioma:** español. Se agrega inglés antes de la entrega si alcanza el tiempo; los textos se preparan para traducir desde el primer día.
 - **Entrega:** 10 de diciembre de 2026. Debe estar completo y jugable.
 
@@ -92,6 +92,7 @@ Cada objeto cumple una función:
 - **El chat y el cuaderno son independientes:** abrir uno no abre ni cierra el otro, y son los únicos paneles que pueden estar abiertos a la vez. El clic derecho sobre un panel lo cierra; `Esc`, o un clic en el escritorio fuera de los paneles, cierra los dos.
 - **El celular (redes sociales) y el mixer (Audio Sync) son modos exclusivos:** se usan sin ningún otro panel ni objeto abierto. Ese es el costo de oportunidad.
 - **Mensajes:** aparecen escritos progresivamente, con un sonido breve por mensaje.
+- **El chat se ve como una terminal:** cada mensaje lleva el nombre de quien escribe ("LEÓN:", "MATÍAS:") en su color, y los avisos del juego, como el de daño, van en rojo y centrados.
 - **Alarma:** cuando un amigo espera respuesta, su entrada parpadea y suena una alarma.
 
 ## 8. Mecánica central: solicitudes y reglas
@@ -171,6 +172,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 
 - **Vida:** cada amigo tiene **3 PV por noche**, que se restauran al empezar la siguiente.
 - **Herido:** queda **aturdido 15 segundos**; en ese tiempo no pide ayuda ni envía nada. Si le tocaba enviar un video, lo envía apenas se recupera.
+- **En el chat:** el amigo herido grita ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y el juego avisa en rojo cuánta vida le queda: "León recibió daño: 2/3".
 - **Muerte:** con 0 PV el amigo muere y **se pierde la noche**.
 
 | Elección | Daño | Trust | Contenido |
@@ -309,7 +311,7 @@ El guion de las cinemáticas lo escribe Benja.
 
 ## 18. Textos
 
-- **Benja escribe los diálogos.** Claude deja textos de prototipo que **describen la intención** de cada mensaje, marcados con `[PROTO]`, e indica en qué archivo están.
+- **Benja corrige los diálogos.** Claude escribe un borrador real de cada texto, corto y en primera persona cuando habla un amigo, e indica en qué archivo está. Benja lo corrige después.
 - Todos los textos viven en archivos de traducción (`data/text/*.csv`, con una columna para español y otra para inglés).
 
 ## 19. Accesibilidad y opciones

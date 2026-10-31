@@ -123,3 +123,26 @@ func test_burbuja_del_amigo_y_de_matias() -> bool:
 	friend_view.free()
 	player_view.free()
 	return true
+
+
+func test_el_nombre_de_quien_escribe() -> bool:
+	var color := Color(1, 0.56, 0.68)
+	var view := ChatMessageView.new(_make_message(_make_request()), "LEÓN", color)
+	(Engine.get_main_loop() as SceneTree).root.add_child(view)
+	var label := _label(view)
+	check(label.get_parsed_text().begins_with("LEÓN: [PROTO] Hay un pelaje"), "el nombre antes del mensaje: %s" % label.get_parsed_text())
+	check(label.text.begins_with("[color=#%s]LEÓN:[/color] " % color.to_html(false)), "en el color del amigo: %s" % label.text)
+	check_eq(label.visible_characters, "LEÓN: ".length(), "el nombre se ve antes de que empiece a escribir")
+	var style := (view.get_node("Bubble") as PanelContainer).get_theme_stylebox(&"panel") as StyleBoxFlat
+	check(style != null and style.border_color == color, "la barra de la izquierda, del color del amigo")
+	view.free()
+	return true
+
+
+func test_matias_tambien_lleva_su_nombre() -> bool:
+	var request := _make_request()
+	var view := ChatMessageView.new(_make_message(request, ChatMessage.Sender.PLAYER), "MATÍAS", Color(0.25, 0.76, 0.79))
+	(Engine.get_main_loop() as SceneTree).root.add_child(view)
+	check(_label(view).get_parsed_text().begins_with("MATÍAS: "), "su nombre: %s" % _label(view).get_parsed_text())
+	view.free()
+	return true

@@ -7,7 +7,7 @@ Detalle de la mecánica central del diseño v2 (`spook_dial_design.md` §8–§1
 - la cuota la cubren los envíos programados;
 - (sesión 8) el mensaje inicial trae 2 características camufladas entre señuelos, hay una barra con el avance de la identificación, la estática tapa una frase entera o nada, y con 5 s o menos no se puede preguntar;
 - (sesión 10) cuando a un amigo le llega una solicitud nueva, su página del cuaderno vuelve al índice, y la frase entre asteriscos de una característica también es su nombre en el cuaderno;
-- (sesión 12) el video de un amigo aturdido llega cuando se recupera.
+- (sesión 12) el video de un amigo aturdido llega cuando se recupera. Después de probar el juego: los textos son borradores reales en primera persona (ya no se usa `[PROTO]`), cada mensaje lleva el nombre de quien escribe, y el amigo herido grita en el chat, seguido de un aviso rojo con su vida.
 
 Los valores numéricos (§6) son un punto de partida para el prototipo; se ajustan probando.
 
@@ -106,6 +106,7 @@ Cada palabra de un mensaje del amigo se tapa (▒▒▒) con una probabilidad qu
 
 - Cada amigo tiene **3 PV por noche**. Al quedar herido, está **aturdido 15 s**. Con 0 PV muere y se pierde la noche.
 - Un amigo aturdido no envía nada: si le tocaba enviar un video (programado o el extra), lo envía apenas se recupera (decisión de Benja, 31-oct).
+- Cuando queda herido, el amigo grita en el chat y el juego avisa en rojo y centrado cuánta vida le queda: "León recibió daño: 2/3" (decisión de Benja, 31-oct; llega con el Plan 5).
 
 ---
 
@@ -214,8 +215,9 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
   - `messages.csv`: los fragmentos de los mensajes de los amigos (lugar, cada característica, cada valor de cada observación y las reacciones).
   - `ui.csv`: los botones, los menús y la interfaz.
   - `notebook.csv`: las páginas del cuaderno.
-- Mientras tanto, Claude deja textos de prototipo que empiezan con `[PROTO]` y **describen la intención**. Por ejemplo: `[PROTO] León dice que vio al ser antes de que él lo viera`. Tú los reemplazas por el texto real.
-- Cada característica marca su frase destacable (la que se clickea) **entre asteriscos** dentro de su fragmento: `había un *hombrecito* entre los árboles`. Se eligió así (26-oct) porque los corchetes chocaban con `[PROTO]` y con el BBCode del chat. Las pruebas avisan si un texto no tiene exactamente una frase marcada.
+- **Claude escribe un borrador real de cada texto, y tú lo corriges** (decisión tuya, 31-oct; antes eran textos `[PROTO]`). Los amigos hablan en primera persona y en mensajes cortos, como en un chat: `Me vio primero. Me está mirando.`
+- El chat muestra el nombre de quien escribe (`LEÓN:`), así que los textos no lo repiten.
+- Cada característica marca su frase destacable (la que se clickea) **entre asteriscos** dentro de su fragmento: `había un *hombrecito* entre los árboles`. Se eligió así (26-oct) porque los corchetes chocan con el BBCode del chat. Las pruebas avisan si un texto no tiene exactamente una frase marcada.
 - **La frase entre asteriscos de una característica también es su nombre en la página del cuaderno** (Plan 4), así que tiene que entenderse sola: `*ropa de fibra vegetal*`, no `*ropa*`.
 - Los **señuelos** también van en `messages.csv`, con su frase clickeable entre asteriscos.
 - **Cada fragmento es una oración completa, con su puntuación.** El mensaje los une con un espacio, en este orden: el lugar, las características y los señuelos mezclados, y las observaciones.

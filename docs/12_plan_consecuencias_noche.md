@@ -5,6 +5,7 @@
 **Objetivo:** que una noche completa se gane o se pierda:
 
 - cada respuesta tiene consecuencias: el amigo puede quedar herido y aturdido, Trust baja según el riesgo de lo elegido, y la acción de mayor riesgo da un video extra si el amigo sobrevive;
+- cuando un amigo queda herido, grita en el chat ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y el juego avisa en rojo, centrado, cuánta vida le queda: "León recibió daño: 2/3";
 - los medidores funcionan: Sanity baja con el tiempo y oscurece la vista con una viñeta, Trust se recupera sin errores y acorta los temporizadores cuando baja, y Connection es el promedio de las señales;
 - los diales de la pared, la hora en el celular, los videos en el PC y la vida de cada amigo en su entrada muestran el estado de la noche;
 - la noche dura de las 00:00 a las 06:00: se gana con la cuota cumplida y se pierde si muere un amigo, si un dial llega a 0 o si falta contenido. Una pantalla explica qué pasó y permite reintentar.
@@ -13,7 +14,7 @@
 
 - `data/balance.tres` (`BalanceData`): los valores de equilibrio que valen para todas las noches, editables en el Inspector.
 - `scripts/core/` (lógica pura, se prueba sin escena): `Consequence` (la consecuencia de una acción), `FriendState` (vida, aturdimiento y señal de un amigo), `VideoSchedule` (los envíos y la cuota), `NightState` (la hora, Sanity, Trust, los amigos, los videos y cómo termina la noche) y `EndingText` (los textos de la pantalla final).
-- `RequestManager` crea el `NightState`, aplica las consecuencias y no da solicitudes a un amigo aturdido. `NightManager` (un nodo nuevo) es el reloj de la noche: avanza las solicitudes y el estado, y avisa cuando la noche termina.
+- `RequestManager` crea el `NightState`, aplica las consecuencias y no da solicitudes a un amigo aturdido. Si el amigo queda herido, agrega al chat el aviso de daño, un mensaje del juego (`ChatMessage.Sender.SYSTEM`). `NightManager` (un nodo nuevo) es el reloj de la noche: avanza las solicitudes y el estado, y avisa cuando la noche termina.
 - El escritorio muestra los medidores y, al terminar la noche, la pantalla final (`scenes/ui/end_screen.tscn`).
 
 **Stack:** Godot 4.7.2 (GDScript con tipado estático, un shader `canvas_item` para la viñeta). Las pruebas usan el ejecutor propio (`test/run_tests.gd`) y corren sin interfaz con `~/tools/godot-wsl.sh`.
@@ -26,13 +27,15 @@
 
 ### De Benja (sesión 12, 31 de octubre)
 
-Las dos últimas ya están en `CLAUDE.md`, en el diseño v2 (§6, §9 y §10.4) y en `docs/02` (§5.2). La primera es provisional y está en `docs/06` §2.
+Están en `CLAUDE.md`, en el diseño v2 y en `docs/02`, salvo la primera, que es provisional y está en `docs/06` §2.
 
 | Decisión | Detalle |
 | --- | --- |
 | **Los videos se reciben solos hasta el Plan 6.** | Este plan trae la cuota, el contador del PC y los envíos programados, que cuentan apenas llegan. El video extra de la acción de mayor riesgo también. En el Plan 6 llegan con un aviso: hay que aceptarlos en 10 s y descargarlos manteniendo presionado. Así, una noche ya se gana o se pierde con este plan. |
 | **El video de un amigo aturdido se atrasa.** | Si a un amigo le toca enviar un video mientras está aturdido, lo envía apenas se recupera. Pasa lo mismo con el video extra cuando la acción de mayor riesgo lo hirió. |
 | **Cada dial conserva su color.** | Connection va en verde, Sanity en rojo y Trust en amarillo, como en el Plan 1. El valor lo muestra el ángulo de la aguja. |
+| **El aviso de daño en el chat.** | Cuando un amigo queda herido, su reacción es un grito en primera persona ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y, debajo, el juego avisa en rojo y centrado cuánta vida le queda: "León recibió daño: 2/3". La vida sigue siendo de 3 puntos. |
+| **Los textos son reales, en primera persona.** | Ya no se usa `[PROTO]`: Claude escribe un borrador real de cada texto, y Benja lo corrige después. Las 2 reacciones nuevas van así. |
 
 ### Técnicas
 
@@ -43,7 +46,7 @@ Las dos últimas ya están en `CLAUDE.md`, en el diseño v2 (§6, §9 y §10.4) 
 | `RequestManager` crea el `NightState`. | Tiene el catálogo, la noche y el generador de números al azar. Así, sus pruebas y las del chat se siguen armando igual. |
 | La señal de cada amigo pasa de `RequestManager.signal_levels` a `FriendState.signal_level`. **Test Signal** sigue en el Inspector de `RequestManager`. | La señal es del amigo, como su vida. El Plan 6 la hace bajar ahí. |
 | `RequestManager` tira la consecuencia y la aplica **antes** de armar la reacción del amigo. `request_finished` sale con la consecuencia ya aplicada, en `request.consequence`. | La reacción depende de si el amigo quedó herido. |
-| Sin respuesta, el amigo cuenta qué hizo y, en otro mensaje, cómo le fue. | Las reacciones son las mismas que cuando responde Matías. Por eso sus textos `[PROTO]` ya no dicen "hizo lo que dijo Matías". |
+| Sin respuesta, el amigo cuenta qué hizo y, en otro mensaje, cómo le fue. | Las reacciones son las mismas que cuando responde Matías, así que sus textos sirven para los dos casos. |
 | Un amigo aturdido o muerto no recibe solicitudes. | Diseño §9: mientras está aturdido, no pide ayuda. |
 | `NightManager`, un nodo nuevo del escritorio, es el reloj de la noche. En cada frame avanza las solicitudes, después el estado de la noche, y revisa si terminó. `RequestManager` ya no avanza solo. | Un solo nodo mueve el tiempo, así que al terminar la noche todo se detiene junto. Los screamers del Plan 7 van a pausar los temporizadores en el mismo lugar. |
 | La noche se pierde **en el acto** si muere un amigo o un dial llega a 0. A las 06:00 se gana con la cuota cumplida, y se pierde sin ella. Si pasan dos cosas a la vez, se explica primero la muerte. | Diseño §5. La muerte es lo que más necesita explicación (`docs/02` §2, paso 9). |
@@ -54,12 +57,15 @@ Las dos últimas ya están en `CLAUDE.md`, en el diseño v2 (§6, §9 y §10.4) 
 | La vida va en la entrada del PC: una marca por punto, llena si lo tiene o vacía (solo el borde) si lo perdió. Mientras el amigo está aturdido, su entrada se oscurece y el temporizador dice "Aturdido 12". | No depende solo del color (diseño §19). Las marcas son provisionales hasta el arte de las entradas. |
 | La viñeta es un shader sobre toda la pantalla, también sobre el chat y el cuaderno. Aparece bajo 60 de Sanity y avanza hacia el centro en 5 bandas. | Diseño §10.2: la visión se oscurece. Las bandas se ven como pixel art. El umbral está en `BalanceData`, y la forma, en el material del shader. |
 | La pantalla final aparece de a poco (1,5 s) y tapa todo. Al perder dice por qué. Si murió un amigo, explica la solicitud: la entidad, lo que observaba, la regla que se aplicaba, la acción correcta y la elegida. Su botón recarga la escena. | Diseño §5 y `docs/02` §2, paso 9. Al recargar, la noche se genera de nuevo, así que no se repite de memoria. El resumen entre noches y el paso a la noche siguiente son del Plan 8. |
-| Los textos de la pantalla final, del PC y de la entrada van en `ui.csv`, sin `[PROTO]`. Las 2 reacciones nuevas van en `messages.csv`, con `[PROTO]`. | Los primeros son interfaz. Las reacciones son lo que dicen los amigos, y esos textos los escribe Benja (regla 8). |
+| Los textos de la pantalla final, del PC, de la entrada y del aviso de daño van en `ui.csv`. Las 2 reacciones nuevas van en `messages.csv`. | Los primeros son interfaz; las reacciones son lo que dicen los amigos. Todos son borradores reales que Benja corrige (regla 8). |
+| El aviso de daño es un mensaje del juego (`ChatMessage.Sender.SYSTEM`): va centrado y en rojo, sin nombre ni burbuja, aparece de una vez y no pasa por la estática. Marca la pestaña del amigo como mensaje nuevo. | No lo escribe el amigo, así que no lleva su nombre ni le afecta la señal. Es lo más importante que puede pasar en el chat. |
+| La hora del celular, los videos del PC y la pantalla final usan Departure Mono, la fuente del chat y de las entradas del PC, en múltiplos de 11 px. | Así se ven como parte de la misma pantalla. En múltiplos de 11 px, la fuente se ve nítida. |
 
 **Verificado en Godot 4.7.2**, en copias aparte del proyecto, ya borradas:
 
-- todo el código de este plan se ejecutó: 239 pruebas OK, sin errores al correr, y dos capturas revisadas a ojo (el escritorio a las 03:00 con la viñeta, y la pantalla de derrota);
-- después, el plan **tal como está escrito** se aplicó a una copia limpia del proyecto: los conteos de pruebas que dice coinciden, incluidas las fallas esperadas, y el código resultante es idéntico al probado.
+- todo el código de este plan se ejecutó: 251 pruebas OK, sin errores al correr, y dos capturas revisadas a ojo (el escritorio a las 03:00 con la viñeta, y la pantalla de derrota con el aviso de daño detrás);
+- después, el plan **tal como está escrito** se aplicó a una copia limpia del proyecto: los conteos de pruebas que dice coinciden, incluidas las fallas esperadas, y el código resultante es idéntico al probado;
+- se validó dos veces: al escribirlo (sesión 12) y después de agregar el aviso de daño y el estilo nuevo del chat (también en la sesión 12).
 
 ---
 
@@ -72,9 +78,9 @@ Las dos últimas ya están en `CLAUDE.md`, en el diseño v2 (§6, §9 y §10.4) 
   ~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd 2>&1 | tail -1
   ```
 
-  Esperado: `177 pruebas OK, 0 fallidas`.
+  Esperado: `185 pruebas OK, 0 fallidas`.
 - [ ] **Git limpio:** `git status` no muestra cambios.
-- [ ] **Textos de Benja:** si Benja ya reemplazó las reacciones `REACTION_*` de `data/text/messages.csv`, en la Tarea 6 se conservan sus textos y solo se agregan las 2 claves nuevas.
+- [ ] **Textos de Benja:** los textos de los CSV pueden tener cambios de Benja. Este plan no los reemplaza: solo agrega líneas al final.
 
 Todos los comandos se ejecutan desde `/mnt/c/Users/benja/OneDrive/Documents/spook-dial`.
 
@@ -119,14 +125,16 @@ Esperado: solo `import listo`. Si aparece `SCRIPT ERROR`, el script tiene un err
 | `scripts/core/night_state.gd` | `NightState`: la hora, Sanity, Trust, los amigos, los videos y cómo termina la noche |
 | `scripts/core/ending_text.gd` | `EndingText`: el título y la explicación de la pantalla final, en BBCode |
 | `scripts/core/friend_request.gd` | Se agrega `consequence` |
-| `scripts/core/message_builder.gd` | La reacción depende también de si el amigo quedó herido |
+| `scripts/core/chat_message.gd` | Se agrega `Sender.SYSTEM`: los avisos del juego |
+| `scripts/core/message_builder.gd` | La reacción depende también de si el amigo quedó herido, y se agrega el aviso de daño |
 | `scripts/desk/request_manager.gd` | Crea el `NightState`, aplica las consecuencias y no da solicitudes a un amigo aturdido |
 | `scripts/desk/night_manager.gd` | `NightManager`: el reloj de la noche y cuándo termina |
 | `scripts/desk/desk.gd`, `scenes/desk/desk.tscn` | Los diales, la hora, los videos, la vida en las entradas, la viñeta y la pantalla final |
 | `shaders/vignette.gdshader` | La viñeta de Sanity |
 | `scripts/ui/chat_entry.gd`, `scenes/ui/chat_entry.tscn` | Las marcas de vida y el aturdimiento en la entrada del PC |
+| `scripts/ui/chat_message_view.gd`, `scripts/ui/chat_panel.gd`, `scenes/ui/chat_theme.tres` | El aviso de daño: centrado, en rojo y sin nombre |
 | `scripts/ui/end_screen.gd`, `scenes/ui/end_screen.tscn` | La pantalla del final de la noche |
-| `data/text/ui.csv`, `data/text/messages.csv` | Textos del PC, de la entrada y de la pantalla final; reacciones `[PROTO]` |
+| `data/text/ui.csv`, `data/text/messages.csv` | Textos del PC, de la entrada, del aviso de daño y de la pantalla final; las reacciones de un amigo herido |
 | `test/content_fixtures.gd` | El catálogo de prueba incluye `BalanceData` |
 | `test/test_*.gd` | Pruebas de cada tarea |
 | `test/capture_night.gd` | Capturas de la noche para revisarla a ojo (no es una prueba) |
@@ -141,7 +149,8 @@ NightManager.advance(delta), en cada frame mientras la noche no termine
 
 RequestManager.answer() o _decide_alone()
   FriendRequest.finish() ─▶ Consequence (daño, Trust, mayor riesgo) ─▶ NightState.apply()
-  ─▶ reacción del amigo (herido o no) ─▶ request_finished ─▶ NightManager revisa si terminó
+  ─▶ reacción del amigo (herido o no) ─▶ aviso de daño, si quedó herido
+  ─▶ request_finished ─▶ NightManager revisa si terminó
 
 desk.gd (escritorio), en cada frame
   diales ◀ NightState (connection, sanity y trust)     celular ◀ clock_text()
@@ -215,7 +224,7 @@ func test_el_catalogo_usa_el_equilibrio() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `177 pruebas OK, 1 fallidas`. La falla es `test_balance.gd :: no se pudo cargar`, porque la clase `BalanceData` no existe.
+Esperado: `185 pruebas OK, 1 fallidas`. La falla es `test_balance.gd :: no se pudo cargar`, porque la clase `BalanceData` no existe.
 
 - [ ] **Paso 3: Crear `BalanceData` y su archivo**
 
@@ -351,7 +360,7 @@ static func make_catalog() -> ContentCatalog:
 
 - [ ] **Paso 5: Importar y verificar que pasan**
 
-Esperado: `180 pruebas OK, 0 fallidas`.
+Esperado: `188 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 6: Commit**
 
@@ -447,7 +456,7 @@ func test_probabilidad_de_herir() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `180 pruebas OK, 1 fallidas`. La falla es `test_consequence.gd :: no se pudo cargar`, porque `consequence.gd` no existe.
+Esperado: `188 pruebas OK, 1 fallidas`. La falla es `test_consequence.gd :: no se pudo cargar`, porque `consequence.gd` no existe.
 
 - [ ] **Paso 3: Crear `Consequence`**
 
@@ -493,7 +502,7 @@ func is_hurt() -> bool:
 
 - [ ] **Paso 4: Importar y verificar que pasan**
 
-Esperado: `185 pruebas OK, 0 fallidas`.
+Esperado: `193 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 5: Commit**
 
@@ -557,7 +566,7 @@ func test_con_0_pv_muere() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `185 pruebas OK, 1 fallidas`. La falla es `test_friend_state.gd :: no se pudo cargar`.
+Esperado: `193 pruebas OK, 1 fallidas`. La falla es `test_friend_state.gd :: no se pudo cargar`.
 
 - [ ] **Paso 3: Crear `FriendState`**
 
@@ -606,7 +615,7 @@ func advance(delta: float) -> void:
 
 - [ ] **Paso 4: Importar y verificar que pasan**
 
-Esperado: `188 pruebas OK, 0 fallidas`.
+Esperado: `196 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 5: Commit**
 
@@ -699,7 +708,7 @@ func test_sin_cuota_ya_esta_cumplida() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `188 pruebas OK, 1 fallidas`. La falla es `test_video_schedule.gd :: no se pudo cargar`.
+Esperado: `196 pruebas OK, 1 fallidas`. La falla es `test_video_schedule.gd :: no se pudo cargar`.
 
 - [ ] **Paso 3: Crear `VideoSchedule`**
 
@@ -762,7 +771,7 @@ func is_quota_met() -> bool:
 
 - [ ] **Paso 4: Importar y verificar que pasan**
 
-Esperado: `193 pruebas OK, 0 fallidas`.
+Esperado: `201 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 5: Commit**
 
@@ -970,7 +979,7 @@ func test_la_vineta_aparece_bajo_60() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `193 pruebas OK, 1 fallidas`. La falla es `test_night_state.gd :: no se pudo cargar`.
+Esperado: `201 pruebas OK, 1 fallidas`. La falla es `test_night_state.gd :: no se pudo cargar`.
 
 - [ ] **Paso 3: Crear `NightState`**
 
@@ -1084,7 +1093,7 @@ func ending() -> Ending:
 
 - [ ] **Paso 4: Importar y verificar que pasan**
 
-Esperado: `207 pruebas OK, 0 fallidas`.
+Esperado: `215 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 5: Commit**
 
@@ -1290,7 +1299,7 @@ func test_sin_respuesta_trust_baja_ademas() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `196 pruebas OK, 8 fallidas`:
+Esperado: `204 pruebas OK, 8 fallidas`:
 
 - `test_message_builder.gd :: no se pudo cargar`, porque `FriendRequest` todavía no tiene `consequence`;
 - 7 pruebas de `test_request_manager.gd`, porque `RequestManager` todavía no tiene `state`: `test_empieza_sin_solicitudes`, `test_sin_respuesta_el_amigo_decide_solo`, `test_la_estatica_depende_de_la_senal`, `test_responder_aplica_la_consecuencia`, `test_un_amigo_aturdido_o_muerto_no_recibe_solicitudes`, `test_con_trust_bajo_hay_menos_tiempo` y `test_sin_respuesta_trust_baja_ademas`.
@@ -1375,26 +1384,15 @@ static func reaction(request: FriendRequest, translate: Callable) -> ChatMessage
 	return message
 ```
 
-- [ ] **Paso 4: Las reacciones `[PROTO]`**
+- [ ] **Paso 4: Las reacciones de un amigo herido**
 
-Las reacciones ahora también siguen a una decisión del amigo, así que ya no dicen "hizo lo que dijo Matías", y hay una versión para cuando queda herido. Si Benja ya reemplazó estas 3 líneas, se conservan sus textos y solo se agregan `REACTION_RISKY_HURT` y `REACTION_WRONG_HURT`.
+Las 3 reacciones de `data/text/messages.csv` ya sirven para cuando el amigo no queda herido, también cuando decidió solo. Se agregan las 2 de cuando queda herido: son borradores en primera persona que Benja corrige.
 
-En `data/text/messages.csv`, reemplazar:
-
-```csv
-REACTION_CORRECT,[PROTO] El amigo hizo lo que dijo Matías y funcionó: cuenta que la entidad lo dejó tranquilo,
-REACTION_RISKY,[PROTO] El amigo hizo lo más arriesgado: cuenta que estuvo muy cerca de la entidad,
-REACTION_WRONG,[PROTO] El amigo hizo lo que dijo Matías y salió mal: cuenta que la entidad se puso agresiva,
-```
-
-por:
+Agregar al final de `data/text/messages.csv`:
 
 ```csv
-REACTION_CORRECT,[PROTO] Funcionó: el amigo cuenta que la entidad lo dejó tranquilo,
-REACTION_RISKY,"[PROTO] El amigo hizo lo más arriesgado y salió ileso: cuenta que estuvo muy cerca de la entidad y que grabó algo increíble",
-REACTION_RISKY_HURT,"[PROTO] El amigo hizo lo más arriesgado y la entidad lo atacó: cuenta, asustado, que está herido",
-REACTION_WRONG,"[PROTO] Salió mal: la entidad se puso agresiva, pero el amigo alcanzó a escapar sin heridas",
-REACTION_WRONG_HURT,"[PROTO] Salió mal: la entidad atacó al amigo, que cuenta que está herido",
+REACTION_RISKY_HURT,"¡ME ATACÓ! Pero lo grabé todo. Concéntrate, Mati.",
+REACTION_WRONG_HURT,"¡ME ATACÓ! CONCÉNTRATE, MATI.",
 ```
 
 - [ ] **Paso 5: `RequestManager` con el estado de la noche**
@@ -1592,7 +1590,7 @@ por:
 
 - [ ] **Paso 6: Importar y verificar que pasan**
 
-Esperado: `212 pruebas OK, 0 fallidas`.
+Esperado: `220 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 7: Commit**
 
@@ -1603,7 +1601,480 @@ git commit -m "Las solicitudes aplican sus consecuencias" -m "Co-Authored-By: Cl
 
 ---
 
-### Tarea 7: El reloj de la noche
+### Tarea 7: El aviso de daño en el chat
+
+**Archivos:**
+
+- Modificar: `scripts/core/chat_message.gd`, `scripts/core/message_builder.gd`, `scripts/desk/request_manager.gd`, `scripts/ui/chat_message_view.gd`, `scripts/ui/chat_panel.gd`, `scenes/ui/chat_theme.tres`, `data/text/ui.csv`, `test/test_message_builder.gd`, `test/test_request_manager.gd`, `test/test_chat_message_view.gd`, `test/test_chat_panel.gd`
+
+Cuando un amigo queda herido, el juego lo avisa en el chat, debajo de la reacción del amigo: "León recibió daño: 2/3", con la vida que le queda (decisión de Benja). Es un mensaje del juego (`ChatMessage.Sender.SYSTEM`), no del amigo: va centrado y en rojo, sin nombre ni burbuja, aparece de una vez y no pasa por la estática.
+
+- [ ] **Paso 1: Escribir las pruebas**
+
+Son 3 cambios en `test/test_message_builder.gd`, 3 en `test/test_request_manager.gd`, 1 en `test/test_chat_message_view.gd` y 2 en `test/test_chat_panel.gd`.
+
+La traducción falsa de las pruebas del armado de mensajes conoce el formato del aviso. En `test/test_message_builder.gd`, reemplazar:
+
+```gdscript
+	if key == MessageBuilder.DECIDED_ALONE_KEY:
+		return "Decidí solo: {action}"
+	return key + "."
+```
+
+por:
+
+```gdscript
+	if key == MessageBuilder.DECIDED_ALONE_KEY:
+		return "Decidí solo: {action}"
+	if key == MessageBuilder.DAMAGE_KEY:
+		return "{friend} recibió daño: {health}/{max}"
+	return key + "."
+```
+
+En `test/test_message_builder.gd`, reemplazar:
+
+```gdscript
+func test_sus_textos_existen() -> bool:
+```
+
+por:
+
+```gdscript
+func test_el_aviso_de_dano() -> bool:
+	var request := _make_request()
+	var message := MessageBuilder.damage_notice(request, "León", 2, 3, _translate)
+	check_eq(message.sender, ChatMessage.Sender.SYSTEM, "lo escribe el juego, no el amigo")
+	check_eq(message.request, request, "es de la solicitud")
+	check_eq(message.plain_text(), "León recibió daño: 2/3", "con la vida que le queda")
+	return true
+
+
+func test_sus_textos_existen() -> bool:
+```
+
+En `test/test_message_builder.gd`, reemplazar:
+
+```gdscript
+	keys.append(MessageBuilder.DECIDED_ALONE_KEY)
+```
+
+por:
+
+```gdscript
+	keys.append(MessageBuilder.DECIDED_ALONE_KEY)
+	keys.append(MessageBuilder.DAMAGE_KEY)
+	for placeholder: String in ["{friend}", "{health}", "{max}"]:
+		check(String(TranslationServer.translate(MessageBuilder.DAMAGE_KEY)).contains(placeholder),
+				"CHAT_DAMAGE debe tener %s" % placeholder)
+```
+
+Después de una respuesta que hiere, llegan 3 mensajes: la respuesta, la reacción y el aviso. En `test/test_request_manager.gd`, reemplazar:
+
+```gdscript
+	var messages := _messages(events)
+	if messages.size() == 2:
+		check_eq((messages[1] as ChatMessage).plain_text(), String(TranslationServer.translate("REACTION_WRONG_HURT")),
+				"cuenta que quedó herido")
+```
+
+por:
+
+```gdscript
+	var messages := _messages(events)
+	check_eq(messages.size(), 3, "la respuesta, la reacción y el aviso de daño")
+	if messages.size() == 3:
+		check_eq((messages[1] as ChatMessage).plain_text(), String(TranslationServer.translate("REACTION_WRONG_HURT")),
+				"cuenta que quedó herido")
+		var notice := messages[2] as ChatMessage
+		var friend: FriendData = manager.catalog.friends[0]
+		check_eq(notice.sender, ChatMessage.Sender.SYSTEM, "el aviso lo escribe el juego")
+		check_eq(notice.plain_text(), String(TranslationServer.translate("CHAT_DAMAGE")).format(
+				{"friend": String(TranslationServer.translate(friend.name_key)), "health": 2, "max": 3}),
+				"con la vida que le queda")
+```
+
+La prueba de la decisión del amigo cuenta los mensajes: sin heridas, para que no llegue además el aviso. En `test/test_request_manager.gd`, reemplazar:
+
+```gdscript
+func test_sin_respuesta_el_amigo_decide_solo() -> bool:
+	var manager := _make_manager()
+	var request := manager.start_request(2)
+```
+
+por:
+
+```gdscript
+func test_sin_respuesta_el_amigo_decide_solo() -> bool:
+	var manager := _make_manager()
+	# Sin heridas: si quedara herido, llegaría además el aviso de daño.
+	manager.catalog.balance.risky_hurt_chance = 0.0
+	manager.catalog.balance.wrong_hurt_chance = 0.0
+	var request := manager.start_request(2)
+```
+
+Agregar al final de `test/test_request_manager.gd`:
+
+```gdscript
+func test_si_decide_solo_y_queda_herido_tambien_hay_aviso() -> bool:
+	var manager := _make_manager()
+	manager.catalog.balance.risky_hurt_chance = 1.0
+	manager.catalog.balance.wrong_hurt_chance = 1.0
+	var request := manager.start_request(2)
+	var events := []
+	_record(manager, events)
+	manager.advance(request.time_left + 0.1)
+	var messages := _messages(events)
+	var hurt := request.consequence.is_hurt()
+	check_eq(messages.size(), 3 if hurt else 2, "lo que hizo, cómo le fue y, si quedó herido, el aviso")
+	if not messages.is_empty():
+		check_eq((messages[-1] as ChatMessage).sender == ChatMessage.Sender.SYSTEM, hurt, "el aviso, solo si quedó herido")
+	manager.free()
+	return true
+```
+
+Agregar al final de `test/test_chat_message_view.gd`:
+
+```gdscript
+func test_el_aviso_de_dano_va_centrado_y_en_rojo() -> bool:
+	var message := ChatMessage.new(ChatMessage.Sender.SYSTEM, _make_request())
+	message.add_fragment("León recibió daño: 2/3")
+	var view := _make_view(message)
+	var label := _label(view)
+	check_eq(label.get_parsed_text(), "── León recibió daño: 2/3 ──", "entre líneas y sin nombre")
+	check(label.text.begins_with("[center]"), "centrado")
+	check(label.text.contains(ChatMessageView.DANGER_COLOR), "en rojo")
+	check_eq(label.visible_ratio, 1.0, "aparece de una vez")
+	check_eq((view.get_node("Bubble") as PanelContainer).theme_type_variation, &"SystemNotice", "sin burbuja")
+	check_eq(view.get_theme_constant(&"margin_left"), 0, "de borde a borde, a la izquierda")
+	check_eq(view.get_theme_constant(&"margin_right"), 0, "y a la derecha")
+	view.free()
+	return true
+```
+
+La prueba que responde desde la página elige la tercera acción, que según la situación puede herir al amigo: se deja sin heridas, para que siempre lleguen 3 mensajes. En `test/test_chat_panel.gd`, reemplazar:
+
+```gdscript
+	var request := _manager.start_request(0)
+	panel._process(0.0)
+	check(not (buttons[0] as Button).disabled, "con solicitud se responde")
+```
+
+por:
+
+```gdscript
+	# Sin heridas: si quedara herido, llegaría además el aviso de daño.
+	_manager.catalog.balance.risky_hurt_chance = 0.0
+	_manager.catalog.balance.wrong_hurt_chance = 0.0
+	var request := _manager.start_request(0)
+	panel._process(0.0)
+	check(not (buttons[0] as Button).disabled, "con solicitud se responde")
+```
+
+Agregar al final de `test/test_chat_panel.gd`:
+
+```gdscript
+func test_el_aviso_de_dano_no_lleva_nombre_y_marca_la_pestana() -> bool:
+	var panel := _make_panel()
+	var request := _manager.start_request(0)
+	panel.open_for(0)
+	panel.open_for(1)
+	var notice := ChatMessage.new(ChatMessage.Sender.SYSTEM, request)
+	notice.add_fragment("León recibió daño: 2/3")
+	_manager.message_added.emit(0, notice)
+	var views: Array[Node] = panel.message_views(0)
+	check_eq(views[-1].speaker, "", "lo escribe el juego: sin nombre")
+	panel._process(0.0)
+	check((panel.get_node("Panel/Tabs").get_child(0) as Button).text.contains(panel.UNREAD_MARK), "la pestaña de León avisa")
+	_free(panel)
+	return true
+```
+
+- [ ] **Paso 2: Verificar que fallan**
+
+Importar y correr las pruebas.
+
+Esperado: `173 pruebas OK, 4 fallidas`. Son `test_chat_message_view.gd`, `test_chat_panel.gd`, `test_message_builder.gd` y `test_request_manager.gd :: no se pudo cargar`, porque `ChatMessage.Sender.SYSTEM` todavía no existe. Las otras pruebas de esos 4 archivos vuelven en el paso 5.
+
+- [ ] **Paso 3: El aviso**
+
+En `scripts/core/chat_message.gd`, reemplazar:
+
+```gdscript
+enum Sender { FRIEND, PLAYER }
+```
+
+por:
+
+```gdscript
+## Quién escribe: un amigo, Matías o el juego (sus avisos, como el de daño).
+enum Sender { FRIEND, PLAYER, SYSTEM }
+```
+
+En `scripts/core/message_builder.gd`, reemplazar:
+
+```gdscript
+	RuleEvaluator.Outcome.WRONG: "REACTION_WRONG_HURT",
+}
+```
+
+por:
+
+```gdscript
+	RuleEvaluator.Outcome.WRONG: "REACTION_WRONG_HURT",
+}
+## El aviso del juego cuando un amigo queda herido (ui.csv). Lleva {friend}, {health} y {max}.
+const DAMAGE_KEY := "CHAT_DAMAGE"
+```
+
+En `scripts/core/message_builder.gd`, reemplazar:
+
+```gdscript
+static func _observation_text(request: FriendRequest, observation: ObservationData, translate: Callable) -> String:
+```
+
+por:
+
+```gdscript
+## El aviso del juego, centrado y en rojo, cuando un amigo queda herido: "León recibió daño: 2/3"
+## (decisión de Benja). `health` es la vida que le queda.
+static func damage_notice(request: FriendRequest, friend_name: String, health: int, max_health: int,
+		translate: Callable) -> ChatMessage:
+	var message := ChatMessage.new(ChatMessage.Sender.SYSTEM, request)
+	message.add_fragment(_text(translate, DAMAGE_KEY).format({"friend": friend_name, "health": health, "max": max_health}))
+	return message
+
+
+static func _observation_text(request: FriendRequest, observation: ObservationData, translate: Callable) -> String:
+```
+
+El aviso va después de la reacción, tanto si respondió Matías como si el amigo decidió solo. En `scripts/desk/request_manager.gd`, reemplazar:
+
+```gdscript
+	message_added.emit(friend_index, MessageBuilder.player_answer(request, tr))
+	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
+```
+
+por:
+
+```gdscript
+	message_added.emit(friend_index, MessageBuilder.player_answer(request, tr))
+	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
+	_add_damage_notice(friend_index, request)
+```
+
+En `scripts/desk/request_manager.gd`, reemplazar:
+
+```gdscript
+	_add_friend_message(friend_index, MessageBuilder.decided_alone(request, tr))
+	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
+```
+
+por:
+
+```gdscript
+	_add_friend_message(friend_index, MessageBuilder.decided_alone(request, tr))
+	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
+	_add_damage_notice(friend_index, request)
+```
+
+En `scripts/desk/request_manager.gd`, reemplazar:
+
+```gdscript
+func _add_friend_message(friend_index: int, message: ChatMessage) -> void:
+```
+
+por:
+
+```gdscript
+## Si el amigo quedó herido, el juego lo avisa en el chat con la vida que le queda. El aviso no pasa
+## por la estática.
+func _add_damage_notice(friend_index: int, request: FriendRequest) -> void:
+	if not request.consequence.is_hurt():
+		return
+	var friend := state.friends[friend_index]
+	var friend_name := tr(catalog.friends[friend_index].name_key)
+	message_added.emit(friend_index, MessageBuilder.damage_notice(request, friend_name, friend.health, friend.max_health, tr))
+
+
+func _add_friend_message(friend_index: int, message: ChatMessage) -> void:
+```
+
+Agregar al final de `data/text/ui.csv`:
+
+```csv
+CHAT_DAMAGE,{friend} recibió daño: {health}/{max},
+```
+
+- [ ] **Paso 4: Cómo se ve el aviso**
+
+Son 6 cambios en `scripts/ui/chat_message_view.gd`, 2 en `scripts/ui/chat_panel.gd` y 2 en `scenes/ui/chat_theme.tres`.
+
+En `scripts/ui/chat_message_view.gd`, reemplazar:
+
+```gdscript
+## y el señuelo vibra y queda rojo.
+```
+
+por:
+
+```gdscript
+## y el señuelo vibra y queda rojo. Los avisos del juego, como el de daño, van centrados y en rojo.
+```
+
+En `scripts/ui/chat_message_view.gd`, reemplazar:
+
+```gdscript
+const STATIC_COLOR := "56637f"
+```
+
+por:
+
+```gdscript
+const STATIC_COLOR := "56637f"
+## Los avisos del juego, como el de daño.
+const DANGER_COLOR := "ff4d5e"
+```
+
+En `scripts/ui/chat_message_view.gd`, reemplazar:
+
+```gdscript
+	var from_player := message.sender == ChatMessage.Sender.PLAYER
+	add_theme_constant_override(&"margin_left" if from_player else &"margin_right", INDENT)
+	var bubble := PanelContainer.new()
+	bubble.name = "Bubble"
+	bubble.theme_type_variation = &"PlayerBubble" if from_player else &"FriendBubble"
+```
+
+por:
+
+```gdscript
+	var from_player := message.sender == ChatMessage.Sender.PLAYER
+	var bubble := PanelContainer.new()
+	bubble.name = "Bubble"
+	if message.sender == ChatMessage.Sender.SYSTEM:
+		# Los avisos del juego van de borde a borde, sin burbuja.
+		bubble.theme_type_variation = &"SystemNotice"
+	else:
+		add_theme_constant_override(&"margin_left" if from_player else &"margin_right", INDENT)
+		bubble.theme_type_variation = &"PlayerBubble" if from_player else &"FriendBubble"
+```
+
+En `scripts/ui/chat_message_view.gd`, reemplazar:
+
+```gdscript
+	refresh()
+	_label.visible_ratio = 0.0
+```
+
+por:
+
+```gdscript
+	refresh()
+	# Los avisos del juego aparecen de una vez; los mensajes se escriben de a poco.
+	_label.visible_ratio = 1.0 if message.sender == ChatMessage.Sender.SYSTEM else 0.0
+```
+
+En `scripts/ui/chat_message_view.gd`, reemplazar:
+
+```gdscript
+func _ready() -> void:
+	if message.sender == ChatMessage.Sender.FRIEND and not speaker.is_empty():
+```
+
+por:
+
+```gdscript
+func _ready() -> void:
+	if message.sender == ChatMessage.Sender.SYSTEM:
+		return
+	if message.sender == ChatMessage.Sender.FRIEND and not speaker.is_empty():
+```
+
+En `scripts/ui/chat_message_view.gd`, reemplazar:
+
+```gdscript
+func refresh() -> void:
+	var parts := PackedStringArray()
+```
+
+por:
+
+```gdscript
+func refresh() -> void:
+	if message.sender == ChatMessage.Sender.SYSTEM:
+		_label.text = "[center]%s[/center]" % _colored("── %s ──" % message.plain_text().replace("[", "[lb]"), DANGER_COLOR)
+		return
+	var parts := PackedStringArray()
+```
+
+El aviso no lleva nombre y marca la pestaña del amigo como mensaje nuevo. En `scripts/ui/chat_panel.gd`, reemplazar:
+
+```gdscript
+	# Quién escribe, en mayúsculas y con su color: el amigo o Matías.
+```
+
+por:
+
+```gdscript
+	# Quién escribe, en mayúsculas y con su color: el amigo o Matías. Los avisos del juego van sin nombre.
+```
+
+En `scripts/ui/chat_panel.gd`, reemplazar:
+
+```gdscript
+	if message.sender == ChatMessage.Sender.FRIEND and not (visible and friend_index == selected_friend):
+```
+
+por:
+
+```gdscript
+	if message.sender != ChatMessage.Sender.PLAYER and not (visible and friend_index == selected_friend):
+```
+
+En `scenes/ui/chat_theme.tres`, reemplazar:
+
+```ini
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+```
+
+por:
+
+```ini
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_notice"]
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+```
+
+En `scenes/ui/chat_theme.tres`, reemplazar:
+
+```ini
+PlayerBubble/styles/panel = SubResource("StyleBoxFlat_player")
+```
+
+por:
+
+```ini
+PlayerBubble/styles/panel = SubResource("StyleBoxFlat_player")
+SystemNotice/base_type = &"PanelContainer"
+SystemNotice/styles/panel = SubResource("StyleBoxEmpty_notice")
+```
+
+- [ ] **Paso 5: Importar y verificar que pasan**
+
+Esperado: `224 pruebas OK, 0 fallidas`.
+
+- [ ] **Paso 6: Commit**
+
+```bash
+git add scripts/ scenes/ui/ data/text/ test/
+git commit -m "Aviso de daño en el chat" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
+```
+
+---
+
+### Tarea 8: El reloj de la noche
 
 **Archivos:**
 
@@ -1755,7 +2226,7 @@ func test_al_terminar_todo_se_detiene() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `212 pruebas OK, 1 fallidas`. La falla es `test_night_manager.gd :: no se pudo cargar`.
+Esperado: `224 pruebas OK, 1 fallidas`. La falla es `test_night_manager.gd :: no se pudo cargar`.
 
 - [ ] **Paso 3: Crear `NightManager`**
 
@@ -1825,7 +2296,7 @@ func _check_ending(request: FriendRequest) -> void:
 
 - [ ] **Paso 4: Importar y verificar que pasan**
 
-Esperado: `219 pruebas OK, 0 fallidas`.
+Esperado: `231 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 5: Commit**
 
@@ -1836,7 +2307,7 @@ git commit -m "Reloj de la noche" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply
 
 ---
 
-### Tarea 8: Los medidores en el escritorio
+### Tarea 9: Los medidores en el escritorio
 
 **Archivos:**
 
@@ -1850,6 +2321,8 @@ Posiciones (`docs/03`: 1 píxel de arte = 1 unidad):
 - **La hora:** dentro de `Phone` (357, 618). El parche `ClockCover` cubre las filas 6 a 17 de la pantalla del celular, donde está dibujado "00:00", con su mismo color (76, 107, 167). La pantalla está inclinada, así que el parche es un paralelogramo.
 - **Los videos:** dentro de `PC` (479, 433), en la franja negra de la pantalla sobre las entradas: de (39, 7) a (282, 21).
 - **La viñeta:** en una capa nueva, `Overlay` (layer 2), sobre el chat y el cuaderno. No recibe clics.
+
+La hora y los videos usan Departure Mono, la fuente del chat y de las entradas del PC, a 11 px.
 
 - [ ] **Paso 1: Escribir las pruebas**
 
@@ -1934,7 +2407,7 @@ func test_la_vineta_sigue_a_sanity() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `219 pruebas OK, 5 fallidas`. Son las 5 pruebas nuevas de `test_desk_scene.gd`: el escritorio todavía no tiene `NightManager`, la hora, los videos ni la viñeta.
+Esperado: `231 pruebas OK, 5 fallidas`. Son las 5 pruebas nuevas de `test_desk_scene.gd`: el escritorio todavía no tiene `NightManager`, la hora, los videos ni la viñeta.
 
 - [ ] **Paso 3: El shader de la viñeta**
 
@@ -1986,6 +2459,7 @@ por:
 [ext_resource type="PackedScene" path="res://scenes/ui/notebook_panel.tscn" id="notebook_panel"]
 [ext_resource type="Script" path="res://scripts/desk/night_manager.gd" id="night_script"]
 [ext_resource type="Shader" path="res://shaders/vignette.gdshader" id="vignette_shader"]
+[ext_resource type="FontFile" path="res://fonts/departure_mono/DepartureMono-Regular.otf" id="pixel_font"]
 
 [sub_resource type="ShaderMaterial" id="vignette_material"]
 shader = ExtResource("vignette_shader")
@@ -2023,6 +2497,7 @@ offset_top = 4.0
 offset_right = 80.0
 offset_bottom = 20.0
 theme_override_colors/font_color = Color(0.76, 0.835, 0.929, 1)
+theme_override_fonts/font = ExtResource("pixel_font")
 theme_override_font_sizes/font_size = 11
 text = "00:00"
 horizontal_alignment = 1
@@ -2052,7 +2527,8 @@ offset_top = 7.0
 offset_right = 282.0
 offset_bottom = 21.0
 theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
-theme_override_font_sizes/font_size = 10
+theme_override_fonts/font = ExtResource("pixel_font")
+theme_override_font_sizes/font_size = 11
 horizontal_alignment = 2
 vertical_alignment = 1
 ```
@@ -2226,7 +2702,7 @@ func _refresh_meters() -> void:
 
 - [ ] **Paso 7: Importar y verificar que pasan**
 
-Esperado: `224 pruebas OK, 0 fallidas`.
+Esperado: `236 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 8: Commit**
 
@@ -2237,7 +2713,7 @@ git commit -m "Diales, hora, videos y viñeta en el escritorio" -m "Co-Authored-
 
 ---
 
-### Tarea 9: La vida y el aturdimiento en las entradas del PC
+### Tarea 10: La vida y el aturdimiento en las entradas del PC
 
 **Archivos:**
 
@@ -2300,7 +2776,7 @@ func test_un_amigo_herido_se_ve_en_su_entrada() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `200 pruebas OK, 2 fallidas`. Son `test_chat_entry.gd :: no se pudo cargar` y `test_desk_scene.gd :: no se pudo cargar`, porque `ChatEntry.State.STUNNED` no existe. Las otras pruebas de esos dos archivos vuelven en el paso 5.
+Esperado: `212 pruebas OK, 2 fallidas`. Son `test_chat_entry.gd :: no se pudo cargar` y `test_desk_scene.gd :: no se pudo cargar`, porque `ChatEntry.State.STUNNED` no existe. Las otras pruebas de esos dos archivos vuelven en el paso 5.
 
 - [ ] **Paso 3: La entrada**
 
@@ -2505,7 +2981,7 @@ func _refresh_entries() -> void:
 
 - [ ] **Paso 5: Importar y verificar que pasan**
 
-Esperado: `227 pruebas OK, 0 fallidas`.
+Esperado: `239 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 6: Commit**
 
@@ -2516,7 +2992,7 @@ git commit -m "Vida y aturdimiento en las entradas del PC" -m "Co-Authored-By: C
 
 ---
 
-### Tarea 10: Los textos del final de la noche
+### Tarea 11: Los textos del final de la noche
 
 **Archivos:**
 
@@ -2666,7 +3142,7 @@ func test_sus_textos_existen() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `227 pruebas OK, 1 fallidas`. La falla es `test_ending_text.gd :: no se pudo cargar`.
+Esperado: `239 pruebas OK, 1 fallidas`. La falla es `test_ending_text.gd :: no se pudo cargar`.
 
 - [ ] **Paso 3: Crear `EndingText` y sus textos**
 
@@ -2767,7 +3243,7 @@ static func _text(translate: Callable, key: String) -> String:
 	return String(translate.call(key))
 ```
 
-Agregar al final de `data/text/ui.csv`. Son textos de interfaz, sin `[PROTO]`; Benja puede cambiarlos, conservando los marcadores entre llaves:
+Agregar al final de `data/text/ui.csv`. Son textos de interfaz: borradores que Benja puede cambiar, conservando los marcadores entre llaves:
 
 ```csv
 END_WON_TITLE,Llegaste a las 06:00,
@@ -2790,7 +3266,7 @@ END_PLAY_AGAIN,Jugar de nuevo,
 
 - [ ] **Paso 4: Importar y verificar que pasan**
 
-Esperado: `234 pruebas OK, 0 fallidas`.
+Esperado: `246 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 5: Commit**
 
@@ -2801,14 +3277,14 @@ git commit -m "Textos del final de la noche" -m "Co-Authored-By: Claude Sonnet 5
 
 ---
 
-### Tarea 11: La pantalla del final de la noche
+### Tarea 12: La pantalla del final de la noche
 
 **Archivos:**
 
 - Crear: `scripts/ui/end_screen.gd`, `scenes/ui/end_screen.tscn`, `test/test_end_screen.gd`
 - Modificar: `scenes/desk/desk.tscn`, `scripts/desk/desk.gd`, `test/test_desk_scene.gd`
 
-La pantalla final va en `Overlay`, sobre la viñeta. Aparece de a poco cuando `NightManager` avisa que la noche terminó, y se queda con todos los clics. Su botón ("Reintentar" o "Jugar de nuevo") recarga la escena: la noche empieza de nuevo y se vuelve a generar.
+La pantalla final va en `Overlay`, sobre la viñeta. Aparece de a poco cuando `NightManager` avisa que la noche terminó, y se queda con todos los clics. Su botón ("Reintentar" o "Jugar de nuevo") recarga la escena: la noche empieza de nuevo y se vuelve a generar. Usa Departure Mono, como el chat: el título a 33 px, la explicación a 11 y el botón a 22.
 
 - [ ] **Paso 1: Escribir las pruebas**
 
@@ -2902,7 +3378,7 @@ func test_al_terminar_la_noche_aparece_la_pantalla() -> bool:
 
 Importar y correr las pruebas.
 
-Esperado: `234 pruebas OK, 2 fallidas`. Son `test_end_screen.gd :: no se pudo cargar` (la escena no existe) y `test_desk_scene.gd :: test_al_terminar_la_noche_aparece_la_pantalla`.
+Esperado: `246 pruebas OK, 2 fallidas`. Son `test_end_screen.gd :: no se pudo cargar` (la escena no existe) y `test_desk_scene.gd :: test_al_terminar_la_noche_aparece_la_pantalla`.
 
 - [ ] **Paso 3: La pantalla**
 
@@ -2956,6 +3432,7 @@ func show_ending(ending: NightState.Ending, state: NightState, fatal_request: Fr
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/end_screen.gd" id="screen_script"]
+[ext_resource type="FontFile" path="res://fonts/departure_mono/DepartureMono-Regular.otf" id="pixel_font"]
 
 [node name="EndScreen" type="Control"]
 layout_mode = 3
@@ -2984,11 +3461,15 @@ theme_override_constants/separation = 18
 
 [node name="Title" type="Label" parent="Center/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_fonts/font = ExtResource("pixel_font")
+theme_override_font_sizes/font_size = 33
 horizontal_alignment = 1
 
 [node name="Body" type="RichTextLabel" parent="Center/Box"]
 layout_mode = 2
+theme_override_fonts/normal_font = ExtResource("pixel_font")
+theme_override_font_sizes/normal_font_size = 11
+theme_override_constants/line_separation = 3
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
@@ -2996,7 +3477,8 @@ scroll_active = false
 [node name="Retry" type="Button" parent="Center/Box"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 16
+theme_override_fonts/font = ExtResource("pixel_font")
+theme_override_font_sizes/font_size = 22
 ```
 
 - [ ] **Paso 4: La pantalla en el escritorio**
@@ -3090,7 +3572,7 @@ func _on_retry_pressed() -> void:
 
 - [ ] **Paso 5: Importar y verificar que pasan**
 
-Esperado: `239 pruebas OK, 0 fallidas`.
+Esperado: `251 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 6: Commit**
 
@@ -3101,7 +3583,7 @@ git commit -m "Pantalla del final de la noche" -m "Co-Authored-By: Claude Sonnet
 
 ---
 
-### Tarea 12: Revisión a ojo, instrucciones para Benja y cierre
+### Tarea 13: Revisión a ojo, instrucciones para Benja y cierre
 
 **Archivos:**
 
@@ -3114,7 +3596,7 @@ git commit -m "Pantalla del final de la noche" -m "Co-Authored-By: Claude Sonnet
 ~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd 2>&1 | tail -1
 ```
 
-Esperado: `239 pruebas OK, 0 fallidas`.
+Esperado: `251 pruebas OK, 0 fallidas`.
 
 - [ ] **Paso 2: Capturar la noche y revisarla**
 
@@ -3127,7 +3609,9 @@ extends SceneTree
 ## Capturas de la noche para revisarla a ojo (Plan 5). No es una prueba: corre con ventana.
 ## Uso: ~/tools/godot-wsl.sh --path "$PWD" -s res://test/capture_night.gd -- /mnt/c/dev/capturas/night.png /mnt/c/dev/capturas/night_lost.png
 ## 1. A las 03:00, con Sanity 25 (viñeta), Trust 55, 1 de 3 videos y León herido y aturdido. Gonzalo pide ayuda.
-## 2. Gonzalo, con 1 PV, recibe una acción incorrecta y muere: la pantalla de derrota explica la solicitud.
+##    El chat está cerrado, así que se ven la hora del celular y las entradas del PC.
+## 2. Se abre el chat de Gonzalo, que con 1 PV recibe una acción incorrecta y muere: la pantalla de derrota
+##    explica la solicitud, y detrás, en el chat, quedan su grito y el aviso de daño.
 
 const DESK := preload("res://scenes/desk/desk.tscn")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
@@ -3151,9 +3635,9 @@ func _capture() -> void:
 	state.videos.received = 1
 	state.friends[0].hurt(2, 15.0)
 	var request: RefCounted = manager.start_request(1)
-	desk.get_node("UI/ChatPanel").open_for(1)
 	await create_timer(2.0).timeout
 	await _save(0)
+	desk.get_node("UI/ChatPanel").open_for(1)
 	state.friends[1].health = 1
 	manager.catalog.balance.wrong_hurt_chance = 1.0
 	var entity: EntityData = request.get("entity")
@@ -3174,7 +3658,7 @@ func _save(index: int) -> void:
 	print("Captura guardada en ", path)
 ```
 
-Se ejecuta **con ventana** (sin `--headless`): Godot abre una ventana unos 5 segundos y se cierra solo.
+Se ejecuta **con ventana** (sin `--headless`): Godot abre una ventana unos 5 segundos y se cierra solo. La primera captura va con el chat cerrado, porque su pantalla tapa el celular.
 
 ```bash
 mkdir -p /mnt/c/dev/capturas
@@ -3187,15 +3671,17 @@ En `night.png`:
 
 - el celular dice 03:01 (o 03:02), sobre el parche azul, sin restos del "00:00" dibujado;
 - arriba de la pantalla del PC, a la derecha, dice "Videos: 1 de 3";
-- la entrada de León, más oscura, tiene 1 marca llena y 2 vacías y dice "Aturdido" con unos 13 o 14 segundos; la de Gonzalo, seleccionada, muestra su tiempo; las 3 entradas tienen sus marcas entre el nombre y el temporizador;
+- el chat está cerrado, y las entradas y los textos nuevos del PC usan la fuente pixel del chat;
+- la entrada de León, más oscura, tiene 1 marca llena y 2 vacías y dice "Aturdido" con unos 13 o 14 segundos; la de Gonzalo, en alerta, muestra su tiempo; las 3 entradas tienen sus marcas entre el nombre y el temporizador;
 - los diales: Connection con la aguja abajo a la derecha (100), Sanity hacia arriba a la izquierda (25) y Trust apenas a la derecha de las 12 (55);
-- la viñeta: el borde izquierdo del chat y las esquinas, más oscuros y en bandas; el centro, claro.
+- la viñeta: las esquinas y los bordes, más oscuros y en bandas; el centro, claro.
 
 En `night_lost.png`:
 
 - todo oscurecido detrás, y al centro "Perdiste la noche";
 - "Gonzalo murió.", "Era El Trauco.", "Lo que observaba:" con las 3 observaciones (pregunta y valor), la regla que se aplicaba, la acción correcta en verde y "Respondiste:" con la elegida en rojo;
-- el botón "Reintentar".
+- el botón "Reintentar";
+- detrás, en el chat de Gonzalo, su grito ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y el aviso rojo y centrado "Gonzalo recibió daño: 0/3".
 
 Si algo no coincide, revisarlo antes de seguir.
 
@@ -3219,7 +3705,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - en la pared, el dial del medio (Sanity, aguja roja) baja de a poco. El de abajo (Trust, aguja amarilla) baja cuando eliges mal. El de arriba (Connection, aguja verde) no se mueve hasta el Plan 6;
    - cada entrada del PC muestra 3 marcas de vida.
 3. **Una acción incorrecta:** cuando llegue una solicitud, ábrela, identifica a la entidad y elige una acción que no sea la correcta ni la de mayor riesgo (míralo en las reglas del cuaderno). El amigo cuenta cómo le fue:
-   - si quedó herido, pierde una marca de vida, su entrada se oscurece y dice "Aturdido" con los segundos que faltan. Durante 15 segundos no le llegan solicitudes;
+   - si quedó herido, grita en el chat ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y debajo aparece un aviso rojo y centrado con la vida que le queda ("León recibió daño: 2/3"). Pierde una marca de vida en su entrada del PC, que se oscurece y dice "Aturdido" con los segundos que faltan. Durante 15 segundos no le llegan solicitudes;
    - el dial de Trust baja. Si pasas 20 segundos sin errores, empieza a subir de a poco.
 4. **La acción de mayor riesgo:** en otra solicitud, elige la de mayor riesgo. Si el amigo sobrevive, el contador de videos sube uno más; si quedó herido, el video llega cuando se recupera. Trust baja más que con una acción incorrecta.
 5. **Sin respuesta:** deja que se acabe el tiempo de una solicitud. El amigo cuenta qué hizo y, en otro mensaje, cómo le fue. Trust baja más que si hubieras respondido.
@@ -3248,7 +3734,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 - `docs/02_bucle_central.md`:
   - en §6, debajo del título, agregar: "Los valores que valen para todas las noches están en `data/balance.tres` (`BalanceData`), y los de cada noche, en `data/nights/night_N.tres` (`NightData`). Se ajustan en el Inspector.";
   - en §10, en el bloque del modelo de datos, agregar la línea `BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start` y, en la de `ContentCatalog`, agregar `balance`.
-- `resumen.md`: entrada de la sesión con Realizado, Errores encontrados, Pendientes Código y Pendientes Externos. En los Pendientes Externos debe figurar la sección I de `docs/04`, y en los textos `[PROTO]`, las 2 reacciones nuevas.
+- `resumen.md`: entrada de la sesión con Realizado, Errores encontrados, Pendientes Código y Pendientes Externos. En los Pendientes Externos deben figurar la sección I de `docs/04` y, entre los textos que Benja corrige, las 2 reacciones nuevas, el aviso de daño y los de la pantalla final.
 - `docs/00_log.md`:
   - S13 queda ✅;
   - S14 (escribir el Plan 6: mantenimiento) queda como siguiente;
@@ -3278,6 +3764,7 @@ git status --short
 - **Arte:** el celular sin la hora y los dígitos LCD, los diales con cara de manómetro, ícono y LED de alerta, las marcas de vida y las pantallas de victoria y derrota (`docs/06` §3).
 - **El avatar herido** (`docs/02` §6): todavía no hay avatares.
 - **`QUESTION_COST`, `THINKING_TIME` y `FIRST_REQUEST_DELAY`** siguen en el código. Pasan a `BalanceData` si Benja quiere ajustarlos en el Inspector.
+- **Varias versiones de cada reacción**, para que no se repitan: hoy hay una por caso. Se agregan si Benja las quiere.
 
 ## Autorrevisión del plan
 
@@ -3287,24 +3774,26 @@ git status --short
   | --- | --- |
   | Resolución de cada respuesta: daño con su probabilidad, Trust según el riesgo y video extra si sobrevive | 2, 5 y 6 |
   | Sin respuesta: el amigo decide solo, se resuelve igual y Trust baja 15 más | 2 y 6 |
-  | 3 PV por noche; herido, aturdido 15 s sin pedir ayuda ni enviar videos; con 0 PV muere | 3, 5, 6 y 9 |
-  | Trust: baja, se recupera sin errores, acorta los temporizadores y con 0 se pierde | 2, 5, 6 y 7 |
-  | Sanity: baja con el tiempo, viñeta gradual y con 0 se pierde | 5, 7 y 8 |
-  | Connection: el promedio de las señales, y con 0 se pierde | 5, 7 y 8 |
-  | Diales conectados, cada uno con su color (decisión de Benja) | 8 |
-  | Reloj en el celular, de 00:00 a 06:00 | 5 y 8 |
-  | Cuota y envíos programados, que por ahora llegan solos (decisión de Benja); el de un amigo aturdido se atrasa (decisión de Benja) | 4, 5 y 8 |
-  | Victoria a las 06:00 con la cuota; derrota en el acto | 5 y 7 |
-  | Pantalla explicativa y reintentar con la noche generada de nuevo | 10 y 11 |
-  | "Una noche completa se gana o se pierde" | 7 (`test_a_las_06_con_la_cuota_se_gana`, `test_si_muere_un_amigo_se_pierde_en_el_acto`), 11 y 12 (`docs/04`, I) |
+  | 3 PV por noche; herido, aturdido 15 s sin pedir ayuda ni enviar videos; con 0 PV muere | 3, 5, 6 y 10 |
+  | El amigo herido grita en el chat, y el juego avisa en rojo cuánta vida le queda (decisión de Benja) | 6 y 7 |
+  | Trust: baja, se recupera sin errores, acorta los temporizadores y con 0 se pierde | 2, 5, 6 y 8 |
+  | Sanity: baja con el tiempo, viñeta gradual y con 0 se pierde | 5, 8 y 9 |
+  | Connection: el promedio de las señales, y con 0 se pierde | 5, 8 y 9 |
+  | Diales conectados, cada uno con su color (decisión de Benja) | 9 |
+  | Reloj en el celular, de 00:00 a 06:00 | 5 y 9 |
+  | Cuota y envíos programados, que por ahora llegan solos (decisión de Benja); el de un amigo aturdido se atrasa (decisión de Benja) | 4, 5 y 9 |
+  | Victoria a las 06:00 con la cuota; derrota en el acto | 5 y 8 |
+  | Pantalla explicativa y reintentar con la noche generada de nuevo | 11 y 12 |
+  | "Una noche completa se gana o se pierde" | 8 (`test_a_las_06_con_la_cuota_se_gana`, `test_si_muere_un_amigo_se_pierde_en_el_acto`), 12 y 13 (`docs/04`, I) |
 
 - **Nombres consistentes:**
   - `BalanceData` (`night_seconds`, `friend_health`, `stun_seconds`, `risky_*`, `wrong_*`, `no_answer_trust`, `trust_recovery_*` y `vignette_start`) se usa igual en `Consequence`, `NightState`, `RequestManager` y las pruebas;
-  - `Consequence` (`damage`, `trust_change`, `risky` e `is_hurt()`) coincide entre las tareas 2, 5, 6 y 10;
-  - `FriendState` (`health`, `max_health`, `stun_left`, `signal_level`, `is_alive()`, `is_stunned()`, `is_available()`, `hurt()` y `advance()`) coincide entre las tareas 3, 5, 6 y 9;
-  - `VideoSchedule` (`quota`, `received`, `pending`, `Delivery`, `add_extra()`, `receive_due()` e `is_quota_met()`) coincide entre las tareas 4, 5, 8 y 10;
+  - `Consequence` (`damage`, `trust_change`, `risky` e `is_hurt()`) coincide entre las tareas 2, 5, 6, 7 y 11;
+  - `FriendState` (`health`, `max_health`, `stun_left`, `signal_level`, `is_alive()`, `is_stunned()`, `is_available()`, `hurt()` y `advance()`) coincide entre las tareas 3, 5, 6, 7 y 10;
+  - `VideoSchedule` (`quota`, `received`, `pending`, `Delivery`, `add_extra()`, `receive_due()` e `is_quota_met()`) coincide entre las tareas 4, 5, 9 y 11;
   - `NightState` (`Ending`, `METER_MAX`, `elapsed`, `sanity`, `trust`, `friends`, `videos`, `advance()`, `apply()`, `is_available()`, `connection()`, `clock_text()`, `vignette_strength()` y `ending()`) coincide con `RequestManager`, `NightManager`, `EndingText`, `desk.gd` y las pruebas;
+  - el aviso de daño (`ChatMessage.Sender.SYSTEM`, `MessageBuilder.damage_notice()` y `DAMAGE_KEY`, `ChatMessageView.DANGER_COLOR` y el estilo `SystemNotice`) coincide entre `RequestManager`, el chat, el tema y las pruebas de la tarea 7;
   - `RequestManager.state` y `NightManager` (`setup()`, `state()`, `advance()`, `ended`, `video_received` y `night_ended`) coinciden con `desk.gd` y las pruebas;
   - `ChatEntry` (`State.STUNNED`, `STATE_MODULATE`, `set_health()`, `health`, `max_health` y `show_stun()`) y `EndScreen` (`show_ending()` y `retry_pressed`) coinciden con `desk.gd` y sus pruebas;
   - los nodos nuevos del escritorio (`NightManager`, `DeskPlane/Phone/Clock`, `DeskPlane/PC/Videos`, `Overlay/Vignette` y `Overlay/EndScreen`) son los que usan `desk.gd` y las pruebas.
-- **Conteo de pruebas acumulado:** 177 → 180, 185, 188, 193, 207, 212, 219, 224, 227, 234 y 239.
+- **Conteo de pruebas acumulado:** 185 → 188, 193, 196, 201, 215, 220, 224, 231, 236, 239, 246 y 251.

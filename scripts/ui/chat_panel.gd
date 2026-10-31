@@ -2,6 +2,8 @@ extends Control
 ## Panel del chat (planes 3 y 4): una pestaña por amigo con su tiempo y un aviso de mensajes nuevos,
 ## la conversación, la barra de identificación, las preguntas y las respuestas. Los botones de respuesta
 ## son las acciones de la página que el cuaderno tiene abierta para ese amigo (diseño §8.5).
+## Se ve como una terminal: cada mensaje lleva el nombre de quien escribe ("LEÓN:") en su color, y las
+## pestañas y las preguntas van en mayúsculas (decisión de Benja, 31-oct).
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
 ## Clic en el nombre de la entidad: el cuaderno abre su página.
@@ -21,6 +23,10 @@ const PROGRESS_KEY := "IDENTIFY_PROGRESS"
 const THINKING_KEY := "IDENTIFY_THINKING"
 const OPEN_NOTEBOOK_KEY := "CHAT_OPEN_NOTEBOOK"
 const ANSWER_FROM_PAGE_KEY := "ANSWER_FROM_PAGE"
+## El nombre de Matías en sus mensajes (ui.csv).
+const PLAYER_NAME_KEY := "CHAT_PLAYER_NAME"
+## El color de Matías: el de la terminal.
+const PLAYER_COLOR := Color(0.25, 0.76, 0.79)
 ## Aviso de mensajes sin leer en una pestaña.
 const UNREAD_MARK := "•"
 ## Un botón de respuesta por acción: cada entidad tiene 4 (docs/02 §5.1).
@@ -31,6 +37,7 @@ var selected_friend := 0
 var _manager: RequestManager
 var _memory: NotebookMemory
 var _friend_names: Array[String] = []
+var _friend_colors: Array[Color] = []
 var _tabs: Array[Button] = []
 var _scrolls: Array[ScrollContainer] = []
 var _lists: Array[VBoxContainer] = []
@@ -52,7 +59,7 @@ func _ready() -> void:
 	_answer_hint.text = tr(OPEN_NOTEBOOK_KEY)
 	for category: ClueCategory.Kind in MessageBuilder.QUESTION_KEYS:
 		var button := Button.new()
-		button.text = tr(MessageBuilder.QUESTION_KEYS[category])
+		button.text = tr(MessageBuilder.QUESTION_KEYS[category]).to_upper()
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(_on_question_pressed.bind(category))
 		_questions.add_child(button)
@@ -76,8 +83,12 @@ func setup(manager: RequestManager, friends: Array[FriendData], memory: Notebook
 	var tab_group := ButtonGroup.new()
 	for index in friends.size():
 		_friend_names.append(tr(friends[index].name_key))
+		_friend_colors.append(friends[index].color)
 		_unread.append(false)
 		var tab := Button.new()
+		tab.theme_type_variation = &"ChatTab"
+		tab.add_theme_color_override(&"font_pressed_color", friends[index].color)
+		tab.add_theme_color_override(&"font_hover_pressed_color", friends[index].color)
 		tab.toggle_mode = true
 		tab.button_group = tab_group
 		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -139,7 +150,7 @@ func _select(friend_index: int) -> void:
 
 
 func _tab_text(index: int) -> String:
-	var text := _friend_names[index]
+	var text := _friend_names[index].to_upper()
 	var request := _manager.requests[index]
 	if request != null:
 		text += "  %d" % ceili(request.time_left)
@@ -192,7 +203,16 @@ func _update_answers() -> void:
 
 
 func _on_message_added(friend_index: int, message: ChatMessage) -> void:
-	var view := ChatMessageView.new(message)
+	# Quién escribe, en mayúsculas y con su color: el amigo o Matías.
+	var speaker := ""
+	var color := PLAYER_COLOR
+	match message.sender:
+		ChatMessage.Sender.FRIEND:
+			speaker = _friend_names[friend_index].to_upper()
+			color = _friend_colors[friend_index]
+		ChatMessage.Sender.PLAYER:
+			speaker = tr(PLAYER_NAME_KEY).to_upper()
+	var view := ChatMessageView.new(message, speaker, color)
 	view.clue_clicked.connect(_on_clue_clicked)
 	_lists[friend_index].add_child(view)
 	if message.sender == ChatMessage.Sender.FRIEND and not (visible and friend_index == selected_friend):

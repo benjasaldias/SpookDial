@@ -10,14 +10,14 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 | | |
 | --- | --- |
-| **Qué se hace** | Ejecutar `docs/12_plan_consecuencias_noche.md`: 12 tareas, de 177 a 239 pruebas. Al terminar, una noche completa se gana o se pierde. |
+| **Qué se hace** | Ejecutar `docs/12_plan_consecuencias_noche.md`: 13 tareas, de 185 a 251 pruebas. Al terminar, una noche completa se gana o se pierde, y el chat avisa en rojo cuando un amigo queda herido. |
 | **Tipo** | Ejecutar un plan. |
 | **Modelo** | **Sonnet 5.5** |
 | **Esfuerzo** | **high** |
-| **Antes de empezar** | Cierra Godot por completo: el plan usa `--import`. Si ya reemplazaste las reacciones `REACTION_*` de `data/text/messages.csv`, avísale a Claude para que conserve tus textos. |
+| **Antes de empezar** | Cierra Godot por completo: el plan usa `--import`. Tus cambios a los textos se conservan: el plan solo agrega líneas a los CSV. |
 | **Qué escribirle a Claude** | "Ejecuta el Plan 5 (`docs/12_plan_consecuencias_noche.md`) con superpowers:executing-plans" |
 | **Tu parte** | Autorizar los commits (puedes autorizarlos todos al empezar). Después, probar la noche (`docs/04`, I, unos 15 minutos). |
-| **Está terminada cuando** | Las 239 pruebas pasan, las capturas de la noche están revisadas y S14 es la siguiente. |
+| **Está terminada cuando** | Las 251 pruebas pasan, las capturas de la noche están revisadas y S14 es la siguiente. |
 
 ---
 
@@ -86,6 +86,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 31-oct | ✏️ S12 siguió con las notas de prueba de Benja: el chat con estilo de terminal y los textos reales quedaron aplicados al juego, y el aviso de daño entró al Plan 5, que pasó a 13 tareas (de 185 a 251 pruebas) y se volvió a validar. La sesión se cortó una vez por falta de créditos, sin pérdidas (detalle en `resumen.md`, Sesión 12, continuación). |
 | 31-oct | ✏️ S12 se adelantó al 31 de octubre (fecha objetivo: 9 de noviembre), justo después de S11, y se escribió en Opus 5.5 con esfuerzo high. Benja tomó 3 decisiones de las consecuencias y los medidores (detalle en `resumen.md`, Sesión 12). |
 | 31-oct | ✏️ S11 se adelantó al 31 de octubre (fecha objetivo: 1 a 8 de noviembre) y se ejecutó inline con `superpowers:executing-plans` en Opus 5.5 (el registro proponía Sonnet 5.5). El plan se aplicó tal como está escrito, sin correcciones. |
 | 31-oct | ✏️ S10 se adelantó al 30 y 31 de octubre (fecha objetivo: 6 de noviembre), justo después de S9, y se escribió en Opus 5.5 con esfuerzo max. Benja decidió que el cuaderno va a la derecha y es independiente del chat (detalle en `resumen.md`, Sesión 10). La sesión se interrumpió una vez, sin pérdidas. |
@@ -116,4 +117,4 @@ Hay dos tipos de sesión, que se alternan:
 | S9 | 30-oct | Plan 3 ejecutado: 148 pruebas OK. Señuelos, solicitudes con temporizador, estática, preguntas, identificación por clics y panel del chat con pestañas. Captura del chat revisada. `docs/04`, G | `resumen.md`, Sesión 9 |
 | S10 | 30 y 31-oct | Plan 4 escrito (`docs/11`): 7 tareas, de 148 a 177 pruebas. Cuaderno a la derecha e independiente del chat, memoria por amigo que vuelve al índice y reacción provisional (decisiones de Benja). Código probado en una copia aparte y plan validado sobre una copia limpia | `resumen.md`, Sesión 10 |
 | S11 | 31-oct | Plan 4 ejecutado: 177 pruebas OK. Memoria de páginas por amigo, página de la entidad, respuesta y reacción provisional, panel del cuaderno a la derecha y respuestas desde el chat. Captura del cuaderno revisada. `docs/04`, H | `resumen.md`, Sesión 11 |
-| S12 | 31-oct | Plan 5 escrito (`docs/12`): 12 tareas, de 177 a 239 pruebas. Videos que llegan solos hasta el Plan 6, video de un amigo aturdido que se atrasa y color fijo por dial (decisiones de Benja). Código probado en una copia aparte y plan validado sobre una copia limpia | `resumen.md`, Sesión 12 |
+| S12 | 31-oct | Plan 5 escrito (`docs/12`). Videos que llegan solos hasta el Plan 6, video de un amigo aturdido que se atrasa y color fijo por dial (decisiones de Benja). Después, notas de prueba: chat de terminal con Departure Mono, textos reales en primera persona y aviso de daño agregado al Plan 5 (13 tareas, de 185 a 251 pruebas). Plan validado dos veces sobre copias limpias | `resumen.md`, Sesión 12 y su continuación |

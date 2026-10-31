@@ -3,6 +3,14 @@
 [ext_resource type="Script" path="res://scripts/ui/chat_panel.gd" id="panel_script"]
 [ext_resource type="Texture2D" path="res://art/sprites/screen_sprite.aseprite" id="panel_texture"]
 [ext_resource type="Theme" path="res://scenes/ui/chat_theme.tres" id="chat_theme"]
+[ext_resource type="Shader" path="res://shaders/scanlines.gdshader" id="scanlines_shader"]
+
+[sub_resource type="ShaderMaterial" id="scanlines_material"]
+shader = ExtResource("scanlines_shader")
+shader_parameter/height = 654.0
+shader_parameter/period = 3.0
+shader_parameter/line_darkness = 0.16
+shader_parameter/edge_shadow = 0.35
 
 [node name="ChatPanel" type="Control"]
 layout_mode = 3
@@ -12,6 +20,15 @@ anchor_bottom = 1.0
 mouse_filter = 2
 theme = ExtResource("chat_theme")
 script = ExtResource("panel_script")
+
+[node name="Screen" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 439.0
+offset_bottom = 686.0
+mouse_filter = 2
+color = Color(0.016, 0.027, 0.055, 0.94)
 
 [node name="Panel" type="TextureRect" parent="."]
 layout_mode = 0
@@ -54,6 +71,8 @@ vertical_alignment = 1
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.7, 0.28, 1)
+theme_override_font_sizes/font_size = 22
 
 [node name="Questions" type="GridContainer" parent="Panel"]
 layout_mode = 0
@@ -81,3 +100,12 @@ offset_top = 565.0
 offset_right = 423.0
 offset_bottom = 671.0
 columns = 2
+
+[node name="Scanlines" type="ColorRect" parent="Panel"]
+material = SubResource("scanlines_material")
+layout_mode = 0
+offset_left = 21.0
+offset_top = 21.0
+offset_right = 428.0
+offset_bottom = 675.0
+mouse_filter = 2

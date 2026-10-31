@@ -4,6 +4,80 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 12 (continuación) — 31 de octubre de 2026 — Notas de prueba: chat de terminal, textos reales y aviso de daño
+
+Benja probó el juego (estado del Plan 4) y dejó tres notas: había demasiado texto y marcas `[PROTO]`, el chat se veía aburrido, y siempre "salía mal" aunque eligiera la acción correcta. Se resolvieron en la misma sesión, en Opus 5.5, con las skills de depuración sistemática, brainstorming y diseño. La sesión se cortó una vez por falta de créditos. Al retomar se comprobó que no había nada a medias: el proyecto seguía limpio y el trabajo estaba en copias aparte.
+
+### Realizado
+
+- **Nota 3 (siempre "salía mal"): no es un error del juego.** Lo que se encontró:
+  - responder la acción correcta con los botones del chat da "funcionó" en 40 de 40 solicitudes, y las condiciones de cada regla de El Trauco coinciden con su texto en el cuaderno;
+  - en la noche 3, el mensaje inicial trae 2 de las 3 observaciones: así está diseñada, para que haya que preguntar. En 3000 solicitudes, solo el 51 % se puede decidir con el mensaje inicial, y quien responde sin preguntar se equivoca el 29 % de las veces;
+  - además, una característica decía "Vio a un hombrecito", que se confunde con "quién vio a quién primero". Los textos nuevos lo evitan.
+- **Nota 1 (textos):**
+  - todos los textos de `messages.csv` y `notebook.csv` son ahora borradores reales, sin `[PROTO]`. Los amigos hablan en primera persona y en mensajes cortos ("Me vio primero. Me está mirando."). Tú los corriges (regla 8 de `CLAUDE.md`, actualizada);
+  - cada mensaje lleva el nombre de quien escribe, "LEÓN:" o "MATÍAS:", en su color. El de Matías se cambia en `CHAT_PLAYER_NAME` (`ui.csv`);
+  - el aviso de daño y el grito del amigo herido entran en el Plan 5 (abajo), porque necesitan la vida de los amigos.
+- **Nota 2 (estilo del chat), aprobado por Benja con una maqueta:**
+  - la fuente Departure Mono (pixel, licencia OFL), en `fonts/departure_mono/`, sin suavizado y a 11 px. También se usa en las entradas del PC;
+  - el tema nuevo `scenes/ui/chat_theme.tres`: fondo azul casi negro detrás del vidrio del panel, líneas CRT suaves (`shaders/scanlines.gdshader`), una barra de color a la izquierda de cada mensaje, pestañas en el color de cada amigo y preguntas en mayúsculas;
+  - los colores nuevos de los amigos: León rosa, Gonzalo azul y Agustín lila;
+  - 8 pruebas nuevas: 185 pruebas OK.
+- **Plan 5 actualizado (`docs/12`):**
+  - la Tarea 7 nueva, el aviso de daño en el chat: el amigo herido grita ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y el juego avisa en rojo y centrado cuánta vida le queda ("León recibió daño: 2/3"). Es un mensaje del juego (`ChatMessage.Sender.SYSTEM`), sin nombre y sin estática;
+  - la hora del celular, los videos del PC y la pantalla final usan la fuente nueva;
+  - ahora son 13 tareas, de 185 a 251 pruebas. Se volvió a validar sobre una copia limpia: los 27 conteos de pruebas coinciden, y el código resultante es idéntico al probado.
+- Capturas en `C:\dev\capturas\`: `chat.png`, `notebook.png`, `chat_mock_1.png`, `chat_mock_2.png`, `night.png` y `night_lost.png` (las dos últimas, del Plan 5 con el aviso de daño).
+- Las decisiones de Benja quedaron en `CLAUDE.md`, el diseño v2 (§1, §7, §9 y §18), `docs/02` (§5.2 y §9), `docs/03` §10 (la tipografía elegida) y `docs/06` §3. `docs/04`, G y H: lo que cambia al probar.
+
+### Errores encontrados
+
+- **El cálculo del resultado no fallaba** (nota 3). El problema era la información incompleta de la noche 3, que es intencional, y un texto confuso. El detalle está arriba.
+- **El interior del panel del chat era translúcido:** la habitación se veía detrás del texto. Ahora hay un fondo oscuro detrás del vidrio.
+- **Los colores de los amigos se confundían** con los de las pistas: León (ámbar), Agustín (verde) y Gonzalo (celeste, como Matías). Se cambiaron.
+- **La barra de color de cada mensaje habría hecho caer el juego** si el tema del chat pasara a usar texturas. Se protegió.
+- **Al agregar el aviso de daño, una prueba del Plan 4 contaba los mensajes** después de una respuesta que podía herir al amigo. Ahora esa prueba no tiene heridas.
+- **Con el fondo oscuro, el chat tapa el celular:** la primera captura del Plan 5 ahora va con el chat cerrado.
+- **El plan reemplaza líneas completas:** un ancla del aviso de daño era solo el comienzo de una línea. Se corrigió antes de validar.
+- **La sesión se cortó por falta de créditos.** No hubo pérdidas: el proyecto estaba limpio y el trabajo, en copias aparte.
+
+### Pendientes Código
+
+- [x] **S12: escribir el Plan 5**, y actualizarlo con el aviso de daño.
+- [ ] **S13: ejecutar el Plan 5** (`docs/12`, 13 tareas), con Sonnet 5.5 en esfuerzo high y Godot cerrado (`docs/00_log.md`).
+- [ ] Pasar a `.tres` las entidades que Benja refine, agregar El Tue Tué y La Calchona a la noche 1, y cambiar a 1 el **Night Number** de `RequestManager`.
+- [ ] Planes 6 a 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos.
+- [ ] Plan 9: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar el chat y el cuaderno con el estilo nuevo** (`docs/04`, G y H, unos 20 minutos). En la noche 3, si el mensaje inicial no trae lo que decide la regla, pregunta: así está diseñada.
+- [ ] **Después de S13:** probar la noche (`docs/04`, I, unos 15 minutos).
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] Refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos, y esa frase tiene que entenderse sola: también es su nombre en el cuaderno.
+- [ ] **Escribir los señuelos** (`data/catalog.tres` y `messages.csv`). Cada lugar necesita al menos los que pide la noche (hasta 3); las pruebas avisan si faltan.
+- [ ] **Corregir los textos que escribió Claude:**
+  - `messages.csv`: el lugar, las características, las observaciones, los señuelos, las respuestas "nada", la decisión del amigo y las reacciones;
+  - `notebook.csv`: el folclore, las acciones, las preguntas y las reglas de El Trauco;
+  - desde S13: las 2 reacciones de herido (`messages.csv`) y, en `ui.csv`, el aviso de daño (`CHAT_DAMAGE`) y los textos de la pantalla final (`END_*`).
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Arte para los planes 4 a 6:
+  - **la interfaz del cuaderno:** la página (449×696, como `screen_sprite`; va a la derecha), las pestañas del índice y los bocetos de las entidades (unos 96×96). El tema `scenes/ui/notebook_theme.tres` los recibe;
+  - para el chat, ahora es opcional: el estilo de terminal ya está hecho en Godot, y el arte de burbujas, botones y pestañas puede reemplazarlo;
+  - **para el Plan 5:** el celular sin la hora y una tira de dígitos LCD "0123456789:", los diales rediseñados (manómetro con ícono y LED) y las pantallas de victoria y derrota. Opcional: las marcas de vida de las entradas;
+  - también faltan las barras de señal, el mixer en piezas y el celular ampliado (`docs/06` §3).
+- [x] Elegir una tipografía pixel: Departure Mono (`docs/03` §10). Si prefieres otra, se cambia en el tema del chat.
+- [ ] Al probar con personas (semana 5): fijarse si notan que en la noche 3 hay que preguntar. Si no, una ayuda posible es marcar en el cuaderno qué observaciones ya contó el amigo (iría a la lista de `docs/05`).
+
+---
+
 ## Sesión 12 — 31 de octubre de 2026 — Plan 5 escrito: consecuencias, medidores y noche
 
 Benja pidió escribir el Plan 5 con `superpowers:writing-plans`, justo después de ejecutar el Plan 4 (la fecha objetivo era el 9 de noviembre). Se escribió en Opus 5.5, con esfuerzo high.

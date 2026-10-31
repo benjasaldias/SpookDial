@@ -1,8 +1,9 @@
 extends MarginContainer
-## Burbuja de un mensaje del chat (Plan 3). Las frases clickeables son enlaces [url] de un RichTextLabel,
-## y la estática se ve como ▒▒▒. El texto aparece escrito de a poco.
+## Un mensaje del chat, como en un chat de texto: el nombre de quien escribe ("LEÓN:") y el mensaje, con
+## una barra a la izquierda del color del amigo. Las frases clickeables son enlaces [url] de un
+## RichTextLabel, y la estática se ve como ▒▒▒. El nombre aparece de una vez y el mensaje, de a poco.
 ## Características y señuelos se ven iguales hasta que se clickean: la característica queda marcada
-## y el señuelo vibra y queda rojo. Los colores son provisionales hasta el arte del chat.
+## y el señuelo vibra y queda rojo.
 
 signal clue_clicked(view: Node, clue_id: StringName)
 
@@ -15,20 +16,25 @@ const CHARS_PER_SECOND := 60.0
 const SHAKE_SECONDS := 0.6
 ## Lo que separa la burbuja del borde contrario: el amigo escribe a la izquierda y Matías a la derecha.
 const INDENT := 48
-const CLUE_COLOR := "f2b84b"
+const CLUE_COLOR := "ffb347"
 const MARKED_COLOR := "7ee08a"
-const DECOY_COLOR := "ff6464"
-const STATIC_COLOR := "8792a2"
+const DECOY_COLOR := "ff4d5e"
+const STATIC_COLOR := "56637f"
 
 var message: ChatMessage
+## Quién escribe, en mayúsculas ("LEÓN"), y su color. Sin nombre, el mensaje va sin etiqueta.
+var speaker := ""
+var speaker_color := Color.WHITE
 
 var _label: RichTextLabel
 var _typing: Tween
 var _shaking_clue := &""
 
 
-func _init(chat_message: ChatMessage) -> void:
+func _init(chat_message: ChatMessage, speaker_name := "", color := Color.WHITE) -> void:
 	message = chat_message
+	speaker = speaker_name
+	speaker_color = color
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	var from_player := message.sender == ChatMessage.Sender.PLAYER
 	add_theme_constant_override(&"margin_left" if from_player else &"margin_right", INDENT)
@@ -52,9 +58,20 @@ func _init(chat_message: ChatMessage) -> void:
 
 
 func _ready() -> void:
-	var seconds := _label.get_total_character_count() / CHARS_PER_SECOND
+	if message.sender == ChatMessage.Sender.FRIEND and not speaker.is_empty():
+		# La barra de la izquierda, del color del amigo. Si la burbuja llega a ser una textura (el arte del
+		# chat), se queda como está.
+		var bubble := get_node("Bubble") as PanelContainer
+		var style := bubble.get_theme_stylebox(&"panel").duplicate() as StyleBoxFlat
+		if style != null:
+			style.border_color = speaker_color
+			bubble.add_theme_stylebox_override(&"panel", style)
+	# El nombre se ve de una vez; el mensaje se escribe de a poco.
+	var start := _speaker_prefix_length()
+	var total := _label.get_total_character_count()
+	_label.visible_characters = start
 	_typing = create_tween()
-	_typing.tween_property(_label, ^"visible_ratio", 1.0, seconds)
+	_typing.tween_property(_label, ^"visible_characters", total, (total - start) / CHARS_PER_SECOND)
 
 
 ## Muestra el mensaje completo de una vez.
@@ -67,6 +84,8 @@ func finish_typing() -> void:
 ## Vuelve a armar el texto. Se llama cuando cambia el estado de una frase o termina la solicitud.
 func refresh() -> void:
 	var parts := PackedStringArray()
+	if not speaker.is_empty():
+		parts.append(_colored(speaker + ":", speaker_color.to_html(false)) + " ")
 	for token: ChatMessage.Token in message.tokens:
 		parts.append(_token_bbcode(token))
 	_label.text = "".join(parts)
@@ -100,6 +119,11 @@ func _token_bbcode(token: ChatMessage.Token) -> String:
 	if message.request.finished:
 		return _colored(text, CLUE_COLOR)
 	return "[url=%s]%s[/url]" % [token.clue_id, _colored(text, CLUE_COLOR)]
+
+
+## Cuántas letras ocupa "LEÓN: ", que se ven antes de que empiece a escribir.
+func _speaker_prefix_length() -> int:
+	return 0 if speaker.is_empty() else speaker.length() + 2
 
 
 func _on_meta_clicked(meta: Variant) -> void:

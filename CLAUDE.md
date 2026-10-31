@@ -46,8 +46,7 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 6. **Alcance.** Hay fecha de entrega. Toda idea nueva se compara con `docs/05`; si no cabe, va al final de la lista priorizada. Benja no quiere seguir agregando cosas antes de tener la v1.
 7. **El contenido es datos.** Entidades, observaciones, reglas, acciones, amigos y noches son `Resource` (`.tres`) editables en el Inspector. Nada de contenido en constantes del código.
 8. **Textos.**
-   - **Benja escribe los diálogos.** Claude no escribe diálogos finales.
-   - Claude deja textos de prototipo que empiezan con `[PROTO]` y **describen la intención** del mensaje, y siempre dice en qué archivo quedaron.
+   - **Benja corrige los diálogos.** Claude escribe un borrador real de cada texto, sin marcas de prototipo: corto, y en primera persona cuando habla un amigo. Siempre dice en qué archivo quedó, y Benja lo corrige después (decisión de Benja, 31-10-2026).
    - Todos los textos van en `data/text/*.csv` (columnas `keys,es,en`) para poder traducirlos al inglés.
 9. **El juego es estrictamente el escritorio.** La historia va solo en cinemáticas opcionales y nunca cambia las mecánicas.
 10. **Pixel art.** 1 píxel de arte = 1 unidad de Godot, con posiciones enteras y filtro Nearest. No se escalan sprites, salvo las vistas ampliadas a ×2 exacto.
@@ -72,7 +71,10 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 31-10-2026 | **El chat y el cuaderno son independientes** y son los únicos paneles que pueden estar abiertos a la vez. El cuaderno va **a la derecha, como espejo del chat** (tapa los diales mientras está abierto). El clic derecho sobre un panel lo cierra; `Esc` o un clic fuera de los paneles cierra los dos. **El celular y el mixer son modos exclusivos**, sin ningún panel abierto. |
 | 31-10-2026 | **Cada dial conserva el color de su aguja:** Connection verde, Sanity roja y Trust amarilla. El valor lo muestra el ángulo. |
 | 31-10-2026 | **El video de un amigo aturdido se atrasa:** lo envía apenas se recupera. Vale para los envíos programados y para el video extra de la acción de mayor riesgo. |
-| 26-10-2026 | **La frase clickeable de una característica va entre asteriscos** en el CSV: `vio un *hombrecito*` (no corchetes, que chocan con `[PROTO]` y con BBCode). |
+| 31-10-2026 | **Textos reales:** ya no se usa `[PROTO]`. Claude escribe borradores reales (los amigos, en primera persona y en mensajes cortos) y Benja los corrige. |
+| 31-10-2026 | **El chat se ve como una terminal:** fuente Departure Mono (pixel, licencia OFL) en múltiplos de 11 px, también en las entradas del PC; cada mensaje lleva el nombre de quien escribe ("LEÓN:", "MATÍAS:") en su color; fondo oscuro detrás del vidrio y líneas CRT suaves. Los amigos son rosa (León), azul (Gonzalo) y lila (Agustín), para no confundirse con el ámbar, el verde y el rojo de las pistas. |
+| 31-10-2026 | **Aviso de daño en el chat (Plan 5):** el amigo herido grita en primera persona ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y el juego avisa en rojo y centrado cuánta vida le queda ("León recibió daño: 2/3"). La vida sigue siendo de 3 puntos. |
+| 26-10-2026 | **La frase clickeable de una característica va entre asteriscos** en el CSV: `vio un *hombrecito*` (no corchetes, que chocan con el BBCode del chat). |
 | 26-10-2026 | **El mensaje inicial trae 2 características camufladas entre señuelos:** frases clickeables que no ayudan a identificar (describen el lugar, un olor, un sonido o algo que se ve). Al clickear un señuelo, vibra y se pone rojo, sin otro costo. Señuelos por noche: 1, 1, 2, 2 y 3. |
 | 26-10-2026 | **La identificación tiene una barra fija con el avance** ("1 de 2"), luego "Matías piensa…" y el nombre. **La estática tapa una frase clickeable entera o nada.** Con **5 s o menos no se puede preguntar.** Las respuestas repiten solo lo del mensaje inicial, sin señuelos nuevos (a prueba). |
 | 15-10-2026 | **Estática:** con poca señal se tapan palabras. Una característica tapada no se puede clickear; hay que preguntar para recuperarla. |
@@ -104,6 +106,7 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 - **MCP `godot`:** configuración local para esta carpeta, con `GODOT_MCP_ROOT` igual a la ruta del proyecto y `GODOT_EXECUTABLE=~/tools/godot-wsl.sh`. Los otros proyectos de `~/godot-games` usan la configuración global, que no se tocó. El servidor no activa plugins: eso lo hace Benja en Project Settings > Plugins.
 - **Aseprite (Steam):** `C:\Program Files (x86)\Steam\steamapps\common\Aseprite\Aseprite.exe` (versión 1.3.18). El plugin **Aseprite Wizard 9.8.0** está instalado, activado y con la ruta correcta (corregida por Claude el 26-10-2026). Los 16 sprites importan bien.
 - **Reimportar un `.aseprite`:** Godot no reintenta un archivo cuyo `.import` quedó con `valid=false`. Para forzar la reimportación, hay que borrar su `.import` (o su `.md5` y su `.res` en `.godot/imported/`) y correr `godot-wsl.sh --headless --path "$PWD" --import` con el editor cerrado.
+- **Fuente:** Departure Mono, en `fonts/departure_mono/`, con su licencia (`OFL.txt`), que debe ir con el juego. Se importa sin suavizado ni hinting (en su `.otf.import`) y se usa en múltiplos de 11 px.
 - **Arte:** los sprites están en `art/sprites/` (posiciones en `art/positions.md`). La maqueta está en `art/_layout/` (`scene_layout.aseprite` y `scene_layout.png`), que Godot ignora.
 - **Git:** remoto `origin` = `https://github.com/benjasaldias/SpookDial.git` (privado; `gh` está autenticado como `benjasaldias`). Rama `main`. Usar `core.filemode=false` (el disco es NTFS).
 - **Pantalla:** viewport de 1280×720, stretch mode `canvas_items`, aspect `keep` (Godot no lo escribe en `project.godot` porque es el valor por defecto), filtro `Nearest` y snap a píxel. Falta que Benja confirme el escalado a 1080p (`docs/04`, D).

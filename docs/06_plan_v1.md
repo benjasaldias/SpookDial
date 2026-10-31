@@ -88,7 +88,7 @@ Revisé tus archivos de `art/sprites/` comparando sus píxeles con las capas del
 | Plan | Arte | Prioridad |
 | --- | --- | --- |
 | 1 | Nada obligatorio. Opcional: `exterior_sprite` y `background_sprite` con 8 px extra por lado, para un parallax más amplio. | Baja |
-| 3 | Interfaz del chat: burbujas, botones de respuesta y de pregunta, y pestañas de amigo. Barras de señal (5 niveles) para las entradas. | Alta |
+| 3 | Barras de señal (5 niveles) para las entradas. Opcional: el chat ya tiene un estilo de terminal hecho en Godot (sesión 12), que el arte de burbujas, botones y pestañas puede reemplazar. | Alta (las barras) |
 | 4 | Interfaz del cuaderno: página (449×696, como `screen_sprite`; va a la derecha), pestañas del índice y bocetos de las entidades (unos 96×96). | Alta |
 | 5 | `phone_sprite` sin la hora y una tira de dígitos LCD "0123456789:". Diales rediseñados (manómetro con ícono). Pantallas de victoria y derrota. Opcional: marcas de vida para las entradas del PC. | Alta |
 | 6 | Mixer en piezas (base, VU-metro de 5 niveles, perilla de fader y LED). Celular ampliado y unas 12 publicaciones. | Alta |

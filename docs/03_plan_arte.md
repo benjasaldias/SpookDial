@@ -277,14 +277,14 @@ Guarda tu paleta actual (268 colores) como preset, para que todo el arte nuevo u
 
 ## 10. Tipografía
 
-**Requisitos:**
+**Elegida el 31 de octubre, con el visto bueno de Benja: Departure Mono**, de Helena Zhang. Está en `fonts/departure_mono/`.
 
-- ñ, á é í ó ú ü, ¿ y ¡;
-- que se lea bien en párrafos, porque el juego tiene mucho texto;
-- una licencia que permita usarla en el juego.
+- **Licencia:** SIL Open Font License 1.1. Se puede incluir en el juego, siempre junto con su licencia (`OFL.txt`).
+- **Caracteres:** tiene todo lo que pide el juego: ñ, á é í ó ú ü, ¿ y ¡, `▒` (la estática), `…`, `•`, `→` y los caracteres de caja (`─`).
+- **Tamaño:** es una fuente pixel monoespaciada, así que se usa en **múltiplos de 11 px**: 11 para el texto, y 22 o 33 para títulos. A otros tamaños, los píxeles quedan desparejos.
+- **Importación:** sin suavizado ni hinting. En su `.otf.import`: `antialiasing=0`, `hinting=0` y `subpixel_positioning=0`.
+- **Dónde se usa:** en el chat y en las entradas del PC. Con el Plan 5, también en la hora del celular, los videos del PC y la pantalla final. El cuaderno conserva la fuente por defecto.
 
-**Candidatas** (verifica la licencia y los caracteres antes de elegir): *Pixel Operator*, *monogram*, *m5x7* / *m6x11* y *Silver*.
-
-**Tamaño:** siempre un múltiplo entero de la grilla de la fuente. Por ejemplo, una fuente de grilla 8 px se usa a 16, que en 1080p queda a 24: ×3 exacto.
+**Descartadas:** Consolas, porque su licencia no permite incluirla en el juego, y VT323, porque no tiene `▒` ni los caracteres de caja.
 
 **Opcional:** una segunda fuente "manuscrita" para el cuaderno.

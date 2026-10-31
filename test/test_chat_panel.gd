@@ -226,3 +226,32 @@ func test_sus_textos_existen() -> bool:
 			"ANSWER_FROM_PAGE debe tener {entity}")
 	TranslationServer.set_locale(previous)
 	return true
+
+
+func test_cada_mensaje_lleva_el_nombre_de_quien_escribe() -> bool:
+	var panel := _make_panel()
+	_manager.start_request(1)
+	_manager.ask(1, ClueCategory.Kind.SIGHT)
+	var views: Array[Node] = panel.message_views(1)
+	var friend: FriendData = _manager.catalog.friends[1]
+	check_eq(views.size(), 3, "mensaje, pregunta y respuesta")
+	if views.size() == 3:
+		check_eq(views[0].speaker, tr(friend.name_key).to_upper(), "el amigo, en mayúsculas")
+		check_eq(views[0].speaker_color, friend.color, "en su color")
+		check_eq(views[1].speaker, String(TranslationServer.translate("CHAT_PLAYER_NAME")).to_upper(), "Matías")
+		check_eq(views[1].speaker_color, panel.PLAYER_COLOR, "en el color de la terminal")
+	_free(panel)
+	return true
+
+
+func test_pestanas_y_preguntas_como_en_una_terminal() -> bool:
+	var panel := _make_panel()
+	var tab := panel.get_node("Panel/Tabs").get_child(0) as Button
+	var friend: FriendData = _manager.catalog.friends[0]
+	check_eq(tab.theme_type_variation, &"ChatTab", "pestaña con su estilo")
+	check_eq(tab.get_theme_color(&"font_pressed_color"), friend.color, "la elegida, en el color del amigo")
+	check(tab.text.begins_with(tr(friend.name_key).to_upper()), "el nombre en mayúsculas: %s" % tab.text)
+	check_eq((_question_buttons(panel)[0] as Button).text, String(TranslationServer.translate("QUESTION_SIGHT")).to_upper(),
+			"las preguntas en mayúsculas")
+	_free(panel)
+	return true
