@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/chat_panel.tscn" id="chat_panel"]
 [ext_resource type="Script" path="res://scripts/desk/request_manager.gd" id="requests_script"]
 [ext_resource type="Resource" path="res://data/catalog.tres" id="catalog"]
+[ext_resource type="PackedScene" path="res://scenes/ui/notebook_panel.tscn" id="notebook_panel"]
 
 [node name="Desk" type="Node2D"]
 script = ExtResource("desk_script")
@@ -142,3 +143,5 @@ catalog = ExtResource("catalog")
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="ChatPanel" parent="UI" instance=ExtResource("chat_panel")]
+
+[node name="NotebookPanel" parent="UI" instance=ExtResource("notebook_panel")]

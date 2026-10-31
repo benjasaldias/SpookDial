@@ -1,32 +1,41 @@
 extends Control
-## Panel del chat (Plan 3): una pestaña por amigo con su tiempo y un aviso de mensajes nuevos,
-## la conversación, la barra de identificación, las preguntas y el lugar de las respuestas (Plan 4).
-## Se cierra con Esc, con clic derecho o con un clic izquierdo fuera del panel.
+## Panel del chat (planes 3 y 4): una pestaña por amigo con su tiempo y un aviso de mensajes nuevos,
+## la conversación, la barra de identificación, las preguntas y las respuestas. Los botones de respuesta
+## son las acciones de la página que el cuaderno tiene abierta para ese amigo (diseño §8.5).
+## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
-## Clic en el nombre de la entidad: el cuaderno abre su página (Plan 4).
+## Clic en el nombre de la entidad: el cuaderno abre su página.
 signal entity_page_requested(friend_index: int, entity: EntityData)
+## Se eligió la conversación de un amigo: el cuaderno salta a su página.
+signal friend_selected(friend_index: int)
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatMessageView := preload("res://scripts/ui/chat_message_view.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const MessageBuilder := preload("res://scripts/core/message_builder.gd")
+const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 
-## Textos del panel (ui.csv). IDENTIFY_PROGRESS lleva {marked} y {total}.
+## Textos del panel (ui.csv). IDENTIFY_PROGRESS lleva {marked} y {total}; ANSWER_FROM_PAGE lleva {entity}.
 const PROGRESS_KEY := "IDENTIFY_PROGRESS"
 const THINKING_KEY := "IDENTIFY_THINKING"
 const OPEN_NOTEBOOK_KEY := "CHAT_OPEN_NOTEBOOK"
+const ANSWER_FROM_PAGE_KEY := "ANSWER_FROM_PAGE"
 ## Aviso de mensajes sin leer en una pestaña.
 const UNREAD_MARK := "•"
+## Un botón de respuesta por acción: cada entidad tiene 4 (docs/02 §5.1).
+const ANSWER_COUNT := 4
 
 var selected_friend := 0
 
 var _manager: RequestManager
+var _memory: NotebookMemory
 var _friend_names: Array[String] = []
 var _tabs: Array[Button] = []
 var _scrolls: Array[ScrollContainer] = []
 var _lists: Array[VBoxContainer] = []
 var _unread: Array[bool] = []
+var _answer_buttons: Array[Button] = []
 
 @onready var _panel: TextureRect = $Panel
 @onready var _tab_bar: HBoxContainer = $Panel/Tabs
@@ -35,6 +44,7 @@ var _unread: Array[bool] = []
 @onready var _entity_button: Button = $Panel/IdentifyBar/EntityName
 @onready var _questions: GridContainer = $Panel/Questions
 @onready var _answer_hint: Label = $Panel/AnswerHint
+@onready var _answers: GridContainer = $Panel/Answers
 
 
 func _ready() -> void:
@@ -46,13 +56,23 @@ func _ready() -> void:
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(_on_question_pressed.bind(category))
 		_questions.add_child(button)
+	for index in ANSWER_COUNT:
+		var button := Button.new()
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		# Las acciones pueden ser largas: el botón crece hacia abajo en vez de salirse del panel.
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.pressed.connect(_on_answer_pressed.bind(index))
+		_answers.add_child(button)
+		_answer_buttons.append(button)
 	_entity_button.pressed.connect(_on_entity_pressed)
 	_panel.gui_input.connect(_on_panel_gui_input)
 
 
-## Conecta el panel a las solicitudes. Crea una pestaña y una conversación por amigo, en orden.
-func setup(manager: RequestManager, friends: Array[FriendData]) -> void:
+## Conecta el panel a las solicitudes y a la memoria del cuaderno. Crea una pestaña y una conversación
+## por amigo, en orden.
+func setup(manager: RequestManager, friends: Array[FriendData], memory: NotebookMemory) -> void:
 	_manager = manager
+	_memory = memory
 	var tab_group := ButtonGroup.new()
 	for index in friends.size():
 		_friend_names.append(tr(friends[index].name_key))
@@ -97,7 +117,7 @@ func _process(_delta: float) -> void:
 	_update_status()
 
 
-## Actualiza lo que cambia con el tiempo: las pestañas, la barra de identificación y las preguntas.
+## Actualiza lo que cambia con el tiempo: las pestañas, la barra de identificación, las preguntas y las respuestas.
 func _update_status() -> void:
 	if _manager == null:
 		return
@@ -105,6 +125,7 @@ func _update_status() -> void:
 		_tabs[index].text = _tab_text(index)
 	_update_identify_bar()
 	_update_questions()
+	_update_answers()
 
 
 func _select(friend_index: int) -> void:
@@ -114,6 +135,7 @@ func _select(friend_index: int) -> void:
 		_scrolls[index].visible = index == friend_index
 		_tabs[index].set_pressed_no_signal(index == friend_index)
 	_update_status()
+	friend_selected.emit(friend_index)
 
 
 func _tab_text(index: int) -> String:
@@ -151,6 +173,24 @@ func _update_questions() -> void:
 		button.disabled = not can_ask
 
 
+## Las acciones de la página que el cuaderno tiene abierta para este amigo. Sin página, el aviso
+## "Abre el cuaderno para responder". Sin solicitud, los botones se ven pero no responden.
+func _update_answers() -> void:
+	var page := _memory.page_for(selected_friend)
+	_answers.visible = page != null
+	if page == null:
+		_answer_hint.text = tr(OPEN_NOTEBOOK_KEY)
+		return
+	_answer_hint.text = tr(ANSWER_FROM_PAGE_KEY).format({"entity": tr(page.name_key)})
+	var waiting := _manager.requests[selected_friend] != null
+	for index in _answer_buttons.size():
+		var button := _answer_buttons[index]
+		button.visible = index < page.actions.size()
+		if button.visible:
+			button.text = tr(page.actions[index].label_key)
+		button.disabled = not waiting
+
+
 func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 	var view := ChatMessageView.new(message)
 	view.clue_clicked.connect(_on_clue_clicked)
@@ -175,6 +215,13 @@ func _on_question_pressed(category: ClueCategory.Kind) -> void:
 	_manager.ask(selected_friend, category)
 
 
+## Responde con la acción `index` de la página abierta para este amigo.
+func _on_answer_pressed(index: int) -> void:
+	var page := _memory.page_for(selected_friend)
+	if page != null and index < page.actions.size():
+		_manager.answer(selected_friend, page.actions[index])
+
+
 func _on_entity_pressed() -> void:
 	var request := _manager.requests[selected_friend]
 	if request != null:
@@ -191,21 +238,3 @@ func _on_panel_gui_input(event: InputEvent) -> void:
 	if mouse and mouse.pressed and mouse.button_index == MOUSE_BUTTON_RIGHT:
 		hide()
 		_panel.accept_event()
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if not visible:
-		return
-	if event.is_action_pressed(&"ui_cancel"):
-		hide()
-		get_viewport().set_input_as_handled()
-		return
-	var mouse := event as InputEventMouseButton
-	if mouse == null or not mouse.pressed:
-		return
-	if mouse.button_index == MOUSE_BUTTON_RIGHT:
-		hide()
-		get_viewport().set_input_as_handled()
-	elif mouse.button_index == MOUSE_BUTTON_LEFT and not _panel.get_global_rect().has_point(mouse.position):
-		# No se consume el clic: si cae en otra entrada del PC, abre el chat de ese amigo.
-		hide()

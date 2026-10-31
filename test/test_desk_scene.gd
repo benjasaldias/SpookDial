@@ -2,6 +2,7 @@ extends "res://test/test_case.gd"
 
 const DESK := preload("res://scenes/desk/desk.tscn")
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
+const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
 const POSITIONS := {
 	"WallPlane/Background": Vector2(0, 0),
@@ -102,6 +103,137 @@ func test_cerrar_el_chat_deselecciona() -> bool:
 	leon.pressed.emit()
 	(desk.get_node("UI/ChatPanel") as Control).hide()
 	check_eq(leon.state, ChatEntry.State.IDLE, "León vuelve a idle")
+	desk.free()
+	return true
+
+
+## Abre el chat de León y, con un clic en el cuaderno del escritorio, el cuaderno.
+func _open_panels(desk: Node2D) -> void:
+	desk.get_node("DeskPlane/Entries/EntryLeon").pressed.emit()
+	desk.get_node("DeskPlane/Notebook").clicked.emit()
+
+
+func _panels_closed(desk: Node2D) -> bool:
+	return not (desk.get_node("UI/ChatPanel") as Control).visible \
+			and not (desk.get_node("UI/NotebookPanel") as Control).visible
+
+
+func _click(button: MouseButton) -> InputEventMouseButton:
+	var click := InputEventMouseButton.new()
+	click.button_index = button
+	click.pressed = true
+	click.position = Vector2(1100, 300)
+	return click
+
+
+func test_el_cuaderno_y_el_chat_son_independientes() -> bool:
+	var desk := _make_desk()
+	var chat := desk.get_node("UI/ChatPanel") as Control
+	var notebook := desk.get_node("UI/NotebookPanel") as Control
+	desk.get_node("DeskPlane/Notebook").clicked.emit()
+	check(notebook.visible and not chat.visible, "el cuaderno se abre solo")
+	desk.get_node("DeskPlane/Entries/EntryGonzalo").pressed.emit()
+	check(notebook.visible and chat.visible, "abrir el chat no cierra el cuaderno")
+	check_eq(notebook.get("friend_index"), 1, "el cuaderno salta a la página de Gonzalo")
+	notebook.hide()
+	desk.get_node("DeskPlane/Notebook").clicked.emit()
+	check(notebook.visible and chat.visible, "abrir el cuaderno no cierra el chat")
+	desk.free()
+	return true
+
+
+func test_esc_y_un_clic_fuera_cierran_los_paneles() -> bool:
+	var escape := InputEventAction.new()
+	escape.action = &"ui_cancel"
+	escape.pressed = true
+	var events := {
+		"Esc": escape,
+		"clic derecho fuera": _click(MOUSE_BUTTON_RIGHT),
+		"clic izquierdo fuera": _click(MOUSE_BUTTON_LEFT),
+	}
+	for event_name: String in events:
+		var desk := _make_desk()
+		_open_panels(desk)
+		desk._unhandled_input(events[event_name])
+		check(_panels_closed(desk), "cerrados con %s" % event_name)
+		desk.free()
+	return true
+
+
+func test_clic_derecho_sobre_un_panel_cierra_solo_ese() -> bool:
+	var desk := _make_desk()
+	_open_panels(desk)
+	var chat := desk.get_node("UI/ChatPanel") as Control
+	var notebook := desk.get_node("UI/NotebookPanel") as Control
+	(notebook.get_node("Page") as Control).gui_input.emit(_click(MOUSE_BUTTON_RIGHT))
+	check(not notebook.visible and chat.visible, "se cierra solo el cuaderno")
+	desk.get_node("DeskPlane/Notebook").clicked.emit()
+	(chat.get_node("Panel") as Control).gui_input.emit(_click(MOUSE_BUTTON_RIGHT))
+	check(not chat.visible and notebook.visible, "se cierra solo el chat")
+	desk.free()
+	return true
+
+
+func test_el_celular_y_el_mixer_cierran_los_paneles() -> bool:
+	for object_name: String in ["Phone", "Mixer"]:
+		var desk := _make_desk()
+		_open_panels(desk)
+		desk.get_node("DeskPlane/" + object_name).clicked.emit()
+		check(_panels_closed(desk), "cerrados con %s" % object_name)
+		desk.free()
+	return true
+
+
+func test_el_nombre_de_la_entidad_abre_su_pagina() -> bool:
+	var desk := _make_desk()
+	var trauco: EntityData = desk.get_node("RequestManager").catalog.known_entities(3)[0]
+	desk.get_node("UI/ChatPanel").entity_page_requested.emit(1, trauco)
+	check_eq(desk.notebook_memory.page_for(1), trauco, "Gonzalo tiene abierta la página")
+	var notebook := desk.get_node("UI/NotebookPanel") as Control
+	check(notebook.visible, "cuaderno abierto")
+	check_eq(notebook.get("friend_index"), 1, "con la página de Gonzalo")
+	desk.free()
+	return true
+
+
+func test_al_cambiar_de_chat_el_cuaderno_salta() -> bool:
+	var desk := _make_desk()
+	_open_panels(desk)
+	desk.get_node("UI/ChatPanel").open_for(2)
+	check_eq(desk.get_node("UI/NotebookPanel").get("friend_index"), 2, "salta a la página de Agustín")
+	desk.free()
+	return true
+
+
+func test_una_solicitud_nueva_empieza_en_el_indice() -> bool:
+	var desk := _make_desk()
+	var manager := desk.get_node("RequestManager")
+	desk.notebook_memory.open_page(2, manager.catalog.known_entities(3)[0])
+	manager.start_request(2)
+	check_eq(desk.notebook_memory.page_for(2), null, "Agustín vuelve al índice")
+	desk.free()
+	return true
+
+
+func test_se_responde_desde_el_cuaderno() -> bool:
+	var desk := _make_desk()
+	var manager := desk.get_node("RequestManager")
+	var request: RefCounted = manager.start_request(0)
+	check(request != null, "la noche del escritorio tiene entidades")
+	if request == null:
+		desk.free()
+		return true
+	var entity: EntityData = request.get("entity")
+	desk.get_node("DeskPlane/Entries/EntryLeon").pressed.emit()
+	var panel := desk.get_node("UI/ChatPanel")
+	panel.entity_page_requested.emit(0, entity)
+	panel._process(0.0)
+	var rule := RuleEvaluator.applicable_rule(entity, request.get("situation"))
+	var correct := entity.actions.find(entity.find_action(rule.correct_action_id))
+	(panel.get_node("Panel/Answers").get_child(correct) as Button).pressed.emit()
+	check(request.get("finished"), "la solicitud terminó")
+	check_eq(request.get("outcome"), RuleEvaluator.Outcome.CORRECT, "con la acción correcta")
+	check_eq(manager.requests[0], null, "León queda libre")
 	desk.free()
 	return true
 

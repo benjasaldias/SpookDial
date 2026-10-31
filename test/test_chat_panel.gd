@@ -5,12 +5,15 @@ const PANEL := preload("res://scenes/ui/chat_panel.tscn")
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatMessageView := preload("res://scripts/ui/chat_message_view.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
+const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 
 var _manager: RequestManager
+var _memory: NotebookMemory
 
 
-## Panel conectado a un manager con el catálogo de prueba (noche 1, sin solicitudes que lleguen solas).
+## Panel conectado a un manager con el catálogo de prueba (noche 1, sin solicitudes que lleguen solas)
+## y a la memoria del cuaderno de los 3 amigos.
 func _make_panel() -> Control:
 	var root := (Engine.get_main_loop() as SceneTree).root
 	_manager = RequestManager.new()
@@ -19,9 +22,10 @@ func _make_panel() -> Control:
 	_manager.random_seed = 4
 	_manager.requests_arrive = false
 	root.add_child(_manager)
+	_memory = NotebookMemory.new(_manager.catalog.friends.size())
 	var panel := PANEL.instantiate()
 	root.add_child(panel)
-	panel.setup(_manager, _manager.catalog.friends)
+	panel.setup(_manager, _manager.catalog.friends, _memory)
 	return panel
 
 
@@ -42,6 +46,15 @@ func _question_buttons(panel: Control) -> Array[Node]:
 	return panel.get_node("Panel/Questions").get_children()
 
 
+func _answer_buttons(panel: Control) -> Array[Node]:
+	return panel.get_node("Panel/Answers").get_children()
+
+
+## La única entidad de la noche 1 del catálogo de prueba.
+func _beast() -> EntityData:
+	return _manager.catalog.nights[0].new_entities[0]
+
+
 func test_empieza_oculto_y_se_abre_en_un_amigo() -> bool:
 	var panel := _make_panel()
 	check(not panel.visible, "oculto al inicio")
@@ -57,25 +70,13 @@ func test_empieza_oculto_y_se_abre_en_un_amigo() -> bool:
 	return true
 
 
-func test_esc_lo_cierra() -> bool:
+func test_avisa_al_elegir_un_amigo() -> bool:
 	var panel := _make_panel()
-	panel.open_for(0)
-	var escape := InputEventAction.new()
-	escape.action = &"ui_cancel"
-	escape.pressed = true
-	panel._unhandled_input(escape)
-	check(not panel.visible, "oculto tras Esc")
-	_free(panel)
-	return true
-
-
-func test_clic_izquierdo_fuera_lo_cierra_y_dentro_no() -> bool:
-	var panel := _make_panel()
-	panel.open_for(0)
-	panel._unhandled_input(_click_at(MOUSE_BUTTON_LEFT, Vector2(100, 100)))
-	check(panel.visible, "sigue visible tras un clic dentro")
-	panel._unhandled_input(_click_at(MOUSE_BUTTON_LEFT, Vector2(800, 300)))
-	check(not panel.visible, "oculto tras un clic fuera")
+	var selected := []
+	panel.friend_selected.connect(func(friend_index: int) -> void: selected.append(friend_index))
+	panel.open_for(2)
+	(panel.get_node("Panel/Tabs").get_child(1) as Button).pressed.emit()
+	check_eq(selected, [2, 1], "Agustín y después Gonzalo")
 	_free(panel)
 	return true
 
@@ -174,6 +175,40 @@ func test_clic_en_un_senuelo_lo_hace_vibrar() -> bool:
 func test_pide_abrir_el_cuaderno_para_responder() -> bool:
 	var panel := _make_panel()
 	check_eq((panel.get_node("Panel/AnswerHint") as Label).text, tr(panel.OPEN_NOTEBOOK_KEY), "aviso")
+	check(not (panel.get_node("Panel/Answers") as Control).visible, "sin página no hay botones de respuesta")
+	_free(panel)
+	return true
+
+
+func test_responde_con_las_acciones_de_la_pagina_abierta() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_memory.open_page(0, _beast())
+	panel._process(0.0)
+	check((panel.get_node("Panel/Answers") as Control).visible, "botones de respuesta visibles")
+	check_eq((panel.get_node("Panel/AnswerHint") as Label).text,
+			tr(panel.ANSWER_FROM_PAGE_KEY).format({"entity": tr(_beast().name_key)}), "de qué página son")
+	var buttons := _answer_buttons(panel)
+	check_eq(buttons.map(func(button: Button) -> String: return button.text),
+			_beast().actions.map(func(action: ActionData) -> String: return tr(action.label_key)), "las 4 acciones")
+	check((buttons[0] as Button).disabled, "sin solicitud no se responde")
+	var request := _manager.start_request(0)
+	panel._process(0.0)
+	check(not (buttons[0] as Button).disabled, "con solicitud se responde")
+	(buttons[2] as Button).pressed.emit()
+	check(request.finished and request.answered_by_player, "respondió Matías")
+	check_eq(request.chosen_action, _beast().actions[2], "con la tercera acción de la página")
+	check_eq(panel.message_views(0).size(), 3, "mensaje, respuesta y reacción")
+	_free(panel)
+	return true
+
+
+func test_cada_amigo_responde_desde_su_pagina() -> bool:
+	var panel := _make_panel()
+	_memory.open_page(0, _beast())
+	panel.open_for(1)
+	check(not (panel.get_node("Panel/Answers") as Control).visible, "Gonzalo no tiene página abierta")
+	check_eq((panel.get_node("Panel/AnswerHint") as Label).text, tr(panel.OPEN_NOTEBOOK_KEY), "pide abrir el cuaderno")
 	_free(panel)
 	return true
 
@@ -182,9 +217,12 @@ func test_sus_textos_existen() -> bool:
 	var previous := TranslationServer.get_locale()
 	TranslationServer.set_locale("es")
 	var panel_script := preload("res://scripts/ui/chat_panel.gd")
-	for key: String in [panel_script.PROGRESS_KEY, panel_script.THINKING_KEY, panel_script.OPEN_NOTEBOOK_KEY]:
+	for key: String in [panel_script.PROGRESS_KEY, panel_script.THINKING_KEY, panel_script.OPEN_NOTEBOOK_KEY,
+			panel_script.ANSWER_FROM_PAGE_KEY]:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en ui.csv" % key)
 	var progress := String(TranslationServer.translate(panel_script.PROGRESS_KEY))
 	check(progress.contains("{marked}") and progress.contains("{total}"), "IDENTIFY_PROGRESS debe tener {marked} y {total}")
+	check(String(TranslationServer.translate(panel_script.ANSWER_FROM_PAGE_KEY)).contains("{entity}"),
+			"ANSWER_FROM_PAGE debe tener {entity}")
 	TranslationServer.set_locale(previous)
 	return true

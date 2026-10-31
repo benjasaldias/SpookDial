@@ -1,36 +1,86 @@
 extends Node2D
-## Escena principal del escritorio. Las entradas del PC muestran las solicitudes de cada amigo
-## (parpadean y muestran su tiempo mientras esperan respuesta) y abren el chat en su conversación.
-## Los clics en el cuaderno, el celular y el mixer solo se registran (sus paneles llegan en los planes 4 y 6).
+## Escena principal del escritorio. Las entradas del PC muestran las solicitudes de cada amigo (parpadean
+## y muestran su tiempo mientras esperan respuesta) y abren el chat en su conversación. El cuaderno se abre
+## con un clic en él o en el nombre de la entidad, y muestra la página del amigo del chat. El chat y el
+## cuaderno son independientes y pueden estar abiertos a la vez (decisión de Benja). Cada uno se cierra
+## con clic derecho sobre él; Esc o un clic fuera de los paneles cierra los dos.
+## Un clic en el celular o el mixer cierra los paneles y por ahora solo se registra (sus vistas, en el Plan 6).
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
+const FriendRequest := preload("res://scripts/core/friend_request.gd")
+const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
+
+## Qué página del cuaderno tiene abierta cada amigo. La usan el cuaderno y los botones de respuesta del chat.
+var notebook_memory: NotebookMemory
 
 @onready var _entries: Array[Node] = $DeskPlane/Entries.get_children()
 @onready var _chat_panel: Control = $UI/ChatPanel
+@onready var _notebook_panel: Control = $UI/NotebookPanel
 @onready var _requests: RequestManager = $RequestManager
 
 
 func _ready() -> void:
-	_chat_panel.setup(_requests, _requests.catalog.friends)
+	var friends := _requests.catalog.friends
+	notebook_memory = NotebookMemory.new(friends.size())
+	_chat_panel.setup(_requests, friends, notebook_memory)
+	_notebook_panel.setup(notebook_memory, _requests.catalog.known_entities(_requests.night_number), friends)
 	for index in _entries.size():
-		_entries[index].display_name = tr(_requests.catalog.friends[index].name_key)
+		_entries[index].display_name = tr(friends[index].name_key)
 		_entries[index].pressed.connect(_on_entry_pressed.bind(index))
 	_chat_panel.visibility_changed.connect(_refresh_entries)
-	_chat_panel.entity_page_requested.connect(func(_friend_index: int, entity: EntityData) -> void:
-		print("Abrir en el cuaderno la página de ", tr(entity.name_key), " (Plan 4)"))
-	for clickable_name in ["Notebook", "Phone", "Mixer"]:
+	_chat_panel.friend_selected.connect(_notebook_panel.select_friend)
+	_chat_panel.entity_page_requested.connect(_on_entity_page_requested)
+	_requests.request_started.connect(_on_request_started)
+	$DeskPlane/Notebook.clicked.connect(_open_notebook)
+	for clickable_name in ["Phone", "Mixer"]:
 		var clickable := get_node("DeskPlane/" + clickable_name)
-		clickable.clicked.connect(func() -> void: print("Clic en ", clickable_name))
+		clickable.clicked.connect(func() -> void:
+			close_panels()
+			print("Clic en ", clickable_name))
 
 
 func _process(_delta: float) -> void:
 	_refresh_entries()
 
 
+## Cierra el chat y el cuaderno. El celular y el mixer se usan sin ningún panel abierto (decisión de Benja).
+func close_panels() -> void:
+	_chat_panel.hide()
+	_notebook_panel.hide()
+
+
+## El escritorio es el último en recibir la entrada: aquí llega lo que nadie atendió. Las entradas del PC
+## y los objetos del escritorio consumen sus clics, y los paneles, los que caen sobre ellos.
+## Esc o un clic fuera de los paneles los cierra.
+func _unhandled_input(event: InputEvent) -> void:
+	if not (_chat_panel.visible or _notebook_panel.visible):
+		return
+	var mouse := event as InputEventMouseButton
+	var click := mouse != null and mouse.pressed and mouse.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]
+	if event.is_action_pressed(&"ui_cancel") or click:
+		close_panels()
+		get_viewport().set_input_as_handled()
+
+
 func _on_entry_pressed(index: int) -> void:
 	_chat_panel.open_for(index)
 	_refresh_entries()
+
+
+## Abre el cuaderno en la página del amigo del chat. El chat queda como estaba: abierto o cerrado.
+func _open_notebook() -> void:
+	_notebook_panel.open_for(_chat_panel.selected_friend)
+
+
+func _on_entity_page_requested(friend_index: int, entity: EntityData) -> void:
+	notebook_memory.open_page(friend_index, entity)
+	_notebook_panel.open_for(friend_index)
+
+
+## Una solicitud nueva empieza en el índice: la página de la anterior casi nunca sirve (decisión de Benja).
+func _on_request_started(friend_index: int, _request: FriendRequest) -> void:
+	notebook_memory.close_page(friend_index)
 
 
 ## Seleccionada si su chat está abierto; si no, en alerta mientras espera respuesta. El tiempo, mientras espera.
