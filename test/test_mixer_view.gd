@@ -181,3 +181,13 @@ func test_sus_textos_existen() -> bool:
 		check(String(TranslationServer.translate(key)).contains("{friend}"), "%s debe tener {friend}" % key)
 	TranslationServer.set_locale(previous)
 	return true
+
+
+func test_se_abre_en_el_canal_de_un_amigo() -> bool:
+	var mixer := _make_mixer()
+	mixer.open_for(1)
+	check(mixer.visible, "se abre")
+	check_eq(mixer.selected_friend, 1, "en el canal de Gonzalo, aunque no sea el de menos señal")
+	check(mixer.sync_round != null, "con la ronda empezada")
+	_free(mixer)
+	return true

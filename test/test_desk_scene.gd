@@ -437,3 +437,15 @@ func test_al_terminar_la_noche_se_cierran_el_mixer_y_el_celular() -> bool:
 	check(not (desk.get_node("UI/MixerView") as Control).visible, "el mixer se cierra: su ronda no sigue sonando")
 	desk.free()
 	return true
+
+
+func test_sincronizar_desde_el_chat() -> bool:
+	var desk := _make_desk()
+	desk.get_node("DeskPlane/Entries/EntryAgustin").pressed.emit()
+	desk.get_node("UI/ChatPanel").sync_requested.emit(2)
+	var mixer := desk.get_node("UI/MixerView") as Control
+	check(mixer.visible and not (desk.get_node("UI/ChatPanel") as Control).visible, "el chat se cierra y se abre el mixer")
+	check_eq(mixer.selected_friend, 2, "en el canal de Agustín")
+	check(mixer.sync_round != null, "con la ronda empezada")
+	desk.free()
+	return true

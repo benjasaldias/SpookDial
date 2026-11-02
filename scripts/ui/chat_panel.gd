@@ -3,7 +3,8 @@ extends Control
 ## la conversación, la descarga de su video, la barra de identificación, las preguntas y las respuestas.
 ## Los botones de respuesta son las acciones de la página que el cuaderno tiene abierta para ese amigo
 ## (diseño §8.5). Un video se descarga manteniendo presionada su barra (decisión de Benja), y con un amigo
-## sin señal no se puede preguntar ni responder.
+## sin señal no se puede preguntar ni responder. El botón «Sincronizar» abre el mixer en el canal del amigo
+## (decisión de Benja).
 ## Se ve como una terminal: cada mensaje lleva el nombre de quien escribe ("LEÓN:") en su color, y las
 ## pestañas y las preguntas van en mayúsculas (decisión de Benja, 31-oct).
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
@@ -12,6 +13,8 @@ extends Control
 signal entity_page_requested(friend_index: int, entity: EntityData)
 ## Se eligió la conversación de un amigo: el cuaderno salta a su página.
 signal friend_selected(friend_index: int)
+## Clic en «Sincronizar»: el mixer se abre en el canal de este amigo, con la ronda empezada.
+signal sync_requested(friend_index: int)
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatMessageView := preload("res://scripts/ui/chat_message_view.gd")
@@ -43,6 +46,8 @@ const DOWNLOAD_OFFLINE_KEY := "DOWNLOAD_OFFLINE"
 const DOWNLOAD_MARK := "▼"
 ## Sin señal no se puede preguntar ni responder (ui.csv). Lleva {friend}.
 const OFFLINE_KEY := "CHAT_OFFLINE"
+## El botón que abre el mixer en el canal del amigo (ui.csv).
+const SYNC_KEY := "CHAT_SYNC"
 ## Dónde termina la conversación: sobre la barra de identificación o, si hay un video, sobre su descarga.
 const CONVERSATION_BOTTOM := 431.0
 const CONVERSATION_BOTTOM_WITH_DOWNLOAD := 395.0
@@ -70,6 +75,7 @@ var _holding_download := false
 @onready var _download_hold: Button = $Panel/Download/Hold
 @onready var _progress: Label = $Panel/IdentifyBar/Progress
 @onready var _entity_button: Button = $Panel/IdentifyBar/EntityName
+@onready var _sync_button: Button = $Panel/IdentifyBar/Sync
 @onready var _questions: GridContainer = $Panel/Questions
 @onready var _answer_hint: Label = $Panel/AnswerHint
 @onready var _answers: GridContainer = $Panel/Answers
@@ -93,6 +99,8 @@ func _ready() -> void:
 		_answers.add_child(button)
 		_answer_buttons.append(button)
 	_entity_button.pressed.connect(_on_entity_pressed)
+	_sync_button.text = tr(SYNC_KEY).to_upper()
+	_sync_button.pressed.connect(_on_sync_pressed)
 	_panel.gui_input.connect(_on_panel_gui_input)
 	_download_hold.button_down.connect(_set_holding_download.bind(true))
 	_download_hold.button_up.connect(_set_holding_download.bind(false))
@@ -161,6 +169,8 @@ func _update_status() -> void:
 	for index in _tabs.size():
 		_tabs[index].text = _tab_text(index)
 	_update_identify_bar()
+	# Sin Audio Sync esa noche (la 1), no hay nada que sincronizar.
+	_sync_button.visible = _manager.night().audio_sync_beats > 0
 	_update_questions()
 	_update_answers()
 	_update_download()
@@ -308,6 +318,10 @@ func _on_entity_pressed() -> void:
 	var request := _manager.requests[selected_friend]
 	if request != null:
 		entity_page_requested.emit(selected_friend, request.entity)
+
+
+func _on_sync_pressed() -> void:
+	sync_requested.emit(selected_friend)
 
 
 func _scroll_to_bottom(scroll: ScrollContainer) -> void:

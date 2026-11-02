@@ -8,6 +8,7 @@ extends Node2D
 ## la vista cuando baja Sanity, y al terminar la noche aparece una pantalla que explica qué pasó.
 ## Desde el Plan 6, un clic en el mixer abre su vista (Audio Sync) y uno en el celular, sus redes sociales.
 ## Son modos exclusivos: cierran los paneles y el otro modo, y abrir un panel los cierra (decisión de Benja).
+## El botón «Sincronizar» del chat también abre el mixer, en el canal de ese amigo.
 ## Cuando se anuncia una interferencia, suena estática.
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
@@ -60,6 +61,7 @@ func _ready() -> void:
 	_chat_panel.visibility_changed.connect(_refresh_entries)
 	_chat_panel.friend_selected.connect(_notebook_panel.select_friend)
 	_chat_panel.entity_page_requested.connect(_on_entity_page_requested)
+	_chat_panel.sync_requested.connect(open_mixer_for)
 	_requests.request_started.connect(_on_request_started)
 	_night.night_ended.connect(_on_night_ended)
 	_end_screen.retry_pressed.connect(_on_retry_pressed)
@@ -90,6 +92,13 @@ func open_mixer() -> void:
 	close_panels()
 	_phone.close()
 	_mixer.open()
+
+
+## El botón «Sincronizar» del chat: el mixer se abre en el canal de ese amigo, con la ronda empezada.
+func open_mixer_for(friend_index: int) -> void:
+	close_panels()
+	_phone.close()
+	_mixer.open_for(friend_index)
 
 
 ## Las redes sociales: el celular se usa sin paneles y sin el mixer.

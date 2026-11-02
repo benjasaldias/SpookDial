@@ -124,6 +124,14 @@ func open() -> void:
 	tween.tween_property(self, ^"modulate:a", 1.0, 0.15)
 
 
+## Se abre en el canal del amigo `friend_index` y la ronda empieza enseguida: es lo que hace el botón
+## «Sincronizar» del chat (decisión de Benja).
+func open_for(friend_index: int) -> void:
+	open()
+	selected_friend = friend_index
+	start_round(friend_index)
+
+
 ## Se cierra y corta la ronda.
 func close() -> void:
 	sync_round = null

@@ -373,3 +373,22 @@ func test_los_textos_de_la_descarga_existen() -> bool:
 	check(String(TranslationServer.translate(panel_script.OFFLINE_KEY)).contains("{friend}"), "CHAT_OFFLINE debe tener {friend}")
 	TranslationServer.set_locale(previous)
 	return true
+
+
+func test_el_boton_sincronizar() -> bool:
+	var panel := _make_panel()
+	panel.open_for(1)
+	panel._process(0.0)
+	var sync := panel.get_node("Panel/IdentifyBar/Sync") as Button
+	check(not sync.visible, "en la noche 1 no hay Audio Sync")
+	_manager.catalog.nights[0].audio_sync_beats = 4
+	panel._process(0.0)
+	check(sync.visible, "con Audio Sync, se ve")
+	check_eq(sync.text, tr("CHAT_SYNC").to_upper(), "en mayúsculas")
+	check(sync.text != "CHAT_SYNC", "el texto está en ui.csv")
+	var requested := []
+	panel.sync_requested.connect(func(friend_index: int) -> void: requested.append(friend_index))
+	sync.pressed.emit()
+	check_eq(requested, [1], "pide sincronizar a Gonzalo, el del chat")
+	_free(panel)
+	return true
