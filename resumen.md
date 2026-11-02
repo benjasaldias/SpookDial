@@ -4,6 +4,89 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 16 — 2 de noviembre de 2026 — Plan 7 escrito: screamers y director
+
+Benja pidió escribir el Plan 7 con `superpowers:writing-plans`. Se escribió en Opus 5.5 con esfuerzo high, justo después de S15 (la fecha objetivo era el 16 de noviembre). Benja todavía no había probado el mantenimiento (`docs/04`, J), así que no hubo notas de prueba que meter al plan.
+
+### Realizado
+
+- **Nuevo `docs/14_plan_screamers_director.md`:** el Plan 7 en 14 tareas con código completo. Lleva las pruebas de 326 a 373:
+  - lógica pura en `scripts/core/`: el director de ritmo (`PacingDirector`: cuándo llega cada solicitud y cada screamer), qué screamer toca y si es justo (`Screamer`), las alucinaciones (`HallucinationClock`) y el chat guionado (`ChatScript`). `NightState` baja Sanity de golpe y `NightManager` pausa la noche durante el jumpscare;
+  - datos: los valores del director, de los screamers y de las alucinaciones en `BalanceData`; las olas, los screamers de cada noche y el guion en `NightData`; los tipos de screamer (`ScareKind`) y el chat guionado (`ChatScriptData` y `ChatLineData`). La noche 1 recibe el susto guionado y el chat de Gonzalo, con tus textos tal cual;
+  - `ScreamerManager`, un nodo nuevo del escritorio: la señal previa (las luces parpadean y baja el sonido ambiente), los 7 screamers (la cortina, la figura en la ventana, el celular, las luces, el golpe del cuaderno, la mancha de tinta y el jumpscare), las alucinaciones a un lado de la pantalla y el chat que sigue al susto guionado;
+  - la interfaz: el cuaderno que se cierra de golpe o se mancha de tinta, el botón de la respuesta de Matías en el chat, la entrada que avisa mientras el amigo espera esa respuesta, el contorno del celular que parpadea, el sonido ambiente del cuarto, la oscuridad de las luces, la pantalla del jumpscare y la figura de la ventana escondida;
+  - 12 sonidos provisionales nuevos, que genera `tools/make_placeholder_sounds.py`: el ambiente, uno por screamer y cuatro alucinaciones (los 7 del Plan 6 salen idénticos);
+  - la sección K de `docs/04` (probar los screamers y el director), que se aplica al ejecutar el plan.
+- **Decisiones de Benja** (en `CLAUDE.md`, el diseño v2 §5, §10.2, §11 y §14, `docs/02` §2 y §6, `docs/05` y `docs/06`):
+  - **olas con respiro:** las solicitudes llegan en grupos y, después de cada uno, hay unos 25 s sin solicitudes nuevas; se aprietan hacia las 06:00, y un amigo herido atrasa las que faltan;
+  - **los screamers llegan en cualquier momento**, solo con las reglas de justicia;
+  - **alucinaciones del cuarto y del juego:** golpes, pasos, susurros y rasguños, y también la estática y el celular; no restan Sanity y no suenan durante Audio Sync;
+  - **la figura de la ventana, escondida:** aparece al asustar y, a ×2, es el jumpscare provisional;
+  - **noche 0 (tutorial):** una noche nueva antes de la 1, que se diseña en el Plan 8. El susto guionado y su chat son datos de una noche: mientras no exista la noche 0, van en la 1;
+  - **el chat guionado tras el susto:** Benja escribió los tres mensajes; Matías responde con un botón, y después el borde del celular parpadea hasta que lo abre. Más adelante quiere una progresión guionada entre los amigos: quedó en `docs/05` (#20, después de la v1), y los chats guionados ya son datos.
+- **Propuestas de Claude, que Benja puede cambiar en el Inspector** (`data/nights/night_1.tres`, grupo **Guion**): el susto guionado es el jumpscare (por "te escuché gritar"), llega a los 60 s y el chat lo escribe Gonzalo. También los valores nuevos de `docs/02` §6: olas de 2, 3, 3, 4 y 4 solicitudes; 0, 3, 4, 5 y 6 screamers por noche; al menos 25 s entre dos screamers y ninguno en los primeros 30 s; ningún screamer durante una ronda de Audio Sync; alucinaciones con Sanity bajo 50.
+- **El plan se verificó en Godot 4.7.2:**
+  - todo su código se ejecutó en una copia aparte, con 373 pruebas OK, sin errores al correr, y cinco capturas revisadas: `C:\dev\capturas\plan7_window.png` (la figura en la ventana), `plan7_ink.png` (la mancha de tinta en la página de El Trauco), `plan7_jumpscare.png`, `plan7_script.png` (el chat de Gonzalo con el botón de Matías) y `plan7_script_phone.png` (el celular con su contorno encendido);
+  - después, un script aplicó el plan **tal como está escrito** a una copia limpia: los 27 conteos de pruebas coinciden, incluidas las fallas esperadas, todos los bloques a reemplazar aparecen una sola vez, y el código resultante es idéntico al probado, también los 19 sonidos. Se validó dos veces, la segunda con el plan final;
+  - las copias ya se borraron.
+- El código del plan lo armó un script que toma los cambios de cada tarea de los commits de la copia de trabajo, así que sus tabuladores son los del código probado.
+- `docs/06`: el Plan 7 queda escrito, y el Plan 8 incluye la noche 0. `arte_pendiente.md` §3: qué usa hoy cada screamer. `docs/00_log.md`: S16 ✅ y S17 ▶.
+
+### Errores encontrados
+
+- **Al revisar las capturas** (antes de armar el plan): la mancha de tinta tapaba solo el centro de la página y las reglas seguían legibles, la silueta del jumpscare casi no se veía sobre negro, y la captura del chat salía antes de que el mensaje terminara de escribirse. Se corrigieron: tres manchas, una sobre otra; un destello gris detrás de la silueta; y 1,5 s de espera en la captura.
+- **A veces, al terminar las pruebas, Godot avisaba `2 resources still in use at exit`:** los sonidos que las pruebas dejan sonando (el ambiente y los screamers) se liberan en el hilo de audio, y el ejecutor salía antes. Ahora espera 0,2 s antes de salir (Tarea 12): 6 corridas seguidas salieron limpias.
+- **Errores de Claude, sin efecto en el plan:** al escribir el código en la copia de trabajo, una prueba del chat guionado sumaba tiempos que no dan exacto en coma flotante (2,4 + 0,1), quedó un contador viejo en `RequestManager`, y un `if` en línea no servía para un arreglo con tipo. Una prueba nueva pasaba antes de implementar su código; se cambió para que falle primero. Todo se corrigió antes de armar el plan.
+
+### Pendientes Código
+
+- [x] **S16: escribir el Plan 7 (screamers y director).**
+- [ ] **S17: ejecutar el Plan 7** (`docs/14`, 14 tareas), con Sonnet 5.5 en esfuerzo high y Godot cerrado (`docs/00_log.md`).
+- [ ] Plan 8 (S18): la noche 0 (tutorial, decisión de Benja): qué enseña y cuánto dura. El susto guionado y su chat se mueven de la noche 1 a la 0 en el Inspector (grupo **Guion**), sin código.
+- [ ] Pasar a `.tres` las entidades que Benja refine, agregar El Tue Tué y La Calchona a la noche 1, y cambiar a 1 el **Night Number** de `RequestManager`.
+- [ ] Planes 8 y 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos (desde el Plan 6, también el de `phone.csv`).
+- [ ] Plan 8: "Reducir destellos" debe apagar el parpadeo de las entradas y de los LED del mixer, y suavizar la señal previa, el apagón de las luces y los parpadeos rojos del jumpscare (Plan 7); decidir con Benja si "Temporizadores ×1,5" alarga también los plazos de los videos.
+- [ ] Plan 9: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Plan 9: reemplazar los sonidos provisionales de `audio/sfx/` (con los mismos nombres, también los del Plan 7) y ponerlos en sus buses (hoy todos van a Master). Faltan sonidos para cuando llega un video y cuando se recibe (`docs/13`, "Fuera de este plan").
+- [ ] Cuando llegue el arte: reemplazar el dibujo provisional del mixer y del celular, las barras de señal de las entradas y, desde el Plan 7, los screamers, la cortina y las luces (`docs/13` y `docs/14`, "Fuera de este plan").
+- [ ] Menor: que los segundos de una entrada en alerta no toquen el ícono ⚠ del arte (correr el temporizador unos píxeles, o el ícono en el arte).
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si Benja quiere ajustarlos en el Inspector: pasar `QUESTION_COST` y `THINKING_TIME` a `BalanceData` (`FIRST_REQUEST_DELAY` pasa con el Plan 7).
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Después de S17: probar los screamers y el director** (`docs/04`, K, unos 20 minutos).
+- [ ] **Revisar las propuestas del susto guionado** (después de S17, en `data/nights/night_1.tres`, grupo **Guion**): que sea un jumpscare, a los 60 s, y que el chat lo escriba Gonzalo.
+- [ ] **Para el Plan 8 (S18): qué enseña la noche 0 y cuánto dura**, además de las 7 entidades.
+- [ ] **Probar el mantenimiento** (`docs/04`, J, unos 20 minutos): la señal, Audio Sync, los videos y el celular.
+- [ ] **Probar la noche** (`docs/04`, I, unos 15 minutos). Si cambias un valor de `data/balance.tres` a propósito, avísale a Claude: `test_balance.gd` lo compara con `docs/02`.
+- [ ] **Probar el chat y el cuaderno con el estilo nuevo** (`docs/04`, G y H, unos 20 minutos). En la noche 3, si el mensaje inicial no trae lo que decide la regla, pregunta: así está diseñada.
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] Refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos, y esa frase tiene que entenderse sola: también es su nombre en el cuaderno.
+- [ ] **Escribir los señuelos** (`data/catalog.tres` y `messages.csv`). Cada lugar necesita al menos los que pide la noche (hasta 3); las pruebas avisan si faltan.
+- [ ] **Corregir los textos que escribió Claude:**
+  - `messages.csv`: el lugar, las características, las observaciones, los señuelos, las respuestas "nada", la decisión del amigo, las reacciones y las 2 reacciones de un amigo herido;
+  - `notebook.csv`: el folclore, las acciones, las preguntas y las reglas de El Trauco;
+  - `ui.csv`: el aviso de daño (`CHAT_DAMAGE`), `PC_VIDEOS`, `ENTRY_STUNNED` y los textos de la pantalla final (`END_*`). Conserva los marcadores entre llaves, como `{friend}`;
+  - del Plan 6: en `messages.csv`, el aviso del video (`FRIEND_VIDEO_SENT`); en `ui.csv`, los avisos de videos y señal (`CHAT_VIDEO_*`, `CHAT_SIGNAL_*` y `CHAT_OFFLINE`), el botón «Sincronizar» (`CHAT_SYNC`), las entradas (`ENTRY_VIDEO` y `ENTRY_OFFLINE`), la descarga (`DOWNLOAD_*`), el mixer (`MIXER_*`) y `END_CHOSEN_OFFLINE`; y todo `phone.csv`: las 12 publicaciones y el nombre de la red social, "copuchas";
+  - el chat guionado del Plan 7 (`SCRIPT_SCARE_*`, en `messages.csv`) son tus textos, copiados tal cual: ajústalos si quieres.
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] **Arte: la lista completa está en `arte_pendiente.md`.** Benja avisa cuando una pieza esté lista y se integra en una sesión aparte. Lo más urgente:
+  - **la interfaz del cuaderno:** la página (449×696, como `screen_sprite`; va a la derecha), las pestañas del índice y los bocetos de las entidades (unos 96×96). El tema `scenes/ui/notebook_theme.tres` los recibe;
+  - para el chat, ahora es opcional: el estilo de terminal ya está hecho en Godot, y el arte de burbujas, botones y pestañas puede reemplazarlo;
+  - **para el Plan 5, que hoy usa piezas provisionales:** el celular sin la hora y una tira de dígitos LCD "0123456789:", los diales rediseñados (manómetro con ícono y LED) y las pantallas de victoria y derrota. Opcional: las marcas de vida de las entradas;
+  - **para el Plan 6, que hoy los dibuja provisionales en Godot:** el mixer visto desde arriba (440×430, o 220×215 a ×2), el celular ampliado (260×520, o 130×260 a ×2) y las barras de señal de las entradas (`docs/06` §3 y `docs/03` §6);
+  - **para el Plan 7, que hoy usa la figura de la ventana y dibujos de Godot:** los screamers (manos o un rostro que tapan la pantalla, 1 o 2 jumpscares y la mancha de tinta), la animación `scare` de las cortinas y las luces (`pcLightOver`, `pcLightUnder` y `pcDesklight`) como archivos aparte (`arte_pendiente.md` §3).
+- [ ] Al probar con personas (semana 5): fijarse si notan que en la noche 3 hay que preguntar. Si no, una ayuda posible es marcar en el cuaderno qué observaciones ya contó el amigo (iría a la lista de `docs/05`).
+
+---
+
 ## Sesión 15 — 2 de noviembre de 2026 — Plan 6 ejecutado: mantenimiento
 
 Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro proponía Sonnet 5.5 · high). Se adelantó al 2 de noviembre, justo después de S14 (la fecha objetivo era del 13 al 15 de noviembre). Al empezar, Benja autorizó todos los commits del plan en `main` y el push al terminar.

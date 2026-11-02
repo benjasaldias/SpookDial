@@ -18,7 +18,7 @@ El juego se construye en este orden. La **v1** es lo mínimo para entregar. Lo q
 | 4 | Sanity con el celular, y Trust; ambos con sus efectos graduales | Diseño §10.2–10.3 |
 | 5 | Recibir videos (manteniendo presionado) y la cuota como condición para ganar | Diseño §10.4–10.5 |
 | 6 | Screamers (ambientales, sobre el cuaderno y un jumpscare por noche) con sus reglas de justicia | Diseño §11 |
-| 7 | Director de ritmo, 5 noches como datos y 7 entidades | Diseño §13–14 |
+| 7 | Director de ritmo, noche 0 (tutorial, decisión de Benja, sesión 16), 5 noches como datos y 7 entidades | Diseño §5, §13–14 |
 | 8 | Menú principal, guardado al comienzo de cada noche, resumen entre noches y pantalla de victoria | Diseño §5 |
 | 9 | Opciones: volumen por canal, reducir destellos, desactivar parallax y temporizadores ×1,5 | Diseño §19 |
 | 10 | Sonido básico: ambiente, mensajes, alarmas, screamers y un sonido por entidad | Diseño §17 |
@@ -41,6 +41,7 @@ El juego se construye en este orden. La **v1** es lo mínimo para entregar. Lo q
 | 17 | Estado "perdido" de los amigos. |
 | 18 | Trust por amigo. |
 | 19 | Audífonos en el escritorio (decorativos). |
+| 20 | Progresión guionada entre los amigos: chats guionados que avanzan noche a noche, como el que sigue al susto guionado (idea de Benja, sesión 16). El Plan 7 ya deja los chats guionados como datos de una noche. |
 
 **Eliminado:** la cruz, el retrato y mentir (obsoletos), y el buscador por rasgos (reemplazado por las características clickeables).
 

@@ -9,6 +9,7 @@ Detalle de la mecánica central del diseño v2 (`spook_dial_design.md` §8–§1
 - (sesión 10) cuando a un amigo le llega una solicitud nueva, su página del cuaderno vuelve al índice, y la frase entre asteriscos de una característica también es su nombre en el cuaderno;
 - (sesión 12) el video de un amigo aturdido llega cuando se recupera. Después de probar el juego: los textos son borradores reales en primera persona (ya no se usa `[PROTO]`), cada mensaje lleva el nombre de quien escribe, y el amigo herido grita en el chat, seguido de un aviso rojo con su vida;
 - (sesión 14) un amigo sin señal sigue recibiendo situaciones, pero no lee las respuestas y, si se le acaba el tiempo, elige mal; mientras haya amigos sin señal, Trust baja. Los videos se descargan en el chat (15 s para empezar, 20 s para terminar y 10 s de descarga), y Audio Sync se juega en una vista del mixer desde arriba (§4.1 y §6).
+- (sesión 16) el director reparte las solicitudes en olas con respiro (§2), los screamers llegan en cualquier momento con sus reglas de justicia, y con Sanity bajo suenan alucinaciones que no restan Sanity (§6).
 
 Los valores numéricos (§6) son un punto de partida para el prototipo; se ajustan probando.
 
@@ -26,6 +27,9 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 ## 2. Ciclo de vida de una solicitud
 
 1. **El director de ritmo** decide que un amigo disponible recibe una situación. Disponible significa vivo, sin otra solicitud y no aturdido. Un amigo sin señal también recibe situaciones (decisión de Benja, sesión 14; ver §4.1).
+   - Las solicitudes llegan **en olas** de 2 a 4 (según la noche, §6). Después de cada ola hay un **respiro** de 25 s sin solicitudes nuevas, y los espacios se acortan hacia las 06:00 (decisión de Benja, sesión 16).
+   - Si no hay a quién darle una solicitud (todos ocupados o aturdidos, o ya están las simultáneas de la noche), espera, y las que faltan se atrasan lo mismo. Cuando un amigo queda herido, las que faltan se atrasan 10 s.
+   - Entre dos solicitudes pasan al menos 6 s, y nunca empieza una que no alcanza a terminar antes de las 06:00: por eso el total de la noche es aproximado.
 2. **Se generan los datos de la situación:**
    - la entidad, entre las conocidas en esa noche;
    - el lugar;
@@ -141,6 +145,10 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 | Interferencias (aprox. por noche) | 0 | 2 | 3 | 4 | 6 |
 | Audio Sync (tiempos) | — | 4 | 4 | 8 | 8 |
 | Cuota de videos (= envíos programados) | 2 | 3 | 3 | 4 | 4 |
+| Solicitudes por ola | 2 | 3 | 3 | 4 | 4 |
+| Screamers (sin contar las alucinaciones) | 0 | 3 | 4 | 5 | 6 |
+| Uno de ellos es el jumpscare | No | Sí | Sí | Sí | Sí |
+| Susto guionado (va en la noche 0 cuando exista) | A los 60 s | — | — | — | — |
 
 ### Medidores
 
@@ -160,6 +168,15 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 - Descarga: 10 s manteniendo presionada la barra del chat (15 s si la señal de ese amigo está bajo 50; sin señal no avanza). Si se suelta, se pausa.
 - Audio Sync: una base de 100 golpes por minuto. Tras un compás de cuenta, el amigo aplaude 4 u 8 veces en corcheas (el primer aplauso al comienzo) y Matías lo repite en el compás siguiente (o en los 2 siguientes). Tolerancia de cada golpe: ±150 ms.
 - Scroll del celular: cada movimiento de la rueda cuenta 0,3 s de scroll.
+- Director de ritmo (decisión de Benja, sesión 16): la primera solicitud a los 5 s; un respiro de 25 s después de cada ola; al final de la noche, los espacios entre solicitudes son la mitad que al principio; al menos 6 s entre dos solicitudes; un amigo herido atrasa 10 s las que faltan.
+- Screamers (decisión de Benja, sesión 16: en cualquier momento, con las reglas de justicia):
+  - uno por tramo igual de la noche, desde los 30 s y con al menos 25 s entre dos;
+  - la señal previa dura 1 s: las luces parpadean y baja el sonido ambiente;
+  - nunca empiezan si a una decisión le quedan 5 s o menos al terminar la señal previa (la mancha de tinta, que tapa las reglas 5 s, necesita 5 s más), ni durante una ronda de Audio Sync;
+  - los ambientales se eligen solo si su objeto está a la vista (el chat, el mixer y el celular ampliado tapan la ventana y el celular), y los del cuaderno, si está abierto. Las luces se ven siempre;
+  - el jumpscare dura 1,5 s y pausa la noche mientras tapa la pantalla.
+- Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync ni durante un screamer.
+- El chat guionado: cada línea del amigo llega 2,5 s después de la anterior; las de Matías esperan su botón.
 
 ---
 

@@ -45,9 +45,10 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 2 de noviemb
 
 | Pieza | Para qué | Notas |
 | --- | --- | --- |
-| **Screamers** | Plan 7 | Manos o un rostro que tapan la pantalla (2 o 3 frames), 1 o 2 jumpscares cortos y una mancha de tinta que tapa las reglas del cuaderno. |
-| Animación `scare` de las cortinas | Plan 7 | Un screamer ambiental (3 a 6 frames). |
-| Publicaciones perturbadoras del celular | Plan 7 | 3 de las 12, para cuando Sanity está baja. Depende de lo que elijas en el celular ampliado. |
+| **Screamers** | Plan 7 | Manos o un rostro que tapan la pantalla (2 o 3 frames), 1 o 2 jumpscares cortos y una mancha de tinta que tapa las reglas del cuaderno. Mientras tanto (Plan 7): la figura de la ventana (`enemy_sprite`) aparece como screamer y, a ×2 sobre un destello gris, como jumpscare; la mancha de tinta la dibuja Godot con círculos. |
+| Animación `scare` de las cortinas | Plan 7 | Un screamer ambiental (3 a 6 frames). Mientras tanto, Godot mece la cortina entera. |
+| Luces del PC y del escritorio | Plan 7 | Las de la sección 2. Mientras tanto, el apagón oscurece todo el cuarto por igual. |
+| Publicaciones perturbadoras del celular | Después del Plan 7 | 3 de las 12, para cuando Sanity está baja. Depende de lo que elijas en el celular ampliado. El Plan 7 no las incluye. |
 | **Menú principal y logo** | Plan 8 | El logo "Spook Dial" y la escena del escritorio con otra iluminación. |
 | Pantalla entre noches | Plan 8 | La página del canal, con el contenido de la noche. |
 

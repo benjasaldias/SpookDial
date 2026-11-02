@@ -13,6 +13,7 @@
 - 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
 - 31 de octubre (sesión 12): cada dial conserva el color de su aguja, y el video de un amigo aturdido llega cuando se recupera. Después de probar el juego: el chat con estilo de terminal, los textos reales en primera persona y el aviso de daño en el chat.
 - 31 de octubre al 2 de noviembre (sesión 14): un amigo sin señal, los videos que se descargan en el chat, Audio Sync en el mixer visto desde arriba y el botón «Sincronizar» del chat.
+- 2 de noviembre (sesión 16): el ritmo de la noche en olas, los screamers en cualquier momento, las alucinaciones, la figura de la ventana, la noche 0 (tutorial) y el chat guionado que enseña el celular.
 
 ---
 
@@ -57,7 +58,9 @@ Durante cinco noches tiene que hacer cuatro cosas:
 ## 5. Estructura de una partida
 
 - **Menú principal:** Continuar (solo si hay una partida en curso), Nueva partida, Opciones y Salir.
+- **Noche 0 (tutorial)** antes de la noche 1 (decisión de Benja, sesión 16). Qué enseña y cuánto dura se decide en el Plan 8.
 - **5 noches.** Cada una va de las **00:00 a las 06:00** (formato de 24 horas) en unos **7 minutos reales**.
+- **Ritmo de la noche** (decisión de Benja, sesión 16): las solicitudes llegan en **olas**. Después de cada ola hay un **respiro** de unos 25 segundos sin solicitudes nuevas, para sincronizar, descargar videos o mirar el celular. Las olas se aprietan hacia las 06:00, y cuando un amigo queda herido, las solicitudes que faltan se atrasan unos segundos.
 - **Se gana la noche** al llegar a las 06:00 **con la cuota de contenido cumplida**.
 - **Se pierde la noche** en cualquiera de estos casos:
   - Sanity, Trust o Connection llegan a 0;
@@ -209,6 +212,8 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 - Baja lento todo el tiempo, y de golpe con cada screamer (una cantidad fija).
 - Se recupera **scrolleando el celular**: sube mientras el jugador scrollea y deja de subir cuando se detiene.
 - **Efecto gradual:** mientras más baja, más se oscurece la visión con una viñeta y más **screamers auditivos falsos** aparecen (sonidos que no vienen de nada).
+  - Son sonidos del cuarto (golpes en la ventana, pasos, susurros y rasguños) y también del juego (la estática de una interferencia y el celular vibrando). Confunden: el jugador mira y no hay nada (decisión de Benja, sesión 16).
+  - No restan Sanity y nunca suenan durante Audio Sync.
 - Con 0, Matías entra en pánico y **se pierde la noche**.
 
 ### 10.3 Trust
@@ -243,8 +248,9 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 
 ## 11. Screamers
 
+- **Llegan en cualquier momento** de la noche, solo con las reglas de justicia (decisión de Benja, sesión 16).
 - **Tipos:**
-  - ambientales: la cortina se mueve, aparecen ojos en la ventana, el celular vibra, las luces parpadean;
+  - ambientales: la cortina se mueve, aparece la figura en la ventana, el celular vibra, las luces parpadean. La figura de la ventana está escondida y solo aparece al asustar (decisión de Benja, sesión 16);
   - sobre el cuaderno: se cierra de golpe, o una mancha de tinta tapa las reglas durante 5 segundos;
   - jumpscare de pantalla completa: como máximo **uno por noche**, desde la noche 2.
 - **Señal previa breve:** un parpadeo de luz y una caída del sonido ambiente.
@@ -252,6 +258,13 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
   - los que tapan la pantalla **pausan los temporizadores**;
   - nunca ocurren en los últimos 5 segundos de una decisión.
 - Cada uno resta una cantidad fija de Sanity. No dañan a Matías.
+- **El susto guionado** (decisión de Benja, sesión 16) enseña Sanity y el celular. Va en la noche 0; mientras no exista, en la 1. Después del susto:
+  1. un amigo escribe: "Todo bien hermano?? Se te quedó el micro prendido y te escuché gritar";
+  2. Matías responde con un botón: "Creo que me estoy volviendo loco, no sé si puedo seguir";
+  3. el amigo contesta: "Mati wn relájate, tú puedes. Usa tu celu pa despejarte un rato, te va a calmar";
+  4. el borde del celular parpadea hasta que Matías lo abre.
+
+  Es el primero de los momentos guionados entre los amigos: más adelante habrá una progresión guionada (`docs/05`).
 
 ## 12. El cuaderno
 
@@ -285,7 +298,8 @@ Siete criaturas del folclore chileno. Benja define las reglas y las acciones de 
 
 | Noche | Dónde están los amigos | Entidades nuevas | Qué se agrega |
 | --- | --- | --- | --- |
-| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust. La señal no baja. Un screamer guionado enseña Sanity y el celular. Los mensajes traen todas las observaciones. |
+| 0 (tutorial) | Se decide en el Plan 8 | — | El susto guionado y su chat enseñan Sanity y el celular (§11). El resto se decide en el Plan 8. |
+| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust. La señal no baja. Mientras no exista la noche 0, el susto guionado va aquí. Los mensajes traen todas las observaciones. |
 | 2 | Camino y lago | El Cuero, La Viuda | Señal por amigo, interferencias, Audio Sync de 4 tiempos, estática y screamers regulares. |
 | 3 | Bosque | El Trauco | Mensajes con menos observaciones: preguntar se vuelve necesario. |
 | 4 | Casa abandonada y cueva | El Basilisco, El Imbunche | Audio Sync de 8 tiempos y varias solicitudes a la vez. |

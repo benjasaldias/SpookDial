@@ -5,7 +5,7 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 ## Qué es
 
 - Juego de terror psicológico para PC hecho en **Godot 4.7.2** (renderer GL Compatibility), con **pixel art 2D a 1280×720** dibujado en Aseprite.
-- El protagonista, Matías, nunca sale de su escritorio. Durante **5 noches de unos 7 minutos** guía por chat a **3 amigos** (León, Gonzalo y Agustín) que enfrentan criaturas del **folclore chileno**. Para eso aplica las reglas de su **cuaderno**, al estilo de Keep Talking and Nobody Explodes.
+- El protagonista, Matías, nunca sale de su escritorio. Durante **5 noches de unos 7 minutos** (más una **noche 0 de tutorial**) guía por chat a **3 amigos** (León, Gonzalo y Agustín) que enfrentan criaturas del **folclore chileno**. Para eso aplica las reglas de su **cuaderno**, al estilo de Keep Talking and Nobody Explodes.
 - Equipo: **Benja** hace el diseño, el arte y los diálogos. Domina Aseprite y es principiante en Godot. **Claude** hace el código.
 - **Entrega: 10 de diciembre de 2026**, con el juego completo y jugable. El alcance priorizado y el calendario están en `docs/05_plan_produccion.md`.
 
@@ -28,6 +28,7 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 | `docs/11_plan_cuaderno.md` | Plan 4, paso a paso: el cuaderno, la memoria de página por amigo y las respuestas desde el chat. |
 | `docs/12_plan_consecuencias_noche.md` | Plan 5, paso a paso: consecuencias, vida y aturdimiento, medidores, reloj, cuota y final de la noche. |
 | `docs/13_plan_mantenimiento.md` | Plan 6, paso a paso: la señal de cada amigo, Audio Sync en el mixer, la descarga de videos en el chat y el celular. |
+| `docs/14_plan_screamers_director.md` | Plan 7, paso a paso: el director de ritmo, los screamers, las alucinaciones y el susto guionado con su chat. |
 | `arte_pendiente.md` | **Todo el arte que falta**, por urgencia, con tamaños y lo que hay hoy en su lugar. |
 | `art/positions.md` | Posición de cada objeto recortado en la escena. |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1. Es **histórico**: su encabezado dice qué se aceptó y qué no. |
@@ -81,6 +82,12 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 31-10-2026 | **Audio Sync en el mixer visto desde arriba** (Benja lo dibuja): el VU-metro azul de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo. Una base marca el tiempo, el amigo aplaude un ritmo y Matías lo imita con clics o con la barra espaciadora. Se empieza con un clic en el mixer. Hasta el arte, la vista es provisional. |
 | 31-10-2026 | **El celular** (el scroll de redes sociales) es provisional hasta que Benja lo anime. |
 | 02-11-2026 | **«Sincronizar» desde el chat:** el chat de cada amigo tiene un botón que abre el mixer en su canal y empieza la ronda. El canal también se elige en el fader del mixer, y la entrada del PC siempre abre el chat: cada control hace una sola cosa. |
+| 02-11-2026 | **El director reparte las solicitudes en olas con respiro:** después de cada ola hay unos 25 s sin solicitudes nuevas, las olas se aprietan hacia las 06:00 y, cuando un amigo queda herido, las que faltan se atrasan. |
+| 02-11-2026 | **Los screamers llegan en cualquier momento de la noche**, solo con las reglas de justicia del diseño (§11). |
+| 02-11-2026 | **Alucinaciones del cuarto y del juego:** con Sanity bajo suenan golpes, pasos, susurros y rasguños, y también la estática de una interferencia y el celular vibrando, que no vienen de nada. No restan Sanity y nunca suenan durante Audio Sync. |
+| 02-11-2026 | **La figura de la ventana** (`enemy_sprite`) está escondida: aparece como el screamer de la ventana y, a ×2, como jumpscare provisional hasta el arte. |
+| 02-11-2026 | **Noche 0 (tutorial):** una noche nueva antes de la 1. Qué enseña y cuánto dura se decide en el Plan 8. El susto guionado y su chat son datos de una noche: hasta que exista la noche 0, van en la 1. |
+| 02-11-2026 | **Chat guionado tras el susto:** un amigo escribe "Todo bien hermano?? Se te quedó el micro prendido y te escuché gritar"; Matías responde con un botón ("Creo que me estoy volviendo loco, no sé si puedo seguir"); el amigo contesta "Mati wn relájate, tú puedes. Usa tu celu pa despejarte un rato, te va a calmar", y el borde del celular parpadea hasta que Matías lo abre. Más adelante habrá una progresión guionada entre los amigos (`docs/05`). |
 | 26-10-2026 | **La frase clickeable de una característica va entre asteriscos** en el CSV: `vio un *hombrecito*` (no corchetes, que chocan con el BBCode del chat). |
 | 26-10-2026 | **El mensaje inicial trae 2 características camufladas entre señuelos:** frases clickeables que no ayudan a identificar (describen el lugar, un olor, un sonido o algo que se ve). Al clickear un señuelo, vibra y se pone rojo, sin otro costo. Señuelos por noche: 1, 1, 2, 2 y 3. |
 | 26-10-2026 | **La identificación tiene una barra fija con el avance** ("1 de 2"), luego "Matías piensa…" y el nombre. **La estática tapa una frase clickeable entera o nada.** Con **5 s o menos no se puede preguntar.** Las respuestas repiten solo lo del mensaje inicial, sin señuelos nuevos (a prueba). |
