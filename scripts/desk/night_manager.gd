@@ -4,7 +4,7 @@ extends Node
 ## Sanity, Trust o Connection llegan a 0, o a las 06:00 si falta contenido (diseño §5).
 ## Al terminar, todo se detiene: los temporizadores, la hora y los medidores.
 
-## Llegó un video del amigo `friend_index`. Por ahora se recibe solo: aceptarlo llega en el Plan 6.
+## Se recibió un video del amigo `friend_index`: Matías terminó de descargarlo.
 signal video_received(friend_index: int)
 ## La noche terminó. `fatal_request` es la solicitud en la que murió un amigo; si nadie murió, null.
 signal night_ended(ending: NightState.Ending, fatal_request: FriendRequest)
@@ -39,7 +39,8 @@ func advance(delta: float) -> void:
 	requests.advance(delta)
 	if ended:
 		return
-	for friend_index: int in requests.state.advance(delta):
+	var events := requests.state.advance(delta)
+	for friend_index: int in events.videos.received:
 		video_received.emit(friend_index)
 	_check_ending(null)
 

@@ -43,6 +43,14 @@ func _advance(night: NightManager, seconds: int) -> void:
 		night.advance(1.0)
 
 
+## Avanza `seconds` de a 1 segundo, con Matías descargando cada video apenas llega.
+func _advance_downloading(night: NightManager, seconds: int) -> void:
+	for _i in seconds:
+		var offers: Array = night.state().videos.offers
+		night.state().holding_download = offers[0].friend_index if not offers.is_empty() else -1
+		night.advance(1.0)
+
+
 func test_avanza_las_solicitudes_y_el_estado() -> bool:
 	var night := _make_night()
 	check(not _requests.is_processing(), "el manager ya no avanza solo")
@@ -54,14 +62,19 @@ func test_avanza_las_solicitudes_y_el_estado() -> bool:
 	return true
 
 
-func test_avisa_cuando_llega_un_video() -> bool:
+func test_avisa_cuando_se_recibe_un_video() -> bool:
 	var night := _make_night()
-	var arrived := []
-	night.video_received.connect(func(friend_index: int) -> void: arrived.append(friend_index))
-	_advance(night, 139)
-	check(arrived.is_empty(), "todavía no")
-	_advance(night, 1)
-	check_eq(arrived.size(), 1, "a los 140 s llega el primero")
+	var received := []
+	night.video_received.connect(func(friend_index: int) -> void: received.append(friend_index))
+	_advance(night, 140)
+	var offers: Array = night.state().videos.offers
+	check_eq(offers.size(), 1, "a los 140 s llega el primero")
+	check(received.is_empty(), "falta descargarlo")
+	if offers.size() == 1:
+		var friend_index: int = offers[0].friend_index
+		night.state().holding_download = friend_index
+		_advance(night, 10)
+		check_eq(received, [friend_index], "descargado")
 	_free(night)
 	return true
 
@@ -70,9 +83,9 @@ func test_a_las_06_con_la_cuota_se_gana() -> bool:
 	var night := _make_night()
 	var endings := []
 	_record_endings(night, endings)
-	_advance(night, 419)
+	_advance_downloading(night, 419)
 	check(endings.is_empty(), "a los 419 s sigue")
-	_advance(night, 1)
+	_advance_downloading(night, 1)
 	check_eq(endings, [[NightState.Ending.WON, null]], "ganó a las 06:00")
 	check(night.ended, "terminó")
 	_free(night)

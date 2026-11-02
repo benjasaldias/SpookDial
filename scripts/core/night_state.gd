@@ -14,6 +14,13 @@ const NIGHT_HOURS := 6
 ## Sanity, Trust y la señal van de 0 a 100.
 const METER_MAX := 100.0
 
+
+## Lo que pasó en un paso de la noche, para avisarlo en el chat.
+class Events:
+	## Los videos que llegaron, se recibieron o se perdieron.
+	var videos: VideoSchedule.Changes
+
+
 var night: NightData
 var balance: BalanceData
 ## Segundos desde las 00:00.
@@ -22,6 +29,8 @@ var sanity := METER_MAX
 var trust := METER_MAX
 var friends: Array[FriendState] = []
 var videos: VideoSchedule
+## El amigo cuya descarga mantiene presionada Matías en el chat, o -1 (decisión de Benja).
+var holding_download := -1
 
 ## Segundos desde la última vez que bajó Trust.
 var _since_trust_loss := 0.0
@@ -32,12 +41,11 @@ func _init(night_data: NightData, balance_data: BalanceData, friend_count: int, 
 	balance = balance_data
 	for _index in friend_count:
 		friends.append(FriendState.new(balance.friend_health))
-	videos = VideoSchedule.new(night.content_quota, balance.night_seconds, friend_count, rng)
+	videos = VideoSchedule.new(night.content_quota, balance, friend_count, rng)
 
 
-## Avanza `delta` segundos: la hora, Sanity, Trust, el aturdimiento y los videos.
-## Devuelve de qué amigo es cada video que llegó en este paso.
-func advance(delta: float) -> Array[int]:
+## Avanza `delta` segundos: la hora, Sanity, Trust, los amigos y los videos. Devuelve lo que pasó.
+func advance(delta: float) -> Events:
 	elapsed = minf(elapsed + delta, balance.night_seconds)
 	sanity = maxf(sanity - delta / night.sanity_drain_interval, 0.0)
 	_since_trust_loss += delta
@@ -46,7 +54,9 @@ func advance(delta: float) -> Array[int]:
 	trust = minf(trust + calm / balance.trust_recovery_interval, METER_MAX)
 	for friend: FriendState in friends:
 		friend.advance(delta)
-	return videos.receive_due(elapsed, is_available)
+	var events := Events.new()
+	events.videos = videos.advance(elapsed, delta, friends, holding_download)
+	return events
 
 
 ## Aplica la consecuencia de una solicitud del amigo `friend_index`: la vida, el aturdimiento, Trust y,
@@ -62,7 +72,7 @@ func apply(friend_index: int, consequence: Consequence) -> void:
 		videos.add_extra(friend_index, elapsed)
 
 
-## Puede recibir solicitudes y enviar videos.
+## Puede recibir solicitudes: está vivo y no está aturdido.
 func is_available(friend_index: int) -> bool:
 	return friends[friend_index].is_available()
 

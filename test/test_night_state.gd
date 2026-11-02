@@ -30,6 +30,13 @@ func _advance(state: NightState, seconds: int) -> void:
 		state.advance(1.0)
 
 
+## Avanza `seconds` de a 1 segundo, con Matías descargando cada video apenas llega.
+func _advance_downloading(state: NightState, seconds: int) -> void:
+	for _i in seconds:
+		state.holding_download = state.videos.offers[0].friend_index if not state.videos.offers.is_empty() else -1
+		state.advance(1.0)
+
+
 func test_empieza_a_las_00_con_todo_lleno() -> bool:
 	var state := _make_state()
 	check_eq(state.clock_text(), "00:00", "hora")
@@ -97,20 +104,24 @@ func test_herido_queda_aturdido_y_no_esta_disponible() -> bool:
 	return true
 
 
-func test_los_videos_programados_llegan() -> bool:
+func test_los_videos_llegan_y_se_descargan() -> bool:
 	var state := _make_state()
-	var arrived: Array[int] = []
+	var offered: Array[int] = []
 	for _i in 140:
-		arrived.append_array(state.advance(1.0))
-	check_eq(arrived.size(), 1, "el primero a los 140 s")
-	check_eq(state.videos.received, 1, "recibido")
+		offered.append_array(state.advance(1.0).videos.offered)
+	check_eq(offered.size(), 1, "el primero llega a los 140 s")
+	check_eq(state.videos.received, 0, "falta descargarlo")
+	if offered.size() == 1:
+		state.holding_download = offered[0]
+		_advance(state, 10)
+		check_eq(state.videos.received, 1, "descargado en 10 s")
 	return true
 
 
 func test_la_accion_de_mayor_riesgo_da_un_video_extra() -> bool:
 	var state := _make_state()
 	state.apply(2, _consequence(0, -20.0, true))
-	check_eq(state.advance(0.1), [2], "llega el video de Agustín")
+	check_eq(state.advance(0.1).videos.offered, [2], "llega el video de Agustín")
 	return true
 
 
@@ -118,9 +129,9 @@ func test_herido_envia_el_video_extra_al_recuperarse() -> bool:
 	var state := _make_state()
 	state.apply(2, _consequence(2, -20.0, true))
 	_advance(state, 14)
-	check_eq(state.videos.received, 0, "aturdido: todavía no")
+	check(state.videos.offer_for(2) == null, "aturdido: todavía no")
 	_advance(state, 1)
-	check_eq(state.videos.received, 1, "al recuperarse")
+	check(state.videos.offer_for(2) != null, "al recuperarse")
 	return true
 
 
@@ -151,13 +162,13 @@ func test_cada_dial_en_0_pierde_la_noche() -> bool:
 
 func test_a_las_06_gana_si_cumplio_la_cuota() -> bool:
 	var state := _make_state()
-	_advance(state, 420)
-	check_eq(state.videos.received, 2, "llegaron los 2 envíos")
+	_advance_downloading(state, 420)
+	check_eq(state.videos.received, 2, "descargó los 2 envíos")
 	check_eq(state.ending(), NightState.Ending.WON, "ganó")
 	state = _make_state()
-	state.videos.pending.clear()
 	_advance(state, 420)
-	check_eq(state.ending(), NightState.Ending.QUOTA, "sin videos, pierde por la cuota")
+	check_eq(state.videos.lost, 2, "sin descargarlos, se pierden")
+	check_eq(state.ending(), NightState.Ending.QUOTA, "pierde por la cuota")
 	return true
 
 
