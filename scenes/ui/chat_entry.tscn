@@ -15,11 +15,19 @@ centered = false
 [node name="NameLabel" type="Label" parent="."]
 offset_left = 6.0
 offset_top = 3.0
-offset_right = 120.0
+offset_right = 94.0
 offset_bottom = 23.0
 theme_override_fonts/font = ExtResource("font")
 theme_override_font_sizes/font_size = 11
 text = "AMIGO"
+
+[node name="Signal" type="HBoxContainer" parent="."]
+offset_left = 98.0
+offset_top = 7.0
+offset_right = 117.0
+offset_bottom = 19.0
+mouse_filter = 2
+theme_override_constants/separation = 1
 
 [node name="Health" type="HBoxContainer" parent="."]
 offset_left = 124.0

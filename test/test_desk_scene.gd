@@ -2,6 +2,7 @@ extends "res://test/test_case.gd"
 
 const DESK := preload("res://scenes/desk/desk.tscn")
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
+const InterferenceSchedule := preload("res://scripts/core/interference_schedule.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
@@ -336,5 +337,45 @@ func test_al_terminar_la_noche_aparece_la_pantalla() -> bool:
 	check(screen.visible, "aparece al perder")
 	check_eq((screen.get_node("Center/Box/Title") as Label).text, String(TranslationServer.translate("END_LOST_TITLE")),
 			"perdió")
+	desk.free()
+	return true
+
+
+func test_las_entradas_muestran_la_senal() -> bool:
+	var desk := _make_desk()
+	var state := _state(desk)
+	state.friends[0].signal_level = 30.0
+	state.friends[2].signal_level = 0.0
+	desk._process(0.0)
+	check_eq(desk.get_node("DeskPlane/Entries/EntryLeon").signal_bars, 2, "León con 2 barras")
+	var agustin := desk.get_node("DeskPlane/Entries/EntryAgustin")
+	check_eq(agustin.state, ChatEntry.State.DISCONNECTED, "Agustín, sin señal")
+	check_eq((agustin.get_node("TimerLabel") as Label).text, String(TranslationServer.translate("ENTRY_OFFLINE")), "lo dice")
+	desk.free()
+	return true
+
+
+func test_un_video_hace_parpadear_la_entrada() -> bool:
+	var desk := _make_desk()
+	var state := _state(desk)
+	state.videos.add_extra(1, 0.0)
+	state.advance(0.1)
+	desk._process(0.0)
+	var gonzalo := desk.get_node("DeskPlane/Entries/EntryGonzalo")
+	check_eq(gonzalo.state, ChatEntry.State.WARNING, "en alerta")
+	check_eq((gonzalo.get_node("TimerLabel") as Label).text,
+			String(TranslationServer.translate("ENTRY_VIDEO")).format({"seconds": 15}), "15 s para empezar a descargarlo")
+	desk.free()
+	return true
+
+
+func test_la_entrada_titila_antes_de_una_interferencia() -> bool:
+	var desk := _make_desk()
+	var state := _state(desk)
+	state.interferences.pending.clear()
+	state.interferences.pending.append(InterferenceSchedule.Interference.new(2, state.elapsed + 2.0))
+	desk._process(0.0)
+	check(desk.get_node("DeskPlane/Entries/EntryAgustin").interference_warning, "Agustín titila")
+	check(not desk.get_node("DeskPlane/Entries/EntryLeon").interference_warning, "León no")
 	desk.free()
 	return true

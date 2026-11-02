@@ -116,27 +116,39 @@ func _on_retry_pressed() -> void:
 	get_tree().reload_current_scene()
 
 
-## Seleccionada si su chat está abierto; si no, en alerta mientras espera respuesta, o más oscura si el amigo
-## está aturdido. El tiempo que le queda para responder o para recuperarse, y su vida.
+## Seleccionada si su chat está abierto; si no, gris sin señal, en alerta mientras espera respuesta o la
+## descarga de su video, o más oscura si el amigo está aturdido. Muestra el tiempo que le queda para responder,
+## para descargar su video o para recuperarse, o que está sin señal; y su vida, su señal y si viene una
+## interferencia.
 func _refresh_entries() -> void:
+	var state := _requests.state
 	for index in _entries.size():
 		var entry := _entries[index]
 		var request := _requests.requests[index]
-		var friend := _requests.state.friends[index]
-		var state := ChatEntry.State.IDLE
+		var friend := state.friends[index]
+		var offer := state.videos.offer_for(index)
+		var entry_state := ChatEntry.State.IDLE
 		if _chat_panel.visible and index == _chat_panel.selected_friend:
-			state = ChatEntry.State.SELECTED
-		elif request != null:
-			state = ChatEntry.State.WARNING
+			entry_state = ChatEntry.State.SELECTED
+		elif not friend.is_online():
+			entry_state = ChatEntry.State.DISCONNECTED
+		elif request != null or offer != null:
+			entry_state = ChatEntry.State.WARNING
 		elif friend.is_stunned():
-			state = ChatEntry.State.STUNNED
-		if entry.state != state:
-			entry.set_state(state)
+			entry_state = ChatEntry.State.STUNNED
+		if entry.state != entry_state:
+			entry.set_state(entry_state)
 		entry.set_health(friend.health, friend.max_health)
+		entry.set_signal(friend.signal_level)
+		entry.set_interference_warning(state.interference_warning(index))
 		if request != null:
 			entry.set_seconds_left(ceili(request.time_left))
+		elif offer != null:
+			entry.show_video(ceili(offer.time_left))
 		elif friend.is_stunned():
 			entry.show_stun(ceili(friend.stun_left))
+		elif not friend.is_online():
+			entry.show_offline()
 		else:
 			entry.set_seconds_left(-1)
 

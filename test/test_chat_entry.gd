@@ -72,3 +72,51 @@ func test_aturdido() -> bool:
 	check(timer.text.contains("12"), "con los segundos")
 	entry.free()
 	return true
+
+
+## Las barras llenas de la señal, de la más baja a la más alta.
+func _filled_bars(entry: Node2D) -> Array:
+	return entry.get_node("Signal").get_children().map(func(bar: Panel) -> bool:
+		return (bar.get_theme_stylebox(&"panel") as StyleBoxFlat).draw_center)
+
+
+func test_barras_de_senal() -> bool:
+	var entry := _make_entry()
+	entry.set_signal(100.0)
+	check_eq(_filled_bars(entry), [true, true, true, true, true], "señal llena: 5 barras")
+	entry.set_signal(45.0)
+	check_eq(_filled_bars(entry), [true, true, true, false, false], "una barra por cada 20: 3 llenas y 2 vacías")
+	entry.set_signal(0.0)
+	check_eq(_filled_bars(entry), [false, false, false, false, false], "sin señal, todas vacías")
+	check_eq(entry.get_node("Signal").get_child_count(), 5, "se rehacen, no se acumulan")
+	entry.free()
+	return true
+
+
+func test_titila_si_viene_una_interferencia() -> bool:
+	var entry := _make_entry()
+	entry.set_interference_warning(true)
+	entry._process(0.05)
+	check(entry.modulate.a < 1.0, "se apaga")
+	entry._process(0.12)
+	check_eq(entry.modulate.a, 1.0, "y se vuelve a encender")
+	entry._process(0.12)
+	check(entry.modulate.a < 1.0, "titila")
+	entry.set_interference_warning(false)
+	check_eq(entry.modulate.a, 1.0, "al pasar, queda encendida")
+	entry.free()
+	return true
+
+
+func test_video_y_sin_senal() -> bool:
+	var entry := _make_entry()
+	var timer := entry.get_node("TimerLabel") as Label
+	entry.show_video(12)
+	check(timer.visible, "visible")
+	check_eq(timer.text, String(TranslationServer.translate("ENTRY_VIDEO")).format({"seconds": 12}), "el video")
+	check(timer.text.contains("12"), "con los segundos")
+	entry.show_offline()
+	check_eq(timer.text, String(TranslationServer.translate("ENTRY_OFFLINE")), "sin señal")
+	check(timer.text != "ENTRY_OFFLINE", "el texto está en ui.csv")
+	entry.free()
+	return true

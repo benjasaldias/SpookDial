@@ -1,6 +1,7 @@
 extends Node2D
 ## Entrada de un amigo en la pantalla del PC (243×26).
-## El arte pone el fondo; Godot pone el nombre, la vida, el estado y el temporizador.
+## El arte pone el fondo; Godot pone el nombre, la señal, la vida, el estado y el temporizador.
+## Titila mientras se anuncia una interferencia (diseño §10.1).
 
 signal pressed
 
@@ -19,6 +20,14 @@ const STUNNED_KEY := "ENTRY_STUNNED"
 ## Las marcas de vida son provisionales, hasta el arte de las entradas.
 const HEALTH_PIP_SIZE := Vector2(6, 10)
 const HEALTH_COLOR := Color(0.85, 0.9, 0.95)
+## Las barras de señal también son provisionales (docs/06 §3): 5 barras que crecen de a 2 px.
+const SIGNAL_BARS := 5
+const SIGNAL_BAR_WIDTH := 3
+## Lo que dice el temporizador cuando el amigo mandó un video (lleva {seconds}) y cuando está sin señal (ui.csv).
+const VIDEO_KEY := "ENTRY_VIDEO"
+const OFFLINE_KEY := "ENTRY_OFFLINE"
+## Cada cuánto titila la entrada mientras se anuncia una interferencia.
+const FLICKER_SECONDS := 0.12
 
 @export var display_name := "":
 	set(value):
@@ -30,9 +39,16 @@ var state: State = State.IDLE
 ## La vida que muestra, de `max_health`. -1 hasta la primera vez.
 var health := -1
 var max_health := -1
+## Las barras de señal que muestra, de 0 a 5. -1 hasta la primera vez.
+var signal_bars := -1
+## Se anuncia una interferencia: la entrada titila.
+var interference_warning := false
+
+var _flicker_time := 0.0
 
 @onready var _background: AnimatedSprite2D = $Background
 @onready var _name_label: Label = $NameLabel
+@onready var _signal_box: HBoxContainer = $Signal
 @onready var _health_box: HBoxContainer = $Health
 @onready var _timer_label: Label = $TimerLabel
 
@@ -41,6 +57,13 @@ func _ready() -> void:
 	_name_label.text = display_name
 	set_state(State.IDLE)
 	set_seconds_left(-1)
+
+
+func _process(delta: float) -> void:
+	if not interference_warning:
+		return
+	_flicker_time += delta
+	modulate.a = 0.35 if fmod(_flicker_time, FLICKER_SECONDS * 2.0) < FLICKER_SECONDS else 1.0
 
 
 func set_state(new_state: State) -> void:
@@ -59,6 +82,45 @@ func set_seconds_left(seconds: int) -> void:
 func show_stun(seconds: int) -> void:
 	_timer_label.visible = true
 	_timer_label.text = tr(STUNNED_KEY).format({"seconds": seconds})
+
+
+## El amigo mandó un video: cuánto le queda para empezar o terminar la descarga, en lugar del temporizador.
+func show_video(seconds: int) -> void:
+	_timer_label.visible = true
+	_timer_label.text = tr(VIDEO_KEY).format({"seconds": seconds})
+
+
+## El amigo está sin señal.
+func show_offline() -> void:
+	_timer_label.visible = true
+	_timer_label.text = tr(OFFLINE_KEY)
+
+
+## Titila mientras se anuncia una interferencia; al pasar, queda encendida.
+func set_interference_warning(active: bool) -> void:
+	interference_warning = active
+	if not active:
+		_flicker_time = 0.0
+		modulate.a = 1.0
+
+
+## Una barra por cada 20 de señal: llenas hasta su nivel y vacías (solo el borde) arriba de él, para que no
+## dependa del color. Solo se rehacen si cambió cuántas van llenas.
+func set_signal(level: float) -> void:
+	var bars := ceili(clampf(level, 0.0, 100.0) / (100.0 / SIGNAL_BARS))
+	if bars == signal_bars:
+		return
+	signal_bars = bars
+	for bar: Node in _signal_box.get_children():
+		_signal_box.remove_child(bar)
+		bar.queue_free()
+	for index in SIGNAL_BARS:
+		var bar := Panel.new()
+		bar.custom_minimum_size = Vector2(SIGNAL_BAR_WIDTH, 4 + index * 2)
+		bar.size_flags_vertical = Control.SIZE_SHRINK_END
+		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bar.add_theme_stylebox_override(&"panel", _pip_style(index < bars))
+		_signal_box.add_child(bar)
 
 
 ## Una marca por punto de vida: llena si lo tiene y vacía (solo el borde) si lo perdió, para que no
