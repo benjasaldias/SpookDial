@@ -31,7 +31,7 @@ enabled=PackedStringArray("res://addons/AsepriteWizard/plugin.cfg")
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://data/text/messages.es.translation", "res://data/text/notebook.es.translation", "res://data/text/ui.es.translation")
+locale/translations=PackedStringArray("res://data/text/messages.es.translation", "res://data/text/notebook.es.translation", "res://data/text/phone.es.translation", "res://data/text/ui.es.translation")
 locale/fallback="es"
 
 [physics]

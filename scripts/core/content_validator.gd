@@ -133,6 +133,10 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 			keys.append(["%s, regla %d" % [who, index + 1], entity.rules[index].text_key])
 	for decoy: DecoyData in catalog.decoys:
 		keys.append(["Señuelo '%s'" % decoy.id, decoy.text_key])
+	for index in catalog.phone_posts.size():
+		var post := catalog.phone_posts[index]
+		keys.append(["Publicación %d del celular, autor" % (index + 1), post.author_key])
+		keys.append(["Publicación %d del celular, texto" % (index + 1), post.text_key])
 	return keys
 
 

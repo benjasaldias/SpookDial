@@ -13,6 +13,7 @@
 [ext_resource type="Resource" path="res://data/nights/night_5.tres" id="11_night_5"]
 [ext_resource type="Script" path="res://scripts/data/decoy_data.gd" id="12_decoy"]
 [ext_resource type="Resource" path="res://data/balance.tres" id="13_balance"]
+[ext_resource type="Script" path="res://scripts/data/phone_post_data.gd" id="14_post"]
 
 [sub_resource type="Resource" id="Decoy_cold_breath"]
 script = ExtResource("12_decoy")
@@ -52,9 +53,82 @@ category = 1
 text_key = "DECOY_CREAKING_BRANCHES"
 place_keys = Array[String](["PLACE_FOREST"])
 
+[sub_resource type="Resource" id="PhonePost_01"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_01_AUTHOR"
+text_key = "PHONE_POST_01_TEXT"
+color = Color(0.93, 0.55, 0.3, 1)
+
+[sub_resource type="Resource" id="PhonePost_02"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_02_AUTHOR"
+text_key = "PHONE_POST_02_TEXT"
+color = Color(0.62, 0.42, 0.28, 1)
+
+[sub_resource type="Resource" id="PhonePost_03"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_03_AUTHOR"
+text_key = "PHONE_POST_03_TEXT"
+color = Color(0.9, 0.74, 0.3, 1)
+
+[sub_resource type="Resource" id="PhonePost_04"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_04_AUTHOR"
+text_key = "PHONE_POST_04_TEXT"
+color = Color(0.45, 0.3, 0.7, 1)
+
+[sub_resource type="Resource" id="PhonePost_05"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_05_AUTHOR"
+text_key = "PHONE_POST_05_TEXT"
+color = Color(0.72, 0.45, 0.32, 1)
+
+[sub_resource type="Resource" id="PhonePost_06"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_06_AUTHOR"
+text_key = "PHONE_POST_06_TEXT"
+color = Color(0.42, 0.5, 0.62, 1)
+
+[sub_resource type="Resource" id="PhonePost_07"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_07_AUTHOR"
+text_key = "PHONE_POST_07_TEXT"
+color = Color(0.3, 0.6, 0.42, 1)
+
+[sub_resource type="Resource" id="PhonePost_08"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_08_AUTHOR"
+text_key = "PHONE_POST_08_TEXT"
+color = Color(0.85, 0.6, 0.35, 1)
+
+[sub_resource type="Resource" id="PhonePost_09"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_09_AUTHOR"
+text_key = "PHONE_POST_09_TEXT"
+color = Color(0.85, 0.5, 0.65, 1)
+
+[sub_resource type="Resource" id="PhonePost_10"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_10_AUTHOR"
+text_key = "PHONE_POST_10_TEXT"
+color = Color(0.35, 0.68, 0.35, 1)
+
+[sub_resource type="Resource" id="PhonePost_11"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_11_AUTHOR"
+text_key = "PHONE_POST_11_TEXT"
+color = Color(0.82, 0.68, 0.45, 1)
+
+[sub_resource type="Resource" id="PhonePost_12"]
+script = ExtResource("14_post")
+author_key = "PHONE_POST_12_AUTHOR"
+text_key = "PHONE_POST_12_TEXT"
+color = Color(0.35, 0.48, 0.7, 1)
+
 [resource]
 script = ExtResource("1_catalog")
 friends = Array[ExtResource("2_friend")]([ExtResource("4_leon"), ExtResource("5_gonzalo"), ExtResource("6_agustin")])
 nights = Array[ExtResource("3_night")]([ExtResource("7_night_1"), ExtResource("8_night_2"), ExtResource("9_night_3"), ExtResource("10_night_4"), ExtResource("11_night_5")])
 decoys = Array[ExtResource("12_decoy")]([SubResource("Decoy_cold_breath"), SubResource("Decoy_distant_dog"), SubResource("Decoy_flickering_light"), SubResource("Decoy_wet_grass"), SubResource("Decoy_trunk_moss"), SubResource("Decoy_creaking_branches")])
 balance = ExtResource("13_balance")
+phone_posts = Array[ExtResource("14_post")]([SubResource("PhonePost_01"), SubResource("PhonePost_02"), SubResource("PhonePost_03"), SubResource("PhonePost_04"), SubResource("PhonePost_05"), SubResource("PhonePost_06"), SubResource("PhonePost_07"), SubResource("PhonePost_08"), SubResource("PhonePost_09"), SubResource("PhonePost_10"), SubResource("PhonePost_11"), SubResource("PhonePost_12")])

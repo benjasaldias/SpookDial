@@ -40,3 +40,14 @@ func test_caracteristica_sin_una_frase_entre_asteriscos() -> bool:
 	check_contains(errors, "Característica 'beast_trait_1': su texto debe tener una sola frase entre asteriscos")
 	check_contains(errors, "Característica 'beast_trait_2': su texto debe tener una sola frase entre asteriscos")
 	return true
+
+
+func test_publicacion_sin_texto() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var post := PhonePostData.new()
+	post.author_key = "K_POST_AUTHOR"
+	post.text_key = "K_POST_TEXT"
+	catalog.phone_posts.append(post)
+	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_POST_TEXT"]))
+	check_contains(errors, "Publicación 1 del celular, texto: la clave 'K_POST_TEXT' no está en ningún CSV")
+	return true

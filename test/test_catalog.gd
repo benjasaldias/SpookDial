@@ -51,3 +51,13 @@ func test_el_trauco_aparece_la_noche_3() -> bool:
 	check(not catalog.known_entities(2).has(trauco), "no aparece antes de la noche 3")
 	check(catalog.known_entities(3).has(trauco), "aparece la noche 3")
 	return true
+
+
+func test_el_celular_tiene_publicaciones() -> bool:
+	var catalog := _load_catalog()
+	if catalog == null:
+		return true
+	check_eq(catalog.phone_posts.size(), 12, "unas 12 publicaciones (docs/06 §3)")
+	for post: PhonePostData in catalog.phone_posts:
+		check(not post.author_key.is_empty() and not post.text_key.is_empty(), "cada una con su autor y su texto")
+	return true

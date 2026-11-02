@@ -1,6 +1,6 @@
 extends "res://test/test_case.gd"
 
-const FILES := ["messages", "notebook", "ui"]
+const FILES := ["messages", "notebook", "phone", "ui"]
 ## Godot no genera el .translation de un idioma cuya columna está entera vacía. Mientras la
 ## columna "en" esté vacía, solo se registra el español; el inglés se agrega con la opción de idioma (Plan 8).
 const LOCALES := ["es"]

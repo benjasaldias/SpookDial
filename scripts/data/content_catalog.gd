@@ -10,6 +10,8 @@ extends Resource
 @export var decoys: Array[DecoyData] = []
 ## Valores de equilibrio de todas las noches (data/balance.tres).
 @export var balance: BalanceData
+## Las publicaciones que se scrollean en el celular (PhonePostData), en orden.
+@export var phone_posts: Array[PhonePostData] = []
 
 
 ## Entidades conocidas en una noche: las nuevas de esa noche y de todas las anteriores.
