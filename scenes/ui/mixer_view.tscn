@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/mixer_view.gd" id="mixer_script"]
+[ext_resource type="AudioStream" path="res://audio/sfx/sync_kick.wav" id="kick"]
+[ext_resource type="AudioStream" path="res://audio/sfx/sync_tick.wav" id="tick"]
+[ext_resource type="AudioStream" path="res://audio/sfx/sync_clap.wav" id="clap"]
+[ext_resource type="AudioStream" path="res://audio/sfx/sync_tap.wav" id="tap"]
+[ext_resource type="AudioStream" path="res://audio/sfx/sync_success.wav" id="success"]
+[ext_resource type="AudioStream" path="res://audio/sfx/sync_fail.wav" id="fail"]
+
+[node name="MixerView" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 20.0
+offset_top = 140.0
+offset_right = 460.0
+offset_bottom = 570.0
+script = ExtResource("mixer_script")
+
+[node name="Kick" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("kick")
+
+[node name="Tick" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("tick")
+volume_db = -8.0
+
+[node name="Clap" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("clap")
+
+[node name="Tap" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("tap")
+volume_db = -4.0
+
+[node name="Success" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("success")
+volume_db = -6.0
+
+[node name="Fail" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("fail")
+volume_db = -6.0
