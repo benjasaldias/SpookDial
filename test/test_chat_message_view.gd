@@ -162,3 +162,17 @@ func test_el_aviso_de_dano_va_centrado_y_en_rojo() -> bool:
 	check_eq(view.get_theme_constant(&"margin_right"), 0, "y a la derecha")
 	view.free()
 	return true
+
+
+func test_un_aviso_bueno_va_en_verde() -> bool:
+	var message := ChatMessage.new(ChatMessage.Sender.SYSTEM, null)
+	message.tone = ChatMessage.Tone.GOOD
+	message.add_fragment("Video de León recibido: 1 de 3")
+	var view := _make_view(message)
+	var label := _label(view)
+	check_eq(label.get_parsed_text(), "── Video de León recibido: 1 de 3 ──", "entre líneas")
+	check(label.text.begins_with("[center]"), "centrado")
+	check(label.text.contains(ChatMessageView.GOOD_COLOR), "en verde")
+	check(not label.text.contains(ChatMessageView.DANGER_COLOR), "no en rojo")
+	view.free()
+	return true

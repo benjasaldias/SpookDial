@@ -40,6 +40,7 @@ func advance(delta: float) -> void:
 	if ended:
 		return
 	var events := requests.state.advance(delta)
+	requests.report(events)
 	for friend_index: int in events.videos.received:
 		video_received.emit(friend_index)
 	_check_ending(null)

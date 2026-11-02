@@ -1,6 +1,7 @@
 extends "res://test/test_case.gd"
 
 const Fixtures := preload("res://test/content_fixtures.gd")
+const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const NightManager := preload("res://scripts/desk/night_manager.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
@@ -142,5 +143,18 @@ func test_al_terminar_todo_se_detiene() -> bool:
 	check_eq(endings.size(), 1, "termina una sola vez")
 	check_eq(night.state().elapsed, 1.0, "la hora se detuvo")
 	check_eq(request.time_left, time_left, "los temporizadores se detuvieron")
+	_free(night)
+	return true
+
+
+func test_los_avisos_de_la_noche_llegan_al_chat() -> bool:
+	var night := _make_night()
+	var senders := []
+	_requests.message_added.connect(func(_friend_index: int, message: ChatMessage) -> void:
+		senders.append(message.sender))
+	_advance(night, 140)
+	check_eq(senders, [ChatMessage.Sender.FRIEND], "el amigo avisa que mandó el video")
+	_advance(night, 15)
+	check_eq(senders, [ChatMessage.Sender.FRIEND, ChatMessage.Sender.SYSTEM], "sin descargarlo se pierde, y el juego lo avisa")
 	_free(night)
 	return true

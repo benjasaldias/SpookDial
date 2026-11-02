@@ -6,6 +6,8 @@ const FriendRequest := preload("res://scripts/core/friend_request.gd")
 
 ## Quién escribe: un amigo, Matías o el juego (sus avisos, como el de daño).
 enum Sender { FRIEND, PLAYER, SYSTEM }
+## Un aviso del juego trae una mala noticia, en rojo, o una buena, en verde.
+enum Tone { DANGER, GOOD }
 
 ## Lo que se ve en lugar de una palabra tapada. Siempre igual, para no revelar cuántas letras tenía.
 const COVER_TEXT := "▒▒▒"
@@ -38,6 +40,8 @@ class Token:
 
 
 var sender: Sender
+## Solo cuenta en los avisos del juego.
+var tone := Tone.DANGER
 var tokens: Array[Token] = []
 ## La solicitud a la que pertenece el mensaje: de ella salen el estado de cada frase clickeable.
 var request: FriendRequest

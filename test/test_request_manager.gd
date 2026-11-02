@@ -4,8 +4,10 @@ const Fixtures := preload("res://test/content_fixtures.gd")
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const FriendState := preload("res://scripts/core/friend_state.gd")
+const NightState := preload("res://scripts/core/night_state.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
+const VideoSchedule := preload("res://scripts/core/video_schedule.gd")
 
 
 ## Manager con el catálogo de prueba, en la noche 1 (solo "beast"), sin que las solicitudes lleguen solas.
@@ -329,5 +331,58 @@ func test_sin_senal_decide_mal_sin_bajar_trust() -> bool:
 	check(request.finished and request.decided_offline, "decidió solo, sin señal")
 	check(request.outcome != RuleEvaluator.Outcome.CORRECT, "eligió mal")
 	check_eq(manager.state.trust, 100.0, "su decisión no bajó Trust")
+	manager.free()
+	return true
+
+
+## El texto de `key` en ui.csv, con sus datos.
+func _ui(key: String, values: Dictionary) -> String:
+	return String(TranslationServer.translate(key)).format(values)
+
+
+func test_avisa_en_el_chat_los_videos_y_la_senal() -> bool:
+	var manager := _make_manager()
+	var events := []
+	_record(manager, events)
+	var night_events := NightState.Events.new()
+	night_events.videos = VideoSchedule.Changes.new()
+	night_events.disconnected.append(0)
+	night_events.videos.offered.append(1)
+	night_events.videos.received.append(2)
+	night_events.videos.lost.append(1)
+	manager.state.videos.received = 1
+	manager.report(night_events)
+	check_eq(events.map(func(entry: Array) -> int: return entry[1]), [0, 1, 2, 1], "cada aviso en el chat de su amigo")
+	var messages := _messages(events)
+	if messages.size() == 4:
+		check_eq((messages[0] as ChatMessage).plain_text(), _ui("CHAT_SIGNAL_LOST", {"friend": "K_FRIEND_leon"}),
+				"León se quedó sin señal")
+		check_eq((messages[0] as ChatMessage).tone, ChatMessage.Tone.DANGER, "en rojo")
+		check_eq((messages[1] as ChatMessage).sender, ChatMessage.Sender.FRIEND, "Gonzalo avisa que mandó un video")
+		check_eq((messages[2] as ChatMessage).plain_text(),
+				_ui("CHAT_VIDEO_RECEIVED", {"friend": "K_FRIEND_agustin", "received": 1, "quota": 2}), "con la cuota")
+		check_eq((messages[2] as ChatMessage).tone, ChatMessage.Tone.GOOD, "el video recibido, en verde")
+		check_eq((messages[3] as ChatMessage).plain_text(), _ui("CHAT_VIDEO_LOST", {"friend": "K_FRIEND_gonzalo"}),
+				"el de Gonzalo se perdió")
+		check_eq((messages[3] as ChatMessage).tone, ChatMessage.Tone.DANGER, "en rojo")
+	manager.free()
+	return true
+
+
+func test_restaurar_la_senal_avisa_si_estaba_desconectado() -> bool:
+	var manager := _make_manager()
+	var events := []
+	_record(manager, events)
+	manager.restore_signal(1)
+	check(events.is_empty(), "si tenía señal, no hay aviso")
+	manager.state.friends[1].signal_level = 0.0
+	manager.restore_signal(1)
+	check_eq(manager.state.friends[1].signal_level, 100.0, "señal al 100")
+	var messages := _messages(events)
+	check_eq(messages.size(), 1, "avisa que volvió")
+	if messages.size() == 1:
+		check_eq((messages[0] as ChatMessage).plain_text(), _ui("CHAT_SIGNAL_BACK", {"friend": "K_FRIEND_gonzalo"}),
+				"Gonzalo volvió")
+		check_eq((messages[0] as ChatMessage).tone, ChatMessage.Tone.GOOD, "en verde")
 	manager.free()
 	return true

@@ -36,6 +36,14 @@ const HURT_REACTION_KEYS := {
 }
 ## El aviso del juego cuando un amigo queda herido (ui.csv). Lleva {friend}, {health} y {max}.
 const DAMAGE_KEY := "CHAT_DAMAGE"
+## El amigo avisa que mandó un video (messages.csv).
+const VIDEO_SENT_KEY := "FRIEND_VIDEO_SENT"
+## Avisos del juego sobre los videos y la señal (ui.csv). Llevan {friend}; el del video recibido, también
+## {received} y {quota}.
+const VIDEO_RECEIVED_KEY := "CHAT_VIDEO_RECEIVED"
+const VIDEO_LOST_KEY := "CHAT_VIDEO_LOST"
+const SIGNAL_LOST_KEY := "CHAT_SIGNAL_LOST"
+const SIGNAL_BACK_KEY := "CHAT_SIGNAL_BACK"
 
 
 ## Mensaje inicial: dónde está, las características y los señuelos mezclados, y sus observaciones.
@@ -102,6 +110,21 @@ static func damage_notice(request: FriendRequest, friend_name: String, health: i
 		translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.SYSTEM, request)
 	message.add_fragment(_text(translate, DAMAGE_KEY).format({"friend": friend_name, "health": health, "max": max_health}))
+	return message
+
+
+## El amigo avisa que mandó un video, que espera su descarga.
+static func video_sent(translate: Callable) -> ChatMessage:
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	message.add_fragment(_text(translate, VIDEO_SENT_KEY))
+	return message
+
+
+## Un aviso del juego, centrado: el texto de `key` con sus `values`. DANGER va en rojo y GOOD, en verde.
+static func notice(key: String, values: Dictionary, tone: ChatMessage.Tone, translate: Callable) -> ChatMessage:
+	var message := ChatMessage.new(ChatMessage.Sender.SYSTEM, null)
+	message.tone = tone
+	message.add_fragment(_text(translate, key).format(values))
 	return message
 
 

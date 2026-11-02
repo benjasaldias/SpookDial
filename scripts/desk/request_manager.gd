@@ -1,6 +1,7 @@
 extends Node
-## Las solicitudes de la noche (planes 3 a 5): las genera, avanza sus temporizadores, recibe las preguntas,
+## Las solicitudes de la noche (planes 3 a 6): las genera, avanza sus temporizadores, recibe las preguntas,
 ## los clics y las respuestas del chat, arma los mensajes con estática y resuelve las consecuencias.
+## Desde el Plan 6 también avisa en el chat lo que pasa con los videos y la señal.
 ## El ritmo es provisional, hasta el director del Plan 7: llega una solicitud cada
 ## (duración de la noche ÷ solicitudes de la noche) segundos, sin pasar de las simultáneas.
 ## En el escritorio lo avanza NightManager, junto con el estado de la noche.
@@ -135,6 +136,28 @@ func answer(friend_index: int, action: ActionData) -> bool:
 	return true
 
 
+## Avisa en el chat lo que pasó en un paso de la noche: el amigo que se quedó sin señal, el video que mandó
+## un amigo y el que se recibió o se perdió. NightManager lo llama después de avanzar el estado de la noche.
+func report(events: NightState.Events) -> void:
+	for friend_index: int in events.disconnected:
+		_add_notice(friend_index, MessageBuilder.SIGNAL_LOST_KEY, ChatMessage.Tone.DANGER)
+	for friend_index: int in events.videos.offered:
+		_add_friend_message(friend_index, MessageBuilder.video_sent(tr))
+	for friend_index: int in events.videos.received:
+		_add_notice(friend_index, MessageBuilder.VIDEO_RECEIVED_KEY, ChatMessage.Tone.GOOD)
+	for friend_index: int in events.videos.lost:
+		_add_notice(friend_index, MessageBuilder.VIDEO_LOST_KEY, ChatMessage.Tone.DANGER)
+
+
+## Audio Sync salió bien: la señal del amigo vuelve a 100. Si estaba desconectado, el chat avisa que volvió.
+func restore_signal(friend_index: int) -> void:
+	var friend := state.friends[friend_index]
+	var was_offline := not friend.is_online()
+	friend.restore_signal()
+	if was_offline:
+		_add_notice(friend_index, MessageBuilder.SIGNAL_BACK_KEY, ChatMessage.Tone.GOOD)
+
+
 ## Sin respuesta a tiempo, el amigo elige solo y cuenta qué hizo y cómo le fue. Si está sin señal, elige mal
 ## (decisión de Benja), y sus mensajes llegan tapados enteros.
 func _decide_alone(friend_index: int) -> void:
@@ -164,6 +187,13 @@ func _add_damage_notice(friend_index: int, request: FriendRequest) -> void:
 	var friend := state.friends[friend_index]
 	var friend_name := tr(catalog.friends[friend_index].name_key)
 	message_added.emit(friend_index, MessageBuilder.damage_notice(request, friend_name, friend.health, friend.max_health, tr))
+
+
+## Un aviso del juego en el chat del amigo, con su nombre y los videos de la noche.
+func _add_notice(friend_index: int, key: String, tone: ChatMessage.Tone) -> void:
+	var values := {"friend": tr(catalog.friends[friend_index].name_key), "received": state.videos.received,
+			"quota": state.videos.quota}
+	message_added.emit(friend_index, MessageBuilder.notice(key, values, tone, tr))
 
 
 func _add_friend_message(friend_index: int, message: ChatMessage) -> void:

@@ -147,3 +147,35 @@ func test_sus_textos_existen() -> bool:
 			"FRIEND_DECIDED_ALONE debe tener {action}")
 	TranslationServer.set_locale(previous)
 	return true
+
+
+func test_el_amigo_avisa_que_mando_un_video() -> bool:
+	var message := MessageBuilder.video_sent(_translate)
+	check_eq(message.sender, ChatMessage.Sender.FRIEND, "lo escribe el amigo")
+	check_eq(message.plain_text(), MessageBuilder.VIDEO_SENT_KEY + ".", "su texto")
+	return true
+
+
+func test_los_avisos_del_juego() -> bool:
+	var translate := func(_key: String) -> String: return "{friend}: {received} de {quota}"
+	var values := {"friend": "León", "received": 1, "quota": 3}
+	var notice := MessageBuilder.notice("K_NOTICE", values, ChatMessage.Tone.GOOD, translate)
+	check_eq(notice.sender, ChatMessage.Sender.SYSTEM, "lo escribe el juego")
+	check_eq(notice.tone, ChatMessage.Tone.GOOD, "es una buena noticia")
+	check_eq(notice.plain_text(), "León: 1 de 3", "con sus datos")
+	return true
+
+
+func test_los_textos_de_videos_y_senal_existen() -> bool:
+	var previous := TranslationServer.get_locale()
+	TranslationServer.set_locale("es")
+	check(String(TranslationServer.translate(MessageBuilder.VIDEO_SENT_KEY)) != MessageBuilder.VIDEO_SENT_KEY,
+			"falta FRIEND_VIDEO_SENT en messages.csv")
+	for key: String in [MessageBuilder.VIDEO_RECEIVED_KEY, MessageBuilder.VIDEO_LOST_KEY, MessageBuilder.SIGNAL_LOST_KEY,
+			MessageBuilder.SIGNAL_BACK_KEY]:
+		check(String(TranslationServer.translate(key)).contains("{friend}"), "%s debe estar en ui.csv con {friend}" % key)
+	for placeholder: String in ["{received}", "{quota}"]:
+		check(String(TranslationServer.translate(MessageBuilder.VIDEO_RECEIVED_KEY)).contains(placeholder),
+				"CHAT_VIDEO_RECEIVED debe tener %s" % placeholder)
+	TranslationServer.set_locale(previous)
+	return true

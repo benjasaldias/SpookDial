@@ -20,8 +20,9 @@ const CLUE_COLOR := "ffb347"
 const MARKED_COLOR := "7ee08a"
 const DECOY_COLOR := "ff4d5e"
 const STATIC_COLOR := "56637f"
-## Los avisos del juego, como el de daño.
+## Los avisos del juego: los malos, como el de daño, y los buenos, como un video recibido.
 const DANGER_COLOR := "ff4d5e"
+const GOOD_COLOR := "7ee08a"
 
 var message: ChatMessage
 ## Quién escribe, en mayúsculas ("LEÓN"), y su color. Sin nombre, el mensaje va sin etiqueta.
@@ -93,7 +94,8 @@ func finish_typing() -> void:
 ## Vuelve a armar el texto. Se llama cuando cambia el estado de una frase o termina la solicitud.
 func refresh() -> void:
 	if message.sender == ChatMessage.Sender.SYSTEM:
-		_label.text = "[center]%s[/center]" % _colored("── %s ──" % message.plain_text().replace("[", "[lb]"), DANGER_COLOR)
+		var color := GOOD_COLOR if message.tone == ChatMessage.Tone.GOOD else DANGER_COLOR
+		_label.text = "[center]%s[/center]" % _colored("── %s ──" % message.plain_text().replace("[", "[lb]"), color)
 		return
 	var parts := PackedStringArray()
 	if not speaker.is_empty():
