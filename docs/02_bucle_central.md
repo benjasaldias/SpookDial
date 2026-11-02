@@ -244,7 +244,7 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
 
 ## 10. Modelo de datos (Resources editables en el Inspector)
 
-Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`docs/10`), y `BalanceData`, en el Plan 5 (`docs/12`). Las clases están en `scripts/data/` y el contenido en `data/`.
+Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`docs/10`); `BalanceData`, en el Plan 5 (`docs/12`), y las publicaciones del celular, en el Plan 6 (`docs/13`). Las clases están en `scripts/data/` y el contenido en `data/`.
 
 ```text
 DecoyData        señuelo: como TraitData (id, category, text_key), más place_keys[] (vacío = cualquier lugar)
@@ -263,8 +263,9 @@ NightData        number, place_key, new_entities[], requests_total, max_simultan
                  decoys_in_first_message,
                  signal_decays, signal_decay_interval, interference_count,
                  audio_sync_beats, sanity_drain_interval, content_quota
-BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start
-ContentCatalog   friends[3], nights[5], decoys[], balance (data/catalog.tres)
+BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start, el scroll del celular, la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia) y los videos (plazos y descarga)
+PhonePostData    author_key, text_key, picture (sin imagen, se dibuja un paisaje), color
+ContentCatalog   friends[3], nights[5], decoys[], balance, phone_posts[] (data/catalog.tres)
 ```
 
 - Una entidad es **un solo `.tres`** en `data/entities/`, con todas sus partes dentro.

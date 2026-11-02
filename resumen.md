@@ -4,6 +4,82 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 15 — 2 de noviembre de 2026 — Plan 6 ejecutado: mantenimiento
+
+Ejecutado inline con `superpowers:executing-plans`, en Opus 5.5 (el registro proponía Sonnet 5.5 · high). Se adelantó al 2 de noviembre, justo después de S14 (la fecha objetivo era del 13 al 15 de noviembre). Al empezar, Benja autorizó todos los commits del plan en `main` y el push al terminar.
+
+### Realizado
+
+- **Las 17 tareas de `docs/13`, con 326 pruebas OK y 0 fallidas** (`~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd`), sin errores al correr. Coincidieron todos los conteos del plan, incluidas las fallas esperadas (251 → 252, 255, 259, 264, 269, 276, 283, 289, 294, 302, 303, 312, 314, 319, 323 y 326).
+  - El código se copió de los bloques del plan con un script, para conservar sus tabuladores. Antes de tocar el proyecto, el mismo script aplicó el plan completo a una copia limpia del último commit, y cada texto a reemplazar aparecía una sola vez. El código final es idéntico al de esa copia, salvo una línea en blanco (ver "Errores encontrados"), y los 7 sonidos generados también son idénticos.
+  - **La señal:** cada amigo pierde señal a su propio ritmo, y las interferencias le quitan 40 de golpe. Se anuncian 3 s antes: su entrada titila y suena estática. El dial de Connection es el promedio de las tres señales.
+  - **Un amigo sin señal:** su mensaje llega tapado entero y no lee las preguntas ni las respuestas. Si se le acaba el tiempo, elige al azar una de las 3 acciones que no son la correcta, y esa decisión no baja Trust. Mientras haya amigos sin señal, Trust baja 1 punto cada 4 s por cada uno. La pantalla final dice si el amigo decidió sin señal.
+  - **Avisos en el chat:** el amigo avisa que mandó un video, y el juego avisa, centrado, si el video se recibió (en verde) o se perdió (en rojo), y si el amigo se quedó sin señal (en rojo) o volvió a conectarse (en verde).
+  - **Las entradas del PC:** 5 barras de señal, el parpadeo de una interferencia, "Sin señal" en gris y "Video 15" mientras un video espera su descarga.
+  - **Los videos se descargan en el chat,** manteniendo presionada su barra, que aparece sobre la de identificación: 15 s para empezar, 20 s para terminar y 10 s de descarga (15 s con la señal bajo 50; sin señal no avanza).
+  - **Audio Sync en el mixer** (`scenes/ui/mixer_view.tscn`, provisional): la vista desde arriba, con los dos VU-metros azules, las luces del ritmo y un fader por amigo. Una base marca el tiempo, el amigo aplaude un ritmo de 4 u 8 aplausos y Matías lo repite con la barra espaciadora o con clics. Si sale bien, la señal vuelve a 100. El botón «Sincronizar» del chat abre el mixer en el canal de ese amigo, con la ronda empezada. En la noche 1, el mixer dice que la señal está estable y el botón no aparece.
+  - **El celular** (`scenes/ui/phone_view.tscn`, provisional): un feed de 12 publicaciones que se repite sin fin y se scrollea con la rueda o con el touchpad. Mientras se scrollea, Sanity sube 4 por segundo. Las publicaciones son datos (`PhonePostData`, en `data/catalog.tres`).
+  - **El mixer y el celular son modos exclusivos:** se abren sin paneles y se cierran con clic derecho, con `Esc`, con un clic fuera o al terminar la noche.
+  - **7 sonidos provisionales** en `audio/sfx/`, generados por `tools/make_placeholder_sounds.py`.
+- **Textos nuevos**, borradores reales que tú corriges: en `messages.csv`, `FRIEND_VIDEO_SENT`; en `ui.csv`, `CHAT_VIDEO_*`, `CHAT_SIGNAL_*`, `CHAT_OFFLINE`, `CHAT_SYNC`, `ENTRY_VIDEO`, `ENTRY_OFFLINE`, `DOWNLOAD_*`, `MIXER_*` y `END_CHOSEN_OFFLINE`; y el nuevo `data/text/phone.csv`, con las 12 publicaciones y el nombre de la red social, "copuchas".
+- **Capturas revisadas** (`C:\dev\capturas\mixer.png`, `download.png` y `phone.png`), idénticas byte a byte a las que tomó S14 al validar el plan. Se cumple todo lo que pide el plan:
+  - en el mixer: "TÚ" y "GONZALO" bajo los VU-metros, los aplausos en azul, León en 72, Gonzalo elegido en 18 y Agustín en 0 y en rojo, "ESCUCHA A GONZALO" y la ayuda. En el PC, León tiene 4 barras, Gonzalo 1 y Agustín ninguna, con "Sin señal";
+  - en la descarga: el mensaje de León, la barra verde con "▼ DESCARGANDO 39 % · 17", el botón "SINCRONIZAR" y la pestaña "AGUSTÍN 31 •". En el PC, "Video 17" en León y "31" en Agustín;
+  - en el celular: "02:07", la señal, la batería, "copuchas" en naranja y las publicaciones (autor, paisaje, "♥" con su número y el texto en dos líneas), sin salirse de la pantalla.
+- `docs/04`: nueva sección **J** (probar el mantenimiento) y arreglos en C, G, H e I, que hablaban de "Clic en Mixer" y de videos que llegaban solos. `docs/06`: el Plan 6 queda ejecutado. `docs/02` §10: `PhonePostData` y los valores nuevos de `BalanceData`. `docs/00_log.md`: S15 ✅ y S16 ▶.
+- 17 commits en `main` (uno por tarea), subidos a GitHub al terminar.
+
+### Errores encontrados
+
+- **El plan se aplicó tal como está escrito, con un solo cambio cosmético:** en la Tarea 1, el bloque nuevo de `test/test_balance.gd` dejaba una sola línea en blanco antes de la función siguiente, y el resto del archivo usa dos. Se agregó la que faltaba.
+- **En la Tarea 13, el primer import muestra `Cannot open file 'res://data/text/phone.es.translation'`:** `project.godot` ya registra la traducción, y es ese mismo import el que la crea. No es un error del código: el filtro del plan (`SCRIPT|Parse`) no lo muestra, y un segundo import y las pruebas salen sin errores.
+- **Errores de Claude, sin efecto en el juego:** el script que comparaba los conteos falló una vez aunque el conteo coincidía, porque el Godot de Windows termina sus líneas con `\r`; se corrigió y la Tarea 2 siguió desde su paso 3. Al actualizar `docs/00_log.md` quedaron unas filas de la tabla vieja de S15, que se quitaron antes del commit.
+- **Ya conocido:** en una entrada del PC en alerta, los segundos tocan el ícono ⚠ del arte. Se ve otra vez en `phone.png` ("Video 16").
+
+### Pendientes Código
+
+- [x] **S15: ejecutar el Plan 6.**
+- [ ] **S16: escribir el Plan 7 (screamers y director)**, con Opus 5.5 en esfuerzo high (`docs/00_log.md`). El director también puede decidir cuándo llegan los videos y las interferencias, que hoy se reparten parejo en la noche (`docs/13`, "Fuera de este plan").
+- [ ] Pasar a `.tres` las entidades que Benja refine, agregar El Tue Tué y La Calchona a la noche 1, y cambiar a 1 el **Night Number** de `RequestManager`.
+- [ ] Planes 7 a 9 según `docs/00_log.md`.
+- [ ] Plan 8: registrar los `.en.translation` cuando la columna `en` tenga textos (desde el Plan 6, también el de `phone.csv`).
+- [ ] Plan 8: "Reducir destellos" debe apagar el parpadeo de las entradas y de los LED del mixer; decidir con Benja si "Temporizadores ×1,5" alarga también los plazos de los videos.
+- [ ] Plan 9: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Plan 9: reemplazar los sonidos provisionales de `audio/sfx/` (con los mismos nombres) y ponerlos en sus buses (hoy todos van a Master). Faltan sonidos para cuando llega un video y cuando se recibe (`docs/13`, "Fuera de este plan").
+- [ ] Cuando llegue el arte: reemplazar el dibujo provisional del mixer y del celular, y las barras de señal de las entradas (`docs/13`, "Fuera de este plan").
+- [ ] Menor: que los segundos de una entrada en alerta no toquen el ícono ⚠ del arte (correr el temporizador unos píxeles, o el ícono en el arte).
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si Benja quiere ajustarlos en el Inspector: pasar `QUESTION_COST`, `THINKING_TIME` y `FIRST_REQUEST_DELAY` a `BalanceData` (`docs/12`, "Fuera de este plan").
+- [ ] Borrar `~/godot-games/spook-dial` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar el mantenimiento** (`docs/04`, J, unos 20 minutos): la señal, Audio Sync, los videos y el celular.
+- [ ] **Probar la noche** (`docs/04`, I, unos 15 minutos). Si cambias un valor de `data/balance.tres` a propósito, avísale a Claude: `test_balance.gd` lo compara con `docs/02`.
+- [ ] **Probar el chat y el cuaderno con el estilo nuevo** (`docs/04`, G y H, unos 20 minutos). En la noche 3, si el mensaje inicial no trae lo que decide la regla, pregunta: así está diseñada.
+- [ ] **Revisar El Trauco en el Inspector** (`docs/04`, F, unos 5 minutos).
+- [ ] Refinar las 3 entidades a partir del borrador de `docs/09_propuesta_entidades.md` (plantilla de `docs/02` §7). Las características llevan su frase clickeable entre asteriscos, y esa frase tiene que entenderse sola: también es su nombre en el cuaderno.
+- [ ] **Escribir los señuelos** (`data/catalog.tres` y `messages.csv`). Cada lugar necesita al menos los que pide la noche (hasta 3); las pruebas avisan si faltan.
+- [ ] **Corregir los textos que escribió Claude:**
+  - `messages.csv`: el lugar, las características, las observaciones, los señuelos, las respuestas "nada", la decisión del amigo, las reacciones y las 2 reacciones de un amigo herido;
+  - `notebook.csv`: el folclore, las acciones, las preguntas y las reglas de El Trauco;
+  - `ui.csv`: el aviso de daño (`CHAT_DAMAGE`), `PC_VIDEOS`, `ENTRY_STUNNED` y los textos de la pantalla final (`END_*`). Conserva los marcadores entre llaves, como `{friend}`;
+  - **del Plan 6 (S15):** en `messages.csv`, el aviso del video (`FRIEND_VIDEO_SENT`); en `ui.csv`, los avisos de videos y señal (`CHAT_VIDEO_*`, `CHAT_SIGNAL_*` y `CHAT_OFFLINE`), el botón «Sincronizar» (`CHAT_SYNC`), las entradas (`ENTRY_VIDEO` y `ENTRY_OFFLINE`), la descarga (`DOWNLOAD_*`), el mixer (`MIXER_*`) y `END_CHOSEN_OFFLINE`; y todo `phone.csv`: las 12 publicaciones y el nombre de la red social, "copuchas".
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
+- [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] **Arte: la lista completa está en `arte_pendiente.md`** (desde el 2 de noviembre). Benja avisa cuando una pieza esté lista y se integra en una sesión aparte. Lo más urgente, para los planes 4 a 7:
+  - **la interfaz del cuaderno:** la página (449×696, como `screen_sprite`; va a la derecha), las pestañas del índice y los bocetos de las entidades (unos 96×96). El tema `scenes/ui/notebook_theme.tres` los recibe;
+  - para el chat, ahora es opcional: el estilo de terminal ya está hecho en Godot, y el arte de burbujas, botones y pestañas puede reemplazarlo;
+  - **para el Plan 5, que hoy usa piezas provisionales:** el celular sin la hora y una tira de dígitos LCD "0123456789:", los diales rediseñados (manómetro con ícono y LED) y las pantallas de victoria y derrota. Opcional: las marcas de vida de las entradas;
+  - **para el Plan 6, que hoy los dibuja provisionales en Godot (decisión de Benja, sesión 14):** el mixer visto desde arriba (el cuerpo, los dos VU-metros azules, la perilla de un fader, los LED y una fila de luces para el ritmo; 440×430, o 220×215 a ×2), el celular ampliado con unas 12 publicaciones o con la animación del scroll (260×520, o 130×260 a ×2) y las barras de señal de las entradas (`docs/06` §3 y `docs/03` §6);
+  - para el Plan 7 (S16): los screamers y las luces (`pcLightOver`, `pcLightUnder` y `pcDesklight`) como archivos aparte (`docs/06` §3).
+- [ ] Al probar con personas (semana 5): fijarse si notan que en la noche 3 hay que preguntar. Si no, una ayuda posible es marcar en el cuaderno qué observaciones ya contó el amigo (iría a la lista de `docs/05`).
+
+---
+
 ## Sesión 14 — 31 de octubre al 2 de noviembre de 2026 — Plan 6 escrito: mantenimiento
 
 Benja pidió escribir el Plan 6 con `superpowers:writing-plans`, con tres preferencias suyas: Audio Sync en un mixer visto desde arriba, con sonido y que se empieza con un clic; los videos descargados en el chat, con tiempos nuevos; y un celular provisional atractivo. Se escribió en Opus 5.5, justo después de S13 (la fecha objetivo era el 12 de noviembre). La sesión se cortó una vez por falta de créditos, sin pérdidas.

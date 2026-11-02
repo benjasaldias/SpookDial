@@ -20,6 +20,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **G.** Probar las solicitudes y el chat (Plan 3) | ⬜ Pendiente (unos 10 minutos) |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
+| **J.** Probar el mantenimiento (Plan 6) | ⬜ Pendiente (unos 20 minutos) |
 
 ---
 
@@ -74,7 +75,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - **Cerrar:** presiona `Esc`, haz clic derecho o haz clic en cualquier parte fuera del panel. El panel se cierra y la entrada vuelve a su color. Si el clic cae en la entrada de otro amigo, se abre directamente su chat.
    - **Cámara:** mueve el mouse de una esquina a otra. Toda la escena se corre hacia el lado contrario (al mirar a la derecha, la escena va a la izquierda), unos 30 px como máximo. Comprueba que alcanzas el cuaderno, el mixer y las tres entradas.
    - **Si la cámara no te convence:** selecciona el nodo `LookCamera` en el panel **Scene** y, en el **Inspector**, desmarca **Look Enabled** (la escena queda fija y sin zoom), o cambia **Look Zoom** (1,00 a 1,20) y **Follow Speed** (más alto, más rápido). Guarda con **Ctrl + S** y vuelve a probar con **F5**.
-   - **Clics:** al hacer clic en el celular o el mixer, en el panel **Output** (Salida) de Godot aparece "Clic en Phone" o "Clic en Mixer". Al hacer clic en el cuaderno, se abre su panel (Plan 4).
+   - **Clics:** al hacer clic en el mixer o en el celular, se abre su vista ampliada (Plan 6). Al hacer clic en el cuaderno, se abre su panel (Plan 4).
 
 **Verifica:** las cinco pruebas anteriores se cumplen. Si alguna falla, anota cuál y qué pasó.
 
@@ -154,7 +155,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - en el panel **Scene**, selecciona el nodo `RequestManager`;
    - en el **Inspector**, baja **Test Signal** a 40 (se tapa el 25 % de las palabras) o a 20 (el 45 %);
    - vuelve a probar con **F5**: algunas palabras aparecen como `▒▒▒`. Una frase tapada no se puede clickear: pregunta por su categoría para recuperarla.
-8. **El panel tapa el escritorio:** con el chat abierto, pasa el mouse por donde están el mixer y el celular, detrás del panel. No deben resaltarse, y un clic no debe escribir "Clic en Mixer" en **Output**. Cierra el chat (`Esc` o clic derecho) y vuelve a probar: ahora sí se resaltan.
+8. **El panel tapa el escritorio:** con el chat abierto, pasa el mouse por donde están el mixer y el celular, detrás del panel. No deben resaltarse, y un clic no debe abrir el mixer. Cierra el chat (`Esc` o clic derecho) y vuelve a probar: ahora sí se resaltan.
 9. **Al terminar, deja Test Signal en 100**, o cierra la escena sin guardar.
 
 **Verifica:** los pasos 2 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
@@ -187,7 +188,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - con el cuaderno abierto, haz clic en otra entrada del PC: se abre el chat de ese amigo, y el cuaderno salta a su página. Si no tiene una, dice "Elige una entidad en el índice".
 5. **Memoria por amigo:** abre la página de El Trauco para un amigo y cambia de pestaña en el chat: el cuaderno muestra la página de cada amigo. Cuando a un amigo le llega una solicitud nueva, su cuaderno vuelve al índice.
 6. **Cerrar todo:** con los dos paneles abiertos, presiona `Esc`: se cierran los dos. Ábrelos de nuevo y haz clic en una parte vacía de la escena, como la pared sobre el PC: también se cierran los dos.
-7. **El celular y el mixer:** con solo el cuaderno abierto, haz clic en el mixer. El cuaderno se cierra, y en el panel **Output** (Salida) aparece "Clic en Mixer".
+7. **El celular y el mixer:** con solo el cuaderno abierto, haz clic en el mixer. El cuaderno se cierra y se abre el mixer (Plan 6).
 8. **El cuaderno tapa el escritorio:** con el cuaderno abierto, pasa el mouse por donde está el cuaderno del escritorio, detrás del panel. No debe resaltarse.
 
 **Verifica:** los pasos 2 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
@@ -205,13 +206,13 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 1. Abre Godot y el proyecto. Abre `scenes/desk/desk.tscn` y presiona **F5**.
 2. **Los medidores:**
    - el celular muestra la hora: empieza en 00:00 y avanza un minuto cada poco más de un segundo. La noche dura 7 minutos, hasta las 06:00;
-   - arriba de la pantalla del PC dice "Videos: 0 de 3". A las 01:30, a las 03:00 y a las 04:30 llega un video, y el contador sube solo (por ahora no hay que aceptarlo);
-   - en la pared, el dial del medio (Sanity, aguja roja) baja de a poco. El de abajo (Trust, aguja amarilla) baja cuando eliges mal. El de arriba (Connection, aguja verde) no se mueve hasta el Plan 6;
+   - arriba de la pantalla del PC dice "Videos: 0 de 3". A las 01:30, a las 03:00 y a las 04:30 llega un video, que hay que descargar en el chat (sección J);
+   - en la pared, el dial del medio (Sanity, aguja roja) baja de a poco. El de abajo (Trust, aguja amarilla) baja cuando eliges mal. El de arriba (Connection, aguja verde) baja con la señal de los amigos (sección J);
    - cada entrada del PC muestra 3 marcas de vida.
 3. **Una acción incorrecta:** cuando llegue una solicitud, ábrela, identifica a la entidad y elige una acción que no sea la correcta ni la de mayor riesgo (míralo en las reglas del cuaderno). El amigo cuenta cómo le fue:
    - si quedó herido, grita en el chat ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y debajo aparece un aviso rojo y centrado con la vida que le queda ("León recibió daño: 2/3"). Pierde una marca de vida en su entrada del PC, que se oscurece y dice "Aturdido" con los segundos que faltan. Durante 15 segundos no le llegan solicitudes;
    - el dial de Trust baja. Si pasas 20 segundos sin errores, empieza a subir de a poco.
-4. **La acción de mayor riesgo:** en otra solicitud, elige la de mayor riesgo. Si el amigo sobrevive, el contador de videos sube uno más; si quedó herido, el video llega cuando se recupera. Trust baja más que con una acción incorrecta.
+4. **La acción de mayor riesgo:** en otra solicitud, elige la de mayor riesgo. Si el amigo sobrevive, manda un video extra, que hay que descargar en su chat; si quedó herido, lo manda cuando se recupera. Trust baja más que con una acción incorrecta.
 5. **Sin respuesta:** deja que se acabe el tiempo de una solicitud. El amigo cuenta qué hizo y, en otro mensaje, cómo le fue. Trust baja más que si hubieras respondido.
 6. **Perder:** sigue respondiendo mal al mismo amigo hasta que pierda sus 3 marcas. La pantalla se oscurece de a poco y dice "Perdiste la noche", que el amigo murió y por qué: la entidad, lo que observaba, la regla que se aplicaba, la acción correcta (en verde) y la que elegiste (en rojo). Haz clic en **Reintentar**: la noche empieza de nuevo, con otras solicitudes.
 7. **La viñeta y Sanity:** para no esperar, acelera Sanity.
@@ -219,7 +220,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - En el **Inspector**, dentro de **Sanity y cuota**, cambia **Sanity Drain Interval** de 6 a 1 y guarda con **Ctrl + S**.
    - Presiona **F5**. Hacia los 40 segundos, los bordes de la pantalla se oscurecen en bandas, cada vez más hacia el centro, también sobre el chat. A los 100 segundos, Sanity llega a 0 y se pierde la noche ("Matías entró en pánico").
    - **Al terminar, vuelve Sanity Drain Interval a 6** y guarda.
-8. **Ganar:** juega una noche completa (7 minutos) sin que muera nadie. A las 06:00, si llegaron los 3 videos, aparece "Llegaste a las 06:00" con el botón **Jugar de nuevo**.
+8. **Ganar:** juega una noche completa (7 minutos) sin que muera nadie. A las 06:00, si descargaste los 3 videos, aparece "Llegaste a las 06:00" con el botón **Jugar de nuevo**.
 
 **Verifica:** los pasos 2 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
 
@@ -230,3 +231,46 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
   - Si cambias un valor a propósito, avísale a Claude: `test_balance.gd` compara el archivo con `docs/02`, y hay que actualizar los dos.
 - **Por noche** (`data/nights/night_N.tres`): **Content Quota** (los videos de la cuota) y **Sanity Drain Interval** (los segundos por cada punto de Sanity).
 - **La forma de la viñeta:** en `desk.tscn`, selecciona `Overlay/Vignette`. En el **Inspector**, en **Material** > **Shader Parameters**, cambia **Bands** (cuántos niveles de oscuridad hay) y **Max Darkness** (lo más oscuro, en los bordes).
+
+---
+
+## J. Probar el mantenimiento (Plan 6)
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. Abre Godot y el proyecto. Abre `scenes/desk/desk.tscn` y presiona **F5**. Se juega la noche 3: la señal baja y hay 3 interferencias.
+2. **La señal:** cada entrada del PC tiene 5 barras de señal entre el nombre y las marcas de vida. Bajan de a poco, cada amigo a su ritmo, y el dial de arriba (Connection) baja con ellas: es el promedio de las tres.
+3. **Una interferencia:** en algún momento, una entrada titila unos 3 segundos y suena estática. Después, a ese amigo le faltan unas 2 barras (40 de señal). Con la señal bajo 70, sus mensajes llegan con palabras tapadas (`▒▒▒`).
+4. **Audio Sync:** haz clic en el mixer del escritorio. Se abre visto desde arriba, con el canal del amigo con menos señal elegido (con el borde de su color).
+   - Haz clic en un fader o presiona la barra espaciadora. Suena la base: es la cuenta, de 4 golpes.
+   - Después aplaude el amigo: se mueve la aguja del VU-metro de la derecha y se encienden luces azules.
+   - Cuando dice "¡Repite el ritmo!", las luces se apagan: repite los aplausos con la barra espaciadora o con clics en el mixer. La aguja de la izquierda sigue tus golpes.
+   - Si sale bien, dice que el amigo quedó sincronizado y su fader sube a 100. Si no, dice "Fuera de ritmo", y las luces muestran en verde lo que acertaste y en rojo lo que faltó: presiona la barra espaciadora para reintentar.
+   - Cierra el mixer con clic derecho, con `Esc` o con un clic fuera.
+   - **Desde el chat:** abre el chat de un amigo y haz clic en **Sincronizar**, a la derecha, sobre las preguntas. El chat se cierra, se abre el mixer en el canal de ese amigo y la ronda empieza enseguida.
+5. **Sin señal:** para no esperar tanto, en el panel **Scene** selecciona el nodo `RequestManager` y, en el **Inspector**, cambia **Test Signal** de 100 a 15. Presiona **F5**. Los amigos empiezan con poca señal y se desconectan entre 45 y 90 segundos después:
+   - su entrada se ve gris y dice "Sin señal", y en su chat aparece un aviso rojo: "… se quedó sin señal";
+   - el dial de Trust baja mientras haya amigos sin señal, más rápido con más de uno;
+   - si a un amigo sin señal le llega una solicitud, su mensaje llega tapado entero y no puedes preguntar ni responder: el chat pide sincronizarlo (usa **Sincronizar**). Si lo sincronizas antes de que se acabe su tiempo, aparece un aviso verde, "… volvió a conectarse", y ya puedes preguntar (las respuestas llegan legibles) y responder. Si se acaba el tiempo sin señal, el amigo elige mal;
+   - si los tres se quedan sin señal, se pierde la noche ("Se perdió la conexión con los tres amigos").
+   - **Al terminar, vuelve Test Signal a 100.**
+6. **Los videos:** a las 01:30 (unos 105 segundos), un amigo avisa en su chat que mandó un video. Su entrada parpadea y dice "Video 15", y los segundos bajan.
+   - Abre su chat: sobre la barra de identificación aparece la barra de descarga. Mantén presionado el clic sobre ella: se llena en 10 segundos (en 15 si la señal del amigo está bajo 50) y dice cuánto va. Si sueltas, se pausa. Desde que empiezas, tienes 20 segundos para terminar.
+   - Al terminar, aparece un aviso verde ("Video de … recibido: 1 de 3"), y el PC dice "Videos: 1 de 3".
+   - Prueba también perder uno: no lo empieces a descargar en 15 segundos. Aparece un aviso rojo ("Se perdió el video de …"). Sin los 3 videos, a las 06:00 se pierde la noche.
+7. **El celular:** haz clic en el celular del escritorio. Se abre ampliado, con la hora arriba y publicaciones. Gira la rueda del mouse: el feed avanza y, mientras scrolleas, el dial de Sanity (el del medio) sube. Al dejar de scrollear, vuelve a bajar de a poco. Ciérralo con clic derecho, con `Esc` o con un clic fuera.
+8. **Modos exclusivos:** con el mixer abierto, haz clic en el celular: el mixer se cierra. Con el celular abierto, haz clic en una entrada del PC: se abre el chat y el celular se cierra.
+
+**Verifica:** los pasos 2 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
+
+### Para ajustar
+
+- **Los valores de equilibrio** están en `data/balance.tres`. Haz doble clic en él y cámbialos en el **Inspector**:
+  - **Sanity:** cuánto sube por segundo al scrollear (**Scroll Sanity Per Second**) y cuánto dura cada movimiento de la rueda (**Scroll Grace**);
+  - **Señal:** cuánto quita una interferencia (**Interference Damage**), con cuánta anticipación se anuncia (**Interference Warning**) y cada cuántos segundos baja Trust por cada amigo sin señal (**Offline Trust Interval**);
+  - **Audio Sync:** el tempo de la base (**Audio Sync Bpm**) y cuánto puede adelantarse o atrasarse cada golpe (**Audio Sync Tolerance**, en segundos);
+  - **Videos:** el tiempo para empezar (**Video Accept Seconds**) y para terminar (**Video Finish Seconds**) la descarga, cuánto tarda con buena señal (**Download Seconds**) y con señal débil (**Download Slow Seconds**), y desde qué señal es débil (**Download Slow Below**).
+  - Si cambias un valor a propósito, avísale a Claude: `test_balance.gd` compara el archivo con `docs/02`.
+- **Por noche** (`data/nights/night_N.tres`, grupo **Señal**): si la señal baja (**Signal Decays**), cada cuántos segundos baja un punto (**Signal Decay Interval**: el mínimo en **x** y el máximo en **y**), cuántas interferencias hay (**Interference Count**) y cuántos aplausos tiene Audio Sync (**Audio Sync Beats**: 4 u 8, o 0 si esa noche no hay).
+- **Los sonidos provisionales** están en `audio/sfx/`. Para probar otro, reemplaza el archivo por uno con el mismo nombre.
+- **Las publicaciones del celular** están en `data/catalog.tres`, en **Phone Posts**, y sus textos, en `data/text/phone.csv`.
