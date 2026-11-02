@@ -28,6 +28,7 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 | `docs/11_plan_cuaderno.md` | Plan 4, paso a paso: el cuaderno, la memoria de página por amigo y las respuestas desde el chat. |
 | `docs/12_plan_consecuencias_noche.md` | Plan 5, paso a paso: consecuencias, vida y aturdimiento, medidores, reloj, cuota y final de la noche. |
 | `docs/13_plan_mantenimiento.md` | Plan 6, paso a paso: la señal de cada amigo, Audio Sync en el mixer, la descarga de videos en el chat y el celular. |
+| `arte_pendiente.md` | **Todo el arte que falta**, por urgencia, con tamaños y lo que hay hoy en su lugar. |
 | `art/positions.md` | Posición de cada objeto recortado en la escena. |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1. Es **histórico**: su encabezado dice qué se aceptó y qué no. |
 | `spook_dial_design_v1.md` | Diseño original (histórico). |

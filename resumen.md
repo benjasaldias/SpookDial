@@ -75,7 +75,7 @@ Benja pidió escribir el Plan 6 con `superpowers:writing-plans`, con tres prefer
 - [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara.
 - [ ] **Probar el escalado a pantalla completa y decidir** si se queda Nearest (`docs/04`, D).
 - [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
-- [ ] Arte para los planes 4 a 6:
+- [ ] **Arte: la lista completa está en `arte_pendiente.md`** (desde el 2 de noviembre). Benja avisa cuando una pieza esté lista y se integra en una sesión aparte. Lo más urgente, para los planes 4 a 6:
   - **la interfaz del cuaderno:** la página (449×696, como `screen_sprite`; va a la derecha), las pestañas del índice y los bocetos de las entidades (unos 96×96). El tema `scenes/ui/notebook_theme.tres` los recibe;
   - para el chat, ahora es opcional: el estilo de terminal ya está hecho en Godot, y el arte de burbujas, botones y pestañas puede reemplazarlo;
   - **para el Plan 5, que hoy usa piezas provisionales:** el celular sin la hora y una tira de dígitos LCD "0123456789:", los diales rediseñados (manómetro con ícono y LED) y las pantallas de victoria y derrota. Opcional: las marcas de vida de las entradas;

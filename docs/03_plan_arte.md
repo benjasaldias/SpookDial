@@ -176,17 +176,19 @@ Prioridades:
   - barras de señal en 5 niveles (de 0 a 4 barras).
 - **Contador de videos** para la pantalla del PC: un ícono pequeño; el número lo escribe Godot.
 - **Avatares:** 3 amigos × 3 expresiones (normal, asustado, herido), de unos 24×24.
-- **Íconos:** Grabar y las 5 preguntas. Las acciones propias de cada entidad pueden ir solo con texto.
+- **Íconos:** las 4 preguntas. Las acciones propias de cada entidad pueden ir solo con texto.
 - **Cuaderno:**
   - página (9-slice): el panel mide 449×696, como `screen_sprite`, y va a la derecha (decisión de Benja, 31-oct);
   - pestañas del índice;
   - 7 bocetos de entidades, de unos 96×96.
 - **Diales** rediseñados como manómetros con ícono (`docs/01` §3.12).
 - **Cursor:** normal y mano.
+- **Mixer visto desde arriba (decisión de Benja, sesión 14):** la vista ampliada de Audio Sync. El cuerpo, los dos VU-metros azules (el de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo), una perilla de fader (Godot la mueve en los 3 canales), los LED y una fila de luces para el ritmo. Mide 440×430, o 220×215 para mostrarla a ×2 exacto. Con esta vista, el mixer del escritorio ya no necesita `mixer_vu` ni `mixer_fader_knob`: puede quedar de una sola pieza. Mientras tanto, el Plan 6 la dibuja provisional en Godot.
+- **Celular ampliado:** las redes sociales, con unas 12 publicaciones o con la animación del scroll, como prefieras. Mide 260×520, o 130×260 a ×2. Mientras tanto, el Plan 6 lo dibuja provisional, y cada publicación puede llevar su imagen.
 
 ### P2 (semanas 5 y 6)
 
-- **Celular ampliado** en vertical (unos 180×320) y 12 publicaciones simples (unos 120×120). Tres de ellas, perturbadoras, para cuando Sanity está baja.
+- **Publicaciones perturbadoras** para el celular ampliado (3 de las 12), para cuando Sanity está baja.
 - **Pantalla entre noches:** la página del canal.
 - **Menú principal:** el logo "Spook Dial" y la escena con otra iluminación.
 - **Screamers:**
@@ -260,8 +262,6 @@ Guarda tu paleta actual (268 colores) como preset, para que todo el arte nuevo u
 - **Tags** en inglés: `idle`, `scare`, `blink`, `level`, `on`, `off`.
 - **Íconos pequeños** en una grilla de 16×16, en un solo archivo por familia. Claude los recorta en Godot.
 - **Paneles 9-slice:** un archivo por panel.
-- **Mixer visto desde arriba (decisión de Benja, sesión 14):** la vista ampliada de Audio Sync. El cuerpo, los dos VU-metros azules (el de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo), una perilla de fader (Godot la mueve en los 3 canales), los LED y una fila de luces para el ritmo. Mide 440×430, o 220×215 para mostrarla a ×2 exacto. Con esta vista, el mixer del escritorio ya no necesita `mixer_vu` ni `mixer_fader_knob`: puede quedar de una sola pieza. Mientras tanto, el Plan 6 la dibuja provisional en Godot.
-- **Celular ampliado:** las redes sociales, con unas 12 publicaciones o con la animación del scroll, como prefieras. Mide 260×520, o 130×260 a ×2. Mientras tanto, el Plan 6 lo dibuja provisional, y cada publicación puede llevar su imagen.
 
 ---
 
