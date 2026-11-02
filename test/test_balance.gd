@@ -24,6 +24,27 @@ func test_valores_de_docs_02() -> bool:
 	return true
 
 
+## Los valores del mantenimiento (docs/02 §6 y decisiones de Benja del 31 de octubre).
+func test_valores_del_mantenimiento() -> bool:
+	var balance: BalanceData = load(BALANCE_PATH)
+	check(balance != null, "se carga")
+	if balance == null:
+		return true
+	check_eq(balance.scroll_sanity_per_second, 4.0, "scrollear: Sanity +4 por segundo")
+	check_eq(balance.scroll_grace, 0.3, "cada movimiento de la rueda cuenta 0,3 s")
+	check_eq(balance.interference_damage, 40.0, "interferencia: −40 de señal")
+	check_eq(balance.interference_warning, 3.0, "anunciada 3 s antes")
+	check_eq(balance.offline_trust_interval, 4.0, "desconectado: Trust −1 cada 4 s por amigo")
+	check_eq(balance.audio_sync_bpm, 100.0, "base de Audio Sync a 100 golpes por minuto")
+	check_eq(balance.audio_sync_tolerance, 0.15, "tolerancia de ±150 ms")
+	check_eq(balance.video_accept_seconds, 15.0, "15 s para empezar a descargar")
+	check_eq(balance.video_finish_seconds, 20.0, "20 s para terminar")
+	check_eq(balance.download_seconds, 10.0, "la descarga tarda 10 s")
+	check_eq(balance.download_slow_seconds, 15.0, "con señal débil, 15 s")
+	check_eq(balance.download_slow_below, 50.0, "señal débil: bajo 50")
+	return true
+
+
 ## Las pruebas usan BalanceData.new(): sus valores por defecto deben ser los de data/balance.tres.
 func test_los_valores_por_defecto_son_los_del_archivo() -> bool:
 	var saved: BalanceData = load(BALANCE_PATH)
