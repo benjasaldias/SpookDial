@@ -187,3 +187,77 @@ func test_la_vineta_aparece_bajo_60() -> bool:
 		state.sanity = sanity
 		check(is_equal_approx(state.vignette_strength(), expected[sanity]), "Sanity %s" % sanity)
 	return true
+
+
+func test_cada_amigo_pierde_senal_a_su_ritmo() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var night := catalog.nights[0]
+	night.signal_decays = true
+	night.signal_decay_interval = Vector2(4, 6)
+	var state := NightState.new(night, catalog.balance, 3, RandomNumberGenerator.new())
+	_advance(state, 60)
+	for friend in state.friends:
+		check(friend.signal_decay_interval >= 4.0 and friend.signal_decay_interval <= 6.0,
+				"−1 cada 4 a 6 s: %s" % friend.signal_decay_interval)
+		check(is_equal_approx(friend.signal_level, 100.0 - 60.0 / friend.signal_decay_interval), "bajó a su ritmo")
+	check_eq(_make_state().friends[0].signal_decay_interval, 0.0, "si la noche no lo pide, no baja")
+	return true
+
+
+func test_las_interferencias_se_anuncian_y_golpean() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.nights[0].interference_count = 1
+	var state := NightState.new(catalog.nights[0], catalog.balance, 3, RandomNumberGenerator.new())
+	var friend_index: int = state.interferences.pending[0].friend_index
+	var time: float = state.interferences.pending[0].time
+	state.advance(time - 3.5)
+	check(not state.interference_warning(friend_index), "3,5 s antes, nada")
+	state.advance(1.0)
+	check(state.interference_warning(friend_index), "2,5 s antes, la entrada titila")
+	state.advance(3.0)
+	check_eq(state.friends[friend_index].signal_level, 60.0, "le quitó 40 de señal")
+	check(not state.interference_warning(friend_index), "ya pasó")
+	return true
+
+
+func test_avisa_cuando_un_amigo_pierde_la_senal() -> bool:
+	var state := _make_state()
+	state.friends[2].signal_decay_interval = 1.0
+	state.friends[2].signal_level = 1.5
+	check_eq(state.advance(1.0).disconnected, [], "con 0,5 sigue conectado")
+	check_eq(state.advance(1.0).disconnected, [2], "Agustín se quedó sin señal")
+	check_eq(state.advance(1.0).disconnected, [], "avisa una sola vez")
+	check_eq(state.offline_count(), 1, "1 amigo sin señal")
+	return true
+
+
+func test_sin_senal_trust_baja_y_no_se_recupera() -> bool:
+	var state := _make_state()
+	state.trust = 50.0
+	state.friends[0].signal_level = 0.0
+	_advance(state, 40)
+	check(is_equal_approx(state.trust, 40.0), "un amigo sin señal: −1 cada 4 s: %s" % state.trust)
+	state.friends[1].signal_level = 0.0
+	_advance(state, 40)
+	check(is_equal_approx(state.trust, 20.0), "dos amigos: el doble de rápido: %s" % state.trust)
+	state.friends[0].restore_signal()
+	state.friends[1].restore_signal()
+	_advance(state, 20)
+	check(is_equal_approx(state.trust, 20.0), "reconectados, 20 s sin recuperarse: %s" % state.trust)
+	_advance(state, 8)
+	check(is_equal_approx(state.trust, 21.0), "después se recupera como siempre: %s" % state.trust)
+	return true
+
+
+func test_scrollear_recupera_sanity() -> bool:
+	var state := _make_state()
+	state.sanity = 50.0
+	for _i in 20:
+		state.scroll()
+		state.advance(0.1)
+	check(is_equal_approx(state.sanity, 50.0 + 2.0 * 4.0 - 2.0 / 6.0), "2 s scrolleando: +4 por segundo: %s" % state.sanity)
+	state.scroll()
+	state.advance(1.0)
+	check(is_equal_approx(state.sanity, 50.0 + 8.0 + 0.3 * 4.0 - 3.0 / 6.0),
+			"un movimiento de la rueda cuenta 0,3 s: %s" % state.sanity)
+	return true
