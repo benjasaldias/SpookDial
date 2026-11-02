@@ -274,3 +274,102 @@ func test_el_aviso_de_dano_no_lleva_nombre_y_marca_la_pestana() -> bool:
 	check((panel.get_node("Panel/Tabs").get_child(0) as Button).text.contains(panel.UNREAD_MARK), "la pestaña de León avisa")
 	_free(panel)
 	return true
+
+
+## León mandó un video, que espera su descarga.
+func _offer_video_from_leon() -> void:
+	_manager.state.videos.add_extra(0, 0.0)
+	_manager.state.advance(0.1)
+
+
+func _download_text(panel: Control) -> String:
+	return (panel.get_node("Panel/Download/Text") as Label).text
+
+
+func test_la_descarga_aparece_con_el_video() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	panel._process(0.0)
+	var download := panel.get_node("Panel/Download") as Control
+	var conversations := panel.get_node("Panel/Conversations") as Control
+	check(not download.visible, "sin video no hay barra")
+	check_eq(conversations.offset_bottom, 431.0, "la conversación usa todo el alto")
+	_offer_video_from_leon()
+	panel._process(0.0)
+	check(download.visible, "llegó el video de León")
+	check_eq(conversations.offset_bottom, 395.0, "la conversación se acorta")
+	check_eq(_download_text(panel), "▼ " + tr("DOWNLOAD_START").format({"seconds": 15, "percent": 0}).to_upper(),
+			"pide mantener presionado, con el tiempo para empezar")
+	panel.open_for(1)
+	check(not download.visible, "Gonzalo no mandó nada")
+	_free(panel)
+	return true
+
+
+func test_mantener_presionado_descarga() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_offer_video_from_leon()
+	var hold := panel.get_node("Panel/Download/Hold") as Button
+	hold.button_down.emit()
+	panel._process(0.0)
+	check_eq(_manager.state.holding_download, 0, "descarga el video de León")
+	_manager.state.advance(1.0)
+	panel._process(0.0)
+	check_eq(_download_text(panel), "▼ " + tr("DOWNLOAD_ACTIVE").format({"seconds": 19, "percent": 10}).to_upper(),
+			"10 % en 1 s, con 20 s para terminar")
+	check(is_equal_approx((panel.get_node("Panel/Download/Bar") as ProgressBar).value, 10.0), "la barra avanza")
+	hold.button_up.emit()
+	panel._process(0.0)
+	check_eq(_manager.state.holding_download, -1, "al soltar se pausa")
+	check_eq(_download_text(panel), "▼ " + tr("DOWNLOAD_PAUSED").format({"seconds": 19, "percent": 10}).to_upper(),
+			"en pausa")
+	_free(panel)
+	return true
+
+
+func test_cerrar_el_chat_suelta_la_descarga() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_offer_video_from_leon()
+	(panel.get_node("Panel/Download/Hold") as Button).button_down.emit()
+	panel._process(0.0)
+	panel.hide()
+	panel._process(0.0)
+	check_eq(_manager.state.holding_download, -1, "con el chat cerrado no se descarga")
+	panel.open_for(0)
+	panel._process(0.0)
+	check_eq(_manager.state.holding_download, -1, "al volver hay que presionar de nuevo")
+	_free(panel)
+	return true
+
+
+func test_sin_senal_no_se_pregunta_ni_responde() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_memory.open_page(0, _beast())
+	_manager.start_request(0)
+	_manager.state.friends[0].signal_level = 0.0
+	panel._process(0.0)
+	for button: Button in _question_buttons(panel):
+		check(button.disabled, "no se puede preguntar")
+	for button: Button in _answer_buttons(panel):
+		check(button.disabled, "ni responder")
+	check_eq((panel.get_node("Panel/AnswerHint") as Label).text,
+			tr("CHAT_OFFLINE").format({"friend": tr(_manager.catalog.friends[0].name_key)}), "pide sincronizarlo")
+	_free(panel)
+	return true
+
+
+func test_los_textos_de_la_descarga_existen() -> bool:
+	var previous := TranslationServer.get_locale()
+	TranslationServer.set_locale("es")
+	var panel_script := preload("res://scripts/ui/chat_panel.gd")
+	for key: String in [panel_script.DOWNLOAD_START_KEY, panel_script.DOWNLOAD_ACTIVE_KEY, panel_script.DOWNLOAD_SLOW_KEY,
+			panel_script.DOWNLOAD_PAUSED_KEY, panel_script.DOWNLOAD_OFFLINE_KEY]:
+		check(String(TranslationServer.translate(key)).contains("{seconds}"), "%s debe estar en ui.csv con {seconds}" % key)
+	for key: String in [panel_script.DOWNLOAD_ACTIVE_KEY, panel_script.DOWNLOAD_SLOW_KEY, panel_script.DOWNLOAD_PAUSED_KEY]:
+		check(String(TranslationServer.translate(key)).contains("{percent}"), "%s debe tener {percent}" % key)
+	check(String(TranslationServer.translate(panel_script.OFFLINE_KEY)).contains("{friend}"), "CHAT_OFFLINE debe tener {friend}")
+	TranslationServer.set_locale(previous)
+	return true

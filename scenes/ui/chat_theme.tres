@@ -97,6 +97,33 @@ border_width_top = 2
 border_width_right = 1
 border_color = Color(0.25, 0.76, 0.79, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_download_background"]
+bg_color = Color(0.03, 0.05, 0.09, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.16, 0.42, 0.47, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_download_fill"]
+bg_color = Color(0.15, 0.36, 0.22, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_download_hover"]
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.49, 0.88, 0.54, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_download_pressed"]
+bg_color = Color(0.49, 0.88, 0.54, 0.12)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.49, 0.88, 0.54, 1)
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_notice"]
@@ -126,6 +153,15 @@ ChatTab/styles/hover = SubResource("StyleBoxFlat_tab_hover")
 ChatTab/styles/hover_pressed = SubResource("StyleBoxFlat_tab_selected")
 ChatTab/styles/normal = SubResource("StyleBoxFlat_tab_normal")
 ChatTab/styles/pressed = SubResource("StyleBoxFlat_tab_selected")
+DownloadBar/base_type = &"ProgressBar"
+DownloadBar/styles/background = SubResource("StyleBoxFlat_download_background")
+DownloadBar/styles/fill = SubResource("StyleBoxFlat_download_fill")
+DownloadHold/base_type = &"Button"
+DownloadHold/styles/focus = SubResource("StyleBoxEmpty_focus")
+DownloadHold/styles/hover = SubResource("StyleBoxFlat_download_hover")
+DownloadHold/styles/hover_pressed = SubResource("StyleBoxFlat_download_pressed")
+DownloadHold/styles/normal = SubResource("StyleBoxEmpty_focus")
+DownloadHold/styles/pressed = SubResource("StyleBoxFlat_download_pressed")
 FriendBubble/base_type = &"PanelContainer"
 FriendBubble/styles/panel = SubResource("StyleBoxFlat_friend")
 Label/colors/font_color = Color(0.48, 0.55, 0.68, 1)

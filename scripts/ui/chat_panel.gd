@@ -1,7 +1,9 @@
 extends Control
-## Panel del chat (planes 3 y 4): una pestaña por amigo con su tiempo y un aviso de mensajes nuevos,
-## la conversación, la barra de identificación, las preguntas y las respuestas. Los botones de respuesta
-## son las acciones de la página que el cuaderno tiene abierta para ese amigo (diseño §8.5).
+## Panel del chat (planes 3, 4 y 6): una pestaña por amigo con su tiempo y un aviso de mensajes nuevos,
+## la conversación, la descarga de su video, la barra de identificación, las preguntas y las respuestas.
+## Los botones de respuesta son las acciones de la página que el cuaderno tiene abierta para ese amigo
+## (diseño §8.5). Un video se descarga manteniendo presionada su barra (decisión de Benja), y con un amigo
+## sin señal no se puede preguntar ni responder.
 ## Se ve como una terminal: cada mensaje lleva el nombre de quien escribe ("LEÓN:") en su color, y las
 ## pestañas y las preguntas van en mayúsculas (decisión de Benja, 31-oct).
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
@@ -31,6 +33,19 @@ const PLAYER_COLOR := Color(0.25, 0.76, 0.79)
 const UNREAD_MARK := "•"
 ## Un botón de respuesta por acción: cada entidad tiene 4 (docs/02 §5.1).
 const ANSWER_COUNT := 4
+## La descarga de un video (ui.csv). Llevan {seconds}; las que muestran el avance, también {percent}.
+const DOWNLOAD_START_KEY := "DOWNLOAD_START"
+const DOWNLOAD_ACTIVE_KEY := "DOWNLOAD_ACTIVE"
+const DOWNLOAD_SLOW_KEY := "DOWNLOAD_SLOW"
+const DOWNLOAD_PAUSED_KEY := "DOWNLOAD_PAUSED"
+const DOWNLOAD_OFFLINE_KEY := "DOWNLOAD_OFFLINE"
+## La flecha de la descarga, delante de su texto.
+const DOWNLOAD_MARK := "▼"
+## Sin señal no se puede preguntar ni responder (ui.csv). Lleva {friend}.
+const OFFLINE_KEY := "CHAT_OFFLINE"
+## Dónde termina la conversación: sobre la barra de identificación o, si hay un video, sobre su descarga.
+const CONVERSATION_BOTTOM := 431.0
+const CONVERSATION_BOTTOM_WITH_DOWNLOAD := 395.0
 
 var selected_friend := 0
 
@@ -43,10 +58,16 @@ var _scrolls: Array[ScrollContainer] = []
 var _lists: Array[VBoxContainer] = []
 var _unread: Array[bool] = []
 var _answer_buttons: Array[Button] = []
+## Matías mantiene presionada la barra de descarga.
+var _holding_download := false
 
 @onready var _panel: TextureRect = $Panel
 @onready var _tab_bar: HBoxContainer = $Panel/Tabs
 @onready var _conversation_area: Control = $Panel/Conversations
+@onready var _download: Control = $Panel/Download
+@onready var _download_bar: ProgressBar = $Panel/Download/Bar
+@onready var _download_text: Label = $Panel/Download/Text
+@onready var _download_hold: Button = $Panel/Download/Hold
 @onready var _progress: Label = $Panel/IdentifyBar/Progress
 @onready var _entity_button: Button = $Panel/IdentifyBar/EntityName
 @onready var _questions: GridContainer = $Panel/Questions
@@ -73,6 +94,10 @@ func _ready() -> void:
 		_answer_buttons.append(button)
 	_entity_button.pressed.connect(_on_entity_pressed)
 	_panel.gui_input.connect(_on_panel_gui_input)
+	_download_hold.button_down.connect(_set_holding_download.bind(true))
+	_download_hold.button_up.connect(_set_holding_download.bind(false))
+	# Al cerrar el chat, la descarga se suelta.
+	visibility_changed.connect(_set_holding_download.bind(false))
 
 
 ## Conecta el panel a las solicitudes y a la memoria del cuaderno. Crea una pestaña y una conversación
@@ -128,7 +153,8 @@ func _process(_delta: float) -> void:
 	_update_status()
 
 
-## Actualiza lo que cambia con el tiempo: las pestañas, la barra de identificación, las preguntas y las respuestas.
+## Actualiza lo que cambia con el tiempo: las pestañas, la barra de identificación, las preguntas,
+## las respuestas y la descarga.
 func _update_status() -> void:
 	if _manager == null:
 		return
@@ -137,9 +163,11 @@ func _update_status() -> void:
 	_update_identify_bar()
 	_update_questions()
 	_update_answers()
+	_update_download()
 
 
 func _select(friend_index: int) -> void:
+	_holding_download = false
 	selected_friend = friend_index
 	_unread[friend_index] = false
 	for index in _scrolls.size():
@@ -176,30 +204,64 @@ func _update_identify_bar() -> void:
 			_entity_button.text = tr(request.entity.name_key)
 
 
-## Con 5 s o menos, o sin solicitud, no se puede preguntar.
+## Con 5 s o menos, sin solicitud o con el amigo sin señal, no se puede preguntar.
 func _update_questions() -> void:
 	var request := _manager.requests[selected_friend]
-	var can_ask := request != null and request.can_ask()
+	var can_ask := request != null and request.can_ask() and _manager.state.friends[selected_friend].is_online()
 	for button: Button in _questions.get_children():
 		button.disabled = not can_ask
 
 
 ## Las acciones de la página que el cuaderno tiene abierta para este amigo. Sin página, el aviso
-## "Abre el cuaderno para responder". Sin solicitud, los botones se ven pero no responden.
+## "Abre el cuaderno para responder". Sin solicitud, los botones se ven pero no responden. Con el amigo sin
+## señal, tampoco, y el aviso pide sincronizarlo en el mixer.
 func _update_answers() -> void:
 	var page := _memory.page_for(selected_friend)
+	var online := _manager.state.friends[selected_friend].is_online()
 	_answers.visible = page != null
-	if page == null:
+	if not online:
+		_answer_hint.text = tr(OFFLINE_KEY).format({"friend": _friend_names[selected_friend]})
+	elif page == null:
 		_answer_hint.text = tr(OPEN_NOTEBOOK_KEY)
+	else:
+		_answer_hint.text = tr(ANSWER_FROM_PAGE_KEY).format({"entity": tr(page.name_key)})
+	if page == null:
 		return
-	_answer_hint.text = tr(ANSWER_FROM_PAGE_KEY).format({"entity": tr(page.name_key)})
-	var waiting := _manager.requests[selected_friend] != null
+	var waiting := _manager.requests[selected_friend] != null and online
 	for index in _answer_buttons.size():
 		var button := _answer_buttons[index]
 		button.visible = index < page.actions.size()
 		if button.visible:
 			button.text = tr(page.actions[index].label_key)
 		button.disabled = not waiting
+
+
+## La barra de descarga del video que mandó este amigo, si mandó uno. Mientras el chat esté abierto y la
+## barra presionada, el video se descarga; al soltarla, se pausa.
+func _update_download() -> void:
+	var state := _manager.state
+	var offer := state.videos.offer_for(selected_friend)
+	_download.visible = offer != null
+	_conversation_area.offset_bottom = CONVERSATION_BOTTOM_WITH_DOWNLOAD if offer != null else CONVERSATION_BOTTOM
+	if offer == null:
+		_holding_download = false
+	var holding := offer != null and visible and _holding_download
+	state.holding_download = selected_friend if holding else -1
+	if offer == null:
+		return
+	_download_bar.value = offer.progress * 100.0
+	var signal_level := state.friends[selected_friend].signal_level
+	var key := DOWNLOAD_PAUSED_KEY if offer.started else DOWNLOAD_START_KEY
+	if signal_level <= 0.0:
+		key = DOWNLOAD_OFFLINE_KEY
+	elif holding:
+		key = DOWNLOAD_SLOW_KEY if signal_level < _manager.catalog.balance.download_slow_below else DOWNLOAD_ACTIVE_KEY
+	var values := {"seconds": ceili(offer.time_left), "percent": floori(offer.progress * 100.0)}
+	_download_text.text = "%s %s" % [DOWNLOAD_MARK, tr(key).format(values).to_upper()]
+
+
+func _set_holding_download(holding: bool) -> void:
+	_holding_download = holding
 
 
 func _on_message_added(friend_index: int, message: ChatMessage) -> void:
