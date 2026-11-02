@@ -379,3 +379,61 @@ func test_la_entrada_titila_antes_de_una_interferencia() -> bool:
 	check(not desk.get_node("DeskPlane/Entries/EntryLeon").interference_warning, "León no")
 	desk.free()
 	return true
+
+
+func test_el_mixer_y_el_celular_son_modos_exclusivos() -> bool:
+	var desk := _make_desk()
+	var mixer := desk.get_node("UI/MixerView") as Control
+	var phone := desk.get_node("UI/PhoneView") as Control
+	_open_panels(desk)
+	desk.get_node("DeskPlane/Mixer").clicked.emit()
+	check(mixer.visible and not phone.visible and _panels_closed(desk), "el mixer, sin paneles")
+	desk.get_node("DeskPlane/Phone").clicked.emit()
+	check(phone.visible and not mixer.visible, "el celular cierra el mixer")
+	check_eq(phone.post_at_top(), 0, "con las publicaciones del catálogo")
+	desk.get_node("DeskPlane/Entries/EntryLeon").pressed.emit()
+	check(not phone.visible and (desk.get_node("UI/ChatPanel") as Control).visible, "abrir el chat cierra el celular")
+	desk.get_node("DeskPlane/Mixer").clicked.emit()
+	desk.get_node("DeskPlane/Notebook").clicked.emit()
+	check(not mixer.visible and (desk.get_node("UI/NotebookPanel") as Control).visible, "abrir el cuaderno cierra el mixer")
+	desk.free()
+	return true
+
+
+func test_esc_y_un_clic_fuera_cierran_el_mixer_y_el_celular() -> bool:
+	var escape := InputEventAction.new()
+	escape.action = &"ui_cancel"
+	escape.pressed = true
+	for object_name: String in ["Mixer", "Phone"]:
+		for event: InputEvent in [escape, _click(MOUSE_BUTTON_LEFT)]:
+			var desk := _make_desk()
+			desk.get_node("DeskPlane/" + object_name).clicked.emit()
+			desk._unhandled_input(event)
+			check(not (desk.get_node("UI/MixerView") as Control).visible and not (desk.get_node("UI/PhoneView") as Control).visible,
+					"%s cerrado" % object_name)
+			desk.free()
+	return true
+
+
+func test_la_estatica_suena_al_anunciarse_una_interferencia() -> bool:
+	var desk := _make_desk()
+	var state := _state(desk)
+	var sound := desk.get_node("InterferenceSound") as AudioStreamPlayer
+	state.interferences.pending.clear()
+	desk._process(0.0)
+	check(not sound.playing, "en silencio")
+	state.interferences.pending.append(InterferenceSchedule.Interference.new(1, state.elapsed + 2.0))
+	desk._process(0.0)
+	check(sound.playing, "suena la estática")
+	desk.free()
+	return true
+
+
+func test_al_terminar_la_noche_se_cierran_el_mixer_y_el_celular() -> bool:
+	var desk := _make_desk()
+	desk.get_node("DeskPlane/Mixer").clicked.emit()
+	_state(desk).sanity = 0.1
+	desk.get_node("NightManager").advance(1.0)
+	check(not (desk.get_node("UI/MixerView") as Control).visible, "el mixer se cierra: su ronda no sigue sonando")
+	desk.free()
+	return true

@@ -4,9 +4,11 @@ extends Node2D
 ## con un clic en él o en el nombre de la entidad, y muestra la página del amigo del chat. El chat y el
 ## cuaderno son independientes y pueden estar abiertos a la vez (decisión de Benja). Cada uno se cierra
 ## con clic derecho sobre él; Esc o un clic fuera de los paneles cierra los dos.
-## Un clic en el celular o el mixer cierra los paneles y por ahora solo se registra (sus vistas, en el Plan 6).
 ## Desde el Plan 5, los diales, el celular y el PC muestran el estado de la noche, la viñeta oscurece
 ## la vista cuando baja Sanity, y al terminar la noche aparece una pantalla que explica qué pasó.
+## Desde el Plan 6, un clic en el mixer abre su vista (Audio Sync) y uno en el celular, sus redes sociales.
+## Son modos exclusivos: cierran los paneles y el otro modo, y abrir un panel los cierra (decisión de Benja).
+## Cuando se anuncia una interferencia, suena estática.
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
@@ -34,6 +36,12 @@ var notebook_memory: NotebookMemory
 @onready var _videos: Label = $DeskPlane/PC/Videos
 @onready var _vignette: ColorRect = $Overlay/Vignette
 @onready var _end_screen: Control = $Overlay/EndScreen
+@onready var _mixer: Control = $UI/MixerView
+@onready var _phone: Control = $UI/PhoneView
+@onready var _interference_sound: AudioStreamPlayer = $InterferenceSound
+
+## Qué amigos tenían anunciada una interferencia en el frame anterior: la estática suena al empezar el aviso.
+var _warned: Array[bool] = []
 
 
 func _ready() -> void:
@@ -42,6 +50,10 @@ func _ready() -> void:
 	_night.setup(_requests)
 	_chat_panel.setup(_requests, friends, notebook_memory)
 	_notebook_panel.setup(notebook_memory, _requests.catalog.known_entities(_requests.night_number), friends)
+	_mixer.setup(_requests, friends)
+	_phone.setup(_requests.state, _requests.catalog.phone_posts)
+	_warned.resize(friends.size())
+	_warned.fill(false)
 	for index in _entries.size():
 		_entries[index].display_name = tr(friends[index].name_key)
 		_entries[index].pressed.connect(_on_entry_pressed.bind(index))
@@ -52,11 +64,8 @@ func _ready() -> void:
 	_night.night_ended.connect(_on_night_ended)
 	_end_screen.retry_pressed.connect(_on_retry_pressed)
 	$DeskPlane/Notebook.clicked.connect(_open_notebook)
-	for clickable_name in ["Phone", "Mixer"]:
-		var clickable := get_node("DeskPlane/" + clickable_name)
-		clickable.clicked.connect(func() -> void:
-			close_panels()
-			print("Clic en ", clickable_name))
+	$DeskPlane/Mixer.clicked.connect(open_mixer)
+	$DeskPlane/Phone.clicked.connect(open_phone)
 
 
 func _process(_delta: float) -> void:
@@ -70,26 +79,49 @@ func close_panels() -> void:
 	_notebook_panel.hide()
 
 
+## Cierra el mixer y el celular.
+func close_modes() -> void:
+	_mixer.close()
+	_phone.close()
+
+
+## Audio Sync: el mixer se usa sin paneles y sin el celular.
+func open_mixer() -> void:
+	close_panels()
+	_phone.close()
+	_mixer.open()
+
+
+## Las redes sociales: el celular se usa sin paneles y sin el mixer.
+func open_phone() -> void:
+	close_panels()
+	_mixer.close()
+	_phone.open()
+
+
 ## El escritorio es el último en recibir la entrada: aquí llega lo que nadie atendió. Las entradas del PC
-## y los objetos del escritorio consumen sus clics, y los paneles, los que caen sobre ellos.
-## Esc o un clic fuera de los paneles los cierra.
+## y los objetos del escritorio consumen sus clics, y los paneles, el mixer y el celular, los que caen sobre
+## ellos. Esc o un clic fuera de ellos los cierra.
 func _unhandled_input(event: InputEvent) -> void:
-	if not (_chat_panel.visible or _notebook_panel.visible):
+	if not (_chat_panel.visible or _notebook_panel.visible or _mixer.visible or _phone.visible):
 		return
 	var mouse := event as InputEventMouseButton
 	var click := mouse != null and mouse.pressed and mouse.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]
 	if event.is_action_pressed(&"ui_cancel") or click:
 		close_panels()
+		close_modes()
 		get_viewport().set_input_as_handled()
 
 
 func _on_entry_pressed(index: int) -> void:
+	close_modes()
 	_chat_panel.open_for(index)
 	_refresh_entries()
 
 
 ## Abre el cuaderno en la página del amigo del chat. El chat queda como estaba: abierto o cerrado.
 func _open_notebook() -> void:
+	close_modes()
 	_notebook_panel.open_for(_chat_panel.selected_friend)
 
 
@@ -103,8 +135,10 @@ func _on_request_started(friend_index: int, _request: FriendRequest) -> void:
 	notebook_memory.close_page(friend_index)
 
 
-## Muestra cómo terminó la noche. Los paneles quedan como estaban, debajo: así se ve lo que pasó.
+## Muestra cómo terminó la noche. Los paneles quedan como estaban, debajo: así se ve lo que pasó. El mixer
+## y el celular se cierran, para que la ronda de Audio Sync no siga sonando.
 func _on_night_ended(ending: NightState.Ending, fatal_request: FriendRequest) -> void:
+	close_modes()
 	var names: Array[String] = []
 	for friend: FriendData in _requests.catalog.friends:
 		names.append(tr(friend.name_key))
@@ -140,7 +174,11 @@ func _refresh_entries() -> void:
 			entry.set_state(entry_state)
 		entry.set_health(friend.health, friend.max_health)
 		entry.set_signal(friend.signal_level)
-		entry.set_interference_warning(state.interference_warning(index))
+		var warning := state.interference_warning(index)
+		entry.set_interference_warning(warning)
+		if warning and not _warned[index]:
+			_interference_sound.play()
+		_warned[index] = warning
 		if request != null:
 			entry.set_seconds_left(ceili(request.time_left))
 		elif offer != null:

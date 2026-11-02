@@ -26,6 +26,9 @@
 [ext_resource type="Shader" path="res://shaders/vignette.gdshader" id="vignette_shader"]
 [ext_resource type="PackedScene" path="res://scenes/ui/end_screen.tscn" id="end_screen"]
 [ext_resource type="FontFile" path="res://fonts/departure_mono/DepartureMono-Regular.otf" id="pixel_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/mixer_view.tscn" id="mixer_view"]
+[ext_resource type="PackedScene" path="res://scenes/ui/phone_view.tscn" id="phone_view"]
+[ext_resource type="AudioStream" path="res://audio/sfx/interference_static.wav" id="static_sound"]
 
 [sub_resource type="ShaderMaterial" id="vignette_material"]
 shader = ExtResource("vignette_shader")
@@ -185,6 +188,14 @@ script = ExtResource("night_script")
 [node name="ChatPanel" parent="UI" instance=ExtResource("chat_panel")]
 
 [node name="NotebookPanel" parent="UI" instance=ExtResource("notebook_panel")]
+
+[node name="MixerView" parent="UI" instance=ExtResource("mixer_view")]
+
+[node name="PhoneView" parent="UI" instance=ExtResource("phone_view")]
+
+[node name="InterferenceSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("static_sound")
+volume_db = -6.0
 
 [node name="Overlay" type="CanvasLayer" parent="."]
 layer = 2
