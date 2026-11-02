@@ -1,5 +1,6 @@
 extends RefCounted
-## Estática del chat (docs/02 §4): con poca señal, algunas palabras del amigo llegan tapadas (▒▒▒).
+## Estática del chat (docs/02 §4): con poca señal, algunas palabras del amigo llegan tapadas (▒▒▒), y sin señal,
+## todas (decisión de Benja).
 ## Una frase clickeable cuenta como una sola palabra: se tapa entera o no se tapa (decisión de Benja).
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
@@ -9,6 +10,8 @@ const COVERAGE := [[70.0, 0.0], [50.0, 0.10], [30.0, 0.25], [0.0, 0.45]]
 
 
 static func coverage_for_signal(signal_level: float) -> float:
+	if signal_level <= 0.0:
+		return 1.0
 	for band: Array in COVERAGE:
 		if signal_level >= band[0]:
 			return band[1]

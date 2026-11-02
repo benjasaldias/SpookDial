@@ -14,6 +14,7 @@ const FORMATS := {
 	"END_CORRECT": "Correcta: {action}.",
 	"END_CHOSEN_BY_PLAYER": "Respondiste: {action}.",
 	"END_CHOSEN_ALONE": "{friend} eligió solo: {action}.",
+	"END_CHOSEN_OFFLINE": "{friend} sin señal eligió: {action}.",
 }
 const FRIENDS: Array[String] = ["León", "Gonzalo", "Agustín"]
 
@@ -109,7 +110,8 @@ func test_sus_textos_existen() -> bool:
 	var previous := TranslationServer.get_locale()
 	TranslationServer.set_locale("es")
 	var keys: Array = [EndingText.WON_TITLE_KEY, EndingText.LOST_TITLE_KEY, EndingText.ENTITY_KEY, EndingText.SITUATION_KEY,
-			EndingText.RULE_KEY, EndingText.CORRECT_KEY, EndingText.CHOSEN_BY_PLAYER_KEY, EndingText.CHOSEN_ALONE_KEY]
+			EndingText.RULE_KEY, EndingText.CORRECT_KEY, EndingText.CHOSEN_BY_PLAYER_KEY, EndingText.CHOSEN_ALONE_KEY,
+			EndingText.CHOSEN_OFFLINE_KEY]
 	keys.append_array(EndingText.REASON_KEYS.values())
 	for key: String in keys:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en ui.csv" % key)
@@ -122,9 +124,18 @@ func test_sus_textos_existen() -> bool:
 		"END_CORRECT": ["{action}"],
 		"END_CHOSEN_BY_PLAYER": ["{action}"],
 		"END_CHOSEN_ALONE": ["{friend}", "{action}"],
+		"END_CHOSEN_OFFLINE": ["{friend}", "{action}"],
 	}
 	for key: String in placeholders:
 		for placeholder: String in placeholders[key]:
 			check(String(TranslationServer.translate(key)).contains(placeholder), "%s debe tener %s" % [key, placeholder])
 	TranslationServer.set_locale(previous)
+	return true
+
+
+func test_si_el_amigo_estaba_sin_senal() -> bool:
+	var request := _fatal_request(&"a1", false)
+	request.decided_offline = true
+	var body := EndingText.body(NightState.Ending.FRIEND_DIED, _make_state(), request, FRIENDS, _translate)
+	check(_plain(body).ends_with("Gonzalo sin señal eligió: K_beast_A1."), "dice que estaba sin señal: %s" % _plain(body))
 	return true

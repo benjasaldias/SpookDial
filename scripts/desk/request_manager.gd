@@ -26,8 +26,8 @@ const FIRST_REQUEST_DELAY := 5.0
 @export var catalog: ContentCatalog
 ## Noche que se juega. Por ahora la 3, la única con una entidad (El Trauco).
 @export_range(1, 5) var night_number := 3
-## Señal de los 3 amigos mientras no exista la del Plan 6. Bájala para ver la estática.
-@export_range(1, 100) var test_signal := 100
+## Señal con la que empiezan los 3 amigos. Bájala para ver la estática; con 0 empiezan desconectados.
+@export_range(0, 100) var test_signal := 100
 ## Si está apagado, las solicitudes no llegan solas (para las pruebas).
 @export var requests_arrive := true
 ## 0: cada partida es distinta. Otro número repite la misma secuencia.
@@ -96,10 +96,11 @@ func start_request(friend_index: int) -> FriendRequest:
 	return request
 
 
-## Matías pregunta por una categoría: cuesta 5 s y el amigo responde. false si no se pudo preguntar.
+## Matías pregunta por una categoría: cuesta 5 s y el amigo responde. false si no se pudo preguntar:
+## sin solicitud, sin tiempo o sin señal.
 func ask(friend_index: int, category: ClueCategory.Kind) -> bool:
 	var request := requests[friend_index]
-	if request == null or not request.pay_question():
+	if request == null or not state.friends[friend_index].is_online() or not request.pay_question():
 		return false
 	message_added.emit(friend_index, MessageBuilder.question(request, category, tr))
 	_add_friend_message(friend_index, MessageBuilder.answer(request, category, tr))
@@ -119,10 +120,10 @@ func click_clue(message: ChatMessage, clue_id: StringName) -> FriendRequest.Clue
 
 ## Matías responde con `action`, desde la página abierta en el cuaderno, y la solicitud termina.
 ## Una acción de la página de otra entidad es incorrecta (docs/02 §5.2).
-## Devuelve false si el amigo no espera respuesta.
+## Devuelve false si el amigo no espera respuesta o está sin señal.
 func answer(friend_index: int, action: ActionData) -> bool:
 	var request := requests[friend_index]
-	if request == null or action == null:
+	if request == null or action == null or not state.friends[friend_index].is_online():
 		return false
 	request.finish(action, true)
 	_resolve(request)
@@ -134,10 +135,11 @@ func answer(friend_index: int, action: ActionData) -> bool:
 	return true
 
 
-## Sin respuesta a tiempo, el amigo elige solo y cuenta qué hizo y cómo le fue.
+## Sin respuesta a tiempo, el amigo elige solo y cuenta qué hizo y cómo le fue. Si está sin señal, elige mal
+## (decisión de Benja), y sus mensajes llegan tapados enteros.
 func _decide_alone(friend_index: int) -> void:
 	var request := requests[friend_index]
-	request.decide_alone(rng)
+	request.decide_alone(rng, not state.friends[friend_index].is_online())
 	_resolve(request)
 	requests[friend_index] = null
 	_add_friend_message(friend_index, MessageBuilder.decided_alone(request, tr))
@@ -149,7 +151,8 @@ func _decide_alone(friend_index: int) -> void:
 ## Tira la consecuencia y la aplica al estado de la noche. Va antes de la reacción del amigo, que
 ## depende de si quedó herido.
 func _resolve(request: FriendRequest) -> void:
-	request.consequence = Consequence.new(request.outcome, request.answered_by_player, catalog.balance, rng)
+	request.consequence = Consequence.new(request.outcome, request.answered_by_player, catalog.balance, rng,
+			request.decided_offline)
 	state.apply(request.friend_index, request.consequence)
 
 

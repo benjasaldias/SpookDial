@@ -22,13 +22,14 @@ const REASON_KEYS := {
 	NightState.Ending.QUOTA: "END_QUOTA",
 }
 ## La solicitud en la que murió el amigo (ui.csv). Llevan {entity}; {number} y {rule}; {action};
-## y {friend} y {action}.
+## y {friend} y {action}. CHOSEN_OFFLINE: el amigo decidió solo y sin señal.
 const ENTITY_KEY := "END_ENTITY"
 const SITUATION_KEY := "END_SITUATION"
 const RULE_KEY := "END_RULE"
 const CORRECT_KEY := "END_CORRECT"
 const CHOSEN_BY_PLAYER_KEY := "END_CHOSEN_BY_PLAYER"
 const CHOSEN_ALONE_KEY := "END_CHOSEN_ALONE"
+const CHOSEN_OFFLINE_KEY := "END_CHOSEN_OFFLINE"
 ## Colores provisionales sobre fondo oscuro. Cada línea también dice qué acción es: el color no es
 ## la única pista (diseño §19).
 const CORRECT_COLOR := "7ee08a"
@@ -69,6 +70,8 @@ static func _request_lines(request: FriendRequest, friend: String, translate: Ca
 	var chosen := _action(request.chosen_action, CHOSEN_COLOR, translate)
 	if request.answered_by_player:
 		lines.append(_line(translate, CHOSEN_BY_PLAYER_KEY, {"action": chosen}))
+	elif request.decided_offline:
+		lines.append(_line(translate, CHOSEN_OFFLINE_KEY, {"friend": friend, "action": chosen}))
 	else:
 		lines.append(_line(translate, CHOSEN_ALONE_KEY, {"friend": friend, "action": chosen}))
 	return lines

@@ -293,3 +293,41 @@ func test_si_decide_solo_y_queda_herido_tambien_hay_aviso() -> bool:
 		check_eq((messages[-1] as ChatMessage).sender == ChatMessage.Sender.SYSTEM, hurt, "el aviso, solo si quedó herido")
 	manager.free()
 	return true
+
+
+func test_sin_senal_el_mensaje_llega_tapado_entero() -> bool:
+	var manager := _make_manager()
+	manager.state.friends[1].signal_level = 0.0
+	var events := []
+	_record(manager, events)
+	manager.start_request(1)
+	var message: ChatMessage = _messages(events)[0]
+	for token: ChatMessage.Token in message.tokens:
+		check(token.covered or not token.can_be_covered(), "tapado: %s" % token.text)
+	manager.free()
+	return true
+
+
+func test_sin_senal_no_lee_preguntas_ni_respuestas() -> bool:
+	var manager := _make_manager()
+	var request := manager.start_request(0)
+	manager.state.friends[0].signal_level = 0.0
+	check(not manager.ask(0, ClueCategory.Kind.SIGHT), "no puede preguntar")
+	check(not manager.answer(0, request.entity.actions[0]), "no puede responder")
+	check_eq(manager.requests[0], request, "la solicitud sigue esperando")
+	manager.state.friends[0].restore_signal()
+	check(manager.answer(0, request.entity.actions[0]), "reconectado, responde normal")
+	manager.free()
+	return true
+
+
+func test_sin_senal_decide_mal_sin_bajar_trust() -> bool:
+	var manager := _make_manager()
+	var request := manager.start_request(2)
+	manager.state.friends[2].signal_level = 0.0
+	manager.advance(request.time_left + 0.1)
+	check(request.finished and request.decided_offline, "decidió solo, sin señal")
+	check(request.outcome != RuleEvaluator.Outcome.CORRECT, "eligió mal")
+	check_eq(manager.state.trust, 100.0, "su decisión no bajó Trust")
+	manager.free()
+	return true

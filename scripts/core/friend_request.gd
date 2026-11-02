@@ -34,6 +34,8 @@ var finished := false
 ## Al terminar: la acción elegida, si la eligió el jugador (false: el amigo decidió solo) y el resultado.
 var chosen_action: ActionData
 var answered_by_player := false
+## El amigo decidió solo y sin señal: eligió mal (decisión de Benja).
+var decided_offline := false
 var outcome := RuleEvaluator.Outcome.WRONG
 ## Lo que le pasó al amigo (Plan 5). Es null hasta que RequestManager la resuelve, al terminar.
 var consequence: Consequence
@@ -107,9 +109,15 @@ func finish(action: ActionData, by_player: bool) -> void:
 	outcome = RuleEvaluator.outcome(entity, situation, action)
 
 
-## Sin respuesta a tiempo, el amigo elige al azar entre las 4 acciones (docs/02 §2).
-func decide_alone(rng: RandomNumberGenerator) -> void:
-	finish(entity.actions[rng.randi_range(0, entity.actions.size() - 1)], false)
+## Sin respuesta a tiempo, el amigo elige al azar entre las 4 acciones (docs/02 §2). Si estaba sin señal,
+## elige mal: al azar entre las 3 que no son la correcta (decisión de Benja).
+func decide_alone(rng: RandomNumberGenerator, offline := false) -> void:
+	var choices: Array = entity.actions
+	if offline:
+		var correct_id := RuleEvaluator.applicable_rule(entity, situation).correct_action_id
+		choices = entity.actions.filter(func(action: ActionData) -> bool: return action.id != correct_id)
+	decided_offline = offline
+	finish(choices[rng.randi_range(0, choices.size() - 1)], false)
 
 
 static func _has_clue(clues: Array, clue_id: StringName) -> bool:

@@ -14,9 +14,10 @@ var risky := false
 
 
 ## Tira la consecuencia de `outcome` con las probabilidades de `balance`. `answered_by_player` es false
-## si nadie respondió a tiempo y el amigo decidió solo: entonces Trust baja además.
+## si nadie respondió a tiempo y el amigo decidió solo: entonces Trust baja además. Si además estaba sin
+## señal (`offline`), su decisión no baja Trust, que ya baja mientras esté desconectado (decisión de Benja).
 func _init(outcome: RuleEvaluator.Outcome, answered_by_player: bool, balance: BalanceData,
-		rng: RandomNumberGenerator) -> void:
+		rng: RandomNumberGenerator, offline := false) -> void:
 	match outcome:
 		RuleEvaluator.Outcome.RISKY:
 			risky = true
@@ -27,7 +28,9 @@ func _init(outcome: RuleEvaluator.Outcome, answered_by_player: bool, balance: Ba
 			trust_change = balance.wrong_trust
 			if rng.randf() < balance.wrong_hurt_chance:
 				damage = balance.wrong_damage
-	if not answered_by_player:
+	if offline:
+		trust_change = 0.0
+	elif not answered_by_player:
 		trust_change += balance.no_answer_trust
 
 

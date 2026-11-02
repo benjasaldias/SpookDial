@@ -102,3 +102,18 @@ func test_terminada_no_cambia() -> bool:
 	check(not request.advance(1.0), "el tiempo ya no corre")
 	check_eq(request.time_left, 30.0, "el temporizador queda donde estaba")
 	return true
+
+
+## Sin señal, el amigo elige mal: al azar entre las 3 acciones que no son la correcta (decisión de Benja).
+func test_sin_senal_decide_mal() -> bool:
+	var chosen := {}
+	for seed_value in 40:
+		var request := _make_request()
+		var rng := RandomNumberGenerator.new()
+		rng.seed = seed_value
+		request.decide_alone(rng, true)
+		check(request.decided_offline, "decidió sin señal")
+		check(request.outcome != RuleEvaluator.Outcome.CORRECT, "nunca la correcta")
+		chosen[request.chosen_action.id] = true
+	check_eq(chosen.size(), 3, "elige entre las otras 3")
+	return true

@@ -64,3 +64,12 @@ func test_probabilidad_de_herir() -> bool:
 	check(abs(hurt[RuleEvaluator.Outcome.RISKY] / 2000.0 - 0.7) < 0.04, "mayor riesgo cerca de 70 %%: %d" % hurt[RuleEvaluator.Outcome.RISKY])
 	check(abs(hurt[RuleEvaluator.Outcome.WRONG] / 2000.0 - 0.6) < 0.04, "incorrecta cerca de 60 %%: %d" % hurt[RuleEvaluator.Outcome.WRONG])
 	return true
+
+
+## Si el amigo decidió solo y sin señal, su decisión no baja Trust, pero el daño es el de siempre
+## (decisión de Benja).
+func test_sin_senal_trust_no_baja() -> bool:
+	var offline := Consequence.new(RuleEvaluator.Outcome.WRONG, false, _balance(1.0), RandomNumberGenerator.new(), true)
+	check_eq(offline.trust_change, 0.0, "ni −10 ni −15")
+	check_eq(offline.damage, 1, "el daño de siempre")
+	return true

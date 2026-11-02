@@ -25,7 +25,7 @@ func _covered(message: ChatMessage) -> int:
 
 
 func test_probabilidad_segun_la_senal() -> bool:
-	var expected := {100: 0.0, 70: 0.0, 69: 0.10, 50: 0.10, 49: 0.25, 30: 0.25, 29: 0.45, 1: 0.45}
+	var expected := {100: 0.0, 70: 0.0, 69: 0.10, 50: 0.10, 49: 0.25, 30: 0.25, 29: 0.45, 1: 0.45, 0: 1.0}
 	for signal_level: int in expected:
 		check_eq(ChatStatic.coverage_for_signal(signal_level), expected[signal_level], "señal %d" % signal_level)
 	return true
@@ -67,4 +67,12 @@ func test_una_frase_se_tapa_entera() -> bool:
 		else:
 			check_eq(message.plain_text(), "ropa de fibra vegetal", "se ve entera")
 	check(times_covered > 20, "a veces se tapa: %d de 100" % times_covered)
+	return true
+
+
+## Un amigo sin señal: su mensaje llega tapado entero (decisión de Benja).
+func test_sin_senal_se_tapa_todo() -> bool:
+	var message := _long_message(200)
+	ChatStatic.apply(message, 0.0, _rng())
+	check_eq(_covered(message), 200, "las 200 palabras")
 	return true
