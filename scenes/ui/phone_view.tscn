@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/phone_view.gd" id="phone_script"]
+
+[node name="PhoneView" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 140.0
+offset_top = 100.0
+offset_right = 400.0
+offset_bottom = 620.0
+script = ExtResource("phone_script")
+
+[node name="Feed" type="Control" parent="."]
+clip_contents = true
+layout_mode = 0
+offset_left = 14.0
+offset_top = 64.0
+offset_right = 246.0
+offset_bottom = 480.0
+mouse_filter = 2
