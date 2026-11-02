@@ -260,6 +260,8 @@ Guarda tu paleta actual (268 colores) como preset, para que todo el arte nuevo u
 - **Tags** en inglés: `idle`, `scare`, `blink`, `level`, `on`, `off`.
 - **Íconos pequeños** en una grilla de 16×16, en un solo archivo por familia. Claude los recorta en Godot.
 - **Paneles 9-slice:** un archivo por panel.
+- **Mixer visto desde arriba (decisión de Benja, sesión 14):** la vista ampliada de Audio Sync. El cuerpo, los dos VU-metros azules (el de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo), una perilla de fader (Godot la mueve en los 3 canales), los LED y una fila de luces para el ritmo. Mide 440×430, o 220×215 para mostrarla a ×2 exacto. Con esta vista, el mixer del escritorio ya no necesita `mixer_vu` ni `mixer_fader_knob`: puede quedar de una sola pieza. Mientras tanto, el Plan 6 la dibuja provisional en Godot.
+- **Celular ampliado:** las redes sociales, con unas 12 publicaciones o con la animación del scroll, como prefieras. Mide 260×520, o 130×260 a ×2. Mientras tanto, el Plan 6 lo dibuja provisional, y cada publicación puede llevar su imagen.
 
 ---
 
@@ -269,7 +271,7 @@ Guarda tu paleta actual (268 colores) como preset, para que todo el arte nuevo u
 | --- | --- |
 | 0 (15–18 oct) | Errores del maestro y separación P0: planos, cortinas, laptop, celular, cuaderno y aguja. Uno o dos días. |
 | 1–2 (19 oct – 1 nov) | Interfaz del chat, entradas con barras de señal, avatares, íconos y diales rediseñados. |
-| 3–4 (2–15 nov) | Mixer en piezas, LED, luces, dígitos LCD, interfaz del cuaderno, bocetos, silueta de la ventana y cursor. |
+| 3–4 (2–15 nov) | Mixer visto desde arriba, LED, luces, dígitos LCD, interfaz del cuaderno, bocetos, silueta de la ventana y cursor. |
 | 5 (16–25 nov) | Celular ampliado y publicaciones, pantalla entre noches, menú y logo, screamers, victoria y derrota. **El 25 de noviembre se congela el arte.** |
 | 6–7 (26 nov – 5 dic) | Solo correcciones y pulido P3 si sobra tiempo. Cinemáticas opcionales (prioridad 2). |
 

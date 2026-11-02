@@ -7,7 +7,8 @@ Detalle de la mecánica central del diseño v2 (`spook_dial_design.md` §8–§1
 - la cuota la cubren los envíos programados;
 - (sesión 8) el mensaje inicial trae 2 características camufladas entre señuelos, hay una barra con el avance de la identificación, la estática tapa una frase entera o nada, y con 5 s o menos no se puede preguntar;
 - (sesión 10) cuando a un amigo le llega una solicitud nueva, su página del cuaderno vuelve al índice, y la frase entre asteriscos de una característica también es su nombre en el cuaderno;
-- (sesión 12) el video de un amigo aturdido llega cuando se recupera. Después de probar el juego: los textos son borradores reales en primera persona (ya no se usa `[PROTO]`), cada mensaje lleva el nombre de quien escribe, y el amigo herido grita en el chat, seguido de un aviso rojo con su vida.
+- (sesión 12) el video de un amigo aturdido llega cuando se recupera. Después de probar el juego: los textos son borradores reales en primera persona (ya no se usa `[PROTO]`), cada mensaje lleva el nombre de quien escribe, y el amigo herido grita en el chat, seguido de un aviso rojo con su vida;
+- (sesión 14) un amigo sin señal sigue recibiendo situaciones, pero no lee las respuestas y, si se le acaba el tiempo, elige mal; mientras haya amigos sin señal, Trust baja. Los videos se descargan en el chat (15 s para empezar, 20 s para terminar y 10 s de descarga), y Audio Sync se juega en una vista del mixer desde arriba (§4.1 y §6).
 
 Los valores numéricos (§6) son un punto de partida para el prototipo; se ajustan probando.
 
@@ -24,7 +25,7 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 
 ## 2. Ciclo de vida de una solicitud
 
-1. **El director de ritmo** decide que un amigo disponible recibe una situación. Disponible significa conectado, sin otra solicitud y no aturdido.
+1. **El director de ritmo** decide que un amigo disponible recibe una situación. Disponible significa vivo, sin otra solicitud y no aturdido. Un amigo sin señal también recibe situaciones (decisión de Benja, sesión 14; ver §4.1).
 2. **Se generan los datos de la situación:**
    - la entidad, entre las conocidas en esa noche;
    - el lugar;
@@ -37,7 +38,7 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 5. **Empieza el temporizador:** tiempo base de la noche × factor de Trust (§6).
 6. **El jugador** identifica (§3), pregunta si le falta algo (§3.2), abre la página y responde (§5).
 7. **Se resuelve** la consecuencia (§5.2) y llega la reacción del amigo. Si eligió la acción de mayor riesgo y el amigo sobrevivió, se programa un video extra.
-8. **Sin respuesta:** el amigo elige al azar entre las 4 acciones, se resuelve igual y baja Trust.
+8. **Sin respuesta:** el amigo elige al azar entre las 4 acciones, se resuelve igual y baja Trust. Si está sin señal, elige mal y Trust no baja por esa decisión (§4.1).
 9. **Si el amigo muere:** pantalla de derrota con la entidad, las observaciones, la regla que aplicaba y la acción correcta. Luego se reinicia la noche.
 
 ---
@@ -79,10 +80,22 @@ Cada palabra de un mensaje del amigo se tapa (▒▒▒) con una probabilidad qu
 | 50 a 69 | 10 % |
 | 30 a 49 | 25 % |
 | 1 a 29 | 45 % |
+| 0 (sin señal) | 100 % |
 
 - Las características y las observaciones se tapan con la misma probabilidad que cualquier palabra.
 - Una frase clickeable (característica o señuelo) cuenta como una sola palabra: se tapa entera o no se tapa. Los espacios y los signos sueltos nunca se tapan.
 - El tamaño del ▒▒▒ no revela cuántas letras tenía la palabra tapada.
+
+### 4.1 Un amigo sin señal (decisión de Benja, sesión 14)
+
+Con la señal en 0, el amigo queda desconectado:
+
+- le siguen llegando situaciones, pero su mensaje llega tapado entero y no lee las preguntas ni las respuestas de Matías;
+- decide cuando se le acaba el tiempo, no al llegar. Si Matías lo reconecta antes con Audio Sync, se puede preguntar (las respuestas llegan legibles) y responder como siempre;
+- si decide sin señal, elige al azar una de las 3 acciones que no son la correcta. El daño es el de siempre, y esa decisión no baja Trust;
+- mientras haya amigos sin señal, Trust baja 1 punto cada 4 s por cada uno y no se recupera;
+- no envía videos: el suyo llega cuando se reconecta, como el de un amigo aturdido;
+- si los 3 quedan sin señal, Connection llega a 0 y se pierde la noche.
 
 ---
 
@@ -103,6 +116,7 @@ Cada palabra de un mensaje del amigo se tapa (▒▒▒) con una probabilidad qu
 | Acción de mayor riesgo | 70 %: −2 PV | −20 | +1 video si sobrevive |
 | Acción incorrecta (incluye responder desde la página equivocada) | 60 %: −1 PV | −10 | — |
 | Sin respuesta | El amigo elige al azar y se resuelve igual | −15 extra | Según lo que elija |
+| Sin respuesta y sin señal (§4.1) | Elige al azar entre las 3 que no son la correcta | Sin cambio | Según lo que elija |
 
 - Cada amigo tiene **3 PV por noche**. Al quedar herido, está **aturdido 15 s**. Con 0 PV muere y se pierde la noche.
 - Un amigo aturdido no envía nada: si le tocaba enviar un video (programado o el extra), lo envía apenas se recupera (decisión de Benja, 31-oct).
@@ -132,19 +146,20 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 
 | Medidor | Inicio | Baja | Sube | Efecto gradual | En 0 |
 | --- | --- | --- | --- | --- | --- |
-| Señal (cada amigo) | 100 | Entre −1 cada 3 s y −1 cada 6 s (varía). Interferencia: −40, anunciada 3 s antes. | Audio Sync exitoso: vuelve a 100 | Estática (§4). Descargas más lentas bajo 50. | Ese amigo se desconecta |
+| Señal (cada amigo) | 100 | Entre −1 cada 3 s y −1 cada 6 s: a cada amigo le toca un ritmo al azar en ese rango. Interferencia: −40, anunciada 3 s antes. | Audio Sync exitoso: vuelve a 100 | Estática (§4). Descargas más lentas bajo 50. | Ese amigo queda sin señal (§4.1) |
 | Connection (dial) | — | Es el promedio de las 3 señales | — | — | Se pierde la noche |
 | Sanity | 100 | −1 cada 6 s (N1: cada 10 s). Screamer: −8 ambiental, −15 jumpscare. | +4 por segundo mientras scrolleas | Viñeta oscura y screamers auditivos falsos, más fuertes cuanto más baja | Se pierde la noche |
-| Trust | 100 al empezar cada noche | Ver §5.2 | +1 cada 8 s si no hubo errores en 20 s | Temporizador × (0,6 + 0,4 × Trust/100) | Se pierde la noche |
+| Trust | 100 al empezar cada noche | Ver §5.2. Con amigos sin señal, −1 cada 4 s por cada uno (§4.1). | +1 cada 8 s si no bajó en 20 s | Temporizador × (0,6 + 0,4 × Trust/100) | Se pierde la noche |
 | Vida (cada amigo) | 3 PV | Ver §5.2 | No se recupera durante la noche | Avatar herido | Muere y se pierde la noche |
 
 ### Otros
 
 - Preguntar: 5 s.
 - Espera de identificación: 3 s.
-- Aceptar un envío: 10 s.
-- Descarga: 3 s manteniendo presionado (6 s si la señal de ese amigo está bajo 50).
-- Tolerancia de Audio Sync: ±150 ms.
+- Empezar a descargar un video que llegó: 15 s; si no, se pierde. Terminar la descarga: 20 s desde que empezó (decisión de Benja, sesión 14).
+- Descarga: 10 s manteniendo presionada la barra del chat (15 s si la señal de ese amigo está bajo 50; sin señal no avanza). Si se suelta, se pausa.
+- Audio Sync: una base de 100 golpes por minuto. Tras un compás de cuenta, el amigo aplaude 4 u 8 veces en corcheas (el primer aplauso al comienzo) y Matías lo repite en el compás siguiente (o en los 2 siguientes). Tolerancia de cada golpe: ±150 ms.
+- Scroll del celular: cada movimiento de la rueda cuenta 0,3 s de scroll.
 
 ---
 

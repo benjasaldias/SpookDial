@@ -7,11 +7,12 @@
 - El detalle de la mecánica central (reglas, valores numéricos, modelo de datos) está en `docs/02_bucle_central.md`.
 - El orden de trabajo y el calendario están en `docs/05_plan_produccion.md`.
 
-Última actualización: 31 de octubre de 2026.
+Última actualización: 2 de noviembre de 2026.
 
 - 26 de octubre: identificación por características, acción de mayor riesgo y cuota cubierta por los envíos. En la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos.
 - 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
 - 31 de octubre (sesión 12): cada dial conserva el color de su aguja, y el video de un amigo aturdido llega cuando se recupera. Después de probar el juego: el chat con estilo de terminal, los textos reales en primera persona y el aviso de daño en el chat.
+- 31 de octubre al 2 de noviembre (sesión 14): un amigo sin señal, los videos que se descargan en el chat, Audio Sync en el mixer visto desde arriba y el botón «Sincronizar» del chat.
 
 ---
 
@@ -75,7 +76,7 @@ Cada objeto cumple una función:
 | --- | --- |
 | **PC** | Muestra siempre las 3 entradas de los amigos: estado, señal, temporizador y avisos. Al hacer clic en una se abre su conversación. También muestra el contador de contenido de la noche. |
 | **Cuaderno** | El manual: un índice con el nombre de cada entidad y una página por entidad con sus reglas (§12). |
-| **Mixer** | Audio Sync. Sus 3 faders son los canales de los 3 amigos (§10). |
+| **Mixer** | Audio Sync. Al hacer clic se abre visto desde arriba: sus 3 faders son los canales de los 3 amigos, y sus dos VU-metros azules muestran el ritmo de Matías (el de la izquierda) y el del amigo (el de la derecha) (§10.6). |
 | **Celular** | Muestra la hora. Al abrirlo se scrollea con la rueda del mouse para recuperar Sanity (§10). |
 | **Diales** (en la pared) | Connection, Sanity y Trust. Tienen cara de manómetro, un ícono propio y un LED de alerta, para que no dependan del color. Cada uno conserva el color de su aguja: Connection verde, Sanity roja y Trust amarilla. |
 | **Micrófono** | Su LED se enciende al responder (ambientación). |
@@ -166,7 +167,7 @@ Las observaciones cambian en cada solicitud, así que la misma entidad pide acci
 
 ### 8.7 Si no hay respuesta
 
-Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones) y la consecuencia se resuelve igual. Además baja Trust por no contestar. Un amigo desconectado también decide solo, pero sin ese castigo.
+Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones) y la consecuencia se resuelve igual. Además baja Trust por no contestar. Un amigo sin señal también decide solo al acabarse su tiempo, pero elige mal (al azar entre las 3 acciones que no son la correcta), y esa decisión no baja Trust (§10.1).
 
 ## 9. Consecuencias
 
@@ -194,8 +195,12 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
   - de golpe, con **interferencias al azar**. Cada interferencia se **anuncia 3 segundos antes** con estática y la entrada titilando.
 - **Efectos:**
   - con la señal bajo 50 hay estática en los mensajes (§8.2) y las descargas son más lentas;
-  - con 0, el amigo **se desconecta** y decide solo si le llega una situación.
-- **Audio Sync, individual y cuando el jugador quiera.** En el mixer se elige el canal de un amigo (su fader, o su entrada del PC) y se sincroniza. Si sale bien, su señal vuelve a 100. Así el jugador puede decidir gastar tiempo en mantener alta la señal antes de que algo falle.
+  - con 0, el amigo **queda sin señal** (decisión de Benja, sesión 14):
+    - le siguen llegando situaciones, pero su mensaje llega tapado entero y no lee las preguntas ni las respuestas de Matías;
+    - si Matías lo reconecta con Audio Sync antes de que se acabe su tiempo, se pregunta y se responde como siempre. Si no, elige mal (§8.7);
+    - mientras haya amigos sin señal, Trust baja, más rápido cuantos más sean;
+    - no envía videos hasta que se reconecta.
+- **Audio Sync, individual y cuando el jugador quiera.** En el mixer se elige el canal de un amigo con su fader, o se usa el botón «Sincronizar» del chat de ese amigo, que abre el mixer en su canal (decisión de Benja, sesión 14), y se sincroniza. La entrada del PC siempre abre el chat. Si sale bien, su señal vuelve a 100. Así el jugador puede decidir gastar tiempo en mantener alta la señal antes de que algo falle.
 - **El dial de la pared** muestra el promedio de las tres señales. Llega a 0 solo si todos están desconectados.
 - **Si cualquiera de los 3 diales (Connection, Sanity o Trust) llega a 0, se pierde la noche.**
 
@@ -208,7 +213,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 
 ### 10.3 Trust
 
-- Baja al elegir acciones riesgosas (§9) y al no contestar a tiempo.
+- Baja al elegir acciones riesgosas (§9), al no contestar a tiempo y mientras haya amigos sin señal (§10.1).
 - Se recupera lentamente mientras no haya nuevos errores.
 - **Efecto gradual:** mientras más baja, **menos tiempo esperan los amigos tu respuesta** (sus temporizadores se acortan).
 - Con 0, los amigos ya no quieren pedirte ayuda y **se pierde la noche**.
@@ -223,15 +228,17 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 
 ### 10.5 Recibir videos (Receive Media)
 
-- Llega un aviso con **10 segundos para aceptar**.
-- La descarga se hace **manteniendo presionado** el botón. Su velocidad depende de la señal de ese amigo, y si se suelta, se pausa.
-- Si no se acepta a tiempo, el video se pierde.
+- El amigo avisa en su chat que mandó un video. Hay **15 segundos para empezar a descargarlo** (decisión de Benja, sesión 14).
+- La descarga se hace dentro del chat, **manteniendo presionada** su barra. Tarda **10 segundos**; con la señal de ese amigo bajo 50, tarda 15, y sin señal no avanza. Si se suelta, se pausa.
+- Desde que empieza, hay **20 segundos para terminarla**.
+- Si no se empieza o no se termina a tiempo, el video se pierde.
 
 ### 10.6 Audio Sync
 
-- Se elige el canal del amigo en el mixer.
-- El amigo marca **4 u 8 tiempos con aplausos**, según la noche. Los VU-metros del mixer los muestran, además del sonido.
-- El jugador los repite con la **barra espaciadora**.
+- Se empieza cuando el jugador quiere, con un clic en el mixer, que se abre visto desde arriba. Se elige el canal del amigo en su fader, o con el botón «Sincronizar» del chat de ese amigo, que abre el mixer en su canal y empieza la ronda enseguida.
+- Una base marca el tiempo, y el amigo marca un ritmo de **4 u 8 aplausos**, según la noche. El mixer parpadea con el ritmo y suena (decisión de Benja, sesión 14).
+- Después, el jugador lo imita con **clics en el mixer o con la barra espaciadora**.
+- Los dos VU-metros azules del mixer muestran los dos ritmos: el de la izquierda, el del jugador, y el de la derecha, el del amigo.
 - Se puede reintentar las veces que se quiera, y se puede salir para atender otra cosa.
 
 ## 11. Screamers

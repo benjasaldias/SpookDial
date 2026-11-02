@@ -6,28 +6,29 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ---
 
-## ▶ Siguiente sesión: S14 — Escribir el Plan 6 (mantenimiento)
+## ▶ Siguiente sesión: S15 — Ejecutar el Plan 6 (mantenimiento)
 
 | | |
 | --- | --- |
-| **Qué se hace** | Escribir el Plan 6 en `docs/13_plan_*.md`, con código: la señal de cada amigo, que baja y tiene interferencias; Audio Sync en el mixer; los videos, que hay que aceptar en 10 s y descargar manteniendo presionado; y el scroll del celular, que recupera Sanity (`docs/06` §2). Al ejecutarlo en S15, las tres tareas de mantenimiento funcionan en la noche. |
-| **Tipo** | Escribir un plan. |
-| **Modelo** | **Opus 5.5** |
+| **Qué se hace** | Ejecutar `docs/13_plan_mantenimiento.md`: 17 tareas, de 251 a 326 pruebas. Al terminar, la señal de cada amigo baja y tiene interferencias, Audio Sync se juega en el mixer (también desde el botón «Sincronizar» del chat), los videos se descargan en el chat y el celular recupera Sanity. |
+| **Tipo** | Ejecutar un plan. |
+| **Modelo** | **Sonnet 5.5** |
 | **Esfuerzo** | **high** |
-| **Antes de empezar** | Lo ideal es que hayas probado la noche (`docs/04`, I, unos 15 minutos), para que tus notas entren al plan. |
-| **Qué escribirle a Claude** | "Escribe el Plan 6 (mantenimiento) con superpowers:writing-plans" |
-| **Tu parte** | Decidir cómo se juegan las tareas de mantenimiento (Claude pregunta durante la sesión). Si lo tienes, el arte: el mixer en piezas y el celular ampliado (`docs/06` §3). |
-| **Está terminada cuando** | El Plan 6 está escrito y validado sobre una copia limpia, y S15 es la siguiente. |
+| **Antes de empezar** | **Cierra Godot**: el plan usa `--import`. Lo ideal es que hayas probado la noche (`docs/04`, I, unos 15 minutos). |
+| **Qué escribirle a Claude** | "Ejecuta el Plan 6 (docs/13) con superpowers:executing-plans" |
+| **Tu parte** | Autorizar los commits (puedes autorizarlos todos al empezar) y, al terminar, probar el mantenimiento (`docs/04`, J, unos 20 minutos). Cuando puedas, el arte: el mixer visto desde arriba y el celular ampliado (`docs/06` §3). |
+| **Está terminada cuando** | Las 326 pruebas pasan, las capturas del mixer, de la descarga y del celular están revisadas, y S16 es la siguiente. |
 
 ---
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **no hay ninguno pendiente**: el Plan 6 se escribe en S14.
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy hay **uno pendiente**: `docs/13` (Plan 6), que se ejecuta en S15.
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
+| `docs/13_plan_mantenimiento.md` | **Plan 6**, paso a paso, con código | **Sí, en S15** ▶ |
 | `docs/12_plan_consecuencias_noche.md` | **Plan 5**, paso a paso, con código | Ya ejecutado (S13) ✅ |
 | `docs/11_plan_cuaderno.md` | **Plan 4**, paso a paso, con código | Ya ejecutado (S11) ✅ |
 | `docs/10_plan_solicitudes_chat.md` | **Plan 3**, paso a paso, con código | Ya ejecutado (S9) ✅ |
@@ -67,8 +68,8 @@ Hay dos tipos de sesión, que se alternan:
 | S11 | 31 oct | Ejecutar el Plan 4 → el bucle central se juega | Ejecución | Opus 5.5 (se adelantó; en vez de Sonnet) | Autorizar commits; probar (`docs/04`, H) | ✅ |
 | S12 | 31 oct | Escribir el Plan 5: consecuencias, medidores y noche | Plan | Opus 5.5 · high (se adelantó) | Decisiones de las consecuencias | ✅ |
 | S13 | 31 oct | Ejecutar el Plan 5 → una noche se gana o se pierde | Ejecución | Opus 5.5 · max (se adelantó; en vez de Sonnet) | Autorizar commits; probar (`docs/04`, I) | ✅ |
-| **S14** | 12 nov | **Escribir el Plan 6: mantenimiento** | Plan | **Opus 5.5 · high** | Decisiones del mantenimiento; mixer en piezas, celular ampliado | ▶ |
-| S15 | 13–15 nov | Ejecutar el Plan 6 → **una noche completa** | Ejecución | Sonnet 5.5 · high | Probarlo | ⏳ |
+| S14 | 31 oct – 2 nov | Escribir el Plan 6: mantenimiento | Plan | Opus 5.5 (se adelantó) | Decisiones del mantenimiento | ✅ |
+| **S15** | 13–15 nov | **Ejecutar el Plan 6 → una noche completa** | Ejecución | **Sonnet 5.5 · high** | Autorizar commits; probar (`docs/04`, J) | ▶ |
 | S16 | 16 nov | Escribir el Plan 7: screamers y director | Plan | Opus 5.5 · high | Arte de screamers | ⏳ |
 | S17 | 17–19 nov | Ejecutar el Plan 7 | Ejecución | Sonnet 5.5 · high | — | ⏳ |
 | S18 | 19 nov | Escribir el Plan 8: noches, menú, guardado y opciones | Plan | Opus 5.5 · high | **Las 7 entidades** | ⏳ |
@@ -86,6 +87,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 2-nov | ✏️ S14 se adelantó: empezó el 31 de octubre (fecha objetivo: 12 de noviembre), justo después de S13, y terminó el 2 de noviembre. Se escribió en Opus 5.5. Benja tomó 5 decisiones del mantenimiento: Audio Sync en el mixer visto desde arriba, el botón «Sincronizar» del chat, los videos que se descargan en el chat, las reglas de un amigo sin señal y el celular provisional (detalle en `resumen.md`, Sesión 14). La sesión se cortó una vez por falta de créditos, sin pérdidas. |
 | 31-oct | ✏️ S13 se adelantó al 31 de octubre (fecha objetivo: 10 a 12 de noviembre) y se ejecutó inline con `superpowers:executing-plans` en Opus 5.5 con esfuerzo max (el registro proponía Sonnet 5.5 · high). El plan se aplicó tal como está escrito, sin correcciones. |
 | 31-oct | ✏️ S12 siguió con las notas de prueba de Benja: el chat con estilo de terminal y los textos reales quedaron aplicados al juego, y el aviso de daño entró al Plan 5, que pasó a 13 tareas (de 185 a 251 pruebas) y se volvió a validar. La sesión se cortó una vez por falta de créditos, sin pérdidas (detalle en `resumen.md`, Sesión 12, continuación). |
 | 31-oct | ✏️ S12 se adelantó al 31 de octubre (fecha objetivo: 9 de noviembre), justo después de S11, y se escribió en Opus 5.5 con esfuerzo high. Benja tomó 3 decisiones de las consecuencias y los medidores (detalle en `resumen.md`, Sesión 12). |
@@ -120,3 +122,4 @@ Hay dos tipos de sesión, que se alternan:
 | S11 | 31-oct | Plan 4 ejecutado: 177 pruebas OK. Memoria de páginas por amigo, página de la entidad, respuesta y reacción provisional, panel del cuaderno a la derecha y respuestas desde el chat. Captura del cuaderno revisada. `docs/04`, H | `resumen.md`, Sesión 11 |
 | S12 | 31-oct | Plan 5 escrito (`docs/12`). Videos que llegan solos hasta el Plan 6, video de un amigo aturdido que se atrasa y color fijo por dial (decisiones de Benja). Después, notas de prueba: chat de terminal con Departure Mono, textos reales en primera persona y aviso de daño agregado al Plan 5 (13 tareas, de 185 a 251 pruebas). Plan validado dos veces sobre copias limpias | `resumen.md`, Sesión 12 y su continuación |
 | S13 | 31-oct | Plan 5 ejecutado: 251 pruebas OK. Valores de equilibrio en `data/balance.tres`, consecuencias, vida y aturdimiento, aviso de daño en el chat, reloj de la noche, diales, hora, videos, viñeta y pantalla final. Capturas de la noche revisadas. `docs/04`, I | `resumen.md`, Sesión 13 |
+| S14 | 31-oct al 2-nov | Plan 6 escrito (`docs/13`): 17 tareas, de 251 a 326 pruebas. Audio Sync en el mixer visto desde arriba y desde el botón «Sincronizar» del chat, los videos que se descargan en el chat, las reglas de un amigo sin señal y el celular provisional (decisiones de Benja). Código probado en una copia aparte y plan validado sobre una copia limpia | `resumen.md`, Sesión 14 |
