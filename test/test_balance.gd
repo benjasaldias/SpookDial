@@ -94,7 +94,7 @@ func test_valores_del_director_y_los_screamers() -> bool:
 func test_olas_y_screamers_de_cada_noche() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	var wave_sizes := [2, 3, 3, 4, 4]
-	var scare_counts := [0, 3, 4, 5, 6]
+	var scare_counts := [2, 4, 4, 5, 6]
 	for index in catalog.nights.size():
 		var night: NightData = catalog.nights[index]
 		var who := "noche %d" % night.number
@@ -112,8 +112,8 @@ func test_identificacion_por_preguntas() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	check_eq(catalog.balance.question_cost, 5.0, "preguntar cuesta 5 s")
 	check(catalog.greeting_keys.size() >= 5, "el amigo tiene varios saludos: %d" % catalog.greeting_keys.size())
-	var requests := [4, 6, 7, 8, 10]
-	var times := [90.0, 80.0, 75.0, 70.0, 65.0]
+	var requests := [5, 7, 7, 8, 10]
+	var times := [85.0, 80.0, 75.0, 70.0, 65.0]
 	var hints := [1.0, 0.75, 0.5, 0.35, 0.2]
 	var decoys := [1, 1, 2, 2, 3]
 	for index in catalog.nights.size():
@@ -123,4 +123,29 @@ func test_identificacion_por_preguntas() -> bool:
 		check_eq(night.base_decision_time, times[index], who + ": tiempo para responder")
 		check_eq(night.first_hint_chance, hints[index], who + ": probabilidad de pista inicial")
 		check_eq(night.decoys_per_request, decoys[index], who + ": señuelos")
+	return true
+
+
+## El mantenimiento de cada noche (docs/02 §6; decisión de Benja, 4 de noviembre: las noches 1 y 2 estaban
+## fáciles): la señal baja y hay Audio Sync desde la noche 1.
+func test_mantenimiento_de_cada_noche() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var simultaneous := [2, 2, 2, 3, 3]
+	var interferences := [1, 3, 3, 4, 6]
+	var beats := [4, 4, 4, 8, 8]
+	for index in catalog.nights.size():
+		var night: NightData = catalog.nights[index]
+		var who := "noche %d" % night.number
+		check_eq(night.max_simultaneous, simultaneous[index], who + ": solicitudes a la vez")
+		check(night.signal_decays, who + ": la señal baja")
+		check_eq(night.interference_count, interferences[index], who + ": interferencias")
+		check_eq(night.audio_sync_beats, beats[index], who + ": aplausos de Audio Sync")
+	return true
+
+
+## Trust también baja si tardas en contestar (decisión de Benja, 4 de noviembre).
+func test_trust_por_tardar() -> bool:
+	var balance: BalanceData = load(BALANCE_PATH)
+	check_eq(balance.slow_answer_grace, 30.0, "30 s de espera sin que Trust baje")
+	check_eq(balance.slow_answer_trust, 0.25, "después, Trust baja 0,25 por segundo por solicitud")
 	return true

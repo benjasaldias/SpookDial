@@ -34,6 +34,10 @@ extends Resource
 @export var trust_recovery_interval := 8.0
 ## …si no bajó en los últimos tantos segundos.
 @export var trust_recovery_delay := 20.0
+## Segundos que una solicitud puede esperar sin que Trust baje (decisión de Benja, 4 de noviembre)…
+@export var slow_answer_grace := 30.0
+## …y después, Trust baja tantos puntos por segundo por cada solicitud que sigue esperando.
+@export var slow_answer_trust := 0.25
 
 @export_group("Sanity")
 ## Bajo este valor de Sanity aparece la viñeta, que se oscurece más mientras más baja.
