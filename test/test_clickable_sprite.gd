@@ -42,3 +42,22 @@ func test_clic_con_resaltado_emite_clicked() -> bool:
 	check(received[0], "emitió clicked")
 	phone.free()
 	return true
+
+
+func test_parpadea_cuando_pide_atencion() -> bool:
+	var phone := _make_phone()
+	# Lejos del mouse, para que no se resalte.
+	phone.position = Vector2(5000, 5000)
+	var material := phone.material as ShaderMaterial
+	phone.blinking = true
+	phone._process(0.1)
+	check_eq(material.get_shader_parameter("enabled"), true, "encendido")
+	phone._process(0.4)
+	check_eq(material.get_shader_parameter("enabled"), false, "apagado")
+	phone._process(0.4)
+	check_eq(material.get_shader_parameter("enabled"), true, "encendido otra vez")
+	phone.blinking = false
+	phone._process(0.1)
+	check_eq(material.get_shader_parameter("enabled"), false, "deja de parpadear")
+	phone.free()
+	return true
