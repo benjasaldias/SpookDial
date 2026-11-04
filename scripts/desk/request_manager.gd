@@ -101,6 +101,19 @@ func pending_count() -> int:
 	return count
 
 
+## Cuántas solicitudes esperan más de la cuenta y hacen bajar Trust (decisión de Benja, 4 de noviembre): las que
+## llevan más de slow_answer_grace segundos abiertas (más con "Temporizadores ×1,5") y tienen un amigo con señal;
+## sin señal, Trust ya baja por eso.
+func impatient_count() -> int:
+	var grace := catalog.balance.slow_answer_grace * timer_scale
+	var count := 0
+	for index in requests.size():
+		var request := requests[index]
+		if request != null and state.friends[index].is_online() and request.is_slow(grace):
+			count += 1
+	return count
+
+
 ## Avanza `delta` segundos: los temporizadores, la espera de identificación y la llegada de solicitudes.
 func advance(delta: float) -> void:
 	_elapsed += delta

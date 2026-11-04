@@ -156,3 +156,32 @@ func test_cuenta_las_preguntas() -> bool:
 	request.pay_question()
 	check_eq(request.questions_asked, 2, "la que no se pudo hacer no cuenta")
 	return true
+
+
+## Una solicitud que espera demasiado hace bajar Trust (decisión de Benja, 4 de noviembre): cuenta el tiempo que
+## lleva abierta, preguntas incluidas.
+func test_una_solicitud_lenta() -> bool:
+	var request := _make_request()
+	request.situation = {&"o1": &"yes", &"o2": &"no"}
+	request.advance(20.0)
+	check_eq(request.open_seconds, 20.0, "20 s abierta")
+	check(not request.is_slow(30.0), "todavía no")
+	request.pay_question()
+	check_eq(request.open_seconds, 25.0, "preguntar también cuenta")
+	request.advance(5.0)
+	check(not request.is_slow(30.0), "justo a los 30 s, todavía no")
+	request.advance(0.5)
+	check(request.is_slow(30.0), "pasados los 30 s, sí")
+	request.finish(request.entity.find_action(&"a1"), true)
+	check(not request.is_slow(30.0), "una solicitud terminada ya no espera")
+	return true
+
+
+## En el tutorial el temporizador espera, y la solicitud nunca es lenta.
+func test_en_el_tutorial_nunca_es_lenta() -> bool:
+	var request := _make_request()
+	request.timer_paused = true
+	request.advance(100.0)
+	check_eq(request.open_seconds, 0.0, "no cuenta")
+	check(not request.is_slow(30.0), "no es lenta")
+	return true

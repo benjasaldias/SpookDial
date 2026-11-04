@@ -57,6 +57,7 @@ func advance(delta: float) -> void:
 	requests.advance(delta)
 	if ended:
 		return
+	requests.state.impatient = requests.impatient_count()
 	var events := requests.state.advance(delta)
 	requests.report(events)
 	for friend_index: int in events.videos.received:

@@ -533,3 +533,20 @@ func test_temporizadores_mas_largos() -> bool:
 	check_eq(request.time_left, 67.5, "45 s × 1,5")
 	manager.free()
 	return true
+
+
+## Una solicitud que espera más de 30 s hace bajar Trust; con "Temporizadores ×1,5", el plazo es de 45 s
+## (decisión de Benja, 4 de noviembre).
+func test_solicitudes_que_esperan_demasiado() -> bool:
+	var manager := _make_manager()
+	var request := manager.start_request(2)
+	check_eq(manager.impatient_count(), 0, "recién llegó")
+	request.open_seconds = 31.0
+	check_eq(manager.impatient_count(), 1, "lleva más de 30 s")
+	manager.timer_scale = 1.5
+	check_eq(manager.impatient_count(), 0, "con ×1,5, el plazo es de 45 s")
+	manager.timer_scale = 1.0
+	manager.state.friends[2].signal_level = 0.0
+	check_eq(manager.impatient_count(), 0, "sin señal ya baja Trust por eso")
+	manager.free()
+	return true

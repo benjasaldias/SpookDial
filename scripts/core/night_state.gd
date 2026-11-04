@@ -35,6 +35,9 @@ var friends: Array[FriendState] = []
 var videos: VideoSchedule
 ## El amigo cuya descarga mantiene presionada Matías en el chat, o -1 (decisión de Benja).
 var holding_download := -1
+## Cuántas solicitudes esperan más de la cuenta: cada una hace bajar Trust (decisión de Benja, 4 de noviembre).
+## Lo pone NightManager antes de cada paso.
+var impatient := 0
 var interferences: InterferenceSchedule
 
 ## Segundos desde la última vez que bajó Trust.
@@ -165,13 +168,14 @@ func _advance_sanity(delta: float) -> void:
 			0.0, METER_MAX)
 
 
-## Trust se recupera si no bajó en un rato. Con amigos sin señal, baja por cada uno y no se recupera
-## (decisión de Benja).
+## Trust se recupera si no bajó en un rato. Con amigos sin señal o con solicitudes esperando demasiado, baja
+## por cada uno y no se recupera (decisión de Benja).
 func _advance_trust(delta: float) -> void:
-	var offline := offline_count()
-	if offline > 0:
+	var drain := delta * offline_count() / balance.offline_trust_interval \
+			+ delta * impatient * balance.slow_answer_trust
+	if drain > 0.0:
 		_since_trust_loss = 0.0
-		trust = maxf(trust - delta * offline / balance.offline_trust_interval, 0.0)
+		trust = maxf(trust - drain, 0.0)
 		return
 	_since_trust_loss += delta
 	# Solo cuenta la parte del paso que cae después de la espera sin errores.

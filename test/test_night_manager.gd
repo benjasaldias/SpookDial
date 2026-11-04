@@ -187,3 +187,26 @@ func test_terminar_la_noche_desde_afuera() -> bool:
 	check(night.ended, "terminó")
 	_free(night)
 	return true
+
+
+## Una solicitud que espera más de 30 s baja Trust, y la noche lo aplica en cada paso (decisión de Benja, 4 de
+## noviembre).
+func test_trust_baja_si_tardas_en_contestar() -> bool:
+	var night := _make_night()
+	var request := _requests.start_request(0)
+	check(request != null, "llegó una solicitud")
+	if request == null:
+		_free(night)
+		return true
+	request.time_left = 500.0
+	night.advance(10.0)
+	check_eq(_requests.state.trust, 100.0, "a los 10 s, Trust sigue entera")
+	night.advance(30.0)
+	check(_requests.state.trust < 100.0, "a los 40 s, Trust bajó: %s" % _requests.state.trust)
+	var before := _requests.state.trust
+	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
+	_requests.answer(0, request.entity.find_action(rule.correct_action_id))
+	night.advance(1.0)
+	check_eq(_requests.state.trust, before, "respondida, deja de bajar")
+	_free(night)
+	return true

@@ -286,3 +286,19 @@ func test_en_el_tutorial_no_se_pierde() -> bool:
 	state.elapsed = catalog.balance.night_seconds
 	check_eq(state.ending(), NightState.Ending.NONE, "no termina solo")
 	return true
+
+
+## Cada solicitud que espera demasiado le quita 0,25 de Trust por segundo, y mientras tanto Trust no se
+## recupera (decisión de Benja, 4 de noviembre).
+func test_la_espera_baja_trust() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var state := NightState.new(catalog.nights[0], catalog.balance, 3, RandomNumberGenerator.new())
+	state.impatient = 2
+	state.advance(10.0)
+	check_eq(state.trust, 95.0, "2 solicitudes × 0,25 por segundo × 10 s")
+	state.impatient = 0
+	state.advance(20.0)
+	check_eq(state.trust, 95.0, "recién deja de bajar: todavía no se recupera")
+	state.advance(8.0)
+	check_eq(state.trust, 96.0, "después de 20 s sin bajar, vuelve a subir")
+	return true

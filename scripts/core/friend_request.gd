@@ -39,6 +39,9 @@ var time_left := 0.0
 var timer_paused := false
 ## Cuántas preguntas hizo Matías (el tutorial dice qué hacer según esto).
 var questions_asked := 0
+## Segundos que lleva abierta, con lo que costaron las preguntas. Con el temporizador en espera (el tutorial)
+## no corre.
+var open_seconds := 0.0
 var identification := Identification.PENDING
 var thinking_left := 0.0
 var finished := false
@@ -93,6 +96,7 @@ func pay_question() -> bool:
 		return false
 	time_left -= question_cost
 	questions_asked += 1
+	open_seconds += question_cost
 	return true
 
 
@@ -103,6 +107,7 @@ func advance(delta: float) -> bool:
 		return false
 	if not timer_paused:
 		time_left = maxf(time_left - delta, 0.0)
+		open_seconds += delta
 	if identification != Identification.THINKING:
 		return false
 	thinking_left -= delta
@@ -114,6 +119,12 @@ func advance(delta: float) -> bool:
 
 func is_out_of_time() -> bool:
 	return not finished and time_left <= 0.0
+
+
+## Matías la deja esperando más de `grace` segundos, y Trust baja (decisión de Benja, 4 de noviembre). En el
+## tutorial, con el temporizador en espera, nunca.
+func is_slow(grace: float) -> bool:
+	return not finished and not timer_paused and open_seconds > grace
 
 
 ## Termina la solicitud con `action`. `by_player` es false si el amigo decidió solo.
