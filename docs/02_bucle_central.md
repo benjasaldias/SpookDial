@@ -261,7 +261,7 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
 
 ## 10. Modelo de datos (Resources editables en el Inspector)
 
-Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`docs/10`); `BalanceData`, en el Plan 5 (`docs/12`), y las publicaciones del celular, en el Plan 6 (`docs/13`). Las clases están en `scripts/data/` y el contenido en `data/`.
+Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`docs/10`); `BalanceData`, en el Plan 5 (`docs/12`); las publicaciones del celular, en el Plan 6 (`docs/13`), y los screamers y los chats guionados, en el Plan 7 (`docs/14`). Las clases están en `scripts/data/` y el contenido en `data/`.
 
 ```text
 DecoyData        señuelo: como TraitData (id, category, text_key), más place_keys[] (vacío = cualquier lugar)
@@ -277,10 +277,13 @@ EntityData       id, name_key, lore_key, sketch, place_keys[], traits[2-4], acti
 FriendData       id, name_key, avatar, color
 NightData        number, place_key, new_entities[], requests_total, max_simultaneous,
                  base_decision_time, first_message_observations (todas / todas menos 1 / 1),
-                 decoys_in_first_message,
+                 decoys_in_first_message, wave_size (solicitudes por ola),
                  signal_decays, signal_decay_interval, interference_count,
-                 audio_sync_beats, sanity_drain_interval, content_quota
-BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start, el scroll del celular, la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia) y los videos (plazos y descarga)
+                 audio_sync_beats, sanity_drain_interval, content_quota,
+                 scare_count, has_jumpscare,
+                 scripted_scare_time, scripted_scare (ScareKind), scripted_chat (ChatScriptData)
+ChatScriptData   friend, lines[] (ChatLineData: speaker FRIEND/PLAYER, text_key), highlight_phone
+BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start, el scroll del celular, la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el director (olas y respiros), los screamers (señal previa, justicia, Sanity, jumpscare y tinta) y las alucinaciones
 PhonePostData    author_key, text_key, picture (sin imagen, se dibuja un paisaje), color
 ContentCatalog   friends[3], nights[5], decoys[], balance, phone_posts[] (data/catalog.tres)
 ```
@@ -290,7 +293,7 @@ ContentCatalog   friends[3], nights[5], decoys[], balance, phone_posts[] (data/c
 - Las entidades conocidas en una noche son las `new_entities` de esa noche y de las anteriores (ya no existe `intro_night`).
 - Dos entidades comparten una característica si usan el mismo id. Ninguna entidad puede tener todas sus características dentro de las de otra: así siempre hay un par que la distingue.
 - Al correr las pruebas, un validador revisa el contenido real y avisa en español: cantidades de la plantilla (§7), ids que no existen, reglas que nunca se aplican, características compartidas por más de 2 entidades y claves de texto que faltan.
-- `screamer_rate` se agrega a `NightData` en el Plan 7.
+- Los tipos de screamer son `ScareKind`: la cortina, la ventana, el celular, las luces, el golpe del cuaderno, la tinta y el jumpscare (Plan 7).
 
 ---
 

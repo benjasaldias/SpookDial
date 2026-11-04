@@ -21,6 +21,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
 | **J.** Probar el mantenimiento (Plan 6) | ⬜ Pendiente (unos 20 minutos) |
+| **K.** Probar los screamers y el director (Plan 7) | ⬜ Pendiente (unos 20 minutos) |
 
 ---
 
@@ -274,3 +275,40 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 - **Por noche** (`data/nights/night_N.tres`, grupo **Señal**): si la señal baja (**Signal Decays**), cada cuántos segundos baja un punto (**Signal Decay Interval**: el mínimo en **x** y el máximo en **y**), cuántas interferencias hay (**Interference Count**) y cuántos aplausos tiene Audio Sync (**Audio Sync Beats**: 4 u 8, o 0 si esa noche no hay).
 - **Los sonidos provisionales** están en `audio/sfx/`. Para probar otro, reemplaza el archivo por uno con el mismo nombre.
 - **Las publicaciones del celular** están en `data/catalog.tres`, en **Phone Posts**, y sus textos, en `data/text/phone.csv`.
+
+---
+
+## K. Probar los screamers y el director (Plan 7)
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. Abre Godot y el proyecto. Abre `scenes/desk/desk.tscn` y presiona **F5**. Se juega la noche 3. Ahora suena de fondo el ambiente del cuarto (viento y un zumbido), y la figura de la ventana ya no está.
+2. **El ritmo:** las solicitudes llegan en olas de 3. Dentro de una ola llegan con unos 20 a 35 segundos entre una y otra, y después de cada ola hay un respiro unos 25 segundos más largo, sin solicitudes nuevas. Hacia las 06:00 llegan más seguidas. Si un amigo queda herido, la siguiente se atrasa unos 10 segundos.
+3. **Los screamers:** en la noche 3 hay 4, desde los 30 segundos, y uno de ellos es el jumpscare.
+   - Antes de cada uno, las luces parpadean y baja el sonido ambiente durante 1 segundo.
+   - Con el escritorio a la vista (sin el chat, el mixer ni el celular abiertos), puede ser que la cortina se meza, que aparezca la figura en la ventana, que el celular vibre o que se apaguen las luces. Con el chat abierto, solo las luces. Con el cuaderno abierto, también puede cerrarse de golpe o mancharse de tinta durante 5 segundos.
+   - Cada uno baja de golpe el dial de Sanity (el del medio): 8 puntos, y el jumpscare, 15.
+   - El jumpscare tapa toda la pantalla un segundo y medio, con un grito. Mientras dura, la noche se pausa: la hora y los temporizadores no avanzan.
+4. **Justicia:** ningún screamer empieza si a una solicitud le quedan 6 segundos o menos, ni durante una ronda de Audio Sync.
+5. **Alucinaciones:** para no esperar a que baje Sanity, haz doble clic en `data/balance.tres` y, en el **Inspector**, en el grupo **Alucinaciones**, cambia **Hallucination Start** de 50 a 100 y **Hallucination Slowest** de 40 a 10. Presiona **F5**.
+   - Cada unos 10 segundos suena algo a un lado de la pantalla: golpes en la ventana, pasos, susurros, rasguños, la estática de una interferencia o el celular vibrando. No pasa nada más: son falsos.
+   - Durante una ronda de Audio Sync no suena ninguno.
+   - **Al terminar, vuelve a dejar 50 y 40.** Si no, `test_balance.gd` falla.
+6. **El susto guionado:** en el panel **Scene**, selecciona el nodo `RequestManager` y, en el **Inspector**, cambia **Night Number** de 3 a 1. Presiona **F5**. La noche 1 todavía no tiene entidades, así que no llegan solicitudes.
+   - Al minuto (cerca de las 00:51), las luces parpadean y llega el jumpscare.
+   - Unos segundos después, la entrada de Gonzalo parpadea. Abre su chat: "Todo bien hermano?? Se te quedó el micro prendido y te escuché gritar". Abajo, en lugar de las respuestas, hay un botón con la respuesta de Matías. Presiónalo.
+   - Gonzalo contesta "Mati wn relájate, tú puedes. Usa tu celu pa despejarte un rato, te va a calmar". Cierra el chat: el borde del celular parpadea. Haz clic en el celular: se abre y deja de parpadear.
+   - **Al terminar, vuelve Night Number a 3.**
+
+**Verifica:** los pasos 1 a 6 se cumplen. Si algo falla, anota cuál y qué pasó.
+
+### Para ajustar
+
+- **Los valores de equilibrio** están en `data/balance.tres`. Haz doble clic en él y cámbialos en el **Inspector**:
+  - **Director:** cuándo llega la primera solicitud (**First Request Delay**), cuánto dura el respiro después de cada ola (**Wave Respite**), cuánto se aprietan hacia las 06:00 (**Wave Tightening**: 0,5 es la mitad), cuánto tiempo mínimo pasa entre dos (**Request Min Gap**) y cuánto las atrasa un amigo herido (**Hurt Respite**);
+  - **Screamers:** cuánto dura la señal previa (**Scare Warning**), cuántos segundos le tienen que quedar a una decisión (**Scare Margin**), cuánto tiempo mínimo pasa entre dos (**Scare Min Gap**), desde cuándo hay (**First Scare After**), cuánto restan (**Scare Sanity** y **Jumpscare Sanity**) y cuánto duran el jumpscare (**Jumpscare Seconds**) y la tinta (**Ink Seconds**);
+  - **Alucinaciones:** desde qué Sanity suenan (**Hallucination Start**) y cada cuánto, al empezar (**Hallucination Slowest**) y con Sanity en 0 (**Hallucination Fastest**).
+  - Si cambias un valor a propósito, avísale a Claude: `test_balance.gd` compara el archivo con `docs/02`.
+- **Por noche** (`data/nights/night_N.tres`): cuántas solicitudes trae cada ola (**Wave Size**, en **Solicitudes**); cuántos screamers hay y si uno es el jumpscare (**Scare Count** y **Has Jumpscare**, en **Screamers**); y el guion (en **Guion**): a qué segundo llega el susto guionado (**Scripted Scare Time**; 0 si no hay), qué screamer es (**Scripted Scare**) y su chat (**Scripted Chat**: el amigo, las líneas con quién habla y su texto, y si al final parpadea el celular).
+- **Los textos del chat guionado** están en `data/text/messages.csv` (`SCRIPT_SCARE_*`).
+- **Los sonidos provisionales** están en `audio/sfx/`. Para probar otro, reemplaza el archivo por uno con el mismo nombre.
