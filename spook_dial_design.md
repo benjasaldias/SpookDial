@@ -7,13 +7,14 @@
 - El detalle de la mecánica central (reglas, valores numéricos, modelo de datos) está en `docs/02_bucle_central.md`.
 - El orden de trabajo y el calendario están en `docs/05_plan_produccion.md`.
 
-Última actualización: 2 de noviembre de 2026.
+Última actualización: 4 de noviembre de 2026.
 
 - 26 de octubre: identificación por características, acción de mayor riesgo y cuota cubierta por los envíos. En la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos.
 - 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
 - 31 de octubre (sesión 12): cada dial conserva el color de su aguja, y el video de un amigo aturdido llega cuando se recupera. Después de probar el juego: el chat con estilo de terminal, los textos reales en primera persona y el aviso de daño en el chat.
 - 31 de octubre al 2 de noviembre (sesión 14): un amigo sin señal, los videos que se descargan en el chat, Audio Sync en el mixer visto desde arriba y el botón «Sincronizar» del chat.
 - 2 de noviembre (sesión 16): el ritmo de la noche en olas, los screamers en cualquier momento, las alucinaciones, la figura de la ventana, la noche 0 (tutorial) y el chat guionado que enseña el celular.
+- 4 de noviembre (sesión 18): la noche 0 guiada y sin perder, las 7 entidades como borrador de Claude, el menú de pausa y los temporizadores ×1,5 solo para responder.
 
 ---
 
@@ -58,7 +59,12 @@ Durante cinco noches tiene que hacer cuatro cosas:
 ## 5. Estructura de una partida
 
 - **Menú principal:** Continuar (solo si hay una partida en curso), Nueva partida, Opciones y Salir.
-- **Noche 0 (tutorial)** antes de la noche 1 (decisión de Benja, sesión 16). Qué enseña y cuánto dura se decide en el Plan 8.
+- **Noche 0 (tutorial)** antes de la noche 1 (decisión de Benja, sesión 16), **guiada y sin perder** (sesión 18). Dura unos 3 o 4 minutos:
+  - tres solicitudes fijas, una de cada amigo, con El Tue Tué y La Calchona;
+  - un aviso arriba de la pantalla dice qué hacer en cada paso: abrir el chat, preguntar, marcar las características, abrir la página de la entidad, responder y descargar el video que manda Agustín;
+  - el tiempo para responder no corre solo (solo las preguntas le quitan tiempo), los plazos del video esperan, nadie sale herido y Trust no baja: una respuesta equivocada solo avisa qué habría pasado;
+  - termina con el susto guionado, el chat de Gonzalo y el celular (§11);
+  - "Nueva partida" siempre empieza en la noche 0, y el aviso tiene un botón para saltarla.
 - **5 noches.** Cada una va de las **00:00 a las 06:00** (formato de 24 horas) en unos **7 minutos reales**.
 - **Ritmo de la noche** (decisión de Benja, sesión 16): las solicitudes llegan en **olas**. Después de cada ola hay un **respiro** de unos 25 segundos sin solicitudes nuevas, para sincronizar, descargar videos o mirar el celular. Las olas se aprietan hacia las 06:00, y cuando un amigo queda herido, las solicitudes que faltan se atrasan unos segundos.
 - **Se gana la noche** al llegar a las 06:00 **con la cuota de contenido cumplida**.
@@ -68,6 +74,7 @@ Durante cinco noches tiene que hacer cuatro cosas:
   - son las 06:00 y no se cumplió la cuota.
 - **Al perder:** una pantalla explica qué pasó y la noche se reinicia desde el comienzo. La noche se vuelve a generar, así que no se repite de memoria.
 - **Guardado:** al comienzo de cada noche.
+- **Pausa** (decisión de Benja, sesión 18): sin ningún panel abierto, `Esc` pausa la noche y abre un menú con Continuar, Opciones y Volver al menú. Volver al menú pierde la noche, que se retoma desde su comienzo.
 - **Entre noches:** un resumen (contenido obtenido y páginas nuevas del cuaderno), y después una cinemática opcional.
 - **Final único:** sobrevivir las 5 noches, como en FNAF.
 
@@ -261,7 +268,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
   - los que tapan la pantalla **pausan los temporizadores**;
   - nunca ocurren en los últimos 5 segundos de una decisión.
 - Cada uno resta una cantidad fija de Sanity. No dañan a Matías.
-- **El susto guionado** (decisión de Benja, sesión 16) enseña Sanity y el celular. Va en la noche 0; mientras no exista, en la 1. Después del susto:
+- **El susto guionado** (decisión de Benja, sesión 16) enseña Sanity y el celular. Va al final de la noche 0. Después del susto:
   1. un amigo escribe: "Todo bien hermano?? Se te quedó el micro prendido y te escuché gritar";
   2. Matías responde con un botón: "Creo que me estoy volviendo loco, no sé si puedo seguir";
   3. el amigo contesta: "Mati wn relájate, tú puedes. Usa tu celu pa despejarte un rato, te va a calmar";
@@ -283,7 +290,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 
 ## 13. Entidades
 
-Siete criaturas del folclore chileno. Benja define las reglas y las acciones de cada una con la plantilla de `docs/02`.
+Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la sesión 18 son datos (`data/entities/`): un borrador de Claude, con las 3 de `docs/09` y 4 nuevas, que Benja corrige.
 
 | Entidad | Lugar habitual | Noche en que aparece |
 | --- | --- | --- |
@@ -301,8 +308,8 @@ Siete criaturas del folclore chileno. Benja define las reglas y las acciones de 
 
 | Noche | Dónde están los amigos | Entidades nuevas | Qué se agrega |
 | --- | --- | --- | --- |
-| 0 (tutorial) | Se decide en el Plan 8 | — | El susto guionado y su chat enseñan Sanity y el celular (§11). El resto se decide en el Plan 8. |
-| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust. La señal no baja. Mientras no exista la noche 0, el susto guionado va aquí. Los mensajes traen todas las observaciones. |
+| 0 (tutorial) | Alrededores de la cabaña | (usa las páginas de la noche 1) | Guiada y sin perder (§5): preguntar, identificar, responder desde el cuaderno y descargar un video. Al final, el susto guionado y su chat enseñan Sanity y el celular (§11). |
+| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust, ya sin ayuda. La señal no baja. El mensaje inicial siempre trae una pista. |
 | 2 | Camino y lago | El Cuero, La Viuda | Señal por amigo, interferencias, Audio Sync de 4 tiempos, estática y screamers regulares. |
 | 3 | Bosque | El Trauco | Mensajes con menos observaciones: preguntar se vuelve necesario. |
 | 4 | Casa abandonada y cueva | El Basilisco, El Imbunche | Audio Sync de 8 tiempos y varias solicitudes a la vez. |
@@ -343,7 +350,7 @@ El guion de las cinemáticas lo escribe Benja.
 - Reducir destellos.
 - Volumen por canal.
 - Desactivar el parallax.
-- Temporizadores ×1,5.
+- Temporizadores ×1,5: alarga solo el tiempo para responder una solicitud (decisión de Benja, sesión 18).
 - Ninguna información crítica depende solo del color.
 
 ## 20. Por confirmar
