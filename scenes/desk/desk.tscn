@@ -216,11 +216,13 @@ script = ExtResource("night_script")
 [node name="InterferenceSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("static_sound")
 volume_db = -6.0
+bus = &"Effects"
 
 [node name="Ambient" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("ambient_sound")
 volume_db = -12.0
 autoplay = true
+bus = &"Ambience"
 
 [node name="Screamers" type="Node" parent="." node_paths=PackedStringArray("curtains", "figure", "phone", "darkness", "jumpscare", "notebook", "ambient")]
 script = ExtResource("screamers_script")
@@ -235,26 +237,34 @@ hallucination_sounds = Array[AudioStream]([ExtResource("knock_sound"), ExtResour
 
 [node name="CurtainsSound" type="AudioStreamPlayer" parent="Screamers"]
 stream = ExtResource("curtains_sound")
+bus = &"Effects"
 
 [node name="WindowSound" type="AudioStreamPlayer" parent="Screamers"]
 stream = ExtResource("window_sound")
+bus = &"Effects"
 
 [node name="PhoneSound" type="AudioStreamPlayer" parent="Screamers"]
 stream = ExtResource("phone_sound")
+bus = &"Effects"
 
 [node name="LightsSound" type="AudioStreamPlayer" parent="Screamers"]
 stream = ExtResource("lights_sound")
+bus = &"Effects"
 
 [node name="SlamSound" type="AudioStreamPlayer" parent="Screamers"]
 stream = ExtResource("slam_sound")
+bus = &"Effects"
 
 [node name="InkSound" type="AudioStreamPlayer" parent="Screamers"]
 stream = ExtResource("ink_sound")
+bus = &"Effects"
 
 [node name="JumpscareSound" type="AudioStreamPlayer" parent="Screamers"]
 stream = ExtResource("jumpscare_sound")
+bus = &"Effects"
 
 [node name="Hallucination" type="AudioStreamPlayer2D" parent="Screamers"]
+bus = &"Effects"
 
 [node name="Overlay" type="CanvasLayer" parent="."]
 layer = 2

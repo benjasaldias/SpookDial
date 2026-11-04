@@ -19,22 +19,28 @@ script = ExtResource("mixer_script")
 
 [node name="Kick" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("kick")
+bus = &"Effects"
 
 [node name="Tick" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("tick")
 volume_db = -8.0
+bus = &"Effects"
 
 [node name="Clap" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("clap")
+bus = &"Effects"
 
 [node name="Tap" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("tap")
 volume_db = -4.0
+bus = &"Effects"
 
 [node name="Success" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("success")
 volume_db = -6.0
+bus = &"Effects"
 
 [node name="Fail" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("fail")
 volume_db = -6.0
+bus = &"Effects"

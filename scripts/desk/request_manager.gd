@@ -40,6 +40,8 @@ const TUTORIAL_GAP := 4.0
 @export var requests_arrive := true
 ## 0: cada partida es distinta. Otro número repite la misma secuencia.
 @export var random_seed := 0
+## Cuánto se alarga el tiempo para responder: 1,5 con la opción "Temporizadores ×1,5" (diseño §19).
+var timer_scale := 1.0
 
 var rng := RandomNumberGenerator.new()
 ## La solicitud activa de cada amigo, o null si no tiene.
@@ -120,13 +122,15 @@ func advance(delta: float) -> void:
 
 
 ## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una, si no está disponible
-## (aturdido o muerto) o si no hay entidades. Con Trust bajo, el temporizador es más corto.
+## (aturdido o muerto) o si no hay entidades. Con Trust bajo, el temporizador es más corto, y con la opción
+## "Temporizadores ×1,5", más largo.
 func start_request(friend_index: int) -> FriendRequest:
 	if requests[friend_index] != null or not state.is_available(friend_index):
 		return null
 	var request := RequestGenerator.generate(catalog, night(), friend_index, rng, state.trust)
 	if request == null:
 		return null
+	request.time_left *= timer_scale
 	requests[friend_index] = request
 	request_started.emit(friend_index, request)
 	_add_friend_message(friend_index, MessageBuilder.first_message(request, tr))
@@ -293,7 +297,7 @@ func _finish_chat_script_if_done() -> void:
 ## Cuando el director lo pide, le da una solicitud a un amigo libre al azar, sin pasar de las simultáneas.
 ## Si no hay a quién dársela, espera: el director atrasa las que faltan.
 func _maybe_start_request() -> void:
-	if not director.request_due(_elapsed, RequestGenerator.decision_time(night(), state.trust)):
+	if not director.request_due(_elapsed, RequestGenerator.decision_time(night(), state.trust) * timer_scale):
 		return
 	if active_count() >= night().max_simultaneous:
 		return

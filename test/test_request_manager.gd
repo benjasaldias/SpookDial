@@ -523,3 +523,13 @@ func test_lo_pendiente_en_una_noche_normal() -> bool:
 	check_eq(manager.pending_count(), 1, "una solicitud")
 	manager.free()
 	return true
+
+
+## La opción "Temporizadores ×1,5" (diseño §19) alarga el tiempo para responder (decisión de Benja: solo ese).
+func test_temporizadores_mas_largos() -> bool:
+	var manager := _make_manager()
+	manager.timer_scale = 1.5
+	var request := manager.start_request(0)
+	check_eq(request.time_left, 67.5, "45 s × 1,5")
+	manager.free()
+	return true
