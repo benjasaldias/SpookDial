@@ -20,6 +20,9 @@ func _run_all() -> void:
 		if file_name.begins_with("test_") and file_name.ends_with(".gd") and file_name != "test_case.gd":
 			_run_suite(TEST_DIR.path_join(file_name))
 	print("\n%d pruebas OK, %d fallidas" % [_passed, _failed])
+	# Los sonidos que las pruebas dejaron sonando se liberan en el hilo de audio: se le da un momento antes de
+	# salir, para que no queden recursos en uso.
+	await create_timer(0.2).timeout
 	quit(1 if _failed > 0 else 0)
 
 

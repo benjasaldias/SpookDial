@@ -10,6 +10,8 @@ extends Node2D
 ## Son modos exclusivos: cierran los paneles y el otro modo, y abrir un panel los cierra (decisión de Benja).
 ## El botón «Sincronizar» del chat también abre el mixer, en el canal de ese amigo.
 ## Cuando se anuncia una interferencia, suena estática.
+## Desde el Plan 7 suena el ambiente del cuarto, y los screamers (ScreamerManager) asustan con lo que se ve
+## del escritorio, con el cuaderno y con el jumpscare.
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
@@ -18,6 +20,8 @@ const NightManager := preload("res://scripts/desk/night_manager.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
+const Screamer := preload("res://scripts/core/screamer.gd")
+const ScreamerManager := preload("res://scripts/desk/screamer_manager.gd")
 
 ## Videos recibidos, en el PC (ui.csv). Lleva {received} y {quota}.
 const VIDEOS_KEY := "PC_VIDEOS"
@@ -40,6 +44,7 @@ var notebook_memory: NotebookMemory
 @onready var _mixer: Control = $UI/MixerView
 @onready var _phone: Control = $UI/PhoneView
 @onready var _interference_sound: AudioStreamPlayer = $InterferenceSound
+@onready var _screamers: ScreamerManager = $Screamers
 
 ## Qué amigos tenían anunciada una interferencia en el frame anterior: la estática suena al empezar el aviso.
 var _warned: Array[bool] = []
@@ -53,6 +58,7 @@ func _ready() -> void:
 	_notebook_panel.setup(notebook_memory, _requests.catalog.known_entities(_requests.night_number), friends)
 	_mixer.setup(_requests, friends)
 	_phone.setup(_requests.state, _requests.catalog.phone_posts)
+	_screamers.setup(_requests, _night)
 	_warned.resize(friends.size())
 	_warned.fill(false)
 	for index in _entries.size():
@@ -70,9 +76,20 @@ func _ready() -> void:
 	$DeskPlane/Phone.clicked.connect(open_phone)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_refresh_entries()
 	_refresh_meters()
+	_screamers.advance(delta, _scare_view(), _mixer.is_playing())
+
+
+## Lo que se ve del escritorio, para elegir un screamer: el chat, el mixer y el celular ampliado tapan la
+## ventana y el celular del escritorio.
+func _scare_view() -> Screamer.View:
+	var view := Screamer.View.new()
+	view.desk_visible = not (_chat_panel.visible or _mixer.visible or _phone.visible)
+	view.notebook_open = _notebook_panel.visible
+	view.notebook_page = _notebook_panel.shows_page()
+	return view
 
 
 ## Cierra el chat y el cuaderno. El celular y el mixer se usan sin ningún panel abierto (decisión de Benja).

@@ -29,6 +29,19 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/mixer_view.tscn" id="mixer_view"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_view.tscn" id="phone_view"]
 [ext_resource type="AudioStream" path="res://audio/sfx/interference_static.wav" id="static_sound"]
+[ext_resource type="Script" path="res://scripts/desk/screamer_manager.gd" id="screamers_script"]
+[ext_resource type="AudioStream" path="res://audio/sfx/ambient_room.wav" id="ambient_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/scare_curtains.wav" id="curtains_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/scare_window.wav" id="window_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/scare_phone.wav" id="phone_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/scare_lights.wav" id="lights_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/scare_slam.wav" id="slam_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/scare_ink.wav" id="ink_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/scare_jumpscare.wav" id="jumpscare_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/hallucination_knock.wav" id="knock_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/hallucination_steps.wav" id="steps_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/hallucination_whisper.wav" id="whisper_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/hallucination_scratch.wav" id="scratch_sound"]
 
 [sub_resource type="ShaderMaterial" id="vignette_material"]
 shader = ExtResource("vignette_shader")
@@ -64,6 +77,7 @@ sprite_frames = ExtResource("exterior")
 centered = false
 
 [node name="Enemy" type="AnimatedSprite2D" parent="WallPlane"]
+visible = false
 position = Vector2(300, 172)
 sprite_frames = ExtResource("enemy")
 centered = false
@@ -171,6 +185,11 @@ display_name = "Gonzalo"
 position = Vector2(518, 534)
 display_name = "Agustín"
 
+[node name="Darkness" type="Polygon2D" parent="."]
+modulate = Color(1, 1, 1, 0)
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(-64, -64, 1344, -64, 1344, 784, -64, 784)
+
 [node name="LookCamera" type="Camera2D" parent="."]
 position = Vector2(640, 360)
 zoom = Vector2(1.05, 1.05)
@@ -197,6 +216,45 @@ script = ExtResource("night_script")
 stream = ExtResource("static_sound")
 volume_db = -6.0
 
+[node name="Ambient" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("ambient_sound")
+volume_db = -12.0
+autoplay = true
+
+[node name="Screamers" type="Node" parent="." node_paths=PackedStringArray("curtains", "figure", "phone", "darkness", "jumpscare", "notebook", "ambient")]
+script = ExtResource("screamers_script")
+curtains = NodePath("../WallPlane/Curtains")
+figure = NodePath("../WallPlane/Enemy")
+phone = NodePath("../DeskPlane/Phone")
+darkness = NodePath("../Darkness")
+jumpscare = NodePath("../Overlay/Jumpscare")
+notebook = NodePath("../UI/NotebookPanel")
+ambient = NodePath("../Ambient")
+hallucination_sounds = Array[AudioStream]([ExtResource("knock_sound"), ExtResource("steps_sound"), ExtResource("whisper_sound"), ExtResource("scratch_sound"), ExtResource("static_sound"), ExtResource("phone_sound")])
+
+[node name="CurtainsSound" type="AudioStreamPlayer" parent="Screamers"]
+stream = ExtResource("curtains_sound")
+
+[node name="WindowSound" type="AudioStreamPlayer" parent="Screamers"]
+stream = ExtResource("window_sound")
+
+[node name="PhoneSound" type="AudioStreamPlayer" parent="Screamers"]
+stream = ExtResource("phone_sound")
+
+[node name="LightsSound" type="AudioStreamPlayer" parent="Screamers"]
+stream = ExtResource("lights_sound")
+
+[node name="SlamSound" type="AudioStreamPlayer" parent="Screamers"]
+stream = ExtResource("slam_sound")
+
+[node name="InkSound" type="AudioStreamPlayer" parent="Screamers"]
+stream = ExtResource("ink_sound")
+
+[node name="JumpscareSound" type="AudioStreamPlayer" parent="Screamers"]
+stream = ExtResource("jumpscare_sound")
+
+[node name="Hallucination" type="AudioStreamPlayer2D" parent="Screamers"]
+
 [node name="Overlay" type="CanvasLayer" parent="."]
 layer = 2
 
@@ -206,5 +264,31 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+
+[node name="Jumpscare" type="Control" parent="Overlay"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Flash" type="ColorRect" parent="Overlay/Jumpscare"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.45, 0.43, 0.48, 1)
+
+[node name="Figure" type="AnimatedSprite2D" parent="Overlay/Jumpscare"]
+position = Vector2(640, 380)
+scale = Vector2(2, 2)
+sprite_frames = ExtResource("enemy")
+
+[node name="Red" type="ColorRect" parent="Overlay/Jumpscare"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.55, 0, 0.04, 0)
 
 [node name="EndScreen" parent="Overlay" instance=ExtResource("end_screen")]
