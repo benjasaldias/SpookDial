@@ -94,6 +94,11 @@ func is_available(friend_index: int) -> bool:
 	return friends[friend_index].is_available()
 
 
+## Un screamer asustó a Matías: Sanity baja `amount` de golpe (diseño §10.2).
+func scare(amount: float) -> void:
+	sanity = maxf(sanity - amount, 0.0)
+
+
 ## Matías scrolleó el celular: durante scroll_grace segundos, Sanity sube (diseño §10.2).
 func scroll() -> void:
 	_scroll_left = balance.scroll_grace

@@ -261,3 +261,13 @@ func test_scrollear_recupera_sanity() -> bool:
 	check(is_equal_approx(state.sanity, 50.0 + 8.0 + 0.3 * 4.0 - 3.0 / 6.0),
 			"un movimiento de la rueda cuenta 0,3 s: %s" % state.sanity)
 	return true
+
+
+func test_un_screamer_baja_sanity_de_golpe() -> bool:
+	var state := _make_state()
+	state.sanity = 50.0
+	state.scare(8.0)
+	check_eq(state.sanity, 42.0, "−8")
+	state.scare(100.0)
+	check_eq(state.sanity, 0.0, "no baja de 0")
+	return true

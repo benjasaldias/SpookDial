@@ -2,7 +2,8 @@ extends Node
 ## El reloj de la noche (Plan 5): avanza las solicitudes y el estado de la noche, en ese orden, y decide
 ## cuándo termina. Se gana a las 06:00 con la cuota cumplida. Se pierde apenas muere un amigo o
 ## Sanity, Trust o Connection llegan a 0, o a las 06:00 si falta contenido (diseño §5).
-## Al terminar, todo se detiene: los temporizadores, la hora y los medidores.
+## Al terminar, todo se detiene: los temporizadores, la hora y los medidores. Mientras el jumpscare tapa la
+## pantalla, la noche se pausa (Plan 7, diseño §11).
 
 ## Se recibió un video del amigo `friend_index`: Matías terminó de descargarlo.
 signal video_received(friend_index: int)
@@ -15,6 +16,9 @@ const RequestManager := preload("res://scripts/desk/request_manager.gd")
 
 var requests: RequestManager
 var ended := false
+
+## Segundos que le quedan a la pausa.
+var _pause_left := 0.0
 
 
 ## Toma el control del tiempo de `manager`: desde ahora, las solicitudes avanzan solo cuando avanza la noche.
@@ -32,9 +36,23 @@ func _process(delta: float) -> void:
 	advance(delta)
 
 
-## Avanza la noche `delta` segundos. Cuando termina, ya no avanza más.
+## Pausa la noche `seconds` segundos: no avanzan los temporizadores, la hora ni los medidores (diseño §11).
+func pause(seconds: float) -> void:
+	_pause_left = maxf(_pause_left, seconds)
+
+
+func is_paused() -> bool:
+	return _pause_left > 0.0
+
+
+## Avanza la noche `delta` segundos, menos lo que quede de pausa. Cuando termina, ya no avanza más.
 func advance(delta: float) -> void:
 	if ended or requests == null:
+		return
+	var paused := minf(_pause_left, delta)
+	_pause_left -= paused
+	delta -= paused
+	if delta <= 0.0:
 		return
 	requests.advance(delta)
 	if ended:

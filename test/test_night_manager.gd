@@ -158,3 +158,19 @@ func test_los_avisos_de_la_noche_llegan_al_chat() -> bool:
 	check_eq(senders, [ChatMessage.Sender.FRIEND, ChatMessage.Sender.SYSTEM], "sin descargarlo se pierde, y el juego lo avisa")
 	_free(night)
 	return true
+
+
+func test_el_jumpscare_pausa_la_noche() -> bool:
+	var night := _make_night()
+	var request := _requests.start_request(1)
+	night.pause(1.5)
+	check(night.is_paused(), "en pausa")
+	night.advance(1.0)
+	check_eq(night.state().elapsed, 0.0, "la hora no avanza")
+	check_eq(request.time_left, 45.0, "el temporizador tampoco")
+	night.advance(1.0)
+	check(not night.is_paused(), "la pausa terminó")
+	check_eq(night.state().elapsed, 0.5, "avanza lo que sobra después de la pausa")
+	check_eq(request.time_left, 44.5, "el temporizador también")
+	_free(night)
+	return true
