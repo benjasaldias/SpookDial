@@ -62,3 +62,45 @@ func test_el_catalogo_usa_el_equilibrio() -> bool:
 	if catalog.balance != null:
 		check_eq(catalog.balance.resource_path, BALANCE_PATH, "es data/balance.tres")
 	return true
+
+
+## Los valores del director, de los screamers y de las alucinaciones (docs/02 §6 y decisiones de Benja del
+## 2 de noviembre).
+func test_valores_del_director_y_los_screamers() -> bool:
+	var balance: BalanceData = load(BALANCE_PATH)
+	check(balance != null, "se carga")
+	if balance == null:
+		return true
+	check_eq(balance.first_request_delay, 5.0, "la primera solicitud, a los 5 s")
+	check_eq(balance.wave_respite, 25.0, "respiro de 25 s después de cada ola")
+	check_eq(balance.wave_tightening, 0.5, "al final, las solicitudes llegan al doble de rápido")
+	check_eq(balance.request_min_gap, 6.0, "al menos 6 s entre dos solicitudes")
+	check_eq(balance.hurt_respite, 10.0, "un amigo herido atrasa las solicitudes 10 s")
+	check_eq(balance.scare_warning, 1.0, "señal previa de 1 s")
+	check_eq(balance.scare_margin, 5.0, "nunca en los últimos 5 s de una decisión")
+	check_eq(balance.scare_min_gap, 25.0, "al menos 25 s entre dos screamers")
+	check_eq(balance.first_scare_after, 30.0, "sin screamers en los primeros 30 s")
+	check_eq(balance.scare_sanity, 8.0, "screamer: Sanity −8")
+	check_eq(balance.jumpscare_sanity, 15.0, "jumpscare: Sanity −15")
+	check_eq(balance.jumpscare_seconds, 1.5, "el jumpscare dura 1,5 s")
+	check_eq(balance.ink_seconds, 5.0, "la mancha de tinta dura 5 s")
+	check_eq(balance.hallucination_start, 50.0, "alucinaciones con Sanity bajo 50")
+	check_eq(balance.hallucination_slowest, 40.0, "una cada 40 s al empezar")
+	check_eq(balance.hallucination_fastest, 10.0, "una cada 10 s con Sanity en 0")
+	return true
+
+
+## Las olas y los screamers de cada noche (docs/02 §6).
+func test_olas_y_screamers_de_cada_noche() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var wave_sizes := [2, 3, 3, 4, 4]
+	var scare_counts := [0, 3, 4, 5, 6]
+	for index in catalog.nights.size():
+		var night: NightData = catalog.nights[index]
+		var who := "noche %d" % night.number
+		check_eq(night.wave_size, wave_sizes[index], who + ": solicitudes por ola")
+		check_eq(night.scare_count, scare_counts[index], who + ": screamers")
+		check_eq(night.has_jumpscare, night.number >= 2, who + ": un jumpscare desde la noche 2")
+		check_eq(night.scripted_scare_time, 60.0 if night.number == 1 else 0.0, who + ": susto guionado")
+	check_eq(catalog.nights[0].scripted_scare, ScareKind.Kind.JUMPSCARE, "el susto guionado es un jumpscare")
+	return true

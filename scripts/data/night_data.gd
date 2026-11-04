@@ -19,6 +19,8 @@ enum FirstMessageObservations { ALL, ALL_BUT_ONE, ONE }
 @export var first_message_observations: FirstMessageObservations = FirstMessageObservations.ALL
 ## Señuelos del mensaje inicial: frases clickeables que camuflan sus 2 características.
 @export var decoys_in_first_message := 1
+## Solicitudes por ola: llegan seguidas y, después de cada ola, hay un respiro (decisión de Benja).
+@export var wave_size := 3
 
 @export_group("Señal")
 @export var signal_decays := false
@@ -33,6 +35,19 @@ enum FirstMessageObservations { ALL, ALL_BUT_ONE, ONE }
 @export var sanity_drain_interval := 6.0
 ## Videos que hay que recibir para ganar la noche (= envíos programados).
 @export var content_quota := 2
+
+@export_group("Screamers")
+## Screamers de la noche, sin contar las alucinaciones ni el susto guionado. Llegan en cualquier momento,
+## con las reglas de justicia (decisión de Benja).
+@export var scare_count := 0
+## Uno de los screamers es el jumpscare de pantalla completa: como máximo uno por noche, desde la noche 2.
+@export var has_jumpscare := false
+
+@export_group("Guion")
+## Segundos desde las 00:00 del susto guionado (0: no hay). Llega en el primer momento sin solicitudes.
+@export var scripted_scare_time := 0.0
+## Qué screamer es el susto guionado.
+@export var scripted_scare: ScareKind.Kind = ScareKind.Kind.JUMPSCARE
 
 
 ## Cuántas observaciones trae el mensaje inicial de una entidad que tiene `total`.

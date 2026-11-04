@@ -71,3 +71,42 @@ extends Resource
 @export var download_slow_seconds := 15.0
 ## Bajo esta señal, la descarga es lenta (diseño §10.1).
 @export var download_slow_below := 50.0
+
+@export_group("Director")
+## Segundos hasta la primera solicitud de la noche.
+@export var first_request_delay := 5.0
+## Segundos de calma sin solicitudes nuevas después de cada ola (decisión de Benja).
+@export var wave_respite := 25.0
+## Cuánto se aprietan las solicitudes hacia las 06:00: el último espacio entre dos es este tanto más corto
+## que el primero (0,5: la mitad).
+@export_range(0.0, 0.9) var wave_tightening := 0.5
+## Segundos mínimos entre dos solicitudes, aunque una llegue atrasada.
+@export var request_min_gap := 6.0
+## Segundos que se atrasan las solicitudes que faltan cuando un amigo queda herido (decisión de Benja).
+@export var hurt_respite := 10.0
+
+@export_group("Screamers")
+## Segundos de la señal previa: las luces parpadean y baja el sonido ambiente (diseño §11).
+@export var scare_warning := 1.0
+## Un screamer nunca ocurre si a una decisión le quedan tantos segundos o menos (diseño §11).
+@export var scare_margin := 5.0
+## Segundos mínimos entre dos screamers.
+@export var scare_min_gap := 25.0
+## Segundos de calma al empezar la noche, sin screamers.
+@export var first_scare_after := 30.0
+## Sanity que resta un screamer ambiental o sobre el cuaderno (docs/02 §6).
+@export var scare_sanity := 8.0
+## Sanity que resta el jumpscare (docs/02 §6).
+@export var jumpscare_sanity := 15.0
+## Segundos que dura el jumpscare. Tapa la pantalla, así que la noche se pausa (diseño §11).
+@export var jumpscare_seconds := 1.5
+## Segundos que la mancha de tinta tapa la página del cuaderno (diseño §11).
+@export var ink_seconds := 5.0
+
+@export_group("Alucinaciones")
+## Bajo este valor de Sanity suenan screamers auditivos falsos (diseño §10.2).
+@export var hallucination_start := 50.0
+## Segundos entre dos alucinaciones con Sanity justo bajo hallucination_start…
+@export var hallucination_slowest := 40.0
+## …y con Sanity en 0. En el medio, el espacio se acorta parejo.
+@export var hallucination_fastest := 10.0
