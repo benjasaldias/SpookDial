@@ -76,6 +76,7 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 				errors.append("Entidad '%s': aparece como nueva en más de una noche" % entity.id)
 			else:
 				entities.append(entity)
+	_check_tutorial(errors, catalog)
 	_check_unique_ids(errors, who, "entidades", entities)
 	for entity: EntityData in entities:
 		errors.append_array(validate_entity(entity))
@@ -116,7 +117,10 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 	var keys: Array[Array] = []
 	for friend: FriendData in catalog.friends:
 		keys.append(["Amigo '%s'" % friend.id, friend.name_key])
-	for night: NightData in catalog.nights:
+	var nights := catalog.nights.duplicate()
+	if catalog.tutorial != null:
+		nights.append(catalog.tutorial)
+	for night: NightData in nights:
 		keys.append(["Noche %d" % night.number, night.place_key])
 		if night.scripted_chat != null:
 			for index in night.scripted_chat.lines.size():
@@ -148,6 +152,37 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 		keys.append(["Publicación %d del celular, autor" % (index + 1), post.author_key])
 		keys.append(["Publicación %d del celular, texto" % (index + 1), post.text_key])
 	return keys
+
+
+## La noche 0, si el catálogo la tiene: su número es 0, y cada solicitud es de un amigo del catálogo, con una
+## entidad de sus páginas y una situación que existe.
+static func _check_tutorial(errors: Array[String], catalog: ContentCatalog) -> void:
+	var tutorial := catalog.tutorial
+	if tutorial == null:
+		return
+	if tutorial.number != 0:
+		errors.append("Tutorial: su número debe ser 0")
+	_check_scripted_chat(errors, catalog, tutorial)
+	if tutorial.tutorial_requests.has(null):
+		errors.append("Tutorial: hay un espacio vacío en 'tutorial_requests'")
+		return
+	var known := catalog.known_entities(0)
+	for index in tutorial.tutorial_requests.size():
+		var data := tutorial.tutorial_requests[index]
+		var where := "Tutorial, solicitud %d" % (index + 1)
+		if not catalog.friends.has(data.friend):
+			errors.append(where + ": el amigo no es del catálogo")
+		if data.entity == null or not known.has(data.entity):
+			var entity_id: StringName = data.entity.id if data.entity != null else &""
+			errors.append("%s: la entidad '%s' no está en las páginas de la noche 0" % [where, entity_id])
+			continue
+		for observation_id: StringName in data.situation:
+			var observation := data.entity.find_observation(observation_id)
+			var value: StringName = data.situation[observation_id]
+			if observation == null:
+				errors.append("%s: la observación '%s' no existe" % [where, observation_id])
+			elif not observation.has_value(value):
+				errors.append("%s: '%s' no es un valor de '%s'" % [where, value, observation_id])
 
 
 ## El chat guionado de una noche, si tiene: de un amigo del catálogo y con líneas.

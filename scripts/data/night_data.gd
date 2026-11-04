@@ -1,8 +1,9 @@
 class_name NightData
 extends Resource
 ## Parámetros de una noche. Los valores iniciales están en docs/02 §6 y se ajustan probando.
+## La noche 0 es el tutorial (decisión de Benja): sus solicitudes son fijas y no se puede perder.
 
-@export_range(1, 5) var number := 1
+@export_range(0, 5) var number := 1
 ## Dónde están los amigos esa noche, en ui.csv (para el resumen entre noches).
 @export var place_key: String
 ## Entidades que aparecen por primera vez esta noche. Las de noches anteriores siguen apareciendo.
@@ -49,3 +50,11 @@ extends Resource
 @export var scripted_scare: ScareKind.Kind = ScareKind.Kind.JUMPSCARE
 ## El chat guionado que sigue al susto guionado (decisión de Benja, sesión 16), o ninguno.
 @export var scripted_chat: ChatScriptData
+
+@export_group("Tutorial")
+## Solo en la noche 0: las solicitudes fijas, en orden. Llegan de a una, cuando termina la anterior.
+@export var tutorial_requests: Array[TutorialRequestData] = []
+
+
+func is_tutorial() -> bool:
+	return number == 0

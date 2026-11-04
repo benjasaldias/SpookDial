@@ -88,3 +88,33 @@ func test_sin_saludos() -> bool:
 	catalog.greeting_keys.clear()
 	check_contains(ContentValidator.validate_catalog(catalog), "Catálogo: no tiene saludos para el mensaje inicial")
 	return true
+
+
+func test_tutorial() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.tutorial.number = 1
+	check_contains(ContentValidator.validate_catalog(catalog), "Tutorial: su número debe ser 0")
+	catalog = Fixtures.make_catalog()
+	catalog.tutorial.tutorial_requests[0].friend = FriendData.new()
+	check_contains(ContentValidator.validate_catalog(catalog), "Tutorial, solicitud 1: el amigo no es del catálogo")
+	catalog = Fixtures.make_catalog()
+	catalog.tutorial.tutorial_requests[1].entity = catalog.nights[1].new_entities[0]
+	check_contains(ContentValidator.validate_catalog(catalog),
+			"Tutorial, solicitud 2: la entidad 'ghost' no está en las páginas de la noche 0")
+	catalog = Fixtures.make_catalog()
+	catalog.tutorial.tutorial_requests[0].situation[&"o1"] = &"maybe"
+	check_contains(ContentValidator.validate_catalog(catalog), "Tutorial, solicitud 1: 'maybe' no es un valor de 'o1'")
+	catalog = Fixtures.make_catalog()
+	catalog.tutorial.tutorial_requests[0].situation[&"o9"] = &"yes"
+	check_contains(ContentValidator.validate_catalog(catalog), "Tutorial, solicitud 1: la observación 'o9' no existe")
+	catalog = Fixtures.make_catalog()
+	catalog.tutorial.tutorial_requests.append(null)
+	check_contains(ContentValidator.validate_catalog(catalog), "Tutorial: hay un espacio vacío en 'tutorial_requests'")
+	return true
+
+
+func test_sin_tutorial_tambien_es_valido() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.tutorial = null
+	check(ContentValidator.validate_catalog(catalog).is_empty(), "el tutorial es opcional para el validador")
+	return true

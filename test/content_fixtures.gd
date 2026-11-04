@@ -65,6 +65,8 @@ static func make_decoy(decoy_id: StringName, category := ClueCategory.Kind.SIGHT
 
 ## Catálogo válido: 3 amigos, 5 noches, 2 señuelos que sirven en cualquier lugar ("decoy_sight" y
 ## "decoy_sound"), un saludo ("K_CALL_1") y los valores de equilibrio por defecto; "beast" aparece la noche 1 y "ghost" la noche 2.
+## La noche 0 (el tutorial) tiene 2 solicitudes de "beast": la de León (o1 = yes, con pista y con un video al
+## terminar) y la de Gonzalo (o1 = no y o2 = yes, sin pista).
 static func make_catalog() -> ContentCatalog:
 	var catalog := ContentCatalog.new()
 	catalog.balance = BalanceData.new()
@@ -83,4 +85,30 @@ static func make_catalog() -> ContentCatalog:
 	catalog.decoys.append(make_decoy(&"decoy_sight"))
 	catalog.decoys.append(make_decoy(&"decoy_sound", ClueCategory.Kind.SOUND))
 	catalog.greeting_keys.assign(["K_CALL_1"])
+	catalog.tutorial = make_tutorial(catalog)
 	return catalog
+
+
+## La noche 0 del catálogo de prueba: 2 solicitudes de "beast", con un video de 1 de cuota.
+static func make_tutorial(catalog: ContentCatalog) -> NightData:
+	var tutorial := NightData.new()
+	tutorial.number = 0
+	tutorial.place_key = "K_NIGHT_0"
+	tutorial.content_quota = 1
+	var beast: EntityData = catalog.nights[0].new_entities[0]
+	tutorial.tutorial_requests.append(make_tutorial_request(catalog.friends[0], beast, {&"o1": &"yes"}, true, true))
+	tutorial.tutorial_requests.append(make_tutorial_request(catalog.friends[1], beast, {&"o1": &"no", &"o2": &"yes"},
+			false, false))
+	return tutorial
+
+
+static func make_tutorial_request(friend: FriendData, entity: EntityData, situation: Dictionary, with_hint: bool,
+		sends_video: bool) -> TutorialRequestData:
+	var data := TutorialRequestData.new()
+	data.friend = friend
+	data.entity = entity
+	for observation_id: StringName in situation:
+		data.situation[observation_id] = situation[observation_id]
+	data.with_hint = with_hint
+	data.sends_video = sends_video
+	return data

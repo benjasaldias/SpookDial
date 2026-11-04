@@ -26,8 +26,9 @@ const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
 
 @export var catalog: ContentCatalog
-## Noche que se juega. Por ahora la 3, la única con una entidad (El Trauco).
-@export_range(1, 5) var night_number := 3
+## Noche que se juega (0: el tutorial). En el juego la elige GameState; este valor es el de las pruebas y el de
+## abrir el escritorio solo, desde el editor.
+@export_range(0, 5) var night_number := 3
 ## Señal con la que empiezan los 3 amigos. Bájala para ver la estática; con 0 empiezan desconectados.
 @export_range(0, 100) var test_signal := 100
 ## Si está apagado, las solicitudes no llegan solas (para las pruebas).
@@ -67,7 +68,7 @@ func _process(delta: float) -> void:
 
 
 func night() -> NightData:
-	return catalog.nights[night_number - 1]
+	return catalog.night(night_number)
 
 
 func active_count() -> int:
