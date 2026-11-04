@@ -2,6 +2,8 @@ extends RefCounted
 ## Los textos de la pantalla del final de la noche (diseño §5): si se ganó o se perdió, y por qué.
 ## Si murió un amigo, explica la solicitud: la entidad, lo que observaba el amigo, la regla que se
 ## aplicaba, la acción correcta y la que se eligió (docs/02 §2). El cuerpo es BBCode para un RichTextLabel.
+## Desde el Plan 8, al ganar es el resumen entre noches (diseño §5): los videos y las páginas nuevas del cuaderno
+## para la noche siguiente. Al terminar el tutorial y al ganar la última noche tiene sus propios textos.
 ## `translate` recibe una clave y devuelve su texto, como TranslationServer.translate.
 
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
@@ -11,6 +13,15 @@ const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 ## Títulos (ui.csv).
 const WON_TITLE_KEY := "END_WON_TITLE"
 const LOST_TITLE_KEY := "END_LOST_TITLE"
+const TUTORIAL_TITLE_KEY := "END_TUTORIAL_TITLE"
+const VICTORY_TITLE_KEY := "END_VICTORY_TITLE"
+## El resumen al ganar (ui.csv). END_NEW_PAGES lleva {night} y {pages}; END_NO_NEW_PAGES, {night}.
+const TUTORIAL_KEY := "END_TUTORIAL"
+const VICTORY_KEY := "END_VICTORY"
+const NEW_PAGES_KEY := "END_NEW_PAGES"
+const NO_NEW_PAGES_KEY := "END_NO_NEW_PAGES"
+## La última noche: al ganarla, el juego termina (diseño §5).
+const LAST_NIGHT := 5
 ## Por qué terminó la noche (ui.csv). END_WON y END_QUOTA llevan {received} y {quota};
 ## END_FRIEND_DIED lleva {friend}.
 const REASON_KEYS := {
@@ -38,6 +49,30 @@ const CHOSEN_COLOR := "ff6464"
 
 static func title(ending: NightState.Ending, translate: Callable) -> String:
 	return _text(translate, WON_TITLE_KEY if ending == NightState.Ending.WON else LOST_TITLE_KEY)
+
+
+## El título al ganar la noche `night_number`: el del tutorial, el de una noche o el de la victoria final.
+static func won_title(night_number: int, translate: Callable) -> String:
+	if night_number == 0:
+		return _text(translate, TUTORIAL_TITLE_KEY)
+	return _text(translate, VICTORY_TITLE_KEY if night_number >= LAST_NIGHT else WON_TITLE_KEY)
+
+
+## El resumen al ganar la noche `night_number`: los videos y las páginas nuevas del cuaderno para la noche
+## siguiente (`new_pages`, sus nombres). Al terminar el tutorial, un texto propio; al ganar la última, la victoria.
+static func summary(night_number: int, state: NightState, new_pages: Array[String], translate: Callable) -> String:
+	if night_number == 0:
+		return _line(translate, TUTORIAL_KEY, {})
+	var lines := PackedStringArray([_line(translate, REASON_KEYS[NightState.Ending.WON],
+			{"received": state.videos.received, "quota": state.videos.quota}), ""])
+	if night_number >= LAST_NIGHT:
+		lines.append(_line(translate, VICTORY_KEY, {}))
+	elif new_pages.is_empty():
+		lines.append(_line(translate, NO_NEW_PAGES_KEY, {"night": night_number + 1}))
+	else:
+		var pages := ", ".join(PackedStringArray(new_pages.map(_escape)))
+		lines.append(_line(translate, NEW_PAGES_KEY, {"night": night_number + 1, "pages": pages}))
+	return "\n".join(lines)
 
 
 ## Por qué terminó la noche y, si murió un amigo, qué pasó en `fatal_request`.

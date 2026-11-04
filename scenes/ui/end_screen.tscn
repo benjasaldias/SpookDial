@@ -43,8 +43,22 @@ bbcode_enabled = true
 fit_content = true
 scroll_active = false
 
-[node name="Retry" type="Button" parent="Center/Box"]
+[node name="Buttons" type="HBoxContainer" parent="Center/Box"]
 layout_mode = 2
-size_flags_horizontal = 4
+alignment = 1
+theme_override_constants/separation = 22
+
+[node name="Retry" type="Button" parent="Center/Box/Buttons"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("pixel_font")
+theme_override_font_sizes/font_size = 22
+
+[node name="Next" type="Button" parent="Center/Box/Buttons"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("pixel_font")
+theme_override_font_sizes/font_size = 22
+
+[node name="Menu" type="Button" parent="Center/Box/Buttons"]
+layout_mode = 2
 theme_override_fonts/font = ExtResource("pixel_font")
 theme_override_font_sizes/font_size = 22

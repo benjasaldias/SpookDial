@@ -1,39 +1,59 @@
 extends Control
 ## Pantalla del final de la noche (Plan 5): dice si se ganó o se perdió y por qué. Si murió un amigo,
 ## explica la solicitud (EndingText). Aparece de a poco, para que se alcance a ver cómo quedó el
-## escritorio, y tapa todo porque la noche ya terminó. Su botón vuelve a empezar la noche.
-## Es provisional hasta el arte de las pantallas de victoria y derrota (docs/06 §3). El Plan 8 agrega
-## el resumen entre noches y el paso a la noche siguiente.
+## escritorio, y tapa todo porque la noche ya terminó.
+## Desde el Plan 8, al ganar es el resumen entre noches (diseño §5) y su botón empieza la noche siguiente; al
+## perder, se reintenta la noche. Siempre se puede volver al menú. Al ganar la noche 5, solo queda el menú.
+## Es provisional hasta el arte de las pantallas de victoria y derrota (docs/06 §3).
 
-## Se eligió volver a jugar: el escritorio reinicia la noche.
+## Se eligió volver a jugar la noche.
 signal retry_pressed
+## Se eligió empezar la noche siguiente.
+signal next_pressed
+## Se eligió volver al menú principal.
+signal menu_pressed
 
 const EndingText := preload("res://scripts/core/ending_text.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 
-## El botón (ui.csv): "Reintentar" al perder y "Jugar de nuevo" al ganar.
+## Los botones (ui.csv). END_NEXT lleva {night}.
 const RETRY_KEY := "END_RETRY"
-const PLAY_AGAIN_KEY := "END_PLAY_AGAIN"
+const NEXT_KEY := "END_NEXT"
+const MENU_KEY := "END_MENU"
 ## Segundos que tarda en aparecer.
 const FADE_SECONDS := 1.5
 
 @onready var _title: Label = $Center/Box/Title
 @onready var _body: RichTextLabel = $Center/Box/Body
-@onready var _button: Button = $Center/Box/Retry
+@onready var _retry: Button = $Center/Box/Buttons/Retry
+@onready var _next: Button = $Center/Box/Buttons/Next
+@onready var _menu: Button = $Center/Box/Buttons/Menu
 
 
 func _ready() -> void:
 	hide()
-	_button.pressed.connect(retry_pressed.emit)
+	_retry.text = tr(RETRY_KEY)
+	_menu.text = tr(MENU_KEY)
+	_retry.pressed.connect(retry_pressed.emit)
+	_next.pressed.connect(next_pressed.emit)
+	_menu.pressed.connect(menu_pressed.emit)
 
 
-## Muestra cómo terminó la noche. `friend_names` son los nombres de los amigos, en orden.
+## Muestra cómo terminó la noche `night_number`. `friend_names` son los nombres de los amigos, en orden, y
+## `new_pages`, los nombres de las páginas que el cuaderno suma la noche siguiente.
 func show_ending(ending: NightState.Ending, state: NightState, fatal_request: FriendRequest,
-		friend_names: Array[String]) -> void:
-	_title.text = EndingText.title(ending, tr)
-	_body.text = EndingText.body(ending, state, fatal_request, friend_names, tr)
-	_button.text = tr(PLAY_AGAIN_KEY if ending == NightState.Ending.WON else RETRY_KEY)
+		friend_names: Array[String], night_number := 1, new_pages: Array[String] = []) -> void:
+	var won := ending == NightState.Ending.WON
+	if won:
+		_title.text = EndingText.won_title(night_number, tr)
+		_body.text = EndingText.summary(night_number, state, new_pages, tr)
+	else:
+		_title.text = EndingText.title(ending, tr)
+		_body.text = EndingText.body(ending, state, fatal_request, friend_names, tr)
+	_retry.visible = not won
+	_next.visible = won and night_number < EndingText.LAST_NIGHT
+	_next.text = tr(NEXT_KEY).format({"night": night_number + 1})
 	modulate.a = 0.0
 	show()
 	create_tween().tween_property(self, ^"modulate:a", 1.0, FADE_SECONDS)

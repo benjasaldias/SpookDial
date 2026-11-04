@@ -473,3 +473,32 @@ func test_aplica_las_opciones() -> bool:
 	check_eq(camera.zoom, Vector2(1.05, 1.05), "con su zoom")
 	desk.free()
 	return true
+
+
+## Los botones de la pantalla final llegan al juego (GameState) como pedidos del escritorio.
+func test_la_pantalla_final_pide_seguir_reintentar_o_volver_al_menu() -> bool:
+	var desk := _make_desk()
+	var requested := []
+	for signal_name: String in ["next_night_requested", "retry_requested", "menu_requested"]:
+		desk.connect(signal_name, func() -> void: requested.append(signal_name))
+	var screen := desk.get_node("Overlay/EndScreen")
+	screen.next_pressed.emit()
+	screen.retry_pressed.emit()
+	screen.menu_pressed.emit()
+	check_eq(requested, ["next_night_requested", "retry_requested", "menu_requested"], "uno por botón")
+	desk.free()
+	return true
+
+
+## Al ganar, el resumen dice qué páginas suma el cuaderno la noche siguiente.
+func test_al_ganar_el_resumen_dice_las_paginas_nuevas() -> bool:
+	var desk := _make_desk()
+	_state(desk).videos.received = _state(desk).videos.quota
+	_state(desk).elapsed = 419.5
+	desk.get_node("NightManager").advance(1.0)
+	var body := (desk.get_node("Overlay/EndScreen/Center/Box/Body") as RichTextLabel).text
+	var pages := ", ".join(PackedStringArray([TranslationServer.translate("ENTITY_BASILISCO_NAME"),
+			TranslationServer.translate("ENTITY_IMBUNCHE_NAME")]))
+	check(body.contains(pages), "la noche 4 suma El Basilisco y El Imbunche: " + body)
+	desk.free()
+	return true

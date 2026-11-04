@@ -7,6 +7,8 @@ const NightState := preload("res://scripts/core/night_state.gd")
 
 const FORMATS := {
 	"END_WON": "Ganaste con {received} de {quota}.",
+	"END_NEW_PAGES": "Noche {night}: {pages}.",
+	"END_NO_NEW_PAGES": "Noche {night}: nada.",
 	"END_QUOTA": "Faltó: {received} de {quota}.",
 	"END_FRIEND_DIED": "Murió {friend}.",
 	"END_ENTITY": "Era {entity}.",
@@ -111,7 +113,9 @@ func test_sus_textos_existen() -> bool:
 	TranslationServer.set_locale("es")
 	var keys: Array = [EndingText.WON_TITLE_KEY, EndingText.LOST_TITLE_KEY, EndingText.ENTITY_KEY, EndingText.SITUATION_KEY,
 			EndingText.RULE_KEY, EndingText.CORRECT_KEY, EndingText.CHOSEN_BY_PLAYER_KEY, EndingText.CHOSEN_ALONE_KEY,
-			EndingText.CHOSEN_OFFLINE_KEY]
+			EndingText.CHOSEN_OFFLINE_KEY, EndingText.TUTORIAL_TITLE_KEY, EndingText.VICTORY_TITLE_KEY,
+			EndingText.TUTORIAL_KEY, EndingText.VICTORY_KEY, EndingText.NEW_PAGES_KEY, EndingText.NO_NEW_PAGES_KEY,
+			"END_NEXT", "END_MENU"]
 	keys.append_array(EndingText.REASON_KEYS.values())
 	for key: String in keys:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en ui.csv" % key)
@@ -138,4 +142,27 @@ func test_si_el_amigo_estaba_sin_senal() -> bool:
 	request.decided_offline = true
 	var body := EndingText.body(NightState.Ending.FRIEND_DIED, _make_state(), request, FRIENDS, _translate)
 	check(_plain(body).ends_with("Gonzalo sin señal eligió: K_beast_A1."), "dice que estaba sin señal: %s" % _plain(body))
+	return true
+
+
+## Los títulos al ganar: el tutorial, una noche y la última (diseño §5).
+func test_titulos_al_ganar() -> bool:
+	check_eq(EndingText.won_title(0, _translate), "END_TUTORIAL_TITLE", "tutorial")
+	check_eq(EndingText.won_title(3, _translate), "END_WON_TITLE", "una noche")
+	check_eq(EndingText.won_title(EndingText.LAST_NIGHT, _translate), "END_VICTORY_TITLE", "la última")
+	return true
+
+
+## El resumen entre noches: los videos y las páginas nuevas del cuaderno para la noche siguiente.
+func test_el_resumen_entre_noches() -> bool:
+	var state := _make_state()
+	state.videos.received = 2
+	var pages: Array[String] = ["El [Cuero]", "La Viuda"]
+	check_eq(_plain(EndingText.summary(2, state, pages, _translate)), "Ganaste con 2 de 2.\n\nNoche 3: El [Cuero], La Viuda.",
+			"con páginas nuevas")
+	var none: Array[String] = []
+	check_eq(EndingText.summary(4, state, none, _translate), "Ganaste con 2 de 2.\n\nNoche 5: nada.", "sin páginas")
+	check_eq(EndingText.summary(0, state, none, _translate), "END_TUTORIAL", "el tutorial")
+	check_eq(EndingText.summary(EndingText.LAST_NIGHT, state, none, _translate), "Ganaste con 2 de 2.\n\nEND_VICTORY",
+			"la victoria final")
 	return true

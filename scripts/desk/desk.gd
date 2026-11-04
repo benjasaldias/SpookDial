@@ -18,6 +18,11 @@ extends Node2D
 
 ## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
 signal tutorial_skipped
+## Los botones de la pantalla final: empezar la noche siguiente, reintentar la noche o volver al menú.
+## Los atiende GameState.
+signal next_night_requested
+signal retry_requested
+signal menu_requested
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
@@ -85,6 +90,8 @@ func _ready() -> void:
 	_requests.chat_script_finished.connect(_on_chat_script_finished)
 	_night.night_ended.connect(_on_night_ended)
 	_end_screen.retry_pressed.connect(_on_retry_pressed)
+	_end_screen.next_pressed.connect(next_night_requested.emit)
+	_end_screen.menu_pressed.connect(menu_requested.emit)
 	$DeskPlane/Notebook.clicked.connect(_open_notebook)
 	$DeskPlane/Mixer.clicked.connect(open_mixer)
 	$DeskPlane/Phone.clicked.connect(open_phone)
@@ -214,12 +221,21 @@ func _on_night_ended(ending: NightState.Ending, fatal_request: FriendRequest) ->
 	var names: Array[String] = []
 	for friend: FriendData in _requests.catalog.friends:
 		names.append(tr(friend.name_key))
-	_end_screen.show_ending(ending, _requests.state, fatal_request, names)
+	var night_number := _requests.night_number
+	var pages: Array[String] = []
+	if ending == NightState.Ending.WON and night_number < _requests.catalog.nights.size():
+		for entity: EntityData in _requests.catalog.new_pages(night_number + 1):
+			pages.append(tr(entity.name_key))
+	_end_screen.show_ending(ending, _requests.state, fatal_request, names, night_number, pages)
 
 
-## La noche empieza de nuevo y se vuelve a generar, así que no se repite de memoria (diseño §5).
+## La noche empieza de nuevo y se vuelve a generar, así que no se repite de memoria (diseño §5). La reinicia
+## GameState; si el escritorio se abrió solo, desde el editor, se recarga la escena.
 func _on_retry_pressed() -> void:
-	get_tree().reload_current_scene()
+	if retry_requested.get_connections().is_empty():
+		get_tree().reload_current_scene()
+	else:
+		retry_requested.emit()
 
 
 ## Seleccionada si su chat está abierto; si no, gris sin señal, en alerta mientras espera respuesta (también en
