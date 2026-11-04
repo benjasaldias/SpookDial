@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/options_panel.gd" id="options_script"]
+[ext_resource type="Theme" path="res://scenes/ui/chat_theme.tres" id="chat_theme"]
+
+[node name="OptionsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("chat_theme")
+script = ExtResource("options_script")
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.012, 0.024, 0.043, 0.95)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Box" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 33
+horizontal_alignment = 1
+
+[node name="Master" type="HBoxContainer" parent="Center/Box"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Label" type="Label" parent="Center/Box/Master"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Slider" type="HSlider" parent="Center/Box/Master"]
+custom_minimum_size = Vector2(220, 22)
+layout_mode = 2
+size_flags_vertical = 4
+step = 5.0
+value = 100.0
+
+[node name="Ambience" type="HBoxContainer" parent="Center/Box"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Label" type="Label" parent="Center/Box/Ambience"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Slider" type="HSlider" parent="Center/Box/Ambience"]
+custom_minimum_size = Vector2(220, 22)
+layout_mode = 2
+size_flags_vertical = 4
+step = 5.0
+value = 100.0
+
+[node name="Effects" type="HBoxContainer" parent="Center/Box"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Label" type="Label" parent="Center/Box/Effects"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Slider" type="HSlider" parent="Center/Box/Effects"]
+custom_minimum_size = Vector2(220, 22)
+layout_mode = 2
+size_flags_vertical = 4
+step = 5.0
+value = 100.0
+
+[node name="Flashes" type="CheckBox" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Camera" type="CheckBox" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Timers" type="CheckBox" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Back" type="Button" parent="Center/Box"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 22
