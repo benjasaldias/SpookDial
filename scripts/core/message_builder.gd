@@ -46,22 +46,23 @@ const SIGNAL_LOST_KEY := "CHAT_SIGNAL_LOST"
 const SIGNAL_BACK_KEY := "CHAT_SIGNAL_BACK"
 
 
-## Mensaje inicial: dónde está, las características y los señuelos mezclados, y sus observaciones.
+## Mensaje inicial (decisión de Benja, 3-nov): el saludo ("¡Mati, ayuda!!"), dónde está y, a veces, una pista
+## (una de las 2 características, clickeable). Todo lo demás se pregunta.
 static func first_message(request: FriendRequest, translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
+	if not request.greeting_key.is_empty():
+		message.add_fragment(_text(translate, request.greeting_key))
 	message.add_fragment(_text(translate, request.place_key))
-	for clue: TraitData in request.first_clues:
-		message.add_fragment(_text(translate, clue.text_key), clue.id)
-	for observation: ObservationData in request.first_observations:
-		message.add_fragment(_observation_text(request, observation, translate))
+	if request.hint != null:
+		message.add_fragment(_text(translate, request.hint.text_key), request.hint.id)
 	return message
 
 
-## Respuesta a una pregunta: repite las características y los señuelos del mensaje inicial que son
-## de esa categoría, y todas las observaciones de esa categoría, también las que no traía.
+## Respuesta a una pregunta: las características y los señuelos de esa categoría (con la pista del mensaje
+## inicial, si es de esa categoría) y todas las observaciones de esa categoría. Es la única forma de saberlos.
 static func answer(request: FriendRequest, category: ClueCategory.Kind, translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
-	for clue: TraitData in request.first_clues:
+	for clue: TraitData in request.clues:
 		if clue.category == category:
 			message.add_fragment(_text(translate, clue.text_key), clue.id)
 	for observation: ObservationData in request.entity.observations:

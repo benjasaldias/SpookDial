@@ -8,6 +8,9 @@ extends Resource
 @export var nights: Array[NightData] = []
 ## Frases clickeables que camuflan las características en los mensajes (DecoyData).
 @export var decoys: Array[DecoyData] = []
+## Con qué saludo pide ayuda un amigo al empezar una solicitud ("¡Mati, ayuda!!", "¿Estás ahí?"): claves de
+## messages.csv, una al azar por solicitud (decisión de Benja, 3-nov). El mensaje inicial no describe nada más.
+@export var greeting_keys: Array[String] = []
 ## Valores de equilibrio de todas las noches (data/balance.tres).
 @export var balance: BalanceData
 ## Las publicaciones que se scrollean en el celular (PhonePostData), en orden.

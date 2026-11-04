@@ -2,8 +2,6 @@ class_name NightData
 extends Resource
 ## Parámetros de una noche. Los valores iniciales están en docs/02 §6 y se ajustan probando.
 
-enum FirstMessageObservations { ALL, ALL_BUT_ONE, ONE }
-
 @export_range(1, 5) var number := 1
 ## Dónde están los amigos esa noche, en ui.csv (para el resumen entre noches).
 @export var place_key: String
@@ -15,10 +13,11 @@ enum FirstMessageObservations { ALL, ALL_BUT_ONE, ONE }
 @export var max_simultaneous := 1
 ## Segundos para responder, antes del factor de Trust.
 @export var base_decision_time := 45.0
-## Cuántas observaciones trae el mensaje inicial; las demás hay que preguntarlas.
-@export var first_message_observations: FirstMessageObservations = FirstMessageObservations.ALL
-## Señuelos del mensaje inicial: frases clickeables que camuflan sus 2 características.
-@export var decoys_in_first_message := 1
+## Probabilidad de que el mensaje inicial traiga una pista: una de las 2 características, que se puede
+## clickear. Todo lo demás (características, señuelos y observaciones) sale al preguntar (decisión de Benja, 3-nov).
+@export_range(0.0, 1.0) var first_hint_chance := 1.0
+## Señuelos de la solicitud: frases clickeables que camuflan sus 2 características cuando el amigo las cuenta.
+@export var decoys_per_request := 1
 ## Solicitudes por ola: llegan seguidas y, después de cada ola, hay un respiro (decisión de Benja).
 @export var wave_size := 3
 
@@ -50,13 +49,3 @@ enum FirstMessageObservations { ALL, ALL_BUT_ONE, ONE }
 @export var scripted_scare: ScareKind.Kind = ScareKind.Kind.JUMPSCARE
 ## El chat guionado que sigue al susto guionado (decisión de Benja, sesión 16), o ninguno.
 @export var scripted_chat: ChatScriptData
-
-
-## Cuántas observaciones trae el mensaje inicial de una entidad que tiene `total`.
-func observations_in_first_message(total: int) -> int:
-	match first_message_observations:
-		FirstMessageObservations.ALL_BUT_ONE:
-			return total - 1
-		FirstMessageObservations.ONE:
-			return 1
-	return total

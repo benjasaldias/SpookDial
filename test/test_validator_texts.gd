@@ -64,3 +64,10 @@ func test_lineas_del_chat_guionado() -> bool:
 	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_LINE"]))
 	check_contains(errors, "Noche 1, chat guionado, línea 1: la clave 'K_LINE' no está en ningún CSV")
 	return true
+
+
+func test_saludos_del_mensaje_inicial() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_CALL_1"]))
+	check_contains(errors, "Saludo 1: la clave 'K_CALL_1' no está en ningún CSV")
+	return true

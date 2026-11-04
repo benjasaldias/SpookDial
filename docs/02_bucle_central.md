@@ -10,6 +10,7 @@ Detalle de la mecánica central del diseño v2 (`spook_dial_design.md` §8–§1
 - (sesión 12) el video de un amigo aturdido llega cuando se recupera. Después de probar el juego: los textos son borradores reales en primera persona (ya no se usa `[PROTO]`), cada mensaje lleva el nombre de quien escribe, y el amigo herido grita en el chat, seguido de un aviso rojo con su vida;
 - (sesión 14) un amigo sin señal sigue recibiendo situaciones, pero no lee las respuestas y, si se le acaba el tiempo, elige mal; mientras haya amigos sin señal, Trust baja. Los videos se descargan en el chat (15 s para empezar, 20 s para terminar y 10 s de descarga), y Audio Sync se juega en una vista del mixer desde arriba (§4.1 y §6).
 - (sesión 16) el director reparte las solicitudes en olas con respiro (§2), los screamers llegan en cualquier momento con sus reglas de justicia, y con Sanity bajo suenan alucinaciones que no restan Sanity (§6).
+- (sesión 17, a pedido de Benja el 3 de noviembre) **la entidad se identifica preguntando:** el mensaje inicial solo saluda, dice el lugar y a veces trae una pista; las características, los señuelos y las observaciones salen al preguntar. Por eso cada solicitud tiene más tiempo y cada noche trae menos solicitudes (§2, §3 y §6).
 
 Los valores numéricos (§6) son un punto de partida para el prototipo; se ajustan probando.
 
@@ -18,7 +19,7 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 ## 1. Qué pone a prueba el juego
 
 - **Aplicar reglas bajo presión**, al estilo Keep Talking. El desafío está dentro de la página del cuaderno: leer qué observa el amigo y aplicar la regla correcta antes de que se acabe el tiempo.
-- **Identificar sin depender de la memoria.** Los amigos nunca dicen el nombre de la entidad. Quien la reconoce va directo a su página; quien no, clickea las características destacadas y espera unos segundos.
+- **Identificar preguntando, sin depender de la memoria.** Los amigos nunca dicen el nombre de la entidad, y de entrada tampoco la describen: piden ayuda y hay que sacarles la información con las preguntas correctas, que cuestan tiempo. Quien reconoce a la entidad va directo a su página; quien no, clickea las características que le cuentan y espera unos segundos.
 - **Manejar información degradada.** Con poca señal, la estática tapa palabras: características que ya no se pueden clickear u observaciones que deciden la regla.
 - **Repartir la atención** entre 3 amigos, la señal, Sanity y los videos.
 
@@ -32,15 +33,21 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
    - Entre dos solicitudes pasan al menos 6 s, y nunca empieza una que no alcanza a terminar antes de las 06:00: por eso el total de la noche es aproximado.
 2. **Se generan los datos de la situación:**
    - la entidad, entre las conocidas en esa noche;
-   - el lugar;
-   - un valor al azar para cada observación de esa entidad.
-3. **Se arma el mensaje inicial** con fragmentos de texto:
-   - el lugar;
-   - **2 características** que distinguen a la entidad entre las conocidas (ninguna otra entidad conocida tiene las dos), mezcladas con **señuelos** del lugar (cuántos, según la noche, §6). Todas se ven destacadas y se pueden clickear;
-   - N **observaciones** (según la noche, §6), en texto normal.
+   - el lugar y el saludo;
+   - un valor al azar para cada observación de esa entidad;
+   - las 2 características, los señuelos y si el mensaje inicial trae pista.
+3. **Se arma el mensaje inicial** (decisión de Benja, 3-nov): corto, sin describir a la entidad. Con fragmentos de texto:
+   - un **saludo** al azar entre los del catálogo ("¡Mati, ayuda!!", "¿Estás ahí?", "Mati… algo pasó.");
+   - el lugar ("Estoy en el bosque.");
+   - a veces, una **pista**: una de las 2 características, clickeable (probabilidad según la noche, §6).
+
+   Todo lo demás se **pregunta** (§3). Lo que la solicitud tiene escondido, y que el amigo cuenta al preguntar:
+   - **2 características** que distinguen a la entidad entre las conocidas (ninguna otra entidad conocida tiene las dos);
+   - **señuelos** del lugar (cuántos, según la noche, §6), que las camuflan;
+   - **todas las observaciones** de la entidad, cada una con un valor al azar.
 4. **Se aplica la estática** según la señal del amigo (§4).
 5. **Empieza el temporizador:** tiempo base de la noche × factor de Trust (§6).
-6. **El jugador** identifica (§3), pregunta si le falta algo (§3.2), abre la página y responde (§5).
+6. **El jugador** pregunta y identifica (§3), abre la página, pregunta lo que le falta para aplicar las reglas y responde (§5).
 7. **Se resuelve** la consecuencia (§5.2) y llega la reacción del amigo. Si eligió la acción de mayor riesgo y el amigo sobrevivió, se programa un video extra.
 8. **Sin respuesta:** el amigo elige al azar entre las 4 acciones, se resuelve igual y baja Trust. Si está sin señal, elige mal y Trust no baja por esa decisión (§4.1).
 9. **Si el amigo muere:** pantalla de derrota con la entidad, las observaciones, la regla que aplicaba y la acción correcta. Luego se reinicia la noche.
@@ -51,26 +58,30 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 
 ### 3.1 Características clickeables
 
-- Las 2 características y los señuelos del mensaje se ven destacados igual. Al clickear una característica, queda marcada; al clickear un señuelo, vibra y se pone rojo, sin otro costo.
+- El mensaje inicial casi no trae nada que clickear: a veces una **pista** (una de las 2 características). Las demás frases clickeables salen **al preguntar** (§3.2).
+- Las características y los señuelos que el amigo cuenta se ven destacados igual. Al clickear una característica, queda marcada; al clickear un señuelo, vibra y se pone rojo, sin otro costo.
 - Los **señuelos** describen el lugar, un olor, un sonido o algo que se ve, y no ayudan a identificar. Viven en el catálogo, cada uno con su categoría y los lugares donde sirve (o en cualquiera).
-- Una barra fija, sobre las preguntas, muestra cuántas características van marcadas ("1 de 2").
+- Una barra fija, sobre las preguntas, muestra cuántas características van marcadas ("1 de 2"; desde el principio dice "0 de 2").
 - Con **las 2** marcadas (en cualquier mensaje de esa solicitud), la barra dice "Matías piensa…" durante **3 segundos** y aparece el nombre de la entidad. Clickear el nombre abre su página en el cuaderno.
-- Si una característica está tapada por la estática, no se puede marcar: hay que preguntar en su categoría (§3.2) para que vuelva a aparecer.
+- Si una característica está tapada por la estática, no se puede marcar: hay que volver a preguntar su categoría (§3.2) para que vuelva a aparecer.
 - Quien reconoce a la entidad de memoria puede saltarse todo esto y abrir la página desde el índice.
 
-### 3.2 Preguntas de seguimiento
+### 3.2 Preguntas
 
-| Pregunta | Qué repite el amigo |
+Preguntar es la forma de averiguar casi todo (decisión de Benja, 3-nov). Hay una pregunta por categoría:
+
+| Pregunta | Qué cuenta el amigo |
 | --- | --- |
-| ¿Qué ves? | Las características y observaciones de categoría Vista |
-| ¿Qué oyes? | Las de Sonido |
-| ¿Cómo está el ambiente? | Las de Ambiente |
-| ¿Hay rastros? | Las de Rastro |
+| ¿Qué ves? | Las características, los señuelos y las observaciones de categoría Vista |
+| ¿Qué oyes? | Los de Sonido |
+| ¿Cómo está el ambiente? | Los de Ambiente |
+| ¿Hay rastros? | Los de Rastro |
 
-- La respuesta repite las características y los señuelos del mensaje inicial que son de esa categoría, y **todas** las observaciones de esa categoría, también las que el mensaje inicial no traía. No agrega señuelos nuevos (decisión de Benja: se prueba así).
-- Cada pregunta descuenta **5 segundos** del temporizador y se puede repetir. Con 5 s o menos ya no se puede preguntar: los botones se desactivan.
+- La respuesta trae las características y los señuelos de esa categoría (también la pista del mensaje inicial, si es de esa categoría) y **todas** las observaciones de esa categoría.
+- Qué preguntar es la decisión del jugador. Antes de identificar a la entidad, la pregunta correcta es la categoría donde puede estar una característica; después, la categoría de la observación que pide la regla. La página del cuaderno dice en qué categoría está cada característica y cada observación.
+- Cada pregunta descuenta **5 segundos** del temporizador (`question_cost` en `BalanceData`) y se puede repetir. Con 5 s o menos ya no se puede preguntar: los botones se desactivan.
 - Si no hay nada en esa categoría, el amigo responde "nada", que también es información.
-- Las respuestas pasan por la misma estática que los mensajes.
+- Las respuestas pasan por la misma estática que los mensajes, y repetir la pregunta tira la estática de nuevo.
 
 ---
 
@@ -136,11 +147,11 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 
 | Parámetro | N1 | N2 | N3 | N4 | N5 |
 | --- | --- | --- | --- | --- | --- |
-| Solicitudes por noche (aprox.) | 6 | 9 | 12 | 15 | 18 |
+| Solicitudes por noche (aprox.) | 4 | 6 | 7 | 8 | 10 |
 | Solicitudes simultáneas máx. | 1 | 2 | 2 | 3 | 3 |
-| Tiempo base para responder (s) | 45 | 40 | 35 | 32 | 30 |
-| Observaciones en el mensaje inicial | Todas | Todas | Todas menos 1 | 1 | 1 |
-| Señuelos en el mensaje inicial | 1 | 1 | 2 | 2 | 3 |
+| Tiempo base para responder (s) | 90 | 80 | 75 | 70 | 65 |
+| Probabilidad de pista en el mensaje inicial | 100 % | 75 % | 50 % | 35 % | 20 % |
+| Señuelos por solicitud | 1 | 1 | 2 | 2 | 3 |
 | La señal baja | No | Sí | Sí | Sí | Sí |
 | Interferencias (aprox. por noche) | 0 | 2 | 3 | 4 | 6 |
 | Audio Sync (tiempos) | — | 4 | 4 | 8 | 8 |
@@ -162,7 +173,8 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 
 ### Otros
 
-- Preguntar: 5 s.
+- Preguntar: 5 s (`question_cost` en `BalanceData`).
+- **Por qué hay menos solicitudes y más tiempo (sesión 17, a probar):** el jugador atiende un chat a la vez, así que lo que cuenta es cuánta atención pide cada solicitud, no cuántas caben a la vez. Antes (todo en el mensaje) una solicitud pedía unos 10 a 15 s de atención; ahora pide unos 25 a 40 s (preguntar, marcar, abrir la página, preguntar las observaciones y responder). Se mantuvo más o menos la misma carga total por noche: de 6 a 18 solicitudes pasaron a 4 a 10, y de 45 a 30 s de tiempo pasaron a 90 a 65 s. Son valores iniciales: se ajustan probando (`data/nights/night_N.tres`, grupo **Solicitudes**).
 - Espera de identificación: 3 s.
 - Empezar a descargar un video que llegó: 15 s; si no, se pierde. Terminar la descarga: 20 s desde que empezó (decisión de Benja, sesión 14).
 - Descarga: 10 s manteniendo presionada la barra del chat (15 s si la señal de ese amigo está bajo 50; sin señal no avanza). Si se suelta, se pausa.
@@ -246,7 +258,7 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
 ## 9. Textos (dónde están y cómo se escriben)
 
 - Todos los textos del juego viven en **`data/text/*.csv`**, con las columnas `keys,es,en`. Godot los convierte en traducciones.
-  - `messages.csv`: los fragmentos de los mensajes de los amigos (lugar, cada característica, cada valor de cada observación y las reacciones).
+  - `messages.csv`: los fragmentos de los mensajes de los amigos (los saludos `FIRST_CALL_*`, el lugar, cada característica, cada valor de cada observación y las reacciones).
   - `ui.csv`: los botones, los menús y la interfaz.
   - `notebook.csv`: las páginas del cuaderno.
 - **Claude escribe un borrador real de cada texto, y tú lo corriges** (decisión tuya, 31-oct; antes eran textos `[PROTO]`). Los amigos hablan en primera persona y en mensajes cortos, como en un chat: `Me vio primero. Me está mirando.`
@@ -254,14 +266,15 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
 - Cada característica marca su frase destacable (la que se clickea) **entre asteriscos** dentro de su fragmento: `había un *hombrecito* entre los árboles`. Se eligió así (26-oct) porque los corchetes chocan con el BBCode del chat. Las pruebas avisan si un texto no tiene exactamente una frase marcada.
 - **La frase entre asteriscos de una característica también es su nombre en la página del cuaderno** (Plan 4), así que tiene que entenderse sola: `*ropa de fibra vegetal*`, no `*ropa*`.
 - Los **señuelos** también van en `messages.csv`, con su frase clickeable entre asteriscos.
-- **Cada fragmento es una oración completa, con su puntuación.** El mensaje los une con un espacio, en este orden: el lugar, las características y los señuelos mezclados, y las observaciones.
+- **Cada fragmento es una oración completa, con su puntuación.** El mensaje los une con un espacio. El inicial va en este orden: el saludo, el lugar y la pista. Cada respuesta va en este orden: las características y los señuelos de esa categoría, mezclados, y sus observaciones.
+- **Una coma dentro de un texto lleva comillas** (`"¡Mati, ayuda!!"`): sin ellas, el CSV parte el texto y se pierde lo que sigue. Una prueba (`test_text_csv.gd`) avisa.
 - Los textos con datos usan marcadores con nombre: `{action}` (la acción que eligió el amigo) y `{marked}` y `{total}` (la barra de identificación).
 
 ---
 
 ## 10. Modelo de datos (Resources editables en el Inspector)
 
-Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`docs/10`); `BalanceData`, en el Plan 5 (`docs/12`); las publicaciones del celular, en el Plan 6 (`docs/13`), y los screamers y los chats guionados, en el Plan 7 (`docs/14`). Las clases están en `scripts/data/` y el contenido en `data/`.
+Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`docs/10`); `BalanceData`, en el Plan 5 (`docs/12`); las publicaciones del celular, en el Plan 6 (`docs/13`), y los screamers y los chats guionados, en el Plan 7 (`docs/14`); la identificación por preguntas (saludos, pista y `question_cost`) se agregó el 3 de noviembre. Las clases están en `scripts/data/` y el contenido en `data/`.
 
 ```text
 DecoyData        señuelo: como TraitData (id, category, text_key), más place_keys[] (vacío = cualquier lugar)
@@ -276,16 +289,16 @@ EntityData       id, name_key, lore_key, sketch, place_keys[], traits[2-4], acti
                  observations[2-3], rules[] (ordenadas; la última sin condiciones)
 FriendData       id, name_key, avatar, color
 NightData        number, place_key, new_entities[], requests_total, max_simultaneous,
-                 base_decision_time, first_message_observations (todas / todas menos 1 / 1),
-                 decoys_in_first_message, wave_size (solicitudes por ola),
+                 base_decision_time, first_hint_chance (probabilidad de pista en el mensaje inicial),
+                 decoys_per_request, wave_size (solicitudes por ola),
                  signal_decays, signal_decay_interval, interference_count,
                  audio_sync_beats, sanity_drain_interval, content_quota,
                  scare_count, has_jumpscare,
                  scripted_scare_time, scripted_scare (ScareKind), scripted_chat (ChatScriptData)
 ChatScriptData   friend, lines[] (ChatLineData: speaker FRIEND/PLAYER, text_key), highlight_phone
-BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start, el scroll del celular, la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el director (olas y respiros), los screamers (señal previa, justicia, Sanity, jumpscare y tinta) y las alucinaciones
+BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start, el scroll del celular, la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`), el director (olas y respiros), los screamers (señal previa, justicia, Sanity, jumpscare y tinta) y las alucinaciones
 PhonePostData    author_key, text_key, picture (sin imagen, se dibuja un paisaje), color
-ContentCatalog   friends[3], nights[5], decoys[], balance, phone_posts[] (data/catalog.tres)
+ContentCatalog   friends[3], nights[5], decoys[], greeting_keys[] (saludos), balance, phone_posts[] (data/catalog.tres)
 ```
 
 - Una entidad es **un solo `.tres`** en `data/entities/`, con todas sus partes dentro.

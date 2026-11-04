@@ -67,25 +67,55 @@ func test_situacion_lugar_y_amigo() -> bool:
 func test_senuelos_del_lugar_mezclados_con_las_caracteristicas() -> bool:
 	var catalog := Fixtures.make_catalog()
 	catalog.decoys.append(Fixtures.make_decoy(&"elsewhere", ClueCategory.Kind.SIGHT, ["K_NOWHERE"]))
-	catalog.nights[0].decoys_in_first_message = 2
+	catalog.nights[0].decoys_per_request = 2
 	var request := RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(8))
 	check_eq(request.decoys.size(), 2, "2 señuelos")
 	for decoy: DecoyData in request.decoys:
 		check(decoy.fits_place(request.place_key), "%s es de este lugar" % decoy.id)
-	check_eq(request.first_clues.size(), 4, "2 características y 2 señuelos")
+	check_eq(request.clues.size(), 4, "2 características y 2 señuelos")
 	for clue: TraitData in request.traits + request.decoys:
-		check(request.first_clues.has(clue), "el mensaje trae %s" % clue.id)
+		check(request.clues.has(clue), "al preguntar, el amigo cuenta %s" % clue.id)
 	return true
 
 
-func test_observaciones_del_mensaje_inicial() -> bool:
+func test_la_pista_del_mensaje_inicial_es_opcional() -> bool:
 	var catalog := Fixtures.make_catalog()
 	var night: NightData = catalog.nights[0]
-	var request := RequestGenerator.generate(catalog, night, 0, _rng(1))
-	check_eq(request.first_observations, request.entity.observations, "todas")
-	night.first_message_observations = NightData.FirstMessageObservations.ONE
-	request = RequestGenerator.generate(catalog, night, 0, _rng(1))
-	check_eq(request.first_observations.size(), 1, "una")
+	night.first_hint_chance = 1.0
+	for seed_value in 20:
+		var request := RequestGenerator.generate(catalog, night, 0, _rng(seed_value))
+		check(request.hint != null and request.traits.has(request.hint), "semilla %d: la pista es una característica" % seed_value)
+	night.first_hint_chance = 0.0
+	for seed_value in 20:
+		check_eq(RequestGenerator.generate(catalog, night, 0, _rng(seed_value)).hint, null, "sin pista")
+	night.first_hint_chance = 0.5
+	var with_hint := 0
+	for seed_value in 200:
+		if RequestGenerator.generate(catalog, night, 0, _rng(seed_value)).hint != null:
+			with_hint += 1
+	check(with_hint > 60 and with_hint < 140, "con 50 %%, más o menos la mitad trae pista: %d de 200" % with_hint)
+	return true
+
+
+func test_el_saludo_sale_del_catalogo() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.greeting_keys.assign(["K_CALL_1", "K_CALL_2", "K_CALL_3"])
+	var seen := {}
+	for seed_value in 40:
+		var request := RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(seed_value))
+		check(catalog.greeting_keys.has(request.greeting_key), "el saludo es del catálogo: %s" % request.greeting_key)
+		seen[request.greeting_key] = true
+	check_eq(seen.size(), 3, "con varias semillas salen los 3")
+	catalog.greeting_keys.clear()
+	check_eq(RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(1)).greeting_key, "", "sin saludos, sin saludo")
+	return true
+
+
+func test_preguntar_cuesta_lo_que_dice_el_equilibrio() -> bool:
+	var catalog := Fixtures.make_catalog()
+	check_eq(RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(1)).question_cost, 5.0, "por defecto, 5 s")
+	catalog.balance.question_cost = 8.0
+	check_eq(RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(1)).question_cost, 8.0, "el de BalanceData")
 	return true
 
 
@@ -113,5 +143,7 @@ func test_misma_semilla_misma_solicitud() -> bool:
 	var second := RequestGenerator.generate(catalog, catalog.nights[1], 0, _rng(42))
 	check_eq(second.entity, first.entity, "entidad")
 	check_eq(second.situation, first.situation, "situación")
-	check_eq(_ids(second.first_clues), _ids(first.first_clues), "frases y su orden")
+	check_eq(_ids(second.clues), _ids(first.clues), "frases y su orden")
+	check_eq(second.hint, first.hint, "pista")
+	check_eq(second.greeting_key, first.greeting_key, "saludo")
 	return true

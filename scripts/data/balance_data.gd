@@ -72,6 +72,12 @@ extends Resource
 ## Bajo esta señal, la descarga es lenta (diseño §10.1).
 @export var download_slow_below := 50.0
 
+@export_group("Identificación")
+## Segundos del temporizador que cuesta una pregunta (docs/02 §3.2). Si a la solicitud le queda ese tiempo o
+## menos, ya no se puede preguntar. Es la palanca principal de la identificación por preguntas (decisión de
+## Benja, 3-nov).
+@export var question_cost := 5.0
+
 @export_group("Director")
 ## Segundos hasta la primera solicitud de la noche.
 @export var first_request_delay := 5.0

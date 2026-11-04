@@ -4,7 +4,7 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
-## Sesión 17 — 3 de noviembre de 2026 — Plan 7 ejecutado: screamers y director
+## Sesión 17 y su continuación — 3 de noviembre de 2026 — Plan 7 ejecutado: screamers y director; la entidad se identifica preguntando
 
 Ejecutado inline con `superpowers:executing-plans`, en Sonnet 5.5 con esfuerzo high, como proponía el registro. Se adelantó al 3 de noviembre, justo después de S16 (la fecha objetivo era del 17 al 19 de noviembre). Al empezar, Benja autorizó los 14 commits del plan, directo en `main`; no se hizo push.
 
@@ -74,6 +74,49 @@ Ejecutado inline con `superpowers:executing-plans`, en Sonnet 5.5 con esfuerzo h
   - **para el Plan 6, que hoy los dibuja provisionales en Godot:** el mixer visto desde arriba (440×430, o 220×215 a ×2), el celular ampliado (260×520, o 130×260 a ×2) y las barras de señal de las entradas (`docs/06` §3 y `docs/03` §6);
   - **para el Plan 7, que hoy usa la figura de la ventana y dibujos de Godot:** los screamers (manos o un rostro que tapan la pantalla, 1 o 2 jumpscares y la mancha de tinta), la animación `scare` de las cortinas y las luces (`pcLightOver`, `pcLightUnder` y `pcDesklight`) como archivos aparte (`arte_pendiente.md` §3).
 - [ ] Al probar con personas (semana 5): fijarse si notan que en la noche 3 hay que preguntar. Si no, una ayuda posible es marcar en el cuaderno qué observaciones ya contó el amigo (iría a la lista de `docs/05`).
+
+### Continuación: la entidad se identifica preguntando (cambio de Benja)
+
+Al terminar el Plan 7, Benja pidió un cambio de mecánica: la identificación era demasiado breve y obligaba a exponer toda la información de entrada. Quería que el amigo empezara con algo simple ("Mati, ayuda!!", "¿Estás ahí?"), quizá con una pista opcional, y que el jugador tuviera que hacer las preguntas correctas hasta dar con la entidad, con más tiempo y con las preguntas y los mensajes bien manejados (a cargo de Claude). Claude lo juzgó realizable en la misma sesión (Sonnet 5.5, esfuerzo xhigh) y lo hizo sin un plan aparte, con pruebas primero. **Quedó sin commit: Claude pregunta a Benja antes** (la autorización de los 14 commits del Plan 7 no cubre este cambio).
+
+#### Realizado
+
+- **El mensaje inicial es corto:** un saludo al azar (6 en `data/catalog.tres`, `greeting_keys`, con sus textos `FIRST_CALL_*` en `messages.csv`), el lugar y, con la probabilidad de la noche, una **pista**: una de las 2 características, clickeable. Antes traía las 2 características camufladas y hasta todas las observaciones.
+- **Todo lo demás se pregunta:** las características, los señuelos y las observaciones salen solo al preguntar su categoría. La respuesta repite lo de esa categoría (también la pista); repetir la pregunta tira la estática de nuevo, así que sigue sirviendo para recuperar una frase tapada. No cambió la regla de los 5 s ni el resto de la estática.
+- **Datos nuevos:**
+  - `NightData.first_hint_chance` (probabilidad de pista) y `decoys_per_request` (antes `decoys_in_first_message`); se quitó `first_message_observations`;
+  - `BalanceData.question_cost` (5 s, grupo **Identificación**): lo que cuesta una pregunta, ahora ajustable en el Inspector;
+  - `ContentCatalog.greeting_keys`; el validador avisa si no hay saludos o si falta un texto.
+- **Equilibrio (valores iniciales, sin probar):** el jugador atiende un chat a la vez, así que lo que importa es cuánta atención pide cada solicitud. Antes pedía unos 10 a 15 s; ahora unos 25 a 40 s. Para mantener más o menos la carga de cada noche:
+
+  | | N1 | N2 | N3 | N4 | N5 |
+  | --- | --- | --- | --- | --- | --- |
+  | Tiempo para responder (antes) | 90 (45) | 80 (40) | 75 (35) | 70 (32) | 65 (30) |
+  | Solicitudes por noche (antes) | 4 (6) | 6 (9) | 7 (12) | 8 (15) | 10 (18) |
+  | Probabilidad de pista inicial | 100 % | 75 % | 50 % | 35 % | 20 % |
+
+  Las solicitudes simultáneas, las olas, los señuelos, los videos y los screamers no cambiaron.
+- **Pruebas: de 373 a 382 OK, 0 fallidas.** Se escribieron antes que el código (hubo 148 fallas esperadas al cambiar el catálogo de pruebas). Nuevas: la pista opcional, el saludo del catálogo, el costo de preguntar, el mensaje inicial con y sin pista, el validador de saludos, los valores reales de cada noche y una de punta a punta (`test_la_entidad_se_identifica_preguntando`). `test_text_csv.gd` vigila que cada fila de los CSV tenga 3 columnas.
+- **Capturas:** `test/capture_chat.gd` se adaptó al flujo nuevo. La captura `C:\dev\capturas\chat_preguntas.png` muestra el saludo, el lugar y la pista en el mensaje inicial, y después las respuestas a "¿Qué ves?" y "¿Cómo está el ambiente?" con sus frases clickeables.
+- **Documentos al día:** `docs/02` (§1, §2, §3, §6, §9, §10), `spook_dial_design.md` (§8.1, §8.3 y §8.4), `CLAUDE.md` (decisión nueva del 03-11-2026 y dos filas del 26-10 ajustadas), `docs/04` (sección G y cómo ajustarlo) y `docs/00_log.md`.
+
+#### Errores encontrados
+
+- **Una coma sin comillas cortaba un saludo:** `¡Mati, ayuda!!` salía como `¡Mati`. Se vio al imprimir una solicitud con los textos reales (las pruebas con claves falsas no lo notaban). Se corrigió con comillas y se agregó `test_text_csv.gd`, que revisa todos los CSV; los demás estaban bien.
+- **Una prueba comparaba frases clickeables con claves sin asteriscos**, que el `TranslationServer` real no vuelve clickeables. Se cambió a comparar el texto.
+- **El equilibrio es una estimación.** Cambiar la carga de cada solicitud mueve todos los números de la noche; no se pudo jugar. Hay que probarlo (ver Pendientes).
+
+#### Pendientes Código (nuevos)
+
+- [ ] **Plan 8 (S18): la noche 0 (tutorial) tiene que enseñar a preguntar** (qué categoría pregunta cada cosa, que cuesta tiempo y que la estática se recupera repitiendo). Con el tutorial, la noche 1 puede suponer que ya se sabe.
+- [ ] Si al probar se siente seco o lento: una pequeña demora de "escribiendo…" en las respuestas del amigo, y marcar en el chat qué categorías ya se preguntaron (hoy cada botón siempre se ve igual).
+- [ ] Con las 7 entidades (Plan 8): revisar que el contenido haga importar las preguntas (ver Pendientes Externos) y, si conviene, que el validador avise cuando una entidad tenga todas sus características en una sola categoría.
+
+#### Pendientes Externos (nuevos)
+
+- [ ] **Probar la identificación por preguntas** (`docs/04`, G, unos 10 minutos) y decir cómo se siente: tiempos, cantidad de solicitudes por noche, qué tan seguido llega la pista y el costo de preguntar (todo se ajusta en el Inspector; `docs/04`, G, "Para ajustar").
+- [ ] **Corregir los 6 saludos** (`FIRST_CALL_*` en `messages.csv`): son borradores de Claude, en primera persona y cortos.
+- [ ] **Al diseñar las 7 entidades:** reparte las características en categorías distintas (Vista, Sonido, Ambiente, Rastro) y procura que lo que decide las reglas (las observaciones) esté en otra categoría que las características. Así la pregunta correcta cambia según el caso, y preguntarlo todo cuesta caro.
 
 ---
 

@@ -103,8 +103,8 @@ Cada objeto cumple una función:
 
 ### 8.1 Flujo de una solicitud
 
-1. **Llega.** Un amigo escribe dónde está y describe lo que ve y oye. **Nunca dice el nombre de la entidad**: el experto es Matías. Empieza su temporizador.
-2. **El jugador identifica la entidad**, de memoria o con las características destacadas del mensaje (§8.3).
+1. **Llega.** Un amigo pide ayuda con un mensaje corto ("¡Mati, ayuda!!", "¿Estás ahí?") y dice dónde está; a veces trae una pista. **No describe lo que ve ni dice el nombre de la entidad**: el experto es Matías, y la información hay que preguntarla (§8.4). Empieza su temporizador.
+2. **El jugador identifica la entidad**, de memoria o con las características que le cuenta el amigo al preguntar (§8.3).
 3. **Abre la página de esa entidad** en el cuaderno.
 4. **Aplica las reglas** de la página según lo que observa el amigo. Si le falta un dato, pregunta (§8.4).
 5. **Responde** con una de las 4 acciones de la página (§8.5).
@@ -121,7 +121,7 @@ Según la **señal de ese amigo** (§10), algunas palabras de su mensaje llegan 
 
 ### 8.3 Identificar la entidad
 
-Los mensajes traen tres tipos de información:
+Lo que cuenta el amigo, al preguntar, es de tres tipos:
 
 - **Características.** Son fijas de cada entidad (por ejemplo, "un hombrecito" o "huele a azufre"). Aparecen **destacadas** y se pueden clickear.
 - **Señuelos.** Aparecen destacados igual que las características, pero no ayudan a identificar: describen el lugar, un olor, un sonido o algo que se ve. Sirven para camuflar las características.
@@ -136,15 +136,18 @@ Detalles:
 
 - Así se premia a quien memoriza, sin castigar demasiado a quien no.
 - Una característica tapada por la estática no se puede clickear: hay que preguntar (§8.4) para recuperarla.
-- El mensaje inicial trae **2 características** que distinguen a la entidad entre las conocidas, mezcladas con señuelos: 1 en la noche 1 y hasta 3 en la noche 5. Clickear un señuelo no cuesta nada, aparte del tiempo.
+- El amigo cuenta, al preguntar, **2 características** que distinguen a la entidad entre las conocidas, mezcladas con señuelos: 1 en la noche 1 y hasta 3 en la noche 5. Clickear un señuelo no cuesta nada, aparte del tiempo.
+- El mensaje inicial puede traer **una pista**: una de las 2 características (siempre en la noche 1 y cada vez menos hasta la noche 5).
 
 ### 8.4 Preguntas de seguimiento
 
 Junto a las respuestas hay preguntas: **¿Qué ves? · ¿Qué oyes? · ¿Cómo está el ambiente? · ¿Hay rastros?**
 
+- **Es la forma de averiguar casi todo** (decisión de Benja, 3-nov): el mensaje inicial no describe nada. Elegir las preguntas correctas es parte del juego, porque cada una cuesta tiempo.
 - Cada pregunta cuesta **5 segundos** del temporizador (el amigo tarda en mirar). Con 5 segundos o menos ya no se puede preguntar.
-- La respuesta repite las características y los señuelos de esa categoría que traía el mensaje, y todas las observaciones de esa categoría. También puede llegar con estática si la señal sigue baja.
-- Se pueden repetir.
+- La respuesta trae las características y los señuelos de esa categoría, y todas las observaciones de esa categoría. También puede llegar con estática si la señal sigue baja.
+- Se pueden repetir (la estática se tira de nuevo).
+- Como identificar lleva más trabajo, cada solicitud tiene más tiempo (de 90 s en la noche 1 a 65 s en la 5) y hay menos solicitudes por noche (`docs/02` §6).
 
 ### 8.5 Responder desde el cuaderno
 

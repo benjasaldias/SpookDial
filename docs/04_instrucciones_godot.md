@@ -144,13 +144,13 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 3. **Abre el chat:** haz clic en esa entrada. A la izquierda se abre el chat en la conversación de ese amigo:
    - arriba hay una pestaña por amigo, con su tiempo y un `•` si tiene mensajes sin leer;
    - el mensaje aparece escrito de a poco, después del nombre de quien escribe ("LEÓN:"), en su color;
-   - las frases en ámbar y subrayadas se pueden clickear.
-4. **Identifica:** clickea las frases en ámbar.
+   - **es corto** (cambio del 3 de noviembre): un saludo ("¡Mati, ayuda!!", "¿Estás ahí?"…) y el lugar. A veces trae una pista: una frase en ámbar y subrayada, que se puede clickear.
+4. **Pregunta para identificar:** el amigo no describe nada hasta que le preguntas. Presiona **¿Qué ves?**, **¿Qué oyes?**, **¿Cómo está el ambiente?** o **¿Hay rastros?**: responde con lo de esa categoría, y las frases en ámbar y subrayadas se pueden clickear.
    - Las características reales se ponen verdes y la barra cuenta "Características marcadas: 1 de 2".
    - Los señuelos vibran y se ponen rojos.
    - Con las 2 marcadas, la barra dice "Matías piensa…" y a los 3 segundos aparece el nombre (El Trauco).
    - Al clickear el nombre, se abre el cuaderno en la página de El Trauco (se prueba en la sección H).
-5. **Pregunta:** cada botón (¿Qué ves?, ¿Qué oyes?…) resta 5 segundos, y el amigo responde con lo de esa categoría. Con 5 segundos o menos, los botones se desactivan.
+5. **Las preguntas cuestan:** cada botón resta 5 segundos. Con 5 segundos o menos, los botones se desactivan. Fíjate en cómo se siente: ¿hace falta pensar qué preguntar, o conviene preguntar las 4 de corrido (20 segundos)? ¿Alcanza el tiempo de la noche (90 segundos en la 1; en la 3, 75) para identificar, preguntar las observaciones y responder? Anota qué ajustarías.
 6. **Sin respuesta:** si se acaba el tiempo, el amigo cuenta que decidió solo y su entrada deja de parpadear. Responder desde el cuaderno se prueba en la sección H.
 7. **Estática:**
    - en el panel **Scene**, selecciona el nodo `RequestManager`;
@@ -158,6 +158,13 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - vuelve a probar con **F5**: algunas palabras aparecen como `▒▒▒`. Una frase tapada no se puede clickear: pregunta por su categoría para recuperarla.
 8. **El panel tapa el escritorio:** con el chat abierto, pasa el mouse por donde están el mixer y el celular, detrás del panel. No deben resaltarse, y un clic no debe abrir el mixer. Cierra el chat (`Esc` o clic derecho) y vuelve a probar: ahora sí se resaltan.
 9. **Al terminar, deja Test Signal en 100**, o cierra la escena sin guardar.
+
+### Para ajustar la identificación por preguntas
+
+- **Cuánto cuesta preguntar:** `data/balance.tres`, grupo **Identificación**, **Question Cost** (5 segundos).
+- **Por noche** (`data/nights/night_N.tres`, grupo **Solicitudes**): cuánto tiempo tiene cada solicitud (**Base Decision Time**), cuántas hay (**Requests Total**), qué tan seguido el mensaje inicial trae una pista (**First Hint Chance**: 1 es siempre y 0, nunca) y cuántos señuelos hay (**Decoys Per Request**).
+- **Los saludos** están en `data/text/messages.csv` (`FIRST_CALL_*`). Para agregar uno, agrega su fila al final y su clave en **Greeting Keys**, en `data/catalog.tres`. Si el texto lleva una coma, ponlo entre comillas: `"¡Mati, ayuda!!"`.
+- Si cambias un valor a propósito, avísale a Claude: `test_balance.gd` compara estos archivos con `docs/02`.
 
 **Verifica:** los pasos 2 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
 

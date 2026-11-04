@@ -56,6 +56,16 @@ func test_preguntar_cuesta_5_segundos() -> bool:
 	return true
 
 
+func test_el_costo_de_preguntar_es_un_dato() -> bool:
+	var request := _make_request()
+	request.question_cost = 8.0
+	check(request.pay_question(), "se puede preguntar")
+	check_eq(request.time_left, 22.0, "costó 8 s")
+	request.time_left = 8.0
+	check(not request.can_ask(), "con el costo de una pregunta o menos, ya no")
+	return true
+
+
 func test_con_5_segundos_o_menos_no_se_pregunta() -> bool:
 	var request := _make_request()
 	request.time_left = 5.1

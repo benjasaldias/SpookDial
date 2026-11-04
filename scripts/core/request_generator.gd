@@ -1,7 +1,7 @@
 extends RefCounted
 ## Arma una solicitud nueva (docs/02 §2): la entidad, el lugar, la situación, las 2 características
-## que la distinguen de las demás entidades conocidas, los señuelos que las camuflan y las
-## observaciones del mensaje inicial.
+## que la distinguen de las demás entidades conocidas, los señuelos que las camuflan, el saludo y, a veces,
+## una pista para el mensaje inicial. Las observaciones no se eligen aquí: salen al preguntar su categoría.
 
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 
@@ -17,6 +17,8 @@ static func generate(catalog: ContentCatalog, night: NightData, friend_index: in
 	request.friend_index = friend_index
 	request.entity = known[rng.randi_range(0, known.size() - 1)]
 	var entity := request.entity
+	if not catalog.greeting_keys.is_empty():
+		request.greeting_key = catalog.greeting_keys[rng.randi_range(0, catalog.greeting_keys.size() - 1)]
 	request.place_key = entity.place_keys[rng.randi_range(0, entity.place_keys.size() - 1)]
 	for observation: ObservationData in entity.observations:
 		var values := observation.value_ids()
@@ -27,13 +29,14 @@ static func generate(catalog: ContentCatalog, night: NightData, friend_index: in
 		pairs.append(entity.traits.slice(0, 2))
 	request.traits.assign(pairs[rng.randi_range(0, pairs.size() - 1)])
 	var decoys := shuffled(catalog.decoys_for_place(request.place_key), rng)
-	request.decoys.assign(decoys.slice(0, night.decoys_in_first_message))
-	request.first_clues.assign(shuffled(request.traits + request.decoys, rng))
-	var count := night.observations_in_first_message(entity.observations.size())
-	var chosen := shuffled(entity.observations, rng).slice(0, count)
-	for observation: ObservationData in entity.observations:
-		if chosen.has(observation):
-			request.first_observations.append(observation)
+	request.decoys.assign(decoys.slice(0, night.decoys_per_request))
+	request.clues.assign(shuffled(request.traits + request.decoys, rng))
+	# Siempre se tira el azar, para que la secuencia de una semilla no dependa de la probabilidad de la noche.
+	var hint_roll := rng.randf()
+	var hint_index := rng.randi_range(0, request.traits.size() - 1)
+	if hint_roll < night.first_hint_chance:
+		request.hint = request.traits[hint_index]
+	request.question_cost = catalog.balance.question_cost
 	request.time_left = decision_time(night, trust)
 	return request
 

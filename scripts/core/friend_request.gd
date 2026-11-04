@@ -1,5 +1,6 @@
 extends RefCounted
 ## Una solicitud de un amigo (docs/02 §2): la entidad, la situación y lo que el jugador va descubriendo.
+## El mensaje inicial solo saluda, dice el lugar y, a veces, trae una pista; lo demás se pregunta (docs/02 §3).
 ## Lógica pura: RequestManager la avanza en el tiempo y el chat la muestra.
 
 const Consequence := preload("res://scripts/core/consequence.gd")
@@ -9,7 +10,8 @@ enum Identification { PENDING, THINKING, REVEALED }
 ## Estado de una frase clickeable en esta solicitud.
 enum ClueState { UNMARKED, MARKED, DECOY }
 
-## Segundos del temporizador que cuesta una pregunta (docs/02 §3.2).
+## Segundos del temporizador que cuesta una pregunta por defecto (docs/02 §3.2); el del juego es el de
+## BalanceData.question_cost, que el generador copia a `question_cost`.
 const QUESTION_COST := 5.0
 ## Segundos que Matías piensa antes de que aparezca el nombre de la entidad (docs/02 §3.1).
 const THINKING_TIME := 3.0
@@ -19,13 +21,18 @@ var entity: EntityData
 var place_key := ""
 ## id de observación → valor en esta solicitud.
 var situation: Dictionary = {}
-## Las 2 características del mensaje inicial. Para identificar la entidad hay que marcar las dos.
+## Las 2 características que la distinguen. Para identificar la entidad hay que marcar las dos.
 var traits: Array[TraitData] = []
 var decoys: Array[DecoyData] = []
-## Las características y los señuelos, en el orden en que aparecen en el mensaje inicial.
-var first_clues: Array[TraitData] = []
-## Observaciones que trae el mensaje inicial; las demás hay que preguntarlas.
-var first_observations: Array[ObservationData] = []
+## Las características y los señuelos, en el orden en que el amigo los cuenta. Salen al preguntar su
+## categoría; cada pregunta repite los de esa categoría.
+var clues: Array[TraitData] = []
+## La pista opcional del mensaje inicial: una de las 2 características, o null si esta vez no trae.
+var hint: TraitData
+## Con qué saludo pide ayuda (clave de messages.csv); vacío si el catálogo no tiene saludos.
+var greeting_key := ""
+## Segundos que cuesta una pregunta.
+var question_cost := QUESTION_COST
 ## Segundos que quedan para responder.
 var time_left := 0.0
 var identification := Identification.PENDING
@@ -70,16 +77,17 @@ func click_clue(clue_id: StringName) -> ClueState:
 	return clue_state(clue_id)
 
 
-## Con 5 segundos o menos ya no se puede preguntar: el amigo no alcanza a mirar (decisión de Benja).
+## Con lo que cuesta una pregunta o menos ya no se puede preguntar: el amigo no alcanza a mirar (decisión de
+## Benja).
 func can_ask() -> bool:
-	return not finished and time_left > QUESTION_COST
+	return not finished and time_left > question_cost
 
 
 ## Descuenta el costo de una pregunta. Devuelve false si ya no se puede preguntar.
 func pay_question() -> bool:
 	if not can_ask():
 		return false
-	time_left -= QUESTION_COST
+	time_left -= question_cost
 	return true
 
 

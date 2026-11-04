@@ -59,6 +59,8 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 	_check_count(errors, who, "amigos", catalog.friends.size(), FRIEND_COUNT)
 	_check_unique_ids(errors, who, "amigos", catalog.friends)
 	_check_count(errors, who, "noches", catalog.nights.size(), NIGHT_COUNT)
+	if catalog.greeting_keys.is_empty():
+		errors.append("%s: no tiene saludos para el mensaje inicial" % who)
 	var entities: Array[EntityData] = []
 	for index in catalog.nights.size():
 		var night: NightData = catalog.nights[index]
@@ -139,6 +141,8 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 			keys.append(["%s, regla %d" % [who, index + 1], entity.rules[index].text_key])
 	for decoy: DecoyData in catalog.decoys:
 		keys.append(["Señuelo '%s'" % decoy.id, decoy.text_key])
+	for index in catalog.greeting_keys.size():
+		keys.append(["Saludo %d" % (index + 1), catalog.greeting_keys[index]])
 	for index in catalog.phone_posts.size():
 		var post := catalog.phone_posts[index]
 		keys.append(["Publicación %d del celular, autor" % (index + 1), post.author_key])
@@ -293,6 +297,6 @@ static func _check_decoys(errors: Array[String], catalog: ContentCatalog, entiti
 					known_places[place_key] = true
 		for place_key: String in known_places:
 			var count := catalog.decoys_for_place(place_key).size()
-			if count < night.decoys_in_first_message:
+			if count < night.decoys_per_request:
 				errors.append("Noche %d: el lugar '%s' tiene %d señuelos y la noche pide %d"
-						% [night.number, place_key, count, night.decoys_in_first_message])
+						% [night.number, place_key, count, night.decoys_per_request])

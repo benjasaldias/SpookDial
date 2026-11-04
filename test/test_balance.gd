@@ -104,3 +104,23 @@ func test_olas_y_screamers_de_cada_noche() -> bool:
 		check_eq(night.scripted_scare_time, 60.0 if night.number == 1 else 0.0, who + ": susto guionado")
 	check_eq(catalog.nights[0].scripted_scare, ScareKind.Kind.JUMPSCARE, "el susto guionado es un jumpscare")
 	return true
+
+
+## La identificación por preguntas (decisión de Benja, 3 de noviembre): más tiempo por solicitud, menos
+## solicitudes por noche (la atención es en serie) y una pista opcional en el mensaje inicial.
+func test_identificacion_por_preguntas() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	check_eq(catalog.balance.question_cost, 5.0, "preguntar cuesta 5 s")
+	check(catalog.greeting_keys.size() >= 5, "el amigo tiene varios saludos: %d" % catalog.greeting_keys.size())
+	var requests := [4, 6, 7, 8, 10]
+	var times := [90.0, 80.0, 75.0, 70.0, 65.0]
+	var hints := [1.0, 0.75, 0.5, 0.35, 0.2]
+	var decoys := [1, 1, 2, 2, 3]
+	for index in catalog.nights.size():
+		var night: NightData = catalog.nights[index]
+		var who := "noche %d" % night.number
+		check_eq(night.requests_total, requests[index], who + ": solicitudes")
+		check_eq(night.base_decision_time, times[index], who + ": tiempo para responder")
+		check_eq(night.first_hint_chance, hints[index], who + ": probabilidad de pista inicial")
+		check_eq(night.decoys_per_request, decoys[index], who + ": señuelos")
+	return true

@@ -81,3 +81,10 @@ func test_chat_guionado() -> bool:
 	check_contains(errors, "Noche 1: el chat guionado no es de un amigo del catálogo")
 	check_contains(errors, "Noche 1: el chat guionado no tiene líneas")
 	return true
+
+
+func test_sin_saludos() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.greeting_keys.clear()
+	check_contains(ContentValidator.validate_catalog(catalog), "Catálogo: no tiene saludos para el mensaje inicial")
+	return true

@@ -33,5 +33,5 @@ func test_senuelos_de_un_lugar() -> bool:
 
 
 func test_una_noche_pide_1_senuelo_por_defecto() -> bool:
-	check_eq(NightData.new().decoys_in_first_message, 1, "señuelos por defecto")
+	check_eq(NightData.new().decoys_per_request, 1, "señuelos por defecto")
 	return true

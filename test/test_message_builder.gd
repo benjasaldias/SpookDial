@@ -19,7 +19,8 @@ func _translate(key: String) -> String:
 
 
 ## Solicitud de "beast": beast_trait_1 (Vista) y beast_trait_2 (Sonido), el señuelo "decoy_sight" (Vista)
-## entre las dos, o1 (Vista) = yes y o2 (Sonido) = no; el mensaje inicial trae solo o2.
+## entre las dos, o1 (Vista) = yes y o2 (Sonido) = no. El saludo es "K_CALL" y el mensaje inicial no trae
+## pista: todo lo demás sale al preguntar.
 func _make_request() -> FriendRequest:
 	var entity := Fixtures.make_entity()
 	entity.traits[1].category = ClueCategory.Kind.SOUND
@@ -30,8 +31,8 @@ func _make_request() -> FriendRequest:
 	request.situation = {&"o1": &"yes", &"o2": &"no"}
 	request.traits.assign(entity.traits)
 	request.decoys.assign([Fixtures.make_decoy(&"decoy_sight")])
-	request.first_clues.assign([entity.traits[0], request.decoys[0], entity.traits[1]])
-	request.first_observations.assign([entity.observations[1]])
+	request.clues.assign([entity.traits[0], request.decoys[0], entity.traits[1]])
+	request.greeting_key = "K_CALL"
 	request.time_left = 30.0
 	return request
 
@@ -46,9 +47,20 @@ func test_mensaje_inicial() -> bool:
 	var message := MessageBuilder.first_message(request, _translate)
 	check_eq(message.sender, ChatMessage.Sender.FRIEND, "lo envía el amigo")
 	check_eq(message.request, request, "es de la solicitud")
-	check_eq(message.plain_text(), "K_PLACE. Hay K_TRAIT_beast_trait_1. Hay K_DECOY_decoy_sight. Hay K_TRAIT_beast_trait_2. K_beast_O2_NO.",
-			"lugar, frases en su orden y la observación que trae")
-	check_eq(_clue_ids(message), [&"beast_trait_1", &"decoy_sight", &"beast_trait_2"], "frases clickeables")
+	check_eq(message.plain_text(), "K_CALL. K_PLACE.", "solo el saludo y el lugar: nada de descripciones")
+	check_eq(_clue_ids(message), [], "sin frases clickeables ni observaciones")
+	return true
+
+
+func test_mensaje_inicial_con_pista() -> bool:
+	var request := _make_request()
+	request.hint = request.traits[1]
+	var message := MessageBuilder.first_message(request, _translate)
+	check_eq(message.plain_text(), "K_CALL. K_PLACE. Hay K_TRAIT_beast_trait_2.", "la pista, al final")
+	check_eq(_clue_ids(message), [&"beast_trait_2"], "la pista se puede clickear")
+	request.greeting_key = ""
+	check_eq(MessageBuilder.first_message(request, _translate).plain_text(), "K_PLACE. Hay K_TRAIT_beast_trait_2.",
+			"sin saludo en el catálogo, el mensaje empieza por el lugar")
 	return true
 
 
@@ -56,7 +68,7 @@ func test_respuesta_a_una_pregunta() -> bool:
 	var request := _make_request()
 	var sight := MessageBuilder.answer(request, ClueCategory.Kind.SIGHT, _translate)
 	check_eq(sight.plain_text(), "Hay K_TRAIT_beast_trait_1. Hay K_DECOY_decoy_sight. K_beast_O1_YES.",
-			"Vista: también la observación que el mensaje inicial no traía")
+			"Vista: las frases de la categoría y todas sus observaciones")
 	check_eq(_clue_ids(sight), [&"beast_trait_1", &"decoy_sight"], "frases de Vista")
 	var sound := MessageBuilder.answer(request, ClueCategory.Kind.SOUND, _translate)
 	check_eq(sound.plain_text(), "Hay K_TRAIT_beast_trait_2. K_beast_O2_NO.", "Sonido")

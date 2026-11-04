@@ -416,3 +416,26 @@ func test_restaurar_la_senal_avisa_si_estaba_desconectado() -> bool:
 		check_eq((messages[0] as ChatMessage).tone, ChatMessage.Tone.GOOD, "en verde")
 	manager.free()
 	return true
+
+
+## Decisión de Benja (3-nov): el amigo no cuenta nada de entrada. Sin pista, el mensaje inicial no trae frases
+## clickeables ni observaciones; las características, los señuelos y las observaciones salen al preguntar.
+func test_la_entidad_se_identifica_preguntando() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.nights[0].first_hint_chance = 0.0
+	var manager := _make_manager(catalog)
+	var events := []
+	_record(manager, events)
+	var request := manager.start_request(0)
+	var first: ChatMessage = _messages(events)[0]
+	check_eq(first.plain_text(), "%s %s" % [TranslationServer.translate("K_CALL_1"), TranslationServer.translate(request.place_key)],
+			"solo el saludo y el lugar")
+	events.clear()
+	for category: ClueCategory.Kind in [ClueCategory.Kind.SIGHT, ClueCategory.Kind.SOUND]:
+		check(manager.ask(0, category), "se puede preguntar %s" % category)
+	var answers := " ".join(_messages(events).map(func(message: ChatMessage) -> String: return message.plain_text()))
+	for trait_data: TraitData in request.traits:
+		check(answers.contains("K_TRAIT_%s" % trait_data.id), "preguntando sale la característica %s" % trait_data.id)
+	check_eq(request.time_left, 45.0 - 2.0 * 5.0, "cada pregunta costó 5 s")
+	manager.free()
+	return true

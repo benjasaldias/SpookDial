@@ -7,14 +7,10 @@ func _ids(entities: Array[EntityData]) -> Array:
 	return entities.map(func(entity: EntityData) -> StringName: return entity.id)
 
 
-func test_observaciones_del_primer_mensaje() -> bool:
+func test_pista_inicial_y_senuelos_por_defecto() -> bool:
 	var night := NightData.new()
-	check_eq(night.observations_in_first_message(3), 3, "todas")
-	night.first_message_observations = NightData.FirstMessageObservations.ALL_BUT_ONE
-	check_eq(night.observations_in_first_message(3), 2, "todas menos 1, de 3")
-	check_eq(night.observations_in_first_message(2), 1, "todas menos 1, de 2")
-	night.first_message_observations = NightData.FirstMessageObservations.ONE
-	check_eq(night.observations_in_first_message(3), 1, "una")
+	check_eq(night.first_hint_chance, 1.0, "el mensaje inicial trae su pista, salvo que la noche diga otra cosa")
+	check_eq(night.decoys_per_request, 1, "un señuelo por solicitud")
 	return true
 
 

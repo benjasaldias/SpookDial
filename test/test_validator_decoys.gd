@@ -41,7 +41,7 @@ func test_senuelo_de_un_lugar_que_no_existe() -> bool:
 
 func test_faltan_senuelos_para_un_lugar() -> bool:
 	var catalog := Fixtures.make_catalog()
-	catalog.nights[2].decoys_in_first_message = 3
+	catalog.nights[2].decoys_per_request = 3
 	check_contains(ContentValidator.validate_catalog(catalog),
 			"Noche 3: el lugar 'K_PLACE' tiene 2 señuelos y la noche pide 3")
 	return true
