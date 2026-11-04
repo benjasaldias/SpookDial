@@ -103,3 +103,62 @@ func test_no_empieza_una_que_no_alcanza_a_terminar() -> bool:
 	check(not director.request_due(400.0, 30.0), "a las 05:43 ya no alcanza a responder en 30 s")
 	check(director.request_times.is_empty(), "no llegan más")
 	return true
+
+
+## Una noche con `count` screamers y, si `jumpscare`, uno de ellos es el jumpscare.
+func _scary_night(count: int, jumpscare: bool) -> NightData:
+	var night := _night()
+	night.scare_count = count
+	night.has_jumpscare = jumpscare
+	return night
+
+
+func test_reparte_los_screamers_en_la_noche() -> bool:
+	for seed_value in range(1, 21):
+		var times := _director(_scary_night(6, true), seed_value).scare_times
+		check_eq(times.size(), 6, "6 screamers")
+		check(times[0] >= 30.0, "ninguno en los primeros 30 s: %s" % times[0])
+		check(times[-1] <= 420.0, "todos antes de las 06:00")
+		for gap: float in _gaps(times):
+			check(gap >= 25.0, "al menos 25 s entre dos: %s" % [times])
+	return true
+
+
+func test_uno_es_el_jumpscare_si_la_noche_lo_tiene() -> bool:
+	for jumpscare: bool in [true, false]:
+		for seed_value in range(1, 11):
+			var director := _director(_scary_night(4, jumpscare), seed_value)
+			var found := 0
+			while not director.scare_times.is_empty():
+				if director.next_is_jumpscare():
+					found += 1
+				director.scare_started(director.scare_times[0])
+			check_eq(found, 1 if jumpscare else 0, "jumpscares en una noche %s jumpscare" % ("con" if jumpscare else "sin"))
+	return true
+
+
+func test_un_screamer_llega_a_su_hora_y_espaciado() -> bool:
+	var director := _director(_scary_night(0, false))
+	director.scare_times.assign([40.0, 50.0])
+	check(not director.scare_due(39.0), "todavía no")
+	check(director.scare_due(40.0), "a su hora")
+	director.scare_started(40.0)
+	check(not director.scare_due(50.0), "a 10 s del anterior, espera")
+	check(director.scare_due(65.0), "a 25 s, sí")
+	return true
+
+
+func test_el_susto_guionado_espera_un_momento_sin_solicitudes() -> bool:
+	var night := _night()
+	night.scripted_scare_time = 60.0
+	var director := _director(night)
+	check(not director.scripted_scare_due(59.0, 0), "todavía no")
+	check(not director.scripted_scare_due(60.0, 1), "hay una solicitud: espera")
+	check(director.scripted_scare_due(70.0, 0), "sin solicitudes, llega")
+	director.scare_times.assign([75.0])
+	director.scripted_scare_started(70.0)
+	check(not director.scripted_scare_due(80.0, 0), "llega una sola vez")
+	check(not director.scare_due(80.0), "el siguiente screamer espera 25 s desde el guionado")
+	check(director.scare_due(95.0), "a los 25 s, sí")
+	check(not _director(_night()).scripted_scare_due(100.0, 0), "una noche sin susto guionado")
+	return true
