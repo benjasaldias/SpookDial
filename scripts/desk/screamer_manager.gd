@@ -101,7 +101,7 @@ func advance(delta: float, view: Screamer.View, busy: bool) -> void:
 		return
 	var now := _requests.state.elapsed
 	var director := _requests.director
-	if director.scripted_scare_due(now, _requests.active_count()):
+	if director.scripted_scare_due(now, _requests.pending_count()):
 		director.scripted_scare_started(now)
 		_announce(_requests.night().scripted_scare, true)
 		return

@@ -439,3 +439,87 @@ func test_la_entidad_se_identifica_preguntando() -> bool:
 	check_eq(request.time_left, 45.0 - 2.0 * 5.0, "cada pregunta costó 5 s")
 	manager.free()
 	return true
+
+
+## El tutorial del catálogo de prueba (noche 0), con las solicitudes llegando solas.
+func _make_tutorial_manager() -> RequestManager:
+	var manager := RequestManager.new()
+	manager.catalog = Fixtures.make_catalog()
+	manager.night_number = 0
+	manager.random_seed = 7
+	(Engine.get_main_loop() as SceneTree).root.add_child(manager)
+	return manager
+
+
+## La acción correcta de la solicitud de `friend_index`.
+func _correct_action(manager: RequestManager, friend_index: int) -> ActionData:
+	var request := manager.requests[friend_index]
+	return request.entity.find_action(RuleEvaluator.applicable_rule(request.entity, request.situation).correct_action_id)
+
+
+## En el tutorial, las solicitudes son las fijas de la noche 0 y llegan de a una (decisión de Benja). La
+## siguiente espera a que termine la anterior, un respiro de 4 s y el video, si el amigo mandó uno.
+func test_en_el_tutorial_las_solicitudes_llegan_de_a_una() -> bool:
+	var manager := _make_tutorial_manager()
+	manager.advance(4.9)
+	check_eq(manager.active_count(), 0, "a los 4,9 s todavía no")
+	manager.advance(0.2)
+	var first := manager.requests[0]
+	check(first != null, "la primera es de León")
+	if first == null:
+		manager.free()
+		return true
+	check_eq(first.situation[&"o1"], &"yes", "con su situación fija")
+	check(first.timer_paused, "su temporizador espera")
+	manager.advance(100.0)
+	check(manager.requests[1] == null and manager.requests[2] == null, "no llega otra mientras tanto")
+	check_eq(manager.tutorial_queue.size(), 1, "falta una")
+	manager.answer(0, _correct_action(manager, 0))
+	check_eq(manager.state.videos.pending.size(), 1, "León manda su video")
+	manager.advance(10.0)
+	check_eq(manager.active_count(), 0, "la siguiente espera el video")
+	manager.state.videos.pending.clear()
+	manager.advance(1.0)
+	check(manager.requests[1] != null, "recibido el video, llega la de Gonzalo")
+	check_eq(manager.tutorial_queue.size(), 0, "no falta ninguna")
+	manager.free()
+	return true
+
+
+## En el tutorial nadie sale herido y Trust no baja (decisión de Benja).
+func test_en_el_tutorial_no_hay_consecuencias() -> bool:
+	var manager := _make_tutorial_manager()
+	manager.advance(5.1)
+	var request := manager.requests[0]
+	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
+	manager.answer(0, request.entity.find_action(rule.risky_action_id))
+	check_eq(request.outcome, RuleEvaluator.Outcome.RISKY, "la de mayor riesgo")
+	check_eq(manager.state.friends[0].health, 3, "León sigue entero")
+	check_eq(manager.state.trust, 100.0, "Trust igual")
+	manager.free()
+	return true
+
+
+## El susto guionado espera a que termine el tutorial: mientras falten solicitudes, el respiro o el video, hay algo
+## pendiente.
+func test_en_el_tutorial_lo_pendiente_hace_esperar_al_susto() -> bool:
+	var manager := _make_tutorial_manager()
+	check(manager.pending_count() > 0, "al empezar faltan las solicitudes")
+	manager.tutorial_queue.clear()
+	check_eq(manager.pending_count(), 1, "falta el respiro antes de la primera")
+	manager.advance(5.0)
+	check_eq(manager.pending_count(), 0, "sin solicitudes, ni respiro, ni video")
+	manager.state.videos.add_extra(2, 5.0)
+	check_eq(manager.pending_count(), 1, "un video que espera")
+	manager.free()
+	return true
+
+
+## En una noche normal, lo pendiente son las solicitudes activas.
+func test_lo_pendiente_en_una_noche_normal() -> bool:
+	var manager := _make_manager()
+	check_eq(manager.pending_count(), 0, "nada")
+	manager.start_request(2)
+	check_eq(manager.pending_count(), 1, "una solicitud")
+	manager.free()
+	return true

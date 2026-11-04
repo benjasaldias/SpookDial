@@ -4,6 +4,8 @@ extends Node
 ## Desde el Plan 6 también avisa en el chat lo que pasa con los videos y la señal.
 ## Desde el Plan 7, el director de ritmo (PacingDirector) decide cuándo llega cada solicitud: en olas, con un
 ## respiro después de cada una (decisión de Benja), sin pasar de las simultáneas.
+## Desde el Plan 8, en la noche 0 (el tutorial) llegan las solicitudes fijas de la noche, de a una, y nadie sale
+## herido (decisión de Benja).
 ## En el escritorio lo avanza NightManager, junto con el estado de la noche.
 
 signal message_added(friend_index: int, message: ChatMessage)
@@ -24,6 +26,9 @@ const MessageBuilder := preload("res://scripts/core/message_builder.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
+
+## Segundos que pasan entre una solicitud del tutorial y la siguiente, para leer lo que pasó.
+const TUTORIAL_GAP := 4.0
 
 @export var catalog: ContentCatalog
 ## Noche que se juega (0: el tutorial). En el juego la elige GameState; este valor es el de las pruebas y el de
@@ -46,9 +51,15 @@ var state: NightState
 var director: PacingDirector
 ## El chat guionado en curso, o null (Plan 7).
 var chat_script: ChatScript
+## En el tutorial, las solicitudes fijas que todavía no llegan, en orden.
+var tutorial_queue: Array[TutorialRequestData] = []
 
 ## Segundos desde las 00:00, como la hora del estado de la noche: el director cuenta en esa hora.
 var _elapsed := 0.0
+## En el tutorial, la hora desde la que puede llegar la próxima solicitud fija.
+var _next_tutorial_at := 0.0
+## La solicitud fija en curso en el tutorial, o null.
+var _tutorial_current: TutorialRequestData
 
 
 func _ready() -> void:
@@ -58,6 +69,8 @@ func _ready() -> void:
 		rng.randomize()
 	state = NightState.new(night(), catalog.balance, catalog.friends.size(), rng)
 	director = PacingDirector.new(night(), catalog.balance, rng)
+	tutorial_queue.assign(night().tutorial_requests)
+	_next_tutorial_at = catalog.balance.first_request_delay
 	for index in catalog.friends.size():
 		requests.append(null)
 		state.friends[index].signal_level = test_signal
@@ -75,6 +88,17 @@ func active_count() -> int:
 	return requests.size() - requests.count(null)
 
 
+## Lo que hace esperar al susto guionado: las solicitudes activas y, en el tutorial, las fijas que faltan, el
+## respiro antes de la próxima y el video que espera.
+func pending_count() -> int:
+	var count := active_count()
+	if night().is_tutorial():
+		count += tutorial_queue.size()
+		if _elapsed < _next_tutorial_at or not (state.videos.pending.is_empty() and state.videos.offers.is_empty()):
+			count += 1
+	return count
+
+
 ## Avanza `delta` segundos: los temporizadores, la espera de identificación y la llegada de solicitudes.
 func advance(delta: float) -> void:
 	_elapsed += delta
@@ -87,7 +111,11 @@ func advance(delta: float) -> void:
 		if request.is_out_of_time():
 			_decide_alone(index)
 	_advance_chat_script(delta)
-	if requests_arrive:
+	if not requests_arrive:
+		return
+	if night().is_tutorial():
+		_maybe_start_tutorial_request()
+	else:
 		_maybe_start_request()
 
 
@@ -211,12 +239,15 @@ func _decide_alone(friend_index: int) -> void:
 
 ## Tira la consecuencia y la aplica al estado de la noche. Va antes de la reacción del amigo, que
 ## depende de si quedó herido. Un amigo herido atrasa las solicitudes que faltan (decisión de Benja).
+## En el tutorial no hay consecuencias.
 func _resolve(request: FriendRequest) -> void:
 	request.consequence = Consequence.new(request.outcome, request.answered_by_player, catalog.balance, rng,
-			request.decided_offline)
+			request.decided_offline, night().is_tutorial())
 	state.apply(request.friend_index, request.consequence)
 	if request.consequence.is_hurt():
 		director.friend_hurt()
+	if _tutorial_current != null:
+		_finish_tutorial_request(request.friend_index)
 
 
 ## Si el amigo quedó herido, el juego lo avisa en el chat con la vida que le queda. El aviso no pasa
@@ -274,3 +305,26 @@ func _maybe_start_request() -> void:
 		return
 	if start_request(free_friends[rng.randi_range(0, free_friends.size() - 1)]) != null:
 		director.request_started(_elapsed)
+
+
+## En el tutorial, la próxima solicitud fija llega cuando no hay otra, pasó el respiro y no hay un video
+## esperando.
+func _maybe_start_tutorial_request() -> void:
+	if tutorial_queue.is_empty() or active_count() > 0 or _elapsed < _next_tutorial_at:
+		return
+	if not (state.videos.pending.is_empty() and state.videos.offers.is_empty()):
+		return
+	var data: TutorialRequestData = tutorial_queue.pop_front()
+	var request := RequestGenerator.generate_tutorial(catalog, night(), data, rng)
+	requests[request.friend_index] = request
+	_tutorial_current = data
+	request_started.emit(request.friend_index, request)
+	_add_friend_message(request.friend_index, MessageBuilder.first_message(request, tr))
+
+
+## Terminó la solicitud fija en curso: empieza el respiro y, si la solicitud lo pide, el amigo manda un video.
+func _finish_tutorial_request(friend_index: int) -> void:
+	if _tutorial_current.sends_video:
+		state.videos.add_extra(friend_index, _elapsed)
+	_tutorial_current = null
+	_next_tutorial_at = _elapsed + TUTORIAL_GAP
