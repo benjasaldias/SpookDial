@@ -51,3 +51,16 @@ func test_publicacion_sin_texto() -> bool:
 	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_POST_TEXT"]))
 	check_contains(errors, "Publicación 1 del celular, texto: la clave 'K_POST_TEXT' no está en ningún CSV")
 	return true
+
+
+func test_lineas_del_chat_guionado() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var line := ChatLineData.new()
+	line.text_key = "K_LINE"
+	var chat := ChatScriptData.new()
+	chat.friend = catalog.friends[0]
+	chat.lines.append(line)
+	catalog.nights[0].scripted_chat = chat
+	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_LINE"]))
+	check_contains(errors, "Noche 1, chat guionado, línea 1: la clave 'K_LINE' no está en ningún CSV")
+	return true

@@ -128,6 +128,14 @@ static func notice(key: String, values: Dictionary, tone: ChatMessage.Tone, tran
 	return message
 
 
+## Una línea de un chat guionado, del amigo o de Matías, sin solicitud.
+static func script_line(line: ChatLineData, translate: Callable) -> ChatMessage:
+	var sender := ChatMessage.Sender.PLAYER if line.speaker == ChatLineData.Speaker.PLAYER else ChatMessage.Sender.FRIEND
+	var message := ChatMessage.new(sender, null)
+	message.add_fragment(_text(translate, line.text_key))
+	return message
+
+
 static func _observation_text(request: FriendRequest, observation: ObservationData, translate: Callable) -> String:
 	return _text(translate, observation.values[request.situation[observation.id]])
 

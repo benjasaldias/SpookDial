@@ -48,6 +48,8 @@ enum FirstMessageObservations { ALL, ALL_BUT_ONE, ONE }
 @export var scripted_scare_time := 0.0
 ## Qué screamer es el susto guionado.
 @export var scripted_scare: ScareKind.Kind = ScareKind.Kind.JUMPSCARE
+## El chat guionado que sigue al susto guionado (decisión de Benja, sesión 16), o ninguno.
+@export var scripted_chat: ChatScriptData
 
 
 ## Cuántas observaciones trae el mensaje inicial de una entidad que tiene `total`.

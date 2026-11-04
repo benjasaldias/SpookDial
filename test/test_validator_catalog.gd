@@ -70,3 +70,14 @@ func test_incluye_los_errores_de_cada_entidad() -> bool:
 	catalog.nights[1].new_entities[0].actions.pop_back()
 	check_contains(ContentValidator.validate_catalog(catalog), "Entidad 'ghost': tiene 3 acciones")
 	return true
+
+
+func test_chat_guionado() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var chat := ChatScriptData.new()
+	chat.friend = FriendData.new()
+	catalog.nights[0].scripted_chat = chat
+	var errors := ContentValidator.validate_catalog(catalog)
+	check_contains(errors, "Noche 1: el chat guionado no es de un amigo del catálogo")
+	check_contains(errors, "Noche 1: el chat guionado no tiene líneas")
+	return true

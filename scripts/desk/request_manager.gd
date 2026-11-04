@@ -12,8 +12,11 @@ signal request_started(friend_index: int, request: FriendRequest)
 signal request_changed(friend_index: int, request: FriendRequest)
 ## Terminó una solicitud, con su consecuencia ya aplicada al estado de la noche.
 signal request_finished(friend_index: int, request: FriendRequest)
+## Terminó el chat guionado (Plan 7).
+signal chat_script_finished(chat: ChatScript)
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
+const ChatScript := preload("res://scripts/core/chat_script.gd")
 const ChatStatic := preload("res://scripts/core/chat_static.gd")
 const Consequence := preload("res://scripts/core/consequence.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
@@ -40,6 +43,8 @@ var requests: Array[FriendRequest] = []
 var state: NightState
 ## Decide cuándo llega cada solicitud y cada screamer (Plan 7).
 var director: PacingDirector
+## El chat guionado en curso, o null (Plan 7).
+var chat_script: ChatScript
 
 ## Segundos desde las 00:00, como la hora del estado de la noche: el director cuenta en esa hora.
 var _elapsed := 0.0
@@ -80,6 +85,7 @@ func advance(delta: float) -> void:
 			request_changed.emit(index, request)
 		if request.is_out_of_time():
 			_decide_alone(index)
+	_advance_chat_script(delta)
 	if requests_arrive:
 		_maybe_start_request()
 
@@ -134,6 +140,36 @@ func answer(friend_index: int, action: ActionData) -> bool:
 	_add_friend_message(friend_index, MessageBuilder.reaction(request, tr))
 	_add_damage_notice(friend_index, request)
 	request_finished.emit(friend_index, request)
+	return true
+
+
+## Empieza el chat guionado `data`: su amigo escribe sus líneas y Matías responde las suyas con un botón
+## (decisión de Benja). Sin un amigo del catálogo o sin líneas, no pasa nada.
+func start_chat_script(data: ChatScriptData) -> void:
+	if data == null or data.lines.is_empty():
+		return
+	var friend_index := catalog.friends.find(data.friend)
+	if friend_index < 0:
+		return
+	chat_script = ChatScript.new(data, friend_index)
+
+
+## La línea que Matías tiene que responder en el chat del amigo `friend_index`, o null.
+func chat_script_reply(friend_index: int) -> ChatLineData:
+	if chat_script == null or chat_script.friend_index != friend_index:
+		return null
+	return chat_script.pending_reply()
+
+
+## Matías responde con el botón del chat guionado. Devuelve false si no había nada que responder.
+func reply_chat_script() -> bool:
+	if chat_script == null:
+		return false
+	var line := chat_script.reply()
+	if line == null:
+		return false
+	message_added.emit(chat_script.friend_index, MessageBuilder.script_line(line, tr))
+	_finish_chat_script_if_done()
 	return true
 
 
@@ -202,6 +238,24 @@ func _add_notice(friend_index: int, key: String, tone: ChatMessage.Tone) -> void
 func _add_friend_message(friend_index: int, message: ChatMessage) -> void:
 	ChatStatic.apply(message, state.friends[friend_index].signal_level, rng)
 	message_added.emit(friend_index, message)
+
+
+## El amigo del chat guionado escribe su próxima línea cuando le toca.
+func _advance_chat_script(delta: float) -> void:
+	if chat_script == null:
+		return
+	var line := chat_script.advance(delta)
+	if line != null:
+		_add_friend_message(chat_script.friend_index, MessageBuilder.script_line(line, tr))
+	_finish_chat_script_if_done()
+
+
+func _finish_chat_script_if_done() -> void:
+	if chat_script == null or not chat_script.is_done():
+		return
+	var finished := chat_script
+	chat_script = null
+	chat_script_finished.emit(finished)
 
 
 ## Cuando el director lo pide, le da una solicitud a un amigo libre al azar, sin pasar de las simultáneas.

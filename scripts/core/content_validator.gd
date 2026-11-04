@@ -65,6 +65,7 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 		if night.number != index + 1:
 			errors.append("%s: la noche en la posición %d tiene el número %d; deben ir en orden desde 1"
 					% [who, index + 1, night.number])
+		_check_scripted_chat(errors, catalog, night)
 		if night.new_entities.has(null):
 			errors.append("Noche %d: hay un espacio vacío en 'new_entities'" % night.number)
 			continue
@@ -115,6 +116,11 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 		keys.append(["Amigo '%s'" % friend.id, friend.name_key])
 	for night: NightData in catalog.nights:
 		keys.append(["Noche %d" % night.number, night.place_key])
+		if night.scripted_chat != null:
+			for index in night.scripted_chat.lines.size():
+				var line := night.scripted_chat.lines[index]
+				if line != null:
+					keys.append(["Noche %d, chat guionado, línea %d" % [night.number, index + 1], line.text_key])
 	for entity: EntityData in catalog.all_entities():
 		var who := "Entidad '%s'" % entity.id
 		keys.append([who + ", nombre", entity.name_key])
@@ -138,6 +144,20 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 		keys.append(["Publicación %d del celular, autor" % (index + 1), post.author_key])
 		keys.append(["Publicación %d del celular, texto" % (index + 1), post.text_key])
 	return keys
+
+
+## El chat guionado de una noche, si tiene: de un amigo del catálogo y con líneas.
+static func _check_scripted_chat(errors: Array[String], catalog: ContentCatalog, night: NightData) -> void:
+	var chat := night.scripted_chat
+	if chat == null:
+		return
+	var who := "Noche %d: el chat guionado" % night.number
+	if not catalog.friends.has(chat.friend):
+		errors.append(who + " no es de un amigo del catálogo")
+	if chat.lines.is_empty():
+		errors.append(who + " no tiene líneas")
+	elif chat.lines.has(null):
+		errors.append(who + " tiene un espacio vacío en 'lines'")
 
 
 static func _check_count(errors: Array[String], who: String, what: String, count: int, limits: Vector2i) -> void:
