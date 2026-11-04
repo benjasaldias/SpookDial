@@ -3,7 +3,8 @@
 Son de relleno, hasta que Benja elija los definitivos (Plan 9):
 - Plan 6: la base y los aplausos de Audio Sync, el golpe de Matías, el resultado de una ronda y la estática
   que anuncia una interferencia;
-- Plan 7: el sonido ambiente del cuarto, uno por screamer y los cuatro de las alucinaciones.
+- Plan 7: el sonido ambiente del cuarto, uno por screamer y los cuatro de las alucinaciones;
+- 4 de noviembre: la respiración y los golpes de la criatura de la ventana, que reemplazan al grito del jumpscare.
 Siempre generan los mismos archivos.
 
 Uso, desde la carpeta del proyecto: python3 -I tools/make_placeholder_sounds.py
@@ -26,6 +27,45 @@ def write(name, samples):
         out.setsampwidth(2)
         out.setframerate(RATE)
         out.writeframes(frames)
+
+
+def breathing():
+    """La criatura de la ventana: 8 s de respiración pesada y ronca, tres inspiraciones y tres exhalaciones."""
+    white, samples, low, lower, seconds = noise(31), [], 0.0, 0.0, 8.0
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        low += 0.12 * (white() - low)
+        lower += 0.25 * (low - lower)
+        cycle = (t % 2.6) / 2.6
+        # Inspira rápido y más agudo, y exhala lento y más grave.
+        if cycle < 0.4:
+            level = math.sin(math.pi * cycle / 0.4) ** 1.5
+            tone = 5.0 * low
+        else:
+            level = 0.8 * math.sin(math.pi * (cycle - 0.4) / 0.6) ** 1.5
+            tone = 8.0 * lower
+        rasp = 0.7 + 0.3 * math.sin(2 * math.pi * 31 * t)
+        fade = min(t / 0.3, 1.0, (seconds - t) / 0.4)
+        samples.append(0.6 * tone * level * rasp * fade)
+    return samples
+
+
+def knocks():
+    """La criatura golpea el vidrio: 7 s con tres tandas de golpes pesados, cada vez más fuertes."""
+    white, samples, seconds = noise(32), [], 7.0
+    hits = (0.6, 1.1, 2.9, 3.35, 3.8, 5.4, 5.8, 6.2, 6.5)
+    volumes = (0.5, 0.5, 0.7, 0.7, 0.7, 1.0, 1.0, 1.0, 1.0)
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        value = 0.0
+        for start, volume in zip(hits, volumes):
+            if t >= start:
+                local = t - start
+                value += volume * (math.sin(2 * math.pi * 95 * local) * math.exp(-local * 28)
+                                   + 0.35 * math.sin(2 * math.pi * 640 * local) * math.exp(-local * 120)
+                                   + 0.25 * white() * math.exp(-local * 160))
+        samples.append(0.8 * value)
+    return samples
 
 
 def kick():
@@ -275,6 +315,8 @@ if __name__ == "__main__":
     write("scare_slam", slam())
     write("scare_ink", splat())
     write("scare_jumpscare", scream())
+    write("scare_creature_breathing", breathing())
+    write("scare_creature_knocks", knocks())
     write("hallucination_knock", knock())
     write("hallucination_steps", steps())
     write("hallucination_whisper", whisper())

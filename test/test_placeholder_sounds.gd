@@ -19,6 +19,8 @@ const SOUNDS := {
 	"scare_slam": 0.5,
 	"scare_ink": 0.6,
 	"scare_jumpscare": 1.5,
+	"scare_creature_breathing": 8.0,
+	"scare_creature_knocks": 7.0,
 	"hallucination_knock": 1.0,
 	"hallucination_steps": 2.0,
 	"hallucination_whisper": 2.0,
