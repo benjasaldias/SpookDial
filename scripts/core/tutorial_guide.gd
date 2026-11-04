@@ -25,6 +25,8 @@ const HOLD_KEY := "TUTORIAL_HOLD"
 const REPLY_KEY := "TUTORIAL_REPLY"
 const PHONE_KEY := "TUTORIAL_PHONE"
 const SCROLL_KEY := "TUTORIAL_SCROLL"
+const DIALS_KEY := "TUTORIAL_DIALS"
+const DIALS_OK_KEY := "TUTORIAL_DIALS_OK"
 ## Cómo le fue al amigo con la última respuesta.
 const OUTCOME_KEYS := {
 	RuleEvaluator.Outcome.CORRECT: CORRECT_KEY,
@@ -50,15 +52,20 @@ class View:
 class Hint:
 	var key := ""
 	var friend_index := -1
+	## El aviso lleva un botón "Entendido": sigue hasta que Matías lo presiona.
+	var needs_ok := false
 
-	func _init(hint_key: String, hint_friend := -1) -> void:
+	func _init(hint_key: String, hint_friend := -1, with_ok := false) -> void:
 		key = hint_key
 		friend_index = hint_friend
+		needs_ok = with_ok
 
 
 ## La lección del celular, después del chat guionado.
 enum Phone { WAITING, HIGHLIGHTED, OPEN, DONE }
 
+## Lo primero que dice el tutorial son los diales (decisión de Benja, 4 de noviembre). Lo enciende el escritorio.
+var explain_dials := false
 var _phone := Phone.WAITING
 var _last_request: FriendRequest
 
@@ -88,8 +95,15 @@ func is_done() -> bool:
 	return _phone == Phone.DONE
 
 
-## Qué hacer ahora. Primero el celular, después el chat guionado, el video y la solicitud en curso.
+## Matías presionó "Entendido" en el aviso de los diales.
+func dials_understood() -> void:
+	explain_dials = false
+
+
+## Qué hacer ahora. Primero los diales, después el celular, el chat guionado, el video y la solicitud en curso.
 func hint(view: View) -> Hint:
+	if explain_dials:
+		return Hint.new(DIALS_KEY, -1, true)
 	match _phone:
 		Phone.HIGHLIGHTED:
 			return Hint.new(PHONE_KEY)

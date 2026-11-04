@@ -112,3 +112,17 @@ func test_sus_textos_existen() -> bool:
 			TutorialGuide.SCROLL_KEY]:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en ui.csv" % key)
 	return true
+
+
+## Lo primero que dice el tutorial son los diales (decisión de Benja, 4 de noviembre), con un botón Entendido.
+func test_primero_los_diales() -> bool:
+	var guide := TutorialGuide.new()
+	guide.explain_dials = true
+	var hint := guide.hint(_view())
+	check_eq(hint.key, TutorialGuide.DIALS_KEY, "los diales")
+	check(hint.needs_ok, "con su botón")
+	guide.dials_understood()
+	hint = guide.hint(_view())
+	check_eq(hint.key, TutorialGuide.WELCOME_KEY, "después, la bienvenida")
+	check(not hint.needs_ok, "sin botón")
+	return true

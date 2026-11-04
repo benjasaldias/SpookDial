@@ -62,6 +62,12 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	var hint := desk.get_node("Overlay/TutorialHint") as Control
 	check(hint.visible, "el aviso se ve")
 	desk._process(0.0)
+	check_eq(_hint_text(desk), _expected(TutorialGuide.DIALS_KEY), "primero, los diales")
+	var ok := desk.get_node("Overlay/TutorialHint/Box/Ok") as Button
+	check(ok.visible, "con su botón Entendido")
+	ok.pressed.emit()
+	desk._process(0.0)
+	check(not ok.visible, "el botón se va")
 	check_eq(_hint_text(desk), _expected(TutorialGuide.WELCOME_KEY), "bienvenida")
 	# La solicitud de León: abrir el chat, preguntar, marcar, abrir la página y responder.
 	_play(desk, 6)

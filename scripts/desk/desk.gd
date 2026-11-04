@@ -108,6 +108,8 @@ func _ready() -> void:
 			_guide.request_finished(request))
 		_phone.visibility_changed.connect(_on_phone_visibility_changed)
 		_tutorial_hint.skip_pressed.connect(tutorial_skipped.emit)
+		_guide.explain_dials = true
+		_tutorial_hint.ok_pressed.connect(_guide.dials_understood)
 	_tutorial_hint.visible = _guide != null
 	_pause_menu.resumed.connect(func() -> void: get_tree().paused = false)
 	_pause_menu.menu_pressed.connect(menu_requested.emit)
@@ -322,7 +324,8 @@ func _refresh_tutorial() -> void:
 	var friend_name := ""
 	if hint.friend_index >= 0:
 		friend_name = tr(_requests.catalog.friends[hint.friend_index].name_key)
-	_tutorial_hint.show_text(tr(hint.key).format({"friend": friend_name}) if not hint.key.is_empty() else "")
+	_tutorial_hint.show_text(tr(hint.key).format({"friend": friend_name}) if not hint.key.is_empty() else "",
+			hint.needs_ok)
 	if _guide.is_done():
 		_night.finish(NightState.Ending.WON)
 

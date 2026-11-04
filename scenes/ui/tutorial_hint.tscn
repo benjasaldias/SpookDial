@@ -42,6 +42,13 @@ theme_override_fonts/font = ExtResource("pixel_font")
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
+[node name="Ok" type="Button" parent="Box"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_fonts/font = ExtResource("pixel_font")
+theme_override_font_sizes/font_size = 11
+
 [node name="Skip" type="Button" parent="Box"]
 layout_mode = 2
 size_flags_horizontal = 8
