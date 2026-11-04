@@ -15,6 +15,7 @@ extends Node2D
 ## espera la respuesta de Matías, y si el guion lo pide, el celular parpadea hasta que Matías lo abre.
 ## Desde el Plan 8, en la noche 0 (el tutorial) un aviso arriba de la pantalla dice qué hacer en cada paso
 ## (TutorialGuide), y la noche termina al cerrar el celular. El aviso tiene un botón para saltar el tutorial.
+## Con Esc y sin nada abierto, la noche se pausa y aparece el menú de pausa (decisión de Benja, sesión 18).
 
 ## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
 signal tutorial_skipped
@@ -23,6 +24,8 @@ signal tutorial_skipped
 signal next_night_requested
 signal retry_requested
 signal menu_requested
+## Cambió una opción desde el menú de pausa: GameState la guarda.
+signal settings_changed(settings: GameSettings)
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
@@ -60,6 +63,10 @@ var notebook_memory: NotebookMemory
 @onready var _screamers: ScreamerManager = $Screamers
 @onready var _phone_sprite: AnimatedSprite2D = $DeskPlane/Phone
 @onready var _tutorial_hint: Control = $Overlay/TutorialHint
+@onready var _pause_menu: Control = $Overlay/PauseMenu
+
+## Las opciones del jugador que se aplicaron; el menú de pausa las cambia.
+var _settings := GameSettings.new()
 
 ## El guía del tutorial en la noche 0, o null en las demás.
 var _guide: TutorialGuide
@@ -102,6 +109,9 @@ func _ready() -> void:
 		_phone.visibility_changed.connect(_on_phone_visibility_changed)
 		_tutorial_hint.skip_pressed.connect(tutorial_skipped.emit)
 	_tutorial_hint.visible = _guide != null
+	_pause_menu.resumed.connect(func() -> void: get_tree().paused = false)
+	_pause_menu.menu_pressed.connect(menu_requested.emit)
+	_pause_menu.settings_changed.connect(_on_pause_settings_changed)
 
 
 func _process(delta: float) -> void:
@@ -124,12 +134,21 @@ func _scare_view() -> Screamer.View:
 
 ## Aplica las opciones del jugador (diseño §19): menos destellos, la cámara fija y más tiempo para responder.
 func apply_settings(settings: GameSettings) -> void:
+	_settings = settings
 	for entry: Node in _entries:
 		entry.reduce_flashes = settings.reduce_flashes
 	_mixer.reduce_flashes = settings.reduce_flashes
 	_screamers.reduce_flashes = settings.reduce_flashes
 	$LookCamera.set_look(not settings.still_camera)
 	_requests.timer_scale = settings.timer_scale()
+
+
+## Pausa la noche y abre el menú de pausa. Una noche que terminó no se pausa.
+func pause() -> void:
+	if _night.ended:
+		return
+	get_tree().paused = true
+	_pause_menu.open(_settings)
 
 
 ## Cierra el chat y el cuaderno. El celular y el mixer se usan sin ningún panel abierto (decisión de Benja).
@@ -170,9 +189,12 @@ func open_phone() -> void:
 
 ## El escritorio es el último en recibir la entrada: aquí llega lo que nadie atendió. Las entradas del PC
 ## y los objetos del escritorio consumen sus clics, y los paneles, el mixer y el celular, los que caen sobre
-## ellos. Esc o un clic fuera de ellos los cierra.
+## ellos. Esc o un clic fuera de ellos los cierra. Sin nada abierto, Esc pausa la noche.
 func _unhandled_input(event: InputEvent) -> void:
 	if not (_chat_panel.visible or _notebook_panel.visible or _mixer.visible or _phone.visible):
+		if event.is_action_pressed(&"ui_cancel"):
+			pause()
+			get_viewport().set_input_as_handled()
 		return
 	var mouse := event as InputEventMouseButton
 	var click := mouse != null and mouse.pressed and mouse.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]
@@ -324,3 +346,8 @@ func _tutorial_view() -> TutorialGuide.View:
 func _on_phone_visibility_changed() -> void:
 	if not _phone.visible:
 		_guide.phone_closed()
+
+
+func _on_pause_settings_changed(settings: GameSettings) -> void:
+	apply_settings(settings)
+	settings_changed.emit(settings)

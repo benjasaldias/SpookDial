@@ -29,6 +29,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/mixer_view.tscn" id="mixer_view"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_view.tscn" id="phone_view"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tutorial_hint.tscn" id="tutorial_hint"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="pause_menu"]
 [ext_resource type="AudioStream" path="res://audio/sfx/interference_static.wav" id="static_sound"]
 [ext_resource type="Script" path="res://scripts/desk/screamer_manager.gd" id="screamers_script"]
 [ext_resource type="AudioStream" path="res://audio/sfx/ambient_room.wav" id="ambient_sound"]
@@ -306,3 +307,5 @@ mouse_filter = 2
 color = Color(0.55, 0, 0.04, 0)
 
 [node name="EndScreen" parent="Overlay" instance=ExtResource("end_screen")]
+
+[node name="PauseMenu" parent="Overlay" instance=ExtResource("pause_menu")]

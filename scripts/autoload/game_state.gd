@@ -68,7 +68,8 @@ func next_night_number(number: int) -> int:
 
 
 ## Guarda la noche `number` (se guarda al comienzo, diseño §5) y arma su escritorio, con las opciones del
-## jugador y sus botones conectados: saltar el tutorial, seguir, reintentar y volver al menú.
+## jugador y sus botones conectados: saltar el tutorial, seguir, reintentar y volver al menú. Las opciones que
+## se cambian en la pausa se guardan.
 func prepare_night(number: int) -> Node:
 	night_number = number
 	save.store(number)
@@ -79,6 +80,7 @@ func prepare_night(number: int) -> Node:
 	desk.next_night_requested.connect(next_night)
 	desk.retry_requested.connect(retry)
 	desk.menu_requested.connect(go_to_menu)
+	desk.settings_changed.connect(func(_changed: GameSettings) -> void: save_settings())
 	desk.get_node("NightManager").night_ended.connect(_on_night_ended)
 	return desk
 

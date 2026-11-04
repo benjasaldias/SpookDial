@@ -62,3 +62,13 @@ func test_al_ganar_la_ultima_noche_se_borra_la_partida() -> bool:
 	desk.free()
 	_free(game)
 	return true
+
+
+## Las opciones cambiadas en la pausa se guardan.
+func test_las_opciones_de_la_pausa_se_guardan() -> bool:
+	var game := _make_game()
+	var desk: Node = game.prepare_night(1)
+	check_eq(desk.settings_changed.get_connections().size(), 1, "GameState las guarda")
+	desk.free()
+	_free(game)
+	return true
