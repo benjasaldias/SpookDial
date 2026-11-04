@@ -271,3 +271,18 @@ func test_un_screamer_baja_sanity_de_golpe() -> bool:
 	state.scare(100.0)
 	check_eq(state.sanity, 0.0, "no baja de 0")
 	return true
+
+
+## El tutorial (decisión de Benja): no se puede perder, ni siquiera con un dial en 0, y su video no llega solo:
+## lo manda el amigo de una solicitud. Su plazo espera.
+func test_en_el_tutorial_no_se_pierde() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var state := NightState.new(catalog.tutorial, catalog.balance, 3, RandomNumberGenerator.new())
+	check_eq(state.videos.quota, 1, "un video de cuota")
+	check_eq(state.videos.pending.size(), 0, "ninguno programado")
+	check(state.videos.patient, "su plazo espera")
+	state.sanity = 0.0
+	state.trust = 0.0
+	state.elapsed = catalog.balance.night_seconds
+	check_eq(state.ending(), NightState.Ending.NONE, "no termina solo")
+	return true

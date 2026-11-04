@@ -73,3 +73,15 @@ func test_sin_senal_trust_no_baja() -> bool:
 	check_eq(offline.trust_change, 0.0, "ni −10 ni −15")
 	check_eq(offline.damage, 1, "el daño de siempre")
 	return true
+
+
+## En el tutorial no se puede perder (decisión de Benja): nadie sale herido, Trust no baja y la acción de mayor
+## riesgo no da un video extra.
+func test_en_el_tutorial_no_hay_consecuencias() -> bool:
+	for outcome: RuleEvaluator.Outcome in [RuleEvaluator.Outcome.RISKY, RuleEvaluator.Outcome.WRONG]:
+		for by_player: bool in [true, false]:
+			var consequence := Consequence.new(outcome, by_player, _balance(1.0), RandomNumberGenerator.new(), false, true)
+			check_eq(consequence.damage, 0, "sin daño")
+			check_eq(consequence.trust_change, 0.0, "Trust igual")
+			check(not consequence.risky, "sin video extra")
+	return true

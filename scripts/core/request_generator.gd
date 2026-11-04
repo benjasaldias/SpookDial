@@ -13,10 +13,28 @@ static func generate(catalog: ContentCatalog, night: NightData, friend_index: in
 	var known := catalog.known_entities(night.number)
 	if known.is_empty():
 		return null
+	return build(catalog, night, friend_index, known[rng.randi_range(0, known.size() - 1)], rng, trust)
+
+
+## La solicitud fija `data` del tutorial (decisión de Benja): su amigo, su entidad, su situación (lo que falte,
+## al azar) y la pista si la pide. El temporizador espera.
+static func generate_tutorial(catalog: ContentCatalog, night: NightData, data: TutorialRequestData,
+		rng: RandomNumberGenerator) -> FriendRequest:
+	var request := build(catalog, night, catalog.friends.find(data.friend), data.entity, rng)
+	for observation_id: StringName in data.situation:
+		request.situation[observation_id] = data.situation[observation_id]
+	request.hint = request.traits[0] if data.with_hint else null
+	request.timer_paused = true
+	return request
+
+
+## Arma la solicitud de `entity` para el amigo `friend_index`.
+static func build(catalog: ContentCatalog, night: NightData, friend_index: int, entity: EntityData,
+		rng: RandomNumberGenerator, trust := 100.0) -> FriendRequest:
+	var known := catalog.known_entities(night.number)
 	var request := FriendRequest.new()
 	request.friend_index = friend_index
-	request.entity = known[rng.randi_range(0, known.size() - 1)]
-	var entity := request.entity
+	request.entity = entity
 	if not catalog.greeting_keys.is_empty():
 		request.greeting_key = catalog.greeting_keys[rng.randi_range(0, catalog.greeting_keys.size() - 1)]
 	request.place_key = entity.place_keys[rng.randi_range(0, entity.place_keys.size() - 1)]

@@ -53,6 +53,10 @@ func _init(night_data: NightData, balance_data: BalanceData, friend_count: int, 
 			friend.signal_decay_interval = rng.randf_range(night.signal_decay_interval.x, night.signal_decay_interval.y)
 		friends.append(friend)
 	videos = VideoSchedule.new(night.content_quota, balance, friend_count, rng)
+	if night.is_tutorial():
+		# En el tutorial, el video lo manda el amigo de una solicitud, y espera a que Matías lo descargue.
+		videos.pending.clear()
+		videos.patient = true
 	interferences = InterferenceSchedule.new(night.interference_count, balance.night_seconds, friend_count, rng)
 
 
@@ -134,8 +138,11 @@ func vignette_strength() -> float:
 
 
 ## Cómo termina la noche, o NONE si sigue. Se pierde apenas muere un amigo o un dial llega a 0.
-## A las 06:00 se gana si se cumplió la cuota (diseño §5).
+## A las 06:00 se gana si se cumplió la cuota (diseño §5). El tutorial no termina solo: termina cuando se
+## completa (decisión de Benja).
 func ending() -> Ending:
+	if night.is_tutorial():
+		return Ending.NONE
 	for friend: FriendState in friends:
 		if not friend.is_alive():
 			return Ending.FRIEND_DIED

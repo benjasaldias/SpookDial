@@ -35,6 +35,10 @@ var greeting_key := ""
 var question_cost := QUESTION_COST
 ## Segundos que quedan para responder.
 var time_left := 0.0
+## En el tutorial, el temporizador espera: solo las preguntas le quitan tiempo (decisión de Benja).
+var timer_paused := false
+## Cuántas preguntas hizo Matías (el tutorial dice qué hacer según esto).
+var questions_asked := 0
 var identification := Identification.PENDING
 var thinking_left := 0.0
 var finished := false
@@ -88,14 +92,17 @@ func pay_question() -> bool:
 	if not can_ask():
 		return false
 	time_left -= question_cost
+	questions_asked += 1
 	return true
 
 
-## Avanza `delta` segundos. Devuelve true si en este paso apareció el nombre de la entidad.
+## Avanza `delta` segundos. Devuelve true si en este paso apareció el nombre de la entidad. Con el
+## temporizador en espera, solo avanza lo que piensa Matías.
 func advance(delta: float) -> bool:
 	if finished:
 		return false
-	time_left = maxf(time_left - delta, 0.0)
+	if not timer_paused:
+		time_left = maxf(time_left - delta, 0.0)
 	if identification != Identification.THINKING:
 		return false
 	thinking_left -= delta

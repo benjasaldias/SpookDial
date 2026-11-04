@@ -52,6 +52,8 @@ var lost := 0
 var pending: Array[Delivery] = []
 ## Los videos que esperan su descarga: como máximo uno por amigo.
 var offers: Array[Offer] = []
+## En el tutorial, los plazos de los videos no corren: esperan a que Matías los descargue (decisión de Benja).
+var patient := false
 
 var _balance: BalanceData
 
@@ -104,7 +106,8 @@ func advance(now: float, delta: float, friends: Array[FriendState], holding: int
 			received += 1
 			changes.received.append(offer.friend_index)
 			continue
-		offer.time_left -= delta
+		if not patient:
+			offer.time_left -= delta
 		if offer.time_left <= 0.0:
 			offers.erase(offer)
 			lost += 1

@@ -147,3 +147,23 @@ func test_misma_semilla_misma_solicitud() -> bool:
 	check_eq(second.hint, first.hint, "pista")
 	check_eq(second.greeting_key, first.greeting_key, "saludo")
 	return true
+
+
+## Las solicitudes del tutorial son fijas: su amigo, su entidad, su situación y si trae pista. El temporizador
+## espera (decisión de Benja).
+func test_las_solicitudes_del_tutorial_son_fijas() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var tutorial := catalog.tutorial
+	var first := RequestGenerator.generate_tutorial(catalog, tutorial, tutorial.tutorial_requests[0], _rng(1))
+	check_eq(first.friend_index, 0, "la pide León")
+	check_eq(first.entity.id, &"beast", "beast")
+	check_eq(first.situation[&"o1"], &"yes", "o1 fijo")
+	check(first.situation.has(&"o2"), "o2, al azar")
+	check(first.hint != null and first.traits.has(first.hint), "con pista")
+	check(first.timer_paused, "el temporizador espera")
+	check_eq(first.time_left, tutorial.base_decision_time, "con todo su tiempo")
+	var second := RequestGenerator.generate_tutorial(catalog, tutorial, tutorial.tutorial_requests[1], _rng(1))
+	check_eq(second.friend_index, 1, "la pide Gonzalo")
+	check_eq(second.situation, {&"o1": &"no", &"o2": &"yes"}, "situación fija")
+	check(second.hint == null, "sin pista")
+	return true

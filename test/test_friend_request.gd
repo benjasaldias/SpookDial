@@ -127,3 +127,32 @@ func test_sin_senal_decide_mal() -> bool:
 		chosen[request.chosen_action.id] = true
 	check_eq(chosen.size(), 3, "elige entre las otras 3")
 	return true
+
+
+## En el tutorial, el temporizador espera (decisión de Benja): solo las preguntas le quitan tiempo. Matías
+## sigue pensando, y el nombre aparece igual.
+func test_en_el_tutorial_el_temporizador_espera() -> bool:
+	var request := _make_request()
+	request.timer_paused = true
+	request.advance(20.0)
+	check_eq(request.time_left, 30.0, "el tiempo no corre")
+	check(not request.is_out_of_time(), "no se acaba")
+	check(request.pay_question(), "se puede preguntar")
+	check_eq(request.time_left, 25.0, "la pregunta cuesta igual")
+	request.click_clue(&"beast_trait_1")
+	request.click_clue(&"beast_trait_2")
+	check(request.advance(FriendRequest.THINKING_TIME), "aparece el nombre")
+	return true
+
+
+## El tutorial necesita saber si Matías ya preguntó algo.
+func test_cuenta_las_preguntas() -> bool:
+	var request := _make_request()
+	check_eq(request.questions_asked, 0, "al empezar")
+	request.pay_question()
+	request.pay_question()
+	check_eq(request.questions_asked, 2, "dos preguntas")
+	request.time_left = 5.0
+	request.pay_question()
+	check_eq(request.questions_asked, 2, "la que no se pudo hacer no cuenta")
+	return true

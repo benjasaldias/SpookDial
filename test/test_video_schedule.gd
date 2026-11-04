@@ -157,3 +157,21 @@ func test_sin_cuota_ya_esta_cumplida() -> bool:
 	check(schedule.pending.is_empty(), "sin envíos")
 	check(schedule.is_quota_met(), "cumplida")
 	return true
+
+
+## En el tutorial, el video espera a que Matías lo descargue: sus plazos no corren (decisión de Benja).
+func test_en_el_tutorial_el_video_espera() -> bool:
+	var schedule := _schedule(0)
+	schedule.patient = true
+	var friends := _friends()
+	schedule.add_extra(1, 10.0)
+	var changes := _advance(schedule, friends, 10.0, 60, -1)
+	check_eq(changes.offered, [1], "llegó el video de Gonzalo")
+	check_eq(changes.lost, [], "no se pierde aunque pase el tiempo")
+	changes = _advance(schedule, friends, 70.0, 5, 1)
+	check_eq(schedule.offer_for(1).progress, 0.5, "la descarga avanza igual")
+	changes = _advance(schedule, friends, 75.0, 30, -1)
+	check_eq(changes.lost, [], "en pausa tampoco se pierde")
+	changes = _advance(schedule, friends, 105.0, 5, 1)
+	check_eq(changes.received, [1], "se recibe")
+	return true
