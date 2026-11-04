@@ -10,10 +10,11 @@ const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 const VideoSchedule := preload("res://scripts/core/video_schedule.gd")
 
 
-## Manager con el catálogo de prueba, en la noche 1 (solo "beast"), sin que las solicitudes lleguen solas.
-func _make_manager() -> RequestManager:
+## Manager con el catálogo de prueba (u otro), en la noche 1 (solo "beast"), sin que las solicitudes lleguen
+## solas.
+func _make_manager(catalog: ContentCatalog = null) -> RequestManager:
 	var manager := RequestManager.new()
-	manager.catalog = Fixtures.make_catalog()
+	manager.catalog = catalog if catalog != null else Fixtures.make_catalog()
 	manager.night_number = 1
 	manager.random_seed = 7
 	manager.requests_arrive = false
@@ -160,28 +161,57 @@ func test_las_solicitudes_llegan_solas() -> bool:
 	check_eq(manager.active_count(), 0, "a los 4,9 s todavía no")
 	manager.advance(0.2)
 	check_eq(manager.active_count(), 1, "a los 5,1 s llega la primera")
-	# Noche 1: 6 solicitudes, así que llegan cada 70 s. La primera se acaba a los 45 s (a los 50,1 s del total).
-	manager.advance(69.0)
-	check_eq(manager.active_count(), 0, "la primera ya terminó")
-	manager.advance(1.0)
-	check_eq(manager.active_count(), 1, "70 s después de la primera llega la segunda")
+	# La segunda llega cuando dice el director, más de 45 s después: la primera ya se acabó.
+	var second: float = manager.director.request_times[0]
+	manager.advance(second - 5.1 - 0.1)
+	check_eq(manager.active_count(), 0, "la segunda todavía no llega")
+	manager.advance(0.2)
+	check_eq(manager.active_count(), 1, "la segunda llega a su hora")
 	manager.free()
 	return true
 
 
-func test_no_pasa_de_las_simultaneas_ni_del_total() -> bool:
+func test_no_pasa_de_las_simultaneas() -> bool:
 	var manager := _make_manager()
 	manager.requests_arrive = true
-	var night := manager.night()
-	night.requests_total = 2
-	night.max_simultaneous = 1
-	night.base_decision_time = 100.0
 	manager.advance(5.0)
-	manager.advance(90.0)
-	check_eq(manager.active_count(), 1, "no pasa de 1 simultánea")
-	for _i in 20:
-		manager.advance(30.0)
-	check_eq(manager.active_count(), 0, "no pasa de 2 en la noche")
+	check_eq(manager.active_count(), 1, "llega la primera")
+	for request: FriendRequest in manager.requests:
+		if request != null:
+			request.time_left = 1000.0
+	manager.advance(manager.director.request_times[0] - 5.0 + 1.0)
+	check_eq(manager.active_count(), 1, "la noche 1 tiene 1 simultánea: la segunda espera")
+	manager.free()
+	return true
+
+
+func test_no_pasa_del_total() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.nights[0].requests_total = 2
+	# Sin heridas: un amigo herido atrasaría la segunda hasta que ya no alcanza a terminar.
+	catalog.balance.risky_hurt_chance = 0.0
+	catalog.balance.wrong_hurt_chance = 0.0
+	var manager := _make_manager(catalog)
+	manager.requests_arrive = true
+	var started := []
+	manager.request_started.connect(func(friend_index: int, _request: FriendRequest) -> void:
+		started.append(friend_index))
+	for _i in 420:
+		manager.advance(1.0)
+	check_eq(started.size(), 2, "2 solicitudes en la noche")
+	manager.free()
+	return true
+
+
+func test_un_amigo_herido_atrasa_las_solicitudes() -> bool:
+	var manager := _make_manager()
+	manager.catalog.balance.wrong_hurt_chance = 1.0
+	var planned := manager.director.request_times.duplicate()
+	var request := manager.start_request(0)
+	manager.answer(0, _wrong_action(request))
+	check(request.consequence.is_hurt(), "quedó herido")
+	for index in planned.size():
+		check(is_equal_approx(manager.director.request_times[index], planned[index] + 10.0), "atrasadas 10 s")
 	manager.free()
 	return true
 

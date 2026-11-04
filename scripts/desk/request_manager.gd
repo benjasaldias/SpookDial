@@ -2,8 +2,8 @@ extends Node
 ## Las solicitudes de la noche (planes 3 a 6): las genera, avanza sus temporizadores, recibe las preguntas,
 ## los clics y las respuestas del chat, arma los mensajes con estática y resuelve las consecuencias.
 ## Desde el Plan 6 también avisa en el chat lo que pasa con los videos y la señal.
-## El ritmo es provisional, hasta el director del Plan 7: llega una solicitud cada
-## (duración de la noche ÷ solicitudes de la noche) segundos, sin pasar de las simultáneas.
+## Desde el Plan 7, el director de ritmo (PacingDirector) decide cuándo llega cada solicitud: en olas, con un
+## respiro después de cada una (decisión de Benja), sin pasar de las simultáneas.
 ## En el escritorio lo avanza NightManager, junto con el estado de la noche.
 
 signal message_added(friend_index: int, message: ChatMessage)
@@ -19,10 +19,8 @@ const Consequence := preload("res://scripts/core/consequence.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const MessageBuilder := preload("res://scripts/core/message_builder.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
+const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
-
-## Segundos hasta la primera solicitud.
-const FIRST_REQUEST_DELAY := 5.0
 
 @export var catalog: ContentCatalog
 ## Noche que se juega. Por ahora la 3, la única con una entidad (El Trauco).
@@ -40,9 +38,11 @@ var requests: Array[FriendRequest] = []
 ## El estado de la noche: la hora, Sanity, Trust, cómo está cada amigo y los videos. Lo crea el manager,
 ## que tiene el catálogo y la noche; NightManager lo avanza.
 var state: NightState
+## Decide cuándo llega cada solicitud y cada screamer (Plan 7).
+var director: PacingDirector
 
-var _since_last_request := 0.0
-var _started_count := 0
+## Segundos desde las 00:00, como la hora del estado de la noche: el director cuenta en esa hora.
+var _elapsed := 0.0
 
 
 func _ready() -> void:
@@ -51,6 +51,7 @@ func _ready() -> void:
 	else:
 		rng.randomize()
 	state = NightState.new(night(), catalog.balance, catalog.friends.size(), rng)
+	director = PacingDirector.new(night(), catalog.balance, rng)
 	for index in catalog.friends.size():
 		requests.append(null)
 		state.friends[index].signal_level = test_signal
@@ -70,6 +71,7 @@ func active_count() -> int:
 
 ## Avanza `delta` segundos: los temporizadores, la espera de identificación y la llegada de solicitudes.
 func advance(delta: float) -> void:
+	_elapsed += delta
 	for index in requests.size():
 		var request := requests[index]
 		if request == null:
@@ -79,7 +81,7 @@ func advance(delta: float) -> void:
 		if request.is_out_of_time():
 			_decide_alone(index)
 	if requests_arrive:
-		_maybe_start_request(delta)
+		_maybe_start_request()
 
 
 ## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una, si no está disponible
@@ -91,7 +93,6 @@ func start_request(friend_index: int) -> FriendRequest:
 	if request == null:
 		return null
 	requests[friend_index] = request
-	_started_count += 1
 	request_started.emit(friend_index, request)
 	_add_friend_message(friend_index, MessageBuilder.first_message(request, tr))
 	return request
@@ -172,11 +173,13 @@ func _decide_alone(friend_index: int) -> void:
 
 
 ## Tira la consecuencia y la aplica al estado de la noche. Va antes de la reacción del amigo, que
-## depende de si quedó herido.
+## depende de si quedó herido. Un amigo herido atrasa las solicitudes que faltan (decisión de Benja).
 func _resolve(request: FriendRequest) -> void:
 	request.consequence = Consequence.new(request.outcome, request.answered_by_player, catalog.balance, rng,
 			request.decided_offline)
 	state.apply(request.friend_index, request.consequence)
+	if request.consequence.is_hurt():
+		director.friend_hurt()
 
 
 ## Si el amigo quedó herido, el juego lo avisa en el chat con la vida que le queda. El aviso no pasa
@@ -201,13 +204,12 @@ func _add_friend_message(friend_index: int, message: ChatMessage) -> void:
 	message_added.emit(friend_index, message)
 
 
-func _maybe_start_request(delta: float) -> void:
-	_since_last_request += delta
-	var current := night()
-	var wait := FIRST_REQUEST_DELAY if _started_count == 0 else catalog.balance.night_seconds / current.requests_total
-	if _since_last_request < wait or _started_count >= current.requests_total:
+## Cuando el director lo pide, le da una solicitud a un amigo libre al azar, sin pasar de las simultáneas.
+## Si no hay a quién dársela, espera: el director atrasa las que faltan.
+func _maybe_start_request() -> void:
+	if not director.request_due(_elapsed, RequestGenerator.decision_time(night(), state.trust)):
 		return
-	if active_count() >= current.max_simultaneous:
+	if active_count() >= night().max_simultaneous:
 		return
 	var free_friends: Array[int] = []
 	for index in requests.size():
@@ -216,4 +218,4 @@ func _maybe_start_request(delta: float) -> void:
 	if free_friends.is_empty():
 		return
 	if start_request(free_friends[rng.randi_range(0, free_friends.size() - 1)]) != null:
-		_since_last_request = 0.0
+		director.request_started(_elapsed)
