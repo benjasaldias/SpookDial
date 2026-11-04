@@ -129,3 +129,42 @@ func test_sus_textos_existen() -> bool:
 			"NOTEBOOK_FOR_FRIEND debe tener {friend}")
 	TranslationServer.set_locale(previous)
 	return true
+
+
+func test_la_tinta_tapa_la_pagina_unos_segundos() -> bool:
+	var panel := _make_panel()
+	_memory.open_page(0, _entities[0])
+	panel.open_for(0)
+	var ink := panel.get_node("InkBlot") as Control
+	check(not ink.visible, "sin tinta")
+	panel.splash_ink(5.0)
+	check(ink.visible, "la mancha tapa la página")
+	check_eq(ink.mouse_filter, Control.MOUSE_FILTER_IGNORE, "no tapa los clics")
+	ink._process(4.0)
+	check(ink.visible, "a los 4 s sigue")
+	ink._process(1.1)
+	check(not ink.visible, "a los 5 s se fue")
+	panel.free()
+	return true
+
+
+func test_el_golpe_cierra_el_cuaderno_y_conserva_la_pagina() -> bool:
+	var panel := _make_panel()
+	_memory.open_page(0, _entities[1])
+	panel.open_for(0)
+	check(panel.shows_page(), "abierto en una página")
+	panel.slam()
+	check(not panel.visible, "se cerró de golpe")
+	check(not panel.shows_page(), "cerrado, no muestra nada")
+	panel.open_for(0)
+	check_eq(_title(panel).text, String(TranslationServer.translate(_entities[1].name_key)), "al abrirlo, la misma página")
+	panel.free()
+	return true
+
+
+func test_en_el_indice_no_muestra_una_pagina() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	check(not panel.shows_page(), "en el índice")
+	panel.free()
+	return true

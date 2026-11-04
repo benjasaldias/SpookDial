@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/notebook_panel.gd" id="panel_script"]
 [ext_resource type="Theme" path="res://scenes/ui/notebook_theme.tres" id="notebook_theme"]
+[ext_resource type="Script" path="res://scripts/ui/ink_blot.gd" id="ink_script"]
 
 [node name="NotebookPanel" type="Control"]
 layout_mode = 3
@@ -60,3 +61,13 @@ mouse_filter = 1
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
+
+[node name="InkBlot" type="Control" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 836.0
+offset_top = 96.0
+offset_right = 1253.0
+offset_bottom = 690.0
+mouse_filter = 2
+script = ExtResource("ink_script")

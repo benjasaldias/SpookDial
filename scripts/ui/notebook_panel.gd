@@ -4,6 +4,7 @@ extends Control
 ## al cambiar de chat. Elegir una pestaña abre esa página para ese amigo, y el chat muestra sus acciones
 ## para responder. Va a la derecha, como espejo del chat, y es independiente de él (decisión de Benja).
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
+## Desde el Plan 7, dos screamers lo usan: se cierra de golpe, o una mancha de tinta tapa la página.
 
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const NotebookPage := preload("res://scripts/core/notebook_page.gd")
@@ -29,6 +30,7 @@ var _shown_entity: EntityData
 @onready var _title: Label = $Page/Layout/Scroll/Content/Title
 @onready var _sketch: TextureRect = $Page/Layout/Scroll/Content/Sketch
 @onready var _body: RichTextLabel = $Page/Layout/Scroll/Content/Body
+@onready var _ink: Control = $InkBlot
 
 
 func _ready() -> void:
@@ -66,6 +68,21 @@ func open_for(index: int) -> void:
 func select_friend(index: int) -> void:
 	friend_index = index
 	_refresh()
+
+
+## El screamer de la tinta: una mancha tapa la página `seconds` segundos (diseño §11).
+func splash_ink(seconds: float) -> void:
+	_ink.splash(seconds)
+
+
+## El screamer del golpe: el cuaderno se cierra de golpe. La página de cada amigo se conserva.
+func slam() -> void:
+	hide()
+
+
+## Está abierto en la página de una entidad, no en el índice: la tinta tiene reglas que tapar.
+func shows_page() -> bool:
+	return visible and _shown_entity != null
 
 
 func _refresh() -> void:
