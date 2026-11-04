@@ -1,0 +1,98 @@
+[gd_resource type="Resource" script_class="EntityData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="1_entity"]
+[ext_resource type="Script" path="res://scripts/data/trait_data.gd" id="2_trait"]
+[ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
+[ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
+[ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+
+[sub_resource type="Resource" id="Trait_crow_underfloor"]
+script = ExtResource("2_trait")
+id = &"crow_underfloor"
+category = 1
+text_key = "TRAIT_CROW_UNDERFLOOR"
+
+[sub_resource type="Resource" id="Trait_shed_skin"]
+script = ExtResource("2_trait")
+id = &"shed_skin"
+category = 3
+text_key = "TRAIT_SHED_SKIN"
+
+[sub_resource type="Resource" id="Trait_stale_air"]
+script = ExtResource("2_trait")
+id = &"stale_air"
+category = 2
+text_key = "TRAIT_STALE_AIR"
+
+[sub_resource type="Resource" id="Action_burn_egg"]
+script = ExtResource("3_action")
+id = &"burn_egg"
+label_key = "ACTION_BASILISCO_BURN_EGG"
+
+[sub_resource type="Resource" id="Action_leave_house"]
+script = ExtResource("3_action")
+id = &"leave_house"
+label_key = "ACTION_BASILISCO_LEAVE_HOUSE"
+
+[sub_resource type="Resource" id="Action_cover_mouth"]
+script = ExtResource("3_action")
+id = &"cover_mouth"
+label_key = "ACTION_BASILISCO_COVER_MOUTH"
+
+[sub_resource type="Resource" id="Action_lift_board"]
+script = ExtResource("3_action")
+id = &"lift_board"
+label_key = "ACTION_BASILISCO_LIFT_BOARD"
+
+[sub_resource type="Resource" id="Observation_egg"]
+script = ExtResource("4_observation")
+id = &"egg"
+question_key = "OBS_BASILISCO_EGG_Q"
+values = Dictionary[StringName, String]({
+&"small": "OBS_BASILISCO_EGG_SMALL",
+&"none": "OBS_BASILISCO_EGG_NONE"
+})
+
+[sub_resource type="Resource" id="Observation_floor"]
+script = ExtResource("4_observation")
+id = &"floor"
+question_key = "OBS_BASILISCO_FLOOR_Q"
+values = Dictionary[StringName, String]({
+&"raised": "OBS_BASILISCO_FLOOR_RAISED",
+&"intact": "OBS_BASILISCO_FLOOR_INTACT"
+})
+
+[sub_resource type="Resource" id="Rule_1"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"egg": &"small"
+})
+correct_action_id = &"burn_egg"
+risky_action_id = &"lift_board"
+text_key = "RULE_BASILISCO_1"
+
+[sub_resource type="Resource" id="Rule_2"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"floor": &"raised"
+})
+correct_action_id = &"leave_house"
+risky_action_id = &"lift_board"
+text_key = "RULE_BASILISCO_2"
+
+[sub_resource type="Resource" id="Rule_otherwise"]
+script = ExtResource("5_rule")
+correct_action_id = &"cover_mouth"
+risky_action_id = &"burn_egg"
+text_key = "RULE_OTHERWISE"
+
+[resource]
+script = ExtResource("1_entity")
+id = &"basilisco"
+name_key = "ENTITY_BASILISCO_NAME"
+lore_key = "ENTITY_BASILISCO_LORE"
+place_keys = Array[String](["PLACE_ABANDONED_HOUSE", "PLACE_HENHOUSE"])
+traits = Array[ExtResource("2_trait")]([SubResource("Trait_crow_underfloor"), SubResource("Trait_shed_skin"), SubResource("Trait_stale_air")])
+actions = Array[ExtResource("3_action")]([SubResource("Action_burn_egg"), SubResource("Action_leave_house"), SubResource("Action_cover_mouth"), SubResource("Action_lift_board")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_egg"), SubResource("Observation_floor")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_otherwise")])

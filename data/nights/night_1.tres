@@ -2,34 +2,14 @@
 
 [ext_resource type="Script" path="res://scripts/data/night_data.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="2_entity"]
-[ext_resource type="Script" path="res://scripts/data/chat_script_data.gd" id="3_chat"]
-[ext_resource type="Script" path="res://scripts/data/chat_line_data.gd" id="4_line"]
-[ext_resource type="Resource" path="res://data/friends/gonzalo.tres" id="5_gonzalo"]
-
-[sub_resource type="Resource" id="Line_ask"]
-script = ExtResource("4_line")
-text_key = "SCRIPT_SCARE_ASK"
-
-[sub_resource type="Resource" id="Line_reply"]
-script = ExtResource("4_line")
-speaker = 1
-text_key = "SCRIPT_SCARE_REPLY"
-
-[sub_resource type="Resource" id="Line_phone"]
-script = ExtResource("4_line")
-text_key = "SCRIPT_SCARE_PHONE"
-
-[sub_resource type="Resource" id="Chat_scare"]
-script = ExtResource("3_chat")
-friend = ExtResource("5_gonzalo")
-lines = Array[ExtResource("4_line")]([SubResource("Line_ask"), SubResource("Line_reply"), SubResource("Line_phone")])
-highlight_phone = true
+[ext_resource type="Resource" path="res://data/entities/tue_tue.tres" id="3_tue_tue"]
+[ext_resource type="Resource" path="res://data/entities/calchona.tres" id="4_calchona"]
 
 [resource]
 script = ExtResource("1_night")
 number = 1
 place_key = "NIGHT_1_PLACE"
-new_entities = Array[ExtResource("2_entity")]([])
+new_entities = Array[ExtResource("2_entity")]([ExtResource("3_tue_tue"), ExtResource("4_calchona")])
 requests_total = 4
 max_simultaneous = 1
 base_decision_time = 90.0
@@ -44,5 +24,3 @@ sanity_drain_interval = 10.0
 content_quota = 2
 scare_count = 0
 has_jumpscare = false
-scripted_scare_time = 60.0
-scripted_chat = SubResource("Chat_scare")

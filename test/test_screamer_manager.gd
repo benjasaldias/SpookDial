@@ -174,14 +174,16 @@ func _play(desk: Node2D, seconds: int) -> void:
 
 
 func test_el_susto_guionado_ensena_el_celular() -> bool:
-	var desk := _make_desk(1)
+	var desk := _make_desk(0)
+	# Sin las solicitudes del tutorial: el susto guionado las espera.
+	desk.get_node("RequestManager").tutorial_queue.clear()
 	var gonzalo := desk.get_node("DeskPlane/Entries/EntryGonzalo")
 	var phone := desk.get_node("DeskPlane/Phone")
 	var kinds := []
 	_record(desk, kinds)
-	# A los 60 s, sin solicitudes: la señal previa y, 1 s después, el jumpscare.
-	_play(desk, 61)
-	check_eq(kinds, [ScareKind.Kind.JUMPSCARE], "el susto guionado de la noche 1")
+	# A los 5 s, sin nada pendiente: la señal previa y, 1 s después, el jumpscare.
+	_play(desk, 6)
+	check_eq(kinds, [ScareKind.Kind.JUMPSCARE], "el susto guionado de la noche 0")
 	# La pausa del jumpscare (1,5 s) y lo que tarda Gonzalo en escribir (2,5 s).
 	_play(desk, 4)
 	check_eq(gonzalo.state, ChatEntry.State.WARNING, "Gonzalo escribió y espera la respuesta de Matías")

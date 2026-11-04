@@ -45,11 +45,47 @@ func test_cada_entidad_esta_en_una_noche() -> bool:
 	return true
 
 
-func test_el_trauco_aparece_la_noche_3() -> bool:
+## Las 7 entidades y la noche en que aparecen (diseño §13).
+func test_las_7_entidades_y_su_noche() -> bool:
 	var catalog: ContentCatalog = load(CATALOG_PATH)
-	var trauco: EntityData = load("res://data/entities/trauco.tres")
-	check(not catalog.known_entities(2).has(trauco), "no aparece antes de la noche 3")
-	check(catalog.known_entities(3).has(trauco), "aparece la noche 3")
+	var expected := [[&"tue_tue", &"calchona"], [&"cuero", &"viuda"], [&"trauco"], [&"basilisco", &"imbunche"], []]
+	for index in catalog.nights.size():
+		var ids := catalog.nights[index].new_entities.map(func(entity: EntityData) -> StringName: return entity.id)
+		check_eq(ids, expected[index], "noche %d" % (index + 1))
+	check_eq(catalog.all_entities().size(), 7, "7 entidades")
+	return true
+
+
+## Las características de cada entidad salen en 2 preguntas distintas o más: así, identificarla nunca cuesta
+## una sola pregunta (decisión de Benja, 3-nov).
+func test_las_caracteristicas_de_cada_entidad_salen_en_2_preguntas() -> bool:
+	var catalog: ContentCatalog = load(CATALOG_PATH)
+	for entity: EntityData in catalog.all_entities():
+		var categories := {}
+		for trait_data: TraitData in entity.traits:
+			categories[trait_data.category] = true
+		check(categories.size() >= 2, "'%s' tiene todas sus características en una sola categoría" % entity.id)
+	return true
+
+
+## La noche 0, el tutorial (decisión de Benja): 3 solicitudes fijas, una de cada amigo, con El Tue Tué y La
+## Calchona; un video, y el susto guionado con el chat de Gonzalo, que enseña el celular.
+func test_el_tutorial() -> bool:
+	var catalog: ContentCatalog = load(CATALOG_PATH)
+	var tutorial := catalog.tutorial
+	check(tutorial != null, "existe")
+	if tutorial == null:
+		return true
+	check_eq(tutorial.number, 0, "es la noche 0")
+	check_eq(tutorial.tutorial_requests.size(), 3, "3 solicitudes")
+	var friends := tutorial.tutorial_requests.map(func(data: TutorialRequestData) -> StringName: return data.friend.id)
+	check_eq(friends, [&"leon", &"agustin", &"gonzalo"], "una de cada amigo")
+	var videos := tutorial.tutorial_requests.filter(func(data: TutorialRequestData) -> bool: return data.sends_video)
+	check_eq(videos.size(), 1, "un video")
+	check_eq(tutorial.content_quota, 1, "su cuota")
+	check(tutorial.scripted_scare_time > 0.0, "el susto guionado")
+	check(tutorial.scripted_chat != null and tutorial.scripted_chat.highlight_phone, "su chat enseña el celular")
+	check_eq(catalog.known_entities(0), catalog.known_entities(1), "las páginas de la noche 1")
 	return true
 
 

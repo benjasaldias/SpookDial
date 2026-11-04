@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="NightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/night_data.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="2_entity"]
+[ext_resource type="Script" path="res://scripts/data/chat_script_data.gd" id="3_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_line_data.gd" id="4_line"]
+[ext_resource type="Resource" path="res://data/friends/gonzalo.tres" id="5_gonzalo"]
+[ext_resource type="Script" path="res://scripts/data/tutorial_request_data.gd" id="6_tutorial"]
+[ext_resource type="Resource" path="res://data/friends/leon.tres" id="7_leon"]
+[ext_resource type="Resource" path="res://data/friends/agustin.tres" id="8_agustin"]
+[ext_resource type="Resource" path="res://data/entities/tue_tue.tres" id="9_tue_tue"]
+[ext_resource type="Resource" path="res://data/entities/calchona.tres" id="10_calchona"]
+
+[sub_resource type="Resource" id="Line_ask"]
+script = ExtResource("4_line")
+text_key = "SCRIPT_SCARE_ASK"
+
+[sub_resource type="Resource" id="Line_reply"]
+script = ExtResource("4_line")
+speaker = 1
+text_key = "SCRIPT_SCARE_REPLY"
+
+[sub_resource type="Resource" id="Line_phone"]
+script = ExtResource("4_line")
+text_key = "SCRIPT_SCARE_PHONE"
+
+[sub_resource type="Resource" id="Chat_scare"]
+script = ExtResource("3_chat")
+friend = ExtResource("5_gonzalo")
+lines = Array[ExtResource("4_line")]([SubResource("Line_ask"), SubResource("Line_reply"), SubResource("Line_phone")])
+highlight_phone = true
+
+[sub_resource type="Resource" id="Tutorial_1"]
+script = ExtResource("6_tutorial")
+friend = ExtResource("7_leon")
+entity = ExtResource("9_tue_tue")
+situation = Dictionary[StringName, StringName]({
+&"circling": &"over_house",
+&"cried_three_times": &"no"
+})
+
+[sub_resource type="Resource" id="Tutorial_2"]
+script = ExtResource("6_tutorial")
+friend = ExtResource("8_agustin")
+entity = ExtResource("10_calchona")
+situation = Dictionary[StringName, StringName]({
+&"bleat_tone": &"weeping",
+&"approaching": &"no"
+})
+sends_video = true
+
+[sub_resource type="Resource" id="Tutorial_3"]
+script = ExtResource("6_tutorial")
+friend = ExtResource("5_gonzalo")
+entity = ExtResource("9_tue_tue")
+situation = Dictionary[StringName, StringName]({
+&"circling": &"passing",
+&"cried_three_times": &"yes"
+})
+with_hint = false
+
+[resource]
+script = ExtResource("1_night")
+number = 0
+place_key = "NIGHT_0_PLACE"
+new_entities = Array[ExtResource("2_entity")]([])
+requests_total = 0
+max_simultaneous = 1
+base_decision_time = 90.0
+first_hint_chance = 1.0
+decoys_per_request = 1
+wave_size = 1
+signal_decays = false
+interference_count = 0
+audio_sync_beats = 0
+sanity_drain_interval = 20.0
+content_quota = 1
+scare_count = 0
+has_jumpscare = false
+scripted_scare_time = 5.0
+scripted_chat = SubResource("Chat_scare")
+tutorial_requests = Array[ExtResource("6_tutorial")]([SubResource("Tutorial_1"), SubResource("Tutorial_2"), SubResource("Tutorial_3")])

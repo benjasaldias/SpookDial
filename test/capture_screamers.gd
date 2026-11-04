@@ -4,7 +4,7 @@ extends SceneTree
 ## 1. Noche 3: la figura aparece en la ventana, con el escritorio a la vista.
 ## 2. El cuaderno, en la página de El Trauco, con la mancha de tinta.
 ## 3. El jumpscare.
-## 4. Noche 1, después del susto guionado: el chat de Gonzalo, con el botón de la respuesta de Matías.
+## 4. Noche 0, después del susto guionado: el chat de Gonzalo, con el botón de la respuesta de Matías.
 ## 5. Después de responder: el chat cerrado y el celular del escritorio con su contorno encendido.
 
 const DESK := preload("res://scenes/desk/desk.tscn")
@@ -31,8 +31,8 @@ func _capture() -> void:
 	await create_timer(0.2).timeout
 	await _save(2)
 	desk.free()
-	desk = _make_desk(1)
-	desk.get_node("RequestManager").state.elapsed = 59.5
+	desk = _make_desk(0)
+	desk.get_node("RequestManager").tutorial_queue.clear()
 	# La señal previa, el jumpscare (1,5 s, con la noche en pausa) y lo que tarda Gonzalo en escribir (2,5 s).
 	await create_timer(6.0).timeout
 	desk.get_node("DeskPlane/Entries/EntryGonzalo").pressed.emit()

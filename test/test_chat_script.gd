@@ -74,10 +74,13 @@ func test_el_manager_escribe_el_chat_guionado() -> bool:
 	return true
 
 
-func test_la_noche_1_tiene_el_chat_del_susto() -> bool:
+func test_la_noche_0_tiene_el_chat_del_susto() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
-	var chat := catalog.nights[0].scripted_chat
-	check(chat != null, "la noche 1 tiene un chat guionado")
+	check(catalog.tutorial != null, "existe la noche 0")
+	if catalog.tutorial == null:
+		return true
+	var chat := catalog.tutorial.scripted_chat
+	check(chat != null, "la noche 0 tiene un chat guionado")
 	if chat == null:
 		return true
 	check_eq(chat.friend, catalog.friends[1], "lo escribe Gonzalo")

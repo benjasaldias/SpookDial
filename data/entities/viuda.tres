@@ -1,0 +1,99 @@
+[gd_resource type="Resource" script_class="EntityData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="1_entity"]
+[ext_resource type="Script" path="res://scripts/data/trait_data.gd" id="2_trait"]
+[ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
+[ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
+[ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+
+[sub_resource type="Resource" id="Trait_black_veil"]
+script = ExtResource("2_trait")
+id = &"black_veil"
+text_key = "TRAIT_BLACK_VEIL"
+
+[sub_resource type="Resource" id="Trait_heel_steps"]
+script = ExtResource("2_trait")
+id = &"heel_steps"
+category = 1
+text_key = "TRAIT_HEEL_STEPS"
+
+[sub_resource type="Resource" id="Trait_icy_mist"]
+script = ExtResource("2_trait")
+id = &"icy_mist"
+category = 2
+text_key = "TRAIT_ICY_MIST"
+
+[sub_resource type="Resource" id="Action_pray"]
+script = ExtResource("3_action")
+id = &"pray"
+label_key = "ACTION_VIUDA_PRAY"
+
+[sub_resource type="Resource" id="Action_keep_walking"]
+script = ExtResource("3_action")
+id = &"keep_walking"
+label_key = "ACTION_VIUDA_KEEP_WALKING"
+
+[sub_resource type="Resource" id="Action_greet"]
+script = ExtResource("3_action")
+id = &"greet"
+label_key = "ACTION_VIUDA_GREET"
+
+[sub_resource type="Resource" id="Action_carry_her"]
+script = ExtResource("3_action")
+id = &"carry_her"
+label_key = "ACTION_VIUDA_CARRY_HER"
+
+[sub_resource type="Resource" id="Observation_request"]
+script = ExtResource("4_observation")
+id = &"request"
+category = 1
+question_key = "OBS_VIUDA_REQUEST_Q"
+values = Dictionary[StringName, String]({
+&"cross": "OBS_VIUDA_REQUEST_CROSS",
+&"nothing": "OBS_VIUDA_REQUEST_NOTHING"
+})
+
+[sub_resource type="Resource" id="Observation_footprints"]
+script = ExtResource("4_observation")
+id = &"footprints"
+category = 3
+question_key = "OBS_VIUDA_FOOTPRINTS_Q"
+values = Dictionary[StringName, String]({
+&"none": "OBS_VIUDA_FOOTPRINTS_NONE",
+&"normal": "OBS_VIUDA_FOOTPRINTS_NORMAL"
+})
+
+[sub_resource type="Resource" id="Rule_1"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"request": &"cross"
+})
+correct_action_id = &"keep_walking"
+risky_action_id = &"carry_her"
+text_key = "RULE_VIUDA_1"
+
+[sub_resource type="Resource" id="Rule_2"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"footprints": &"none"
+})
+correct_action_id = &"pray"
+risky_action_id = &"greet"
+text_key = "RULE_VIUDA_2"
+
+[sub_resource type="Resource" id="Rule_otherwise"]
+script = ExtResource("5_rule")
+correct_action_id = &"greet"
+risky_action_id = &"carry_her"
+text_key = "RULE_OTHERWISE"
+
+[resource]
+script = ExtResource("1_entity")
+id = &"viuda"
+name_key = "ENTITY_VIUDA_NAME"
+lore_key = "ENTITY_VIUDA_LORE"
+place_keys = Array[String](["PLACE_DIRT_ROAD", "PLACE_BRIDGE"])
+traits = Array[ExtResource("2_trait")]([SubResource("Trait_black_veil"), SubResource("Trait_heel_steps"), SubResource("Trait_icy_mist")])
+actions = Array[ExtResource("3_action")]([SubResource("Action_pray"), SubResource("Action_keep_walking"), SubResource("Action_greet"), SubResource("Action_carry_her")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_request"), SubResource("Observation_footprints")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_otherwise")])

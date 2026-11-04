@@ -1,0 +1,98 @@
+[gd_resource type="Resource" script_class="EntityData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="1_entity"]
+[ext_resource type="Script" path="res://scripts/data/trait_data.gd" id="2_trait"]
+[ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
+[ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
+[ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+
+[sub_resource type="Resource" id="Trait_floating_hide"]
+script = ExtResource("2_trait")
+id = &"floating_hide"
+text_key = "TRAIT_FLOATING_HIDE"
+
+[sub_resource type="Resource" id="Trait_icy_mist"]
+script = ExtResource("2_trait")
+id = &"icy_mist"
+category = 2
+text_key = "TRAIT_ICY_MIST"
+
+[sub_resource type="Resource" id="Trait_drag_marks"]
+script = ExtResource("2_trait")
+id = &"drag_marks"
+category = 3
+text_key = "TRAIT_DRAG_MARKS"
+
+[sub_resource type="Resource" id="Action_throw_thorns"]
+script = ExtResource("3_action")
+id = &"throw_thorns"
+label_key = "ACTION_CUERO_THROW_THORNS"
+
+[sub_resource type="Resource" id="Action_stay_still"]
+script = ExtResource("3_action")
+id = &"stay_still"
+label_key = "ACTION_CUERO_STAY_STILL"
+
+[sub_resource type="Resource" id="Action_leave_shore"]
+script = ExtResource("3_action")
+id = &"leave_shore"
+label_key = "ACTION_CUERO_LEAVE_SHORE"
+
+[sub_resource type="Resource" id="Action_poke_hide"]
+script = ExtResource("3_action")
+id = &"poke_hide"
+label_key = "ACTION_CUERO_POKE_HIDE"
+
+[sub_resource type="Resource" id="Observation_position"]
+script = ExtResource("4_observation")
+id = &"position"
+question_key = "OBS_CUERO_POSITION_Q"
+values = Dictionary[StringName, String]({
+&"on_shore": "OBS_CUERO_POSITION_ON_SHORE",
+&"in_water": "OBS_CUERO_POSITION_IN_WATER"
+})
+
+[sub_resource type="Resource" id="Observation_whistle"]
+script = ExtResource("4_observation")
+id = &"whistle"
+category = 1
+question_key = "OBS_CUERO_WHISTLE_Q"
+values = Dictionary[StringName, String]({
+&"yes": "OBS_CUERO_WHISTLE_YES",
+&"no": "OBS_CUERO_WHISTLE_NO"
+})
+
+[sub_resource type="Resource" id="Rule_1"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"position": &"on_shore"
+})
+correct_action_id = &"throw_thorns"
+risky_action_id = &"poke_hide"
+text_key = "RULE_CUERO_1"
+
+[sub_resource type="Resource" id="Rule_2"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"whistle": &"yes"
+})
+correct_action_id = &"stay_still"
+risky_action_id = &"poke_hide"
+text_key = "RULE_CUERO_2"
+
+[sub_resource type="Resource" id="Rule_otherwise"]
+script = ExtResource("5_rule")
+correct_action_id = &"leave_shore"
+risky_action_id = &"throw_thorns"
+text_key = "RULE_OTHERWISE"
+
+[resource]
+script = ExtResource("1_entity")
+id = &"cuero"
+name_key = "ENTITY_CUERO_NAME"
+lore_key = "ENTITY_CUERO_LORE"
+place_keys = Array[String](["PLACE_LAKE_SHORE", "PLACE_DOCK"])
+traits = Array[ExtResource("2_trait")]([SubResource("Trait_floating_hide"), SubResource("Trait_icy_mist"), SubResource("Trait_drag_marks")])
+actions = Array[ExtResource("3_action")]([SubResource("Action_throw_thorns"), SubResource("Action_stay_still"), SubResource("Action_leave_shore"), SubResource("Action_poke_hide")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_position"), SubResource("Observation_whistle")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_otherwise")])

@@ -1,0 +1,117 @@
+[gd_resource type="Resource" script_class="EntityData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="1_entity"]
+[ext_resource type="Script" path="res://scripts/data/trait_data.gd" id="2_trait"]
+[ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
+[ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
+[ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+
+[sub_resource type="Resource" id="Trait_one_leg_hop"]
+script = ExtResource("2_trait")
+id = &"one_leg_hop"
+text_key = "TRAIT_ONE_LEG_HOP"
+
+[sub_resource type="Resource" id="Trait_hoarse_grunts"]
+script = ExtResource("2_trait")
+id = &"hoarse_grunts"
+category = 1
+text_key = "TRAIT_HOARSE_GRUNTS"
+
+[sub_resource type="Resource" id="Trait_stale_air"]
+script = ExtResource("2_trait")
+id = &"stale_air"
+category = 2
+text_key = "TRAIT_STALE_AIR"
+
+[sub_resource type="Resource" id="Action_back_out"]
+script = ExtResource("3_action")
+id = &"back_out"
+label_key = "ACTION_IMBUNCHE_BACK_OUT"
+
+[sub_resource type="Resource" id="Action_stay_outside"]
+script = ExtResource("3_action")
+id = &"stay_outside"
+label_key = "ACTION_IMBUNCHE_STAY_OUTSIDE"
+
+[sub_resource type="Resource" id="Action_offer_bread"]
+script = ExtResource("3_action")
+id = &"offer_bread"
+label_key = "ACTION_IMBUNCHE_OFFER_BREAD"
+
+[sub_resource type="Resource" id="Action_go_deeper"]
+script = ExtResource("3_action")
+id = &"go_deeper"
+label_key = "ACTION_IMBUNCHE_GO_DEEPER"
+
+[sub_resource type="Resource" id="Observation_called_name"]
+script = ExtResource("4_observation")
+id = &"called_name"
+category = 1
+question_key = "OBS_IMBUNCHE_CALLED_NAME_Q"
+values = Dictionary[StringName, String]({
+&"yes": "OBS_IMBUNCHE_CALLED_NAME_YES",
+&"no": "OBS_IMBUNCHE_CALLED_NAME_NO"
+})
+
+[sub_resource type="Resource" id="Observation_torches"]
+script = ExtResource("4_observation")
+id = &"torches"
+question_key = "OBS_IMBUNCHE_TORCHES_Q"
+values = Dictionary[StringName, String]({
+&"lit": "OBS_IMBUNCHE_TORCHES_LIT",
+&"dark": "OBS_IMBUNCHE_TORCHES_DARK"
+})
+
+[sub_resource type="Resource" id="Observation_entrance"]
+script = ExtResource("4_observation")
+id = &"entrance"
+category = 3
+question_key = "OBS_IMBUNCHE_ENTRANCE_Q"
+values = Dictionary[StringName, String]({
+&"blocked": "OBS_IMBUNCHE_ENTRANCE_BLOCKED",
+&"open": "OBS_IMBUNCHE_ENTRANCE_OPEN"
+})
+
+[sub_resource type="Resource" id="Rule_1"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"called_name": &"yes"
+})
+correct_action_id = &"back_out"
+risky_action_id = &"go_deeper"
+text_key = "RULE_IMBUNCHE_1"
+
+[sub_resource type="Resource" id="Rule_2"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"torches": &"lit"
+})
+correct_action_id = &"stay_outside"
+risky_action_id = &"go_deeper"
+text_key = "RULE_IMBUNCHE_2"
+
+[sub_resource type="Resource" id="Rule_3"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"entrance": &"blocked"
+})
+correct_action_id = &"back_out"
+risky_action_id = &"offer_bread"
+text_key = "RULE_IMBUNCHE_3"
+
+[sub_resource type="Resource" id="Rule_otherwise"]
+script = ExtResource("5_rule")
+correct_action_id = &"offer_bread"
+risky_action_id = &"go_deeper"
+text_key = "RULE_OTHERWISE"
+
+[resource]
+script = ExtResource("1_entity")
+id = &"imbunche"
+name_key = "ENTITY_IMBUNCHE_NAME"
+lore_key = "ENTITY_IMBUNCHE_LORE"
+place_keys = Array[String](["PLACE_CAVE", "PLACE_CLIFF"])
+traits = Array[ExtResource("2_trait")]([SubResource("Trait_one_leg_hop"), SubResource("Trait_hoarse_grunts"), SubResource("Trait_stale_air")])
+actions = Array[ExtResource("3_action")]([SubResource("Action_back_out"), SubResource("Action_stay_outside"), SubResource("Action_offer_bread"), SubResource("Action_go_deeper")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_called_name"), SubResource("Observation_torches"), SubResource("Observation_entrance")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_3"), SubResource("Rule_otherwise")])

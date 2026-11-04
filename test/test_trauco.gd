@@ -13,20 +13,21 @@ func test_el_trauco_es_valido() -> bool:
 	return true
 
 
-## Las reglas del ejemplo de docs/02 §8.
-func test_reglas_del_ejemplo() -> bool:
+## Las reglas de la propuesta de docs/09: si el Trauco lo vio primero, mirar al suelo; con el bastón, hablar fuerte;
+## en el barro, seguirlo (el giro); y si no, tirarle arena.
+func test_reglas_de_la_propuesta() -> bool:
 	var entity: EntityData = load(TRAUCO_PATH)
 	check(entity != null, "se carga")
 	if entity == null:
 		return true
-	_check_rule(entity, {&"saw_first": &"friend", &"axe_in_hand": &"yes", &"chopping_sounds": &"yes"},
-			&"stare", &"follow_closely")
-	_check_rule(entity, {&"saw_first": &"trauco", &"axe_in_hand": &"yes", &"chopping_sounds": &"no"},
-			&"turn_back", &"stare")
-	_check_rule(entity, {&"saw_first": &"trauco", &"axe_in_hand": &"no", &"chopping_sounds": &"yes"},
-			&"hide_behind_tree", &"follow_closely")
-	_check_rule(entity, {&"saw_first": &"trauco", &"axe_in_hand": &"no", &"chopping_sounds": &"no"},
-			&"turn_back", &"follow_closely")
+	_check_rule(entity, {&"saw_first": &"trauco", &"in_hand": &"cane", &"ground": &"muddy"},
+			&"look_down", &"follow_to_tree")
+	_check_rule(entity, {&"saw_first": &"friend", &"in_hand": &"cane", &"ground": &"muddy"},
+			&"talk_loud", &"throw_sand")
+	_check_rule(entity, {&"saw_first": &"friend", &"in_hand": &"axe", &"ground": &"muddy"},
+			&"follow_to_tree", &"throw_sand")
+	_check_rule(entity, {&"saw_first": &"friend", &"in_hand": &"axe", &"ground": &"dry"},
+			&"throw_sand", &"follow_to_tree")
 	return true
 
 

@@ -1,0 +1,105 @@
+[gd_resource type="Resource" script_class="EntityData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="1_entity"]
+[ext_resource type="Script" path="res://scripts/data/trait_data.gd" id="2_trait"]
+[ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
+[ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
+[ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+
+[sub_resource type="Resource" id="Trait_lone_bleat"]
+script = ExtResource("2_trait")
+id = &"lone_bleat"
+category = 1
+text_key = "TRAIT_LONE_BLEAT"
+
+[sub_resource type="Resource" id="Trait_long_tangled_hair"]
+script = ExtResource("2_trait")
+id = &"long_tangled_hair"
+text_key = "TRAIT_LONG_TANGLED_HAIR"
+
+[sub_resource type="Resource" id="Trait_ointment_smell"]
+script = ExtResource("2_trait")
+id = &"ointment_smell"
+category = 2
+text_key = "TRAIT_OINTMENT_SMELL"
+
+[sub_resource type="Resource" id="Trait_snagged_threads"]
+script = ExtResource("2_trait")
+id = &"snagged_threads"
+category = 3
+text_key = "TRAIT_SNAGGED_THREADS"
+
+[sub_resource type="Resource" id="Action_leave_food"]
+script = ExtResource("3_action")
+id = &"leave_food"
+label_key = "ACTION_CALCHONA_LEAVE_FOOD"
+
+[sub_resource type="Resource" id="Action_back_away"]
+script = ExtResource("3_action")
+id = &"back_away"
+label_key = "ACTION_CALCHONA_BACK_AWAY"
+
+[sub_resource type="Resource" id="Action_walk_past"]
+script = ExtResource("3_action")
+id = &"walk_past"
+label_key = "ACTION_CALCHONA_WALK_PAST"
+
+[sub_resource type="Resource" id="Action_see_her_face"]
+script = ExtResource("3_action")
+id = &"see_her_face"
+label_key = "ACTION_CALCHONA_SEE_HER_FACE"
+
+[sub_resource type="Resource" id="Observation_bleat_tone"]
+script = ExtResource("4_observation")
+id = &"bleat_tone"
+category = 1
+question_key = "OBS_CALCHONA_BLEAT_TONE_Q"
+values = Dictionary[StringName, String]({
+&"weeping": "OBS_CALCHONA_BLEAT_TONE_WEEPING",
+&"snorting": "OBS_CALCHONA_BLEAT_TONE_SNORTING"
+})
+
+[sub_resource type="Resource" id="Observation_approaching"]
+script = ExtResource("4_observation")
+id = &"approaching"
+question_key = "OBS_CALCHONA_APPROACHING_Q"
+values = Dictionary[StringName, String]({
+&"yes": "OBS_CALCHONA_APPROACHING_YES",
+&"no": "OBS_CALCHONA_APPROACHING_NO"
+})
+
+[sub_resource type="Resource" id="Rule_1"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"bleat_tone": &"snorting",
+&"approaching": &"yes"
+})
+correct_action_id = &"back_away"
+risky_action_id = &"see_her_face"
+text_key = "RULE_CALCHONA_1"
+
+[sub_resource type="Resource" id="Rule_2"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"bleat_tone": &"weeping"
+})
+correct_action_id = &"leave_food"
+risky_action_id = &"see_her_face"
+text_key = "RULE_CALCHONA_2"
+
+[sub_resource type="Resource" id="Rule_otherwise"]
+script = ExtResource("5_rule")
+correct_action_id = &"walk_past"
+risky_action_id = &"leave_food"
+text_key = "RULE_OTHERWISE"
+
+[resource]
+script = ExtResource("1_entity")
+id = &"calchona"
+name_key = "ENTITY_CALCHONA_NAME"
+lore_key = "ENTITY_CALCHONA_LORE"
+place_keys = Array[String](["PLACE_DIRT_ROAD", "PLACE_PASTURE"])
+traits = Array[ExtResource("2_trait")]([SubResource("Trait_lone_bleat"), SubResource("Trait_long_tangled_hair"), SubResource("Trait_ointment_smell"), SubResource("Trait_snagged_threads")])
+actions = Array[ExtResource("3_action")]([SubResource("Action_leave_food"), SubResource("Action_back_away"), SubResource("Action_walk_past"), SubResource("Action_see_her_face")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_bleat_tone"), SubResource("Observation_approaching")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_otherwise")])

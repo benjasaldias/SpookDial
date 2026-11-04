@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://scripts/data/decoy_data.gd" id="12_decoy"]
 [ext_resource type="Resource" path="res://data/balance.tres" id="13_balance"]
 [ext_resource type="Script" path="res://scripts/data/phone_post_data.gd" id="14_post"]
+[ext_resource type="Resource" path="res://data/nights/night_0.tres" id="15_night_0"]
 
 [sub_resource type="Resource" id="Decoy_cold_breath"]
 script = ExtResource("12_decoy")
@@ -52,6 +53,51 @@ id = &"creaking_branches"
 category = 1
 text_key = "DECOY_CREAKING_BRANCHES"
 place_keys = Array[String](["PLACE_FOREST"])
+
+[sub_resource type="Resource" id="Decoy_hanging_laundry"]
+script = ExtResource("12_decoy")
+id = &"hanging_laundry"
+text_key = "DECOY_HANGING_LAUNDRY"
+place_keys = Array[String](["PLACE_YARD"])
+
+[sub_resource type="Resource" id="Decoy_barbed_fence"]
+script = ExtResource("12_decoy")
+id = &"barbed_fence"
+text_key = "DECOY_BARBED_FENCE"
+place_keys = Array[String](["PLACE_DIRT_ROAD", "PLACE_PASTURE"])
+
+[sub_resource type="Resource" id="Decoy_lapping_water"]
+script = ExtResource("12_decoy")
+id = &"lapping_water"
+category = 1
+text_key = "DECOY_LAPPING_WATER"
+place_keys = Array[String](["PLACE_LAKE_SHORE", "PLACE_DOCK", "PLACE_BRIDGE"])
+
+[sub_resource type="Resource" id="Decoy_creaking_door"]
+script = ExtResource("12_decoy")
+id = &"creaking_door"
+category = 1
+text_key = "DECOY_CREAKING_DOOR"
+place_keys = Array[String](["PLACE_ABANDONED_HOUSE", "PLACE_HENHOUSE"])
+
+[sub_resource type="Resource" id="Decoy_dripping_water"]
+script = ExtResource("12_decoy")
+id = &"dripping_water"
+category = 1
+text_key = "DECOY_DRIPPING_WATER"
+place_keys = Array[String](["PLACE_CAVE", "PLACE_CLIFF"])
+
+[sub_resource type="Resource" id="Decoy_dog_prints"]
+script = ExtResource("12_decoy")
+id = &"dog_prints"
+category = 3
+text_key = "DECOY_DOG_PRINTS"
+
+[sub_resource type="Resource" id="Decoy_smoke_smell"]
+script = ExtResource("12_decoy")
+id = &"smoke_smell"
+category = 2
+text_key = "DECOY_SMOKE_SMELL"
 
 [sub_resource type="Resource" id="PhonePost_01"]
 script = ExtResource("14_post")
@@ -129,7 +175,8 @@ color = Color(0.35, 0.48, 0.7, 1)
 script = ExtResource("1_catalog")
 friends = Array[ExtResource("2_friend")]([ExtResource("4_leon"), ExtResource("5_gonzalo"), ExtResource("6_agustin")])
 nights = Array[ExtResource("3_night")]([ExtResource("7_night_1"), ExtResource("8_night_2"), ExtResource("9_night_3"), ExtResource("10_night_4"), ExtResource("11_night_5")])
-decoys = Array[ExtResource("12_decoy")]([SubResource("Decoy_cold_breath"), SubResource("Decoy_distant_dog"), SubResource("Decoy_flickering_light"), SubResource("Decoy_wet_grass"), SubResource("Decoy_trunk_moss"), SubResource("Decoy_creaking_branches")])
+decoys = Array[ExtResource("12_decoy")]([SubResource("Decoy_cold_breath"), SubResource("Decoy_distant_dog"), SubResource("Decoy_flickering_light"), SubResource("Decoy_wet_grass"), SubResource("Decoy_trunk_moss"), SubResource("Decoy_creaking_branches"), SubResource("Decoy_hanging_laundry"), SubResource("Decoy_barbed_fence"), SubResource("Decoy_lapping_water"), SubResource("Decoy_creaking_door"), SubResource("Decoy_dripping_water"), SubResource("Decoy_dog_prints"), SubResource("Decoy_smoke_smell")])
+tutorial = ExtResource("15_night_0")
 greeting_keys = Array[String](["FIRST_CALL_1", "FIRST_CALL_2", "FIRST_CALL_3", "FIRST_CALL_4", "FIRST_CALL_5", "FIRST_CALL_6"])
 balance = ExtResource("13_balance")
 phone_posts = Array[ExtResource("14_post")]([SubResource("PhonePost_01"), SubResource("PhonePost_02"), SubResource("PhonePost_03"), SubResource("PhonePost_04"), SubResource("PhonePost_05"), SubResource("PhonePost_06"), SubResource("PhonePost_07"), SubResource("PhonePost_08"), SubResource("PhonePost_09"), SubResource("PhonePost_10"), SubResource("PhonePost_11"), SubResource("PhonePost_12")])

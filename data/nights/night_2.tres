@@ -2,12 +2,14 @@
 
 [ext_resource type="Script" path="res://scripts/data/night_data.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="2_entity"]
+[ext_resource type="Resource" path="res://data/entities/cuero.tres" id="3_cuero"]
+[ext_resource type="Resource" path="res://data/entities/viuda.tres" id="4_viuda"]
 
 [resource]
 script = ExtResource("1_night")
 number = 2
 place_key = "NIGHT_2_PLACE"
-new_entities = Array[ExtResource("2_entity")]([])
+new_entities = Array[ExtResource("2_entity")]([ExtResource("3_cuero"), ExtResource("4_viuda")])
 requests_total = 6
 max_simultaneous = 2
 base_decision_time = 80.0

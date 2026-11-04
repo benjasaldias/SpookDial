@@ -101,8 +101,8 @@ func test_olas_y_screamers_de_cada_noche() -> bool:
 		check_eq(night.wave_size, wave_sizes[index], who + ": solicitudes por ola")
 		check_eq(night.scare_count, scare_counts[index], who + ": screamers")
 		check_eq(night.has_jumpscare, night.number >= 2, who + ": un jumpscare desde la noche 2")
-		check_eq(night.scripted_scare_time, 60.0 if night.number == 1 else 0.0, who + ": susto guionado")
-	check_eq(catalog.nights[0].scripted_scare, ScareKind.Kind.JUMPSCARE, "el susto guionado es un jumpscare")
+		check_eq(night.scripted_scare_time, 0.0, who + ": el susto guionado va en la noche 0")
+	check_eq(catalog.tutorial.scripted_scare, ScareKind.Kind.JUMPSCARE, "el susto guionado es un jumpscare")
 	return true
 
 
