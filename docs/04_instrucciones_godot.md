@@ -292,11 +292,11 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 
 1. Abre Godot y el proyecto. Abre `scenes/desk/desk.tscn` y presiona **F5**. Se juega la noche 3. Ahora suena de fondo el ambiente del cuarto (viento y un zumbido), y la figura de la ventana ya no está.
 2. **El ritmo:** las solicitudes llegan en olas de 3. Dentro de una ola llegan con unos 20 a 35 segundos entre una y otra, y después de cada ola hay un respiro unos 25 segundos más largo, sin solicitudes nuevas. Hacia las 06:00 llegan más seguidas. Si un amigo queda herido, la siguiente se atrasa unos 10 segundos.
-3. **Los screamers:** en la noche 3 hay 4, desde los 30 segundos, y uno de ellos es el jumpscare.
+3. **Los screamers:** en la noche 3 hay 4, desde los 30 segundos, y uno de ellos es la criatura que se asoma por la ventana (ver la sección M).
    - Antes de cada uno, las luces parpadean y baja el sonido ambiente durante 1 segundo.
    - Con el escritorio a la vista (sin el chat, el mixer ni el celular abiertos), puede ser que la cortina se meza, que aparezca la figura en la ventana, que el celular vibre o que se apaguen las luces. Con el chat abierto, solo las luces. Con el cuaderno abierto, también puede cerrarse de golpe o mancharse de tinta durante 5 segundos.
-   - Cada uno baja de golpe el dial de Sanity (el del medio): 8 puntos, y el jumpscare, 15.
-   - El jumpscare tapa toda la pantalla un segundo y medio, con un grito. Mientras dura, la noche se pausa: la hora y los temporizadores no avanzan.
+   - Cada uno baja de golpe el dial de Sanity (el del medio): 8 puntos, y la criatura, 15.
+   - La criatura no tapa la pantalla ni pausa la noche: se asoma por la ventana, con respiración y golpes en el vidrio, solo cuando el chat o el mixer están abiertos (sección M).
 4. **Justicia:** ningún screamer empieza si a una solicitud le quedan 6 segundos o menos, ni durante una ronda de Audio Sync.
 5. **Alucinaciones:** para no esperar a que baje Sanity, haz doble clic en `data/balance.tres` y, en el **Inspector**, en el grupo **Alucinaciones**, cambia **Hallucination Start** de 50 a 100 y **Hallucination Slowest** de 40 a 10. Presiona **F5**.
    - Cada unos 10 segundos suena algo a un lado de la pantalla: golpes en la ventana, pasos, susurros, rasguños, la estática de una interferencia o el celular vibrando. No pasa nada más: son falsos.
@@ -310,10 +310,10 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 
 - **Los valores de equilibrio** están en `data/balance.tres`. Haz doble clic en él y cámbialos en el **Inspector**:
   - **Director:** cuándo llega la primera solicitud (**First Request Delay**), cuánto dura el respiro después de cada ola (**Wave Respite**), cuánto se aprietan hacia las 06:00 (**Wave Tightening**: 0,5 es la mitad), cuánto tiempo mínimo pasa entre dos (**Request Min Gap**) y cuánto las atrasa un amigo herido (**Hurt Respite**);
-  - **Screamers:** cuánto dura la señal previa (**Scare Warning**), cuántos segundos le tienen que quedar a una decisión (**Scare Margin**), cuánto tiempo mínimo pasa entre dos (**Scare Min Gap**), desde cuándo hay (**First Scare After**), cuánto restan (**Scare Sanity** y **Jumpscare Sanity**) y cuánto duran el jumpscare (**Jumpscare Seconds**) y la tinta (**Ink Seconds**);
+  - **Screamers:** cuánto dura la señal previa (**Scare Warning**), cuántos segundos le tienen que quedar a una decisión (**Scare Margin**), cuánto tiempo mínimo pasa entre dos (**Scare Min Gap**), desde cuándo hay (**First Scare After**), cuánto restan (**Scare Sanity** y **Jumpscare Sanity**) y cuánto duran la criatura de la ventana (**Creature Seconds**) y la tinta (**Ink Seconds**);
   - **Alucinaciones:** desde qué Sanity suenan (**Hallucination Start**) y cada cuánto, al empezar (**Hallucination Slowest**) y con Sanity en 0 (**Hallucination Fastest**).
   - Si cambias un valor a propósito, avísale a Claude: `test_balance.gd` compara el archivo con `docs/02`.
-- **Por noche** (`data/nights/night_N.tres`): cuántas solicitudes trae cada ola (**Wave Size**, en **Solicitudes**); cuántos screamers hay y si uno es el jumpscare (**Scare Count** y **Has Jumpscare**, en **Screamers**); y el guion (en **Guion**): a qué segundo llega el susto guionado (**Scripted Scare Time**; 0 si no hay), qué screamer es (**Scripted Scare**) y su chat (**Scripted Chat**: el amigo, las líneas con quién habla y su texto, y si al final parpadea el celular).
+- **Por noche** (`data/nights/night_N.tres`): cuántas solicitudes trae cada ola (**Wave Size**, en **Solicitudes**); cuántos screamers hay y si uno es la criatura de la ventana (**Scare Count** y **Has Jumpscare**, en **Screamers**); y el guion (en **Guion**): a qué segundo llega el susto guionado (**Scripted Scare Time**; 0 si no hay), qué screamer es (**Scripted Scare**) y su chat (**Scripted Chat**: el amigo, las líneas con quién habla y su texto, y si al final parpadea el celular).
 - **Los textos del chat guionado** están en `data/text/messages.csv` (`SCRIPT_SCARE_*`).
 - **Los sonidos provisionales** están en `audio/sfx/`. Para probar otro, reemplaza el archivo por uno con el mismo nombre.
 
@@ -328,14 +328,14 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - León te escribe: abre su chat con su entrada del PC, pregunta, marca las 2 características, haz clic en el nombre de la criatura y responde con la acción de la primera regla que se cumple.
    - Agustín: lo mismo. Al terminar te manda un video: abre su chat y mantén presionada la barra hasta que se descargue. La siguiente solicitud espera el video.
    - Gonzalo: su mensaje no trae pista. Prueba a responder con una acción equivocada: el aviso dice que, en una noche de verdad, habría salido herido.
-   - Unos segundos después llega el susto (el jumpscare) y Gonzalo te escribe. Respóndele con el botón. Después, el borde del celular parpadea: ábrelo, scrollea con la rueda y ciérralo con clic derecho. Ahí termina la práctica.
+   - Unos segundos después, con la ventana a la vista, la criatura se asoma por la ventana, con respiración y golpes en el vidrio, y Gonzalo te escribe. Respóndele con el botón. Después, el borde del celular parpadea: ábrelo, scrollea con la rueda y ciérralo con clic derecho. Ahí termina la práctica.
 3. **El final de la práctica:** la pantalla dice "Práctica terminada". Presiona **Empezar la noche 1**.
 4. **La noche 1 y el resumen:** aparecen El Tue Tué y La Calchona. Si pierdes, **Reintentar** vuelve a empezar la noche. Si llegas a las 06:00 con la cuota, el resumen dice cuántos videos conseguiste y qué páginas suma el cuaderno la noche siguiente (después de la noche 1: El Cuero y La Viuda), con **Empezar la noche 2** y **Volver al menú**.
 5. **La pausa y el guardado:** en una noche, sin ningún panel abierto, presiona **Esc**: la noche se detiene y aparece el menú de pausa (**Continuar**, **Opciones** y **Volver al menú**). Con un panel abierto, **Esc** solo cierra los paneles, como antes. Presiona **Volver al menú**: ahora el menú tiene **Continuar: noche 1**, que empieza la noche desde su comienzo. Cierra el juego, presiona **F5** otra vez: **Continuar** sigue ahí.
 6. **Nueva partida con una partida guardada:** el menú pregunta si quieres borrarla. **Cancelar** no hace nada.
 7. **Las opciones** (desde el menú o desde la pausa):
    - los 3 volúmenes (general, ambiente y efectos) cambian el sonido al tiro;
-   - **Reducir destellos:** las entradas en alerta quedan fijas en lugar de parpadear, el aviso de una interferencia atenúa la entrada sin titilar, el LED del mixer no parpadea, y la señal previa de un screamer, el apagón de las luces y el rojo del jumpscare se oscurecen una sola vez;
+   - **Reducir destellos:** las entradas en alerta quedan fijas en lugar de parpadear, el aviso de una interferencia atenúa la entrada sin titilar, el LED del mixer no parpadea, y la señal previa de un screamer y el apagón de las luces se oscurecen una sola vez;
    - **Cámara fija:** la escena deja de moverse con el mouse;
    - **Temporizadores ×1,5:** las solicitudes nuevas dan 1,5 veces más tiempo para responder (los plazos de los videos no cambian).
    - Cierra y vuelve a abrir el juego: las opciones se mantienen.
@@ -351,3 +351,24 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 - **Los textos nuevos** están en `data/text/ui.csv`: el aviso de la práctica (`TUTORIAL_*`), el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el final y el resumen (`END_*`).
 - **Las 7 entidades** están en `data/entities/`, un `.tres` cada una, y sus textos en `data/text/messages.csv` y `data/text/notebook.csv`. Son un borrador de Claude: corrígelas en el **Inspector** (como en la sección F) y en los CSV. Las pruebas avisan si algo no cumple la plantilla.
 - **La partida y las opciones** se guardan en `%APPDATA%\Godot\app_userdata\Spook Dial\` (`save.cfg` y `settings.cfg`). Para empezar de cero, borra `save.cfg`.
+
+---
+
+## M. Probar el feedback de la primera prueba (Plan 8.1)
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. **Los diales:** con **Nueva partida**, lo primero que dice el aviso de la noche 0 son los 3 diales, con un botón **Entendido**. Presiónalo: sigue el aviso de siempre.
+2. **La criatura en la ventana:** en la noche 2 o más, deja el chat de un amigo abierto cuando llegue el susto (se nota por la señal previa: las luces parpadean y baja el ambiente). Se oyen una respiración y golpes en el vidrio, pero no se ve nada. Cierra el chat: la criatura ya está en la ventana, y se va a los 4 s. No tapa la pantalla.
+3. **Las noches 1 y 2:** la noche 1 ahora tiene señal que baja, 1 interferencia, Audio Sync de 4 aplausos y 2 screamers (sin la criatura). ¿Pasa más? ¿Es muy difícil? Anota qué sientes.
+4. **Audio Sync en 2 rondas:** en la noche 4 o 5, el mixer dice "Ronda 1 de 2". Si aciertas, pasa sola a la 2. Si fallas la 2, dice que vuelves a la ronda 1.
+5. **Trust:** deja una solicitud sin responder más de 30 s y mira el dial amarillo: baja de a poco. Responde y deja de bajar.
+
+**Verifica:** los pasos 1 a 5 se cumplen. Si algo falla, o los valores se sienten mal, anótalo: están en `data/balance.tres` (Trust y la criatura) y en `data/nights/night_N.tres`.
+
+### Para ajustar
+
+- **Trust por tardar:** `data/balance.tres`, `Slow Answer Grace` (30 s) y `Slow Answer Trust` (0,25 por segundo).
+- **Cuánto se queda la criatura:** `Creature Seconds` (4 s).
+- **Las noches 1 y 2:** `data/nights/night_1.tres` y `night_2.tres`, en el Inspector.
+- **Los sonidos de la criatura:** `sonidos_pendiente.md`.

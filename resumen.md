@@ -4,6 +4,66 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 19 (continuación) — 4 de noviembre de 2026 — Plan 8.1: el feedback de la primera prueba
+
+Benja probó el juego después del Plan 8 y dio 5 puntos de feedback (el 4.º y el 5.º llegaron después de preguntarle por el 4.º, que había llegado vacío). Se trabajó con `superpowers:brainstorming` (3 rondas de preguntas con opciones) y `superpowers:writing-plans`, y se ejecutó inline en Sonnet 5.5, con los 7 commits autorizados en `main`. El plan quedó en **`docs/16_plan_feedback_1.md`** (7 tareas, de 446 a 461 pruebas).
+
+### Realizado
+
+- **La criatura se asoma por la ventana en lugar del jumpscare** (era aburrido): la figura de `enemy_sprite`, con respiración pesada y golpes en el vidrio, sin tapar la pantalla ni pausar la noche. **Se arma solo cuando el chat o el mixer tapan la ventana**, y al cerrarlos ya está ahí, sin animación de entrada (así no hace falta animarla); se queda 4 s y se retira. Si la ventana ya está a la vista (el susto guionado de la noche 0), aparece enseguida. Mientras esté cerca no empiezan otros screamers ni alucinaciones. Los otros 6 screamers no cambian. Se quitó la pantalla del jumpscare, su rojo parpadeante, `jumpscare_seconds` y el grito.
+- **Sonidos provisionales de la criatura** (`scare_creature_breathing.wav` y `scare_creature_knocks.wav`) y el documento nuevo **`sonidos_pendiente.md`**: todos los sonidos del juego, dónde suena cada uno, cómo tendría que sonar y cómo reemplazarlo.
+- **Las noches 1 y 2 con más sucesos:** la noche 1 pasa a 5 solicitudes, 2 a la vez, 85 s, señal que baja, 1 interferencia, Audio Sync de 4 aplausos y 2 screamers ambientales; la noche 2, a 7 solicitudes, 3 interferencias y 4 screamers.
+- **Audio Sync de 8 aplausos en 2 rondas de 4** (`MixerView`): cada una con su cuenta y su patrón; acertar la 1 pasa sola a la 2, y fallar la 2 vuelve a la 1 con un patrón nuevo. La señal vuelve a 100 al terminar las 2. El mixer dice "Ronda 1 de 2".
+- **Trust también baja si tardas en contestar:** cada solicitud abierta más de 30 s (45 con "Temporizadores ×1,5") le quita 0,25 por segundo, y mientras haya una Trust no se recupera. Preguntar cuenta. No aplica en la noche 0 ni a un amigo sin señal.
+- **Los diales se explican en la noche 0:** el primer aviso del tutorial, con un botón "Entendido".
+- **Documentos:** `CLAUDE.md` (6 decisiones nuevas), diseño v2 (§10.3, §10.6, §11 y §13), `docs/02` §6, `docs/04` (secciones K y L corregidas y la nueva M), `arte_pendiente.md` y `docs/00_log.md`.
+- **Capturas revisadas:** `creature.png` (la figura en la ventana, sin pantalla gris ni rojo) y `plan8_tutorial.png` (el aviso de los diales con "Entendido").
+
+### Errores encontrados
+
+- **La primera captura de la criatura no mostraba la figura.** El desvanecimiento del screamer de la ventana, que seguía corriendo, la escondía (comparten la figura). En el juego real el hueco de 25 s entre screamers lo evita, pero era frágil: ahora cada uno corta el desvanecimiento del otro (Paso 6 de la Tarea 5 del plan, con su prueba).
+- **El plan decía que Benja había autorizado los commits** y no era cierto: se le preguntó antes de ejecutar y se corrigió el texto.
+- **Se quitó un bloque sin efecto** que el plan traía en la Tarea 7 (reemplazaba una línea por sí misma).
+- **Lo que no se probó:** el sonido real de la respiración y los golpes (son relleno), cómo se sienten las noches 1 y 2 y Trust (los valores son de partida), y jugar de punta a punta. Eso lo cubre `docs/04`, M.
+
+### Pendientes Código
+
+- [x] Feedback de la primera prueba (`docs/16`).
+- [ ] **S20: correcciones tras las pruebas** (`docs/00_log.md`), con el contenido congelado el 25 de noviembre.
+- [ ] Si Trust sigue sin notarse: las ayudas para los diales que Benja no eligió (letrero al pasar el mouse, aviso cuando uno baja de golpe, nombres provisionales bajo cada dial).
+- [ ] Si en las pruebas con personas no entienden Audio Sync: enseñarlo en la noche 0 (ahora aparece en la noche 1, sin práctica).
+- [ ] Menor: el panel de opciones deja ver tenue el menú de pausa detrás (fondo al 95 %).
+- [ ] Menor: abrir el escritorio solo (F6): "Empezar la noche N" y "Volver al menú" no hacen nada, porque los atiende `GameState`.
+- [ ] Planes 9 en adelante según `docs/00_log.md`.
+- [ ] Registrar los `.en.translation` cuando la columna `en` tenga textos (también el de `phone.csv`).
+- [ ] Plan 9: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Plan 9: reemplazar los sonidos provisionales de `audio/sfx/` (ver `sonidos_pendiente.md`) y, si hace falta, separar más canales que `Ambience` y `Effects`.
+- [ ] Cuando llegue el arte: el menú y el logo, las pantallas de victoria y derrota, el mixer, el celular, las barras de señal y los screamers.
+- [ ] Si en las pruebas con personas los videos y las interferencias se juntan con las olas de solicitudes: el director no los mueve hoy (`docs/14`, "Fuera de este plan").
+- [ ] Menor: que los segundos de una entrada en alerta no toquen el ícono ⚠ del arte.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si al probar se siente seco o lento: una demora de "escribiendo…" en las respuestas del amigo, y marcar en el chat qué categorías ya se preguntaron.
+- [ ] Borrar `~/godot-games/spook-dial` y las copias `C:\dev\plan8` y `C:\dev\plan8_check` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar el feedback** (`docs/04`, M, unos 15 minutos) y decir cómo se sienten las noches 1 y 2, Trust y la criatura. Los valores son de partida: `data/balance.tres` y `data/nights/night_N.tres`.
+- [ ] **Poner los sonidos reales** (`sonidos_pendiente.md`), empezando por la respiración y los golpes de la criatura (`scare_creature_*.wav`).
+- [ ] **Corregir los textos nuevos de este plan** (en `ui.csv`): `TUTORIAL_DIALS` y `TUTORIAL_DIALS_OK`, `MIXER_ROUND` y `MIXER_FAIL_RESTART`.
+- [ ] **Probar el juego de punta a punta** (`docs/04`, L, unos 25 minutos): la noche 0, el menú, el guardado, la pausa y las opciones.
+- [ ] **Corregir las 7 entidades** antes del congelamiento del contenido (25 de noviembre): están en `data/entities/` (Inspector) y sus textos en `messages.csv` y `notebook.csv`.
+- [ ] **Corregir los textos nuevos del Plan 8** (en `ui.csv`): el aviso del tutorial (`TUTORIAL_*`), el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el resumen y la victoria (`END_*`); y los 7 señuelos nuevos (`DECOY_*`, en `messages.csv`).
+- [ ] **Probar los screamers y el director** (`docs/04`, K), **la identificación por preguntas** (G), **el mantenimiento** (J), **la noche** (I) y **el chat y el cuaderno** (G y H).
+- [ ] **Corregir los textos que escribió Claude en los planes anteriores** (la lista completa está en la Sesión 17).
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara, y **probar el escalado a pantalla completa** (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] **Arte: la lista completa está en `arte_pendiente.md`.** El menú principal y el logo, las pantallas de victoria y derrota, y, si quieres animarla, la criatura de la ventana.
+- [ ] Al probar con personas (semana 5): fijarse si notan que hay que preguntar, si la noche de práctica es muy larga o muy corta, y si entienden los diales y Audio Sync.
+
+---
+
 ## Sesión 19 — 4 de noviembre de 2026 — Plan 8 ejecutado: noches, menú, guardado y opciones
 
 Benja pidió ejecutar el Plan 8 con `superpowers:executing-plans`, en Sonnet 5.5 (como proponía el registro). Se adelantó al 4 de noviembre, justo después de S18 (la fecha objetivo era el 20 al 22). Benja autorizó los 14 commits al empezar, directo en `main`. El plan tiene tabuladores en cada bloque de código, así que, en lugar de copiarlos a mano, un script (en la carpeta temporal de la sesión, no en el repositorio) leyó los bloques del plan y los aplicó paso por paso; se detenía si un bloque a reemplazar no aparecía exactamente una vez. El plan se aplicó **tal como está escrito**: ningún bloque falló y no hubo que corregir nada.

@@ -15,6 +15,7 @@
 - 31 de octubre al 2 de noviembre (sesión 14): un amigo sin señal, los videos que se descargan en el chat, Audio Sync en el mixer visto desde arriba y el botón «Sincronizar» del chat.
 - 2 de noviembre (sesión 16): el ritmo de la noche en olas, los screamers en cualquier momento, las alucinaciones, la figura de la ventana, la noche 0 (tutorial) y el chat guionado que enseña el celular.
 - 4 de noviembre (sesión 18): la noche 0 guiada y sin perder, las 7 entidades como borrador de Claude, el menú de pausa y los temporizadores ×1,5 solo para responder.
+- 4 de noviembre (después de probar el Plan 8): la criatura se asoma por la ventana en lugar del jumpscare (se arma detrás del chat o el mixer), las noches 1 y 2 con más sucesos, Audio Sync de 8 aplausos en 2 rondas de 4, Trust que también baja si tardas en contestar y los diales explicados en la noche 0.
 
 ---
 
@@ -229,6 +230,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 ### 10.3 Trust
 
 - Baja al elegir acciones riesgosas (§9), al no contestar a tiempo y mientras haya amigos sin señal (§10.1).
+- **También baja si tardas en contestar** (decisión de Benja, 4 de noviembre): cada solicitud que lleva más de 30 s abierta le quita 0,25 por segundo, y mientras haya una no se recupera. Preguntar cuenta como tiempo abierto. Responder rápido no cuesta nada.
 - Se recupera lentamente mientras no haya nuevos errores.
 - **Efecto gradual:** mientras más baja, **menos tiempo esperan los amigos tu respuesta** (sus temporizadores se acortan).
 - Con 0, los amigos ya no quieren pedirte ayuda y **se pierde la noche**.
@@ -251,7 +253,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 ### 10.6 Audio Sync
 
 - Se empieza cuando el jugador quiere, con un clic en el mixer, que se abre visto desde arriba. Se elige el canal del amigo en su fader, o con el botón «Sincronizar» del chat de ese amigo, que abre el mixer en su canal y empieza la ronda enseguida.
-- Una base marca el tiempo, y el amigo marca un ritmo de **4 u 8 aplausos**, según la noche. El mixer parpadea con el ritmo y suena (decisión de Benja, sesión 14).
+- Una base marca el tiempo, y el amigo marca un ritmo de **4 aplausos**. El mixer parpadea con el ritmo y suena (decisión de Benja, sesión 14). Las noches de 8 aplausos son **2 rondas de 4 seguidas**, cada una con su cuenta y su patrón: si se falla la segunda, se vuelve a la primera (decisión de Benja, 4 de noviembre). La señal solo vuelve a 100 al terminar todas.
 - Después, el jugador lo imita con **clics en el mixer o con la barra espaciadora**.
 - Los dos VU-metros azules del mixer muestran los dos ritmos: el de la izquierda, el del jugador, y el de la derecha, el del amigo.
 - Se puede reintentar las veces que se quiera, y se puede salir para atender otra cosa.
@@ -262,7 +264,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 - **Tipos:**
   - ambientales: la cortina se mueve, aparece la figura en la ventana, el celular vibra, las luces parpadean. La figura de la ventana está escondida y solo aparece al asustar (decisión de Benja, sesión 16);
   - sobre el cuaderno: se cierra de golpe, o una mancha de tinta tapa las reglas durante 5 segundos;
-  - jumpscare de pantalla completa: como máximo **uno por noche**, desde la noche 2.
+  - **la criatura en la ventana** (antes, un jumpscare de pantalla completa; decisión de Benja, 4 de noviembre): como máximo **uno por noche**, desde la noche 2. Se asoma por la ventana con respiración pesada y golpes en el vidrio. Se arma solo cuando el chat o el mixer tapan la ventana, y al cerrarlos ya está ahí; se queda unos 4 segundos. No tapa la pantalla ni pausa la noche.
 - **Señal previa breve:** un parpadeo de luz y una caída del sonido ambiente.
 - **Reglas de justicia:**
   - los que tapan la pantalla **pausan los temporizadores**;
@@ -309,10 +311,10 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 | Noche | Dónde están los amigos | Entidades nuevas | Qué se agrega |
 | --- | --- | --- | --- |
 | 0 (tutorial) | Alrededores de la cabaña | (usa las páginas de la noche 1) | Guiada y sin perder (§5): preguntar, identificar, responder desde el cuaderno y descargar un video. Al final, el susto guionado y su chat enseñan Sanity y el celular (§11). |
-| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust, ya sin ayuda. La señal no baja. El mensaje inicial siempre trae una pista. |
+| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust, ya sin ayuda. La señal baja un poco, con 1 interferencia y Audio Sync de 4 aplausos, y hay 2 screamers ambientales. El mensaje inicial siempre trae una pista. |
 | 2 | Camino y lago | El Cuero, La Viuda | Señal por amigo, interferencias, Audio Sync de 4 tiempos, estática y screamers regulares. |
 | 3 | Bosque | El Trauco | Mensajes con menos observaciones: preguntar se vuelve necesario. |
-| 4 | Casa abandonada y cueva | El Basilisco, El Imbunche | Audio Sync de 8 tiempos y varias solicitudes a la vez. |
+| 4 | Casa abandonada y cueva | El Basilisco, El Imbunche | Audio Sync de 8 aplausos (2 rondas de 4) y varias solicitudes a la vez. |
 | 5 | Todos los lugares | — | Todo a la vez, al máximo. |
 
 ## 15. Historia (fuera del juego)

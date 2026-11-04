@@ -147,18 +147,18 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 
 | Parámetro | N1 | N2 | N3 | N4 | N5 |
 | --- | --- | --- | --- | --- | --- |
-| Solicitudes por noche (aprox.) | 4 | 6 | 7 | 8 | 10 |
-| Solicitudes simultáneas máx. | 1 | 2 | 2 | 3 | 3 |
-| Tiempo base para responder (s) | 90 | 80 | 75 | 70 | 65 |
+| Solicitudes por noche (aprox.) | 5 | 7 | 7 | 8 | 10 |
+| Solicitudes simultáneas máx. | 2 | 2 | 2 | 3 | 3 |
+| Tiempo base para responder (s) | 85 | 80 | 75 | 70 | 65 |
 | Probabilidad de pista en el mensaje inicial | 100 % | 75 % | 50 % | 35 % | 20 % |
 | Señuelos por solicitud | 1 | 1 | 2 | 2 | 3 |
-| La señal baja | No | Sí | Sí | Sí | Sí |
-| Interferencias (aprox. por noche) | 0 | 2 | 3 | 4 | 6 |
-| Audio Sync (tiempos) | — | 4 | 4 | 8 | 8 |
+| La señal baja | Sí | Sí | Sí | Sí | Sí |
+| Interferencias (aprox. por noche) | 1 | 3 | 3 | 4 | 6 |
+| Audio Sync (aplausos; 8 son 2 rondas de 4) | 4 | 4 | 4 | 8 | 8 |
 | Cuota de videos (= envíos programados) | 2 | 3 | 3 | 4 | 4 |
 | Solicitudes por ola | 2 | 3 | 3 | 4 | 4 |
-| Screamers (sin contar las alucinaciones) | 0 | 3 | 4 | 5 | 6 |
-| Uno de ellos es el jumpscare | No | Sí | Sí | Sí | Sí |
+| Screamers (sin contar las alucinaciones) | 2 | 4 | 4 | 5 | 6 |
+| Uno de ellos es la criatura de la ventana (el antiguo jumpscare) | No | Sí | Sí | Sí | Sí |
 | Susto guionado (va en la noche 0 cuando exista) | A los 60 s | — | — | — | — |
 
 ### Medidores
@@ -167,8 +167,8 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 | --- | --- | --- | --- | --- | --- |
 | Señal (cada amigo) | 100 | Entre −1 cada 3 s y −1 cada 6 s: a cada amigo le toca un ritmo al azar en ese rango. Interferencia: −40, anunciada 3 s antes. | Audio Sync exitoso: vuelve a 100 | Estática (§4). Descargas más lentas bajo 50. | Ese amigo queda sin señal (§4.1) |
 | Connection (dial) | — | Es el promedio de las 3 señales | — | — | Se pierde la noche |
-| Sanity | 100 | −1 cada 6 s (N1: cada 10 s). Screamer: −8 ambiental, −15 jumpscare. | +4 por segundo mientras scrolleas | Viñeta oscura y screamers auditivos falsos, más fuertes cuanto más baja | Se pierde la noche |
-| Trust | 100 al empezar cada noche | Ver §5.2. Con amigos sin señal, −1 cada 4 s por cada uno (§4.1). | +1 cada 8 s si no bajó en 20 s | Temporizador × (0,6 + 0,4 × Trust/100) | Se pierde la noche |
+| Sanity | 100 | −1 cada 6 s (N1: cada 10 s). Screamer: −8 ambiental, −15 la criatura de la ventana. | +4 por segundo mientras scrolleas | Viñeta oscura y screamers auditivos falsos, más fuertes cuanto más baja | Se pierde la noche |
+| Trust | 100 al empezar cada noche | Ver §5.2. Con amigos sin señal, −1 cada 4 s por cada uno (§4.1). Cada solicitud abierta más de 30 s: −0,25 por segundo (45 s con "Temporizadores ×1,5"; decisión de Benja, 4 de noviembre). | +1 cada 8 s si no bajó en 20 s | Temporizador × (0,6 + 0,4 × Trust/100) | Se pierde la noche |
 | Vida (cada amigo) | 3 PV | Ver §5.2 | No se recupera durante la noche | Avatar herido | Muere y se pierde la noche |
 
 ### Otros
@@ -178,7 +178,7 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 - Espera de identificación: 3 s.
 - Empezar a descargar un video que llegó: 15 s; si no, se pierde. Terminar la descarga: 20 s desde que empezó (decisión de Benja, sesión 14).
 - Descarga: 10 s manteniendo presionada la barra del chat (15 s si la señal de ese amigo está bajo 50; sin señal no avanza). Si se suelta, se pausa.
-- Audio Sync: una base de 100 golpes por minuto. Tras un compás de cuenta, el amigo aplaude 4 u 8 veces en corcheas (el primer aplauso al comienzo) y Matías lo repite en el compás siguiente (o en los 2 siguientes). Tolerancia de cada golpe: ±150 ms.
+- Audio Sync: una base de 100 golpes por minuto. Tras un compás de cuenta, el amigo aplaude 4 veces en corcheas (el primer aplauso al comienzo) y Matías lo repite en el compás siguiente. Las noches de 8 aplausos son 2 rondas de 4 seguidas, cada una con su cuenta y su patrón; si se falla la segunda, se vuelve a la primera con patrones nuevos (decisión de Benja, 4 de noviembre). Tolerancia de cada golpe: ±150 ms.
 - Scroll del celular: cada movimiento de la rueda cuenta 0,3 s de scroll.
 - Director de ritmo (decisión de Benja, sesión 16): la primera solicitud a los 5 s; un respiro de 25 s después de cada ola; al final de la noche, los espacios entre solicitudes son la mitad que al principio; al menos 6 s entre dos solicitudes; un amigo herido atrasa 10 s las que faltan.
 - Screamers (decisión de Benja, sesión 16: en cualquier momento, con las reglas de justicia):
@@ -186,7 +186,7 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
   - la señal previa dura 1 s: las luces parpadean y baja el sonido ambiente;
   - nunca empiezan si a una decisión le quedan 5 s o menos al terminar la señal previa (la mancha de tinta, que tapa las reglas 5 s, necesita 5 s más), ni durante una ronda de Audio Sync;
   - los ambientales se eligen solo si su objeto está a la vista (el chat, el mixer y el celular ampliado tapan la ventana y el celular), y los del cuaderno, si está abierto. Las luces se ven siempre;
-  - el jumpscare dura 1,5 s y pausa la noche mientras tapa la pantalla.
+  - la criatura de la ventana (el antiguo jumpscare) solo se arma con el chat o el mixer abiertos, que tapan la ventana; se ve apenas se cierran y se queda 4 s. No tapa nada ni pausa la noche (decisión de Benja, 4 de noviembre).
 - Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync ni durante un screamer.
 - El chat guionado: cada línea del amigo llega 2,5 s después de la anterior; las de Matías esperan su botón.
 
@@ -310,7 +310,7 @@ ContentCatalog   friends[3], nights[5], tutorial (la noche 0), decoys[], greetin
 - Las entidades conocidas en una noche son las `new_entities` de esa noche y de las anteriores (ya no existe `intro_night`). La noche 0 (el tutorial) usa las de la noche 1.
 - Dos entidades comparten una característica si usan el mismo id. Ninguna entidad puede tener todas sus características dentro de las de otra: así siempre hay un par que la distingue.
 - Al correr las pruebas, un validador revisa el contenido real y avisa en español: cantidades de la plantilla (§7), ids que no existen, reglas que nunca se aplican, características compartidas por más de 2 entidades y claves de texto que faltan.
-- Los tipos de screamer son `ScareKind`: la cortina, la ventana, el celular, las luces, el golpe del cuaderno, la tinta y el jumpscare (Plan 7).
+- Los tipos de screamer son `ScareKind`: la cortina, la ventana, el celular, las luces, el golpe del cuaderno, la tinta y `JUMPSCARE`, que desde el 4 de noviembre es la criatura que se asoma por la ventana.
 
 ---
 

@@ -31,6 +31,8 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 | `docs/14_plan_screamers_director.md` | Plan 7, paso a paso: el director de ritmo, los screamers, las alucinaciones y el susto guionado con su chat. |
 | `docs/15_plan_noches_menu.md` | Plan 8, paso a paso: la noche 0 (tutorial), las 7 entidades, el menú, el guardado, el resumen entre noches, la pausa y las opciones. |
 | `arte_pendiente.md` | **Todo el arte que falta**, por urgencia, con tamaños y lo que hay hoy en su lugar. |
+| `sonidos_pendiente.md` | **Todos los sonidos provisionales**: dónde suena cada uno, cómo tendría que sonar y cómo reemplazarlo. |
+| `docs/16_plan_feedback_1.md` | Plan 8.1: el feedback de la primera prueba (la criatura en la ventana, las noches 1 y 2, Audio Sync en rondas, Trust y los diales). |
 | `art/positions.md` | Posición de cada objeto recortado en la escena. |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1. Es **histórico**: su encabezado dice qué se aceptó y qué no. |
 | `spook_dial_design_v1.md` | Diseño original (histórico). |
@@ -86,7 +88,12 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 02-11-2026 | **El director reparte las solicitudes en olas con respiro:** después de cada ola hay unos 25 s sin solicitudes nuevas, las olas se aprietan hacia las 06:00 y, cuando un amigo queda herido, las que faltan se atrasan. |
 | 02-11-2026 | **Los screamers llegan en cualquier momento de la noche**, solo con las reglas de justicia del diseño (§11). |
 | 02-11-2026 | **Alucinaciones del cuarto y del juego:** con Sanity bajo suenan golpes, pasos, susurros y rasguños, y también la estática de una interferencia y el celular vibrando, que no vienen de nada. No restan Sanity y nunca suenan durante Audio Sync. |
-| 02-11-2026 | **La figura de la ventana** (`enemy_sprite`) está escondida: aparece como el screamer de la ventana y, a ×2, como jumpscare provisional hasta el arte. |
+| 02-11-2026 | **La figura de la ventana** (`enemy_sprite`) está escondida: aparece como el screamer de la ventana y es la criatura que se asoma (decisión del 4-nov). |
+| 04-11-2026 | **La criatura se asoma por la ventana en lugar del jumpscare** (era aburrido): con respiración pesada y golpes en el vidrio, sin tapar la pantalla ni pausar la noche. Se arma **solo cuando el chat o el mixer tapan la ventana**, y al cerrarlos ya está ahí (así no hace falta animarla); se queda 4 s a la vista. Los otros 6 screamers no cambian. Los sonidos son provisionales y están en `sonidos_pendiente.md`. |
+| 04-11-2026 | **Las noches 1 y 2 tienen más sucesos:** la noche 1 pasa a 5 solicitudes, 2 a la vez y 85 s, con la señal que baja, 1 interferencia, Audio Sync de 4 aplausos y 2 screamers ambientales; la noche 2 pasa a 7 solicitudes, 3 interferencias y 4 screamers (`docs/02` §6). |
+| 04-11-2026 | **Audio Sync de 8 aplausos son 2 rondas de 4**, cada una con su cuenta y su patrón: si se falla la segunda, se vuelve a la primera. La señal solo vuelve a 100 al terminar las 2. |
+| 04-11-2026 | **Trust también baja si tardas en contestar:** cada solicitud que lleva más de 30 s abierta (45 con "Temporizadores ×1,5") le quita 0,25 por segundo, y mientras haya una Trust no se recupera. Preguntar cuenta como tiempo abierto. No aplica en la noche 0. |
+| 04-11-2026 | **Los diales se explican en la noche 0:** el primer aviso del tutorial dice qué es cada uno, con un botón "Entendido". No hay letreros ni avisos de cambio por ahora. |
 | 02-11-2026 | **Noche 0 (tutorial):** una noche nueva antes de la 1. El susto guionado y su chat son datos de una noche y van al final de la noche 0. |
 | 04-11-2026 | **La noche 0 es guiada y no se pierde:** unos 3 o 4 minutos, con 3 solicitudes fijas (una de cada amigo, con El Tue Tué y La Calchona). Un aviso arriba de la pantalla dice qué hacer en cada paso. El tiempo para responder no corre solo (solo las preguntas le quitan tiempo), nadie sale herido y Trust no baja. Enseña también a descargar un video (sus plazos esperan). Termina con el susto guionado, el chat de Gonzalo y el celular. "Nueva partida" empieza en la noche 0, y el aviso tiene un botón "Saltar tutorial". |
 | 04-11-2026 | **Las 7 entidades son un borrador de Claude:** las 3 de `docs/09` y 4 nuevas, como `.tres` y CSV. Benja las corrige antes del congelamiento del contenido (25-nov). |
