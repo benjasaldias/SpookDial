@@ -4,6 +4,64 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 19 — 4 de noviembre de 2026 — Plan 8 ejecutado: noches, menú, guardado y opciones
+
+Benja pidió ejecutar el Plan 8 con `superpowers:executing-plans`, en Sonnet 5.5 (como proponía el registro). Se adelantó al 4 de noviembre, justo después de S18 (la fecha objetivo era el 20 al 22). Benja autorizó los 14 commits al empezar, directo en `main`. El plan tiene tabuladores en cada bloque de código, así que, en lugar de copiarlos a mano, un script (en la carpeta temporal de la sesión, no en el repositorio) leyó los bloques del plan y los aplicó paso por paso; se detenía si un bloque a reemplazar no aparecía exactamente una vez. El plan se aplicó **tal como está escrito**: ningún bloque falló y no hubo que corregir nada.
+
+### Realizado
+
+- **Las 14 tareas del Plan 8, con 14 commits y de 382 a 446 pruebas.** En cada "Verificar que fallan" y cada "Verificar que pasan" el conteo fue el que el plan esperaba (386, 392, 396, 401, 403, 407, 413, 416, 420, 427, 431, 439 y 446):
+  - **la noche 0** (`data/nights/night_0.tres`, en `ContentCatalog.tutorial`) con 3 solicitudes fijas (`TutorialRequestData`): el tiempo espera, nadie sale herido, el video espera su descarga y el susto guionado llega cuando no queda nada pendiente;
+  - **el aviso del tutorial** (`TutorialGuide` y `scenes/ui/tutorial_hint.tscn`), con "Saltar tutorial";
+  - **las 7 entidades** en `data/entities/` (borrador de Claude), con sus textos en los CSV y 7 señuelos nuevos;
+  - **las opciones** (`GameSettings`, con 3 canales de audio en `default_bus_layout.tres`), **reducir destellos**, **la cámara fija**, **los temporizadores ×1,5** y **el panel de opciones**;
+  - **la partida guardada** (`SaveGame`), **`GameState`** (autoload), **el menú principal** (ahora la escena principal), **el resumen entre noches y la victoria final** y **el menú de pausa** con Esc.
+- **Capturas revisadas** (`C:\dev\capturas\plan8_menu.png`, `plan8_tutorial.png`, `plan8_summary.png` y `plan8_pause.png`): coinciden con lo que describe el plan. Nuevo `test/capture_plan8.gd`.
+- **El juego arranca** por su escena principal (el menú y `GameState`) sin errores, con `--headless`.
+- **Documentos:** `docs/04` recibe la sección L (probar el juego de punta a punta) y el paso 6 de la K remite a ella; `docs/06` y `docs/02` quedan al día; `docs/00_log.md`: S19 ✅ y S20 como siguiente.
+
+### Errores encontrados
+
+- **Ninguno en el plan ni en el código.** Todos los bloques a reemplazar aparecieron una sola vez y los 27 conteos de pruebas coincidieron.
+- **Detalle visual, menor** (`plan8_pause.png`): el fondo del panel de opciones es 95 % opaco, así que el menú de pausa se transparenta tenue detrás ("Pausa" bajo la fila "Ambiente"). Es lo que el plan especifica y la vista es provisional hasta el arte; si molesta, se sube el alfa del fondo en `scenes/ui/options_panel.tscn` a 1,0 o se oculta la caja de la pausa mientras las opciones están abiertas.
+- **Lo que no se probó:** jugar de punta a punta, el sonido real de los canales y el aspecto del tutorial paso a paso. Las pruebas cubren la lógica y la escena, y las capturas, 4 momentos. Eso lo cubre la sección L de `docs/04`.
+
+### Pendientes Código
+
+- [x] **S19: ejecutar el Plan 8** (`docs/15`, 14 tareas).
+- [x] Plan 8: la noche 0, "Reducir destellos", "Temporizadores ×1,5", las entidades en `.tres` y el Night Number de `RequestManager` (ahora lo elige `GameState`).
+- [ ] **S20: correcciones tras las pruebas** (`docs/00_log.md`), con el contenido congelado el 25 de noviembre.
+- [ ] Menor: el panel de opciones deja ver tenue el menú de pausa detrás (ver "Errores encontrados").
+- [ ] Menor: abrir el escritorio solo (F6): "Empezar la noche N" y "Volver al menú" no hacen nada, porque los atiende `GameState` (`docs/15`, "Fuera de este plan").
+- [ ] Planes 9 en adelante según `docs/00_log.md`.
+- [ ] Registrar los `.en.translation` cuando la columna `en` tenga textos (también el de `phone.csv`).
+- [ ] Plan 9: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Plan 9: reemplazar los sonidos provisionales de `audio/sfx/` (con los mismos nombres) y, si hace falta, separar más canales que `Ambience` y `Effects` (se agregan a `GameSettings.BUSES` y al panel de opciones). Faltan sonidos para cuando llega un video y cuando se recibe, y los del menú y los botones.
+- [ ] Cuando llegue el arte: el menú y el logo, las pantallas de victoria y derrota, el mixer, el celular, las barras de señal y los screamers (`docs/13`, `docs/14` y `docs/15`, "Fuera de este plan").
+- [ ] Si en las pruebas con personas los videos y las interferencias se juntan con las olas de solicitudes: el director no los mueve hoy (`docs/14`, "Fuera de este plan").
+- [ ] Menor: que los segundos de una entrada en alerta no toquen el ícono ⚠ del arte.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si al probar se siente seco o lento: una demora de "escribiendo…" en las respuestas del amigo, y marcar en el chat qué categorías ya se preguntaron.
+- [ ] Borrar `~/godot-games/spook-dial` y las copias `C:\dev\plan8` y `C:\dev\plan8_check` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar el juego de punta a punta** (`docs/04`, L, unos 25 minutos): la noche 0, el menú, el guardado, la pausa y las opciones.
+- [ ] **Corregir las 7 entidades** antes del congelamiento del contenido (25 de noviembre): están en `data/entities/` (Inspector) y sus textos en `messages.csv` y `notebook.csv`. Son un borrador de Claude: las 3 de `docs/09` y El Cuero, La Viuda, El Basilisco y El Imbunche, nuevas. Cada una reparte sus características en categorías distintas y comparte una con otra entidad.
+- [ ] **Corregir los textos nuevos del Plan 8** (en `ui.csv`): el aviso del tutorial (`TUTORIAL_*`), el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el resumen y la victoria (`END_TUTORIAL*`, `END_VICTORY*`, `END_NEW_PAGES`, `END_NO_NEW_PAGES`, `END_NEXT` y `END_MENU`); y los 7 señuelos nuevos (`DECOY_*`, en `messages.csv`).
+- [ ] **Probar los screamers y el director** (`docs/04`, K, unos 20 minutos). Su paso 6 (el susto guionado) ahora está en la noche 0 (sección L, paso 2).
+- [ ] **Probar la identificación por preguntas** (`docs/04`, G, unos 10 minutos) y decir cómo se siente: tiempos, solicitudes por noche, la pista y el costo de preguntar.
+- [ ] **Probar el mantenimiento** (`docs/04`, J), **la noche** (`docs/04`, I) y **el chat y el cuaderno** (`docs/04`, G y H). Si cambias un valor de `data/balance.tres` a propósito, avísale a Claude: `test_balance.gd` lo compara con `docs/02`.
+- [ ] **Corregir los textos que escribió Claude en los planes anteriores** (la lista completa está en la Sesión 17).
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara, y **probar el escalado a pantalla completa** (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] **Arte: la lista completa está en `arte_pendiente.md`.** El menú principal y el logo, y las pantallas de victoria y derrota (hoy son provisionales, hechas en Godot).
+- [ ] Al probar con personas (semana 5): fijarse si notan que hay que preguntar, y si la noche de práctica es muy larga o muy corta (se ajusta en `data/nights/night_0.tres`, sin código).
+
+---
+
 ## Sesión 18 — 4 de noviembre de 2026 — Plan 8 escrito: noches, menú, guardado y opciones
 
 Benja pidió escribir el Plan 8 con `superpowers:writing-plans`. Se escribió en Opus 5.5 con esfuerzo high, adelantado al 4 de noviembre (la fecha objetivo era el 19). Benja todavía no había probado la identificación por preguntas ni los screamers (`docs/04`, G y K), así que no hubo notas de prueba que meter al plan.

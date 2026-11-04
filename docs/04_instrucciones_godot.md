@@ -22,6 +22,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
 | **J.** Probar el mantenimiento (Plan 6) | ⬜ Pendiente (unos 20 minutos) |
 | **K.** Probar los screamers y el director (Plan 7) | ⬜ Pendiente (unos 20 minutos) |
+| **L.** Probar las noches, el menú, el guardado y las opciones (Plan 8) | ⬜ Pendiente (unos 25 minutos) |
 
 ---
 
@@ -301,11 +302,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - Cada unos 10 segundos suena algo a un lado de la pantalla: golpes en la ventana, pasos, susurros, rasguños, la estática de una interferencia o el celular vibrando. No pasa nada más: son falsos.
    - Durante una ronda de Audio Sync no suena ninguno.
    - **Al terminar, vuelve a dejar 50 y 40.** Si no, `test_balance.gd` falla.
-6. **El susto guionado:** en el panel **Scene**, selecciona el nodo `RequestManager` y, en el **Inspector**, cambia **Night Number** de 3 a 1. Presiona **F5**. La noche 1 todavía no tiene entidades, así que no llegan solicitudes.
-   - Al minuto (cerca de las 00:51), las luces parpadean y llega el jumpscare.
-   - Unos segundos después, la entrada de Gonzalo parpadea. Abre su chat: "Todo bien hermano?? Se te quedó el micro prendido y te escuché gritar". Abajo, en lugar de las respuestas, hay un botón con la respuesta de Matías. Presiónalo.
-   - Gonzalo contesta "Mati wn relájate, tú puedes. Usa tu celu pa despejarte un rato, te va a calmar". Cierra el chat: el borde del celular parpadea. Haz clic en el celular: se abre y deja de parpadear.
-   - **Al terminar, vuelve Night Number a 3.**
+6. **El susto guionado:** desde el Plan 8 está en la noche 0, la noche de práctica (sección L, paso 2).
 
 **Verifica:** los pasos 1 a 6 se cumplen. Si algo falla, anota cuál y qué pasó.
 
@@ -319,3 +316,38 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 - **Por noche** (`data/nights/night_N.tres`): cuántas solicitudes trae cada ola (**Wave Size**, en **Solicitudes**); cuántos screamers hay y si uno es el jumpscare (**Scare Count** y **Has Jumpscare**, en **Screamers**); y el guion (en **Guion**): a qué segundo llega el susto guionado (**Scripted Scare Time**; 0 si no hay), qué screamer es (**Scripted Scare**) y su chat (**Scripted Chat**: el amigo, las líneas con quién habla y su texto, y si al final parpadea el celular).
 - **Los textos del chat guionado** están en `data/text/messages.csv` (`SCRIPT_SCARE_*`).
 - **Los sonidos provisionales** están en `audio/sfx/`. Para probar otro, reemplaza el archivo por uno con el mismo nombre.
+
+---
+
+## L. Probar las noches, el menú, el guardado y las opciones (Plan 8)
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. Abre Godot y el proyecto, y presiona **F5**. Ahora el juego empieza en el **menú principal**: "SPOOK DIAL", **Nueva partida**, **Opciones** y **Salir**. La primera vez no está **Continuar**, porque no hay una partida guardada.
+2. **La noche 0, la noche de práctica:** presiona **Nueva partida**. Arriba, entre el chat y los diales, un aviso dice qué hacer en cada paso. En esta noche el tiempo para responder no corre solo (solo lo gastan las preguntas) y nadie sale herido. Síguelo:
+   - León te escribe: abre su chat con su entrada del PC, pregunta, marca las 2 características, haz clic en el nombre de la criatura y responde con la acción de la primera regla que se cumple.
+   - Agustín: lo mismo. Al terminar te manda un video: abre su chat y mantén presionada la barra hasta que se descargue. La siguiente solicitud espera el video.
+   - Gonzalo: su mensaje no trae pista. Prueba a responder con una acción equivocada: el aviso dice que, en una noche de verdad, habría salido herido.
+   - Unos segundos después llega el susto (el jumpscare) y Gonzalo te escribe. Respóndele con el botón. Después, el borde del celular parpadea: ábrelo, scrollea con la rueda y ciérralo con clic derecho. Ahí termina la práctica.
+3. **El final de la práctica:** la pantalla dice "Práctica terminada". Presiona **Empezar la noche 1**.
+4. **La noche 1 y el resumen:** aparecen El Tue Tué y La Calchona. Si pierdes, **Reintentar** vuelve a empezar la noche. Si llegas a las 06:00 con la cuota, el resumen dice cuántos videos conseguiste y qué páginas suma el cuaderno la noche siguiente (después de la noche 1: El Cuero y La Viuda), con **Empezar la noche 2** y **Volver al menú**.
+5. **La pausa y el guardado:** en una noche, sin ningún panel abierto, presiona **Esc**: la noche se detiene y aparece el menú de pausa (**Continuar**, **Opciones** y **Volver al menú**). Con un panel abierto, **Esc** solo cierra los paneles, como antes. Presiona **Volver al menú**: ahora el menú tiene **Continuar: noche 1**, que empieza la noche desde su comienzo. Cierra el juego, presiona **F5** otra vez: **Continuar** sigue ahí.
+6. **Nueva partida con una partida guardada:** el menú pregunta si quieres borrarla. **Cancelar** no hace nada.
+7. **Las opciones** (desde el menú o desde la pausa):
+   - los 3 volúmenes (general, ambiente y efectos) cambian el sonido al tiro;
+   - **Reducir destellos:** las entradas en alerta quedan fijas en lugar de parpadear, el aviso de una interferencia atenúa la entrada sin titilar, el LED del mixer no parpadea, y la señal previa de un screamer, el apagón de las luces y el rojo del jumpscare se oscurecen una sola vez;
+   - **Cámara fija:** la escena deja de moverse con el mouse;
+   - **Temporizadores ×1,5:** las solicitudes nuevas dan 1,5 veces más tiempo para responder (los plazos de los videos no cambian).
+   - Cierra y vuelve a abrir el juego: las opciones se mantienen.
+8. **Saltar la práctica:** con **Nueva partida**, el botón **Saltar tutorial** del aviso pasa directo a la noche 1.
+
+**Verifica:** los pasos 1 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
+
+**Para probar una noche sin pasar por las anteriores:** abre `scenes/desk/desk.tscn`, selecciona el nodo `RequestManager` en el panel **Scene** y cambia **Night Number** (de 0 a 5) en el **Inspector**. Presiona **F6**, que ejecuta solo la escena abierta, sin el menú: así no se guarda nada. Al terminar, vuelve a dejar 3.
+
+### Para ajustar
+
+- **La noche 0** está en `data/nights/night_0.tres`. En el grupo **Tutorial**, **Tutorial Requests** tiene las 3 solicitudes fijas, en orden: quién la pide (**Friend**), qué entidad es (**Entity**), qué observa el amigo (**Situation**: el id de cada observación y su valor; lo que falte sale al azar), si el mensaje inicial trae una pista (**With Hint**) y si al terminar el amigo manda un video (**Sends Video**). El susto y su chat están en el grupo **Guion**, como antes: en la noche 0, el susto llega cuando ya no queda nada pendiente.
+- **Los textos nuevos** están en `data/text/ui.csv`: el aviso de la práctica (`TUTORIAL_*`), el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el final y el resumen (`END_*`).
+- **Las 7 entidades** están en `data/entities/`, un `.tres` cada una, y sus textos en `data/text/messages.csv` y `data/text/notebook.csv`. Son un borrador de Claude: corrígelas en el **Inspector** (como en la sección F) y en los CSV. Las pruebas avisan si algo no cumple la plantilla.
+- **La partida y las opciones** se guardan en `%APPDATA%\Godot\app_userdata\Spook Dial\` (`save.cfg` y `settings.cfg`). Para empezar de cero, borra `save.cfg`.
