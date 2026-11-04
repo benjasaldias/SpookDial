@@ -39,7 +39,8 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/scare_lights.wav" id="lights_sound"]
 [ext_resource type="AudioStream" path="res://audio/sfx/scare_slam.wav" id="slam_sound"]
 [ext_resource type="AudioStream" path="res://audio/sfx/scare_ink.wav" id="ink_sound"]
-[ext_resource type="AudioStream" path="res://audio/sfx/scare_jumpscare.wav" id="jumpscare_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/scare_creature_breathing.wav" id="breathing_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/scare_creature_knocks.wav" id="knocks_sound"]
 [ext_resource type="AudioStream" path="res://audio/sfx/hallucination_knock.wav" id="knock_sound"]
 [ext_resource type="AudioStream" path="res://audio/sfx/hallucination_steps.wav" id="steps_sound"]
 [ext_resource type="AudioStream" path="res://audio/sfx/hallucination_whisper.wav" id="whisper_sound"]
@@ -225,13 +226,12 @@ volume_db = -12.0
 autoplay = true
 bus = &"Ambience"
 
-[node name="Screamers" type="Node" parent="." node_paths=PackedStringArray("curtains", "figure", "phone", "darkness", "jumpscare", "notebook", "ambient")]
+[node name="Screamers" type="Node" parent="." node_paths=PackedStringArray("curtains", "figure", "phone", "darkness", "notebook", "ambient")]
 script = ExtResource("screamers_script")
 curtains = NodePath("../WallPlane/Curtains")
 figure = NodePath("../WallPlane/Enemy")
 phone = NodePath("../DeskPlane/Phone")
 darkness = NodePath("../Darkness")
-jumpscare = NodePath("../Overlay/Jumpscare")
 notebook = NodePath("../UI/NotebookPanel")
 ambient = NodePath("../Ambient")
 hallucination_sounds = Array[AudioStream]([ExtResource("knock_sound"), ExtResource("steps_sound"), ExtResource("whisper_sound"), ExtResource("scratch_sound"), ExtResource("static_sound"), ExtResource("phone_sound")])
@@ -260,8 +260,12 @@ bus = &"Effects"
 stream = ExtResource("ink_sound")
 bus = &"Effects"
 
-[node name="JumpscareSound" type="AudioStreamPlayer" parent="Screamers"]
-stream = ExtResource("jumpscare_sound")
+[node name="CreatureBreathing" type="AudioStreamPlayer" parent="Screamers"]
+stream = ExtResource("breathing_sound")
+bus = &"Effects"
+
+[node name="CreatureKnocks" type="AudioStreamPlayer" parent="Screamers"]
+stream = ExtResource("knocks_sound")
 bus = &"Effects"
 
 [node name="Hallucination" type="AudioStreamPlayer2D" parent="Screamers"]
@@ -279,32 +283,6 @@ mouse_filter = 2
 
 [node name="TutorialHint" parent="Overlay" instance=ExtResource("tutorial_hint")]
 visible = false
-
-[node name="Jumpscare" type="Control" parent="Overlay"]
-visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="Flash" type="ColorRect" parent="Overlay/Jumpscare"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color(0.45, 0.43, 0.48, 1)
-
-[node name="Figure" type="AnimatedSprite2D" parent="Overlay/Jumpscare"]
-position = Vector2(640, 380)
-scale = Vector2(2, 2)
-sprite_frames = ExtResource("enemy")
-
-[node name="Red" type="ColorRect" parent="Overlay/Jumpscare"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-color = Color(0.55, 0, 0.04, 0)
 
 [node name="EndScreen" parent="Overlay" instance=ExtResource("end_screen")]
 

@@ -106,10 +106,11 @@ extends Resource
 @export var first_scare_after := 30.0
 ## Sanity que resta un screamer ambiental o sobre el cuaderno (docs/02 §6).
 @export var scare_sanity := 8.0
-## Sanity que resta el jumpscare (docs/02 §6).
+## Sanity que resta la criatura de la ventana, el antiguo jumpscare (docs/02 §6).
 @export var jumpscare_sanity := 15.0
-## Segundos que dura el jumpscare. Tapa la pantalla, así que la noche se pausa (diseño §11).
-@export var jumpscare_seconds := 1.5
+## Segundos que la criatura de la ventana se queda a la vista, desde que se ve (decisión de Benja, 4 de
+## noviembre). No tapa nada: la noche no se pausa.
+@export var creature_seconds := 4.0
 ## Segundos que la mancha de tinta tapa la página del cuaderno (diseño §11).
 @export var ink_seconds := 5.0
 

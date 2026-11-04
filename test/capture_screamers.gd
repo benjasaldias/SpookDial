@@ -3,7 +3,7 @@ extends SceneTree
 ## Uso: ~/tools/godot-wsl.sh --path "$PWD" -s res://test/capture_screamers.gd -- /mnt/c/dev/capturas/window.png /mnt/c/dev/capturas/ink.png /mnt/c/dev/capturas/jumpscare.png /mnt/c/dev/capturas/script.png /mnt/c/dev/capturas/script_phone.png
 ## 1. Noche 3: la figura aparece en la ventana, con el escritorio a la vista.
 ## 2. El cuaderno, en la página de El Trauco, con la mancha de tinta.
-## 3. El jumpscare.
+## 3. La criatura asomada en la ventana.
 ## 4. Noche 0, después del susto guionado: el chat de Gonzalo, con el botón de la respuesta de Matías.
 ## 5. Después de responder: el chat cerrado y el celular del escritorio con su contorno encendido.
 
@@ -28,12 +28,12 @@ func _capture() -> void:
 	await _save(1)
 	desk.close_panels()
 	screamers.play(ScareKind.Kind.JUMPSCARE)
-	await create_timer(0.2).timeout
+	await create_timer(0.5).timeout
 	await _save(2)
 	desk.free()
 	desk = _make_desk(0)
 	desk.get_node("RequestManager").tutorial_queue.clear()
-	# La señal previa, el jumpscare (1,5 s, con la noche en pausa) y lo que tarda Gonzalo en escribir (2,5 s).
+	# La señal previa, la criatura y lo que tarda Gonzalo en escribir (2,5 s).
 	await create_timer(6.0).timeout
 	desk.get_node("DeskPlane/Entries/EntryGonzalo").pressed.emit()
 	# Lo que tarda en escribirse su mensaje.

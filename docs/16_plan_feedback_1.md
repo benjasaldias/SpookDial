@@ -1807,7 +1807,108 @@ Corre con ventana (sin `--headless`), y Godot tiene que estar cerrado:
 
 Esperado: 5 líneas `Captura guardada en …` y ningún `ERROR`. Abrir `creature.png` con Read: el escritorio completo, sin pantalla gris ni destello rojo, con la figura en la ventana, detrás del vidrio y de las cortinas.
 
-- [ ] **Paso 6: Commit**
+- [ ] **Paso 6: Corregir lo que mostró la captura**
+
+Al revisar `creature.png` (el primer intento), la figura no estaba: el desvanecimiento del screamer de la ventana, que todavía corría (la captura los pide uno tras otro), se llevaba también a la criatura. En el juego el hueco de 25 s entre screamers lo evita, pero es frágil: la criatura y el screamer de la ventana comparten la figura, así que cada uno corta el desvanecimiento del otro.
+
+Agregar al final de `test/test_screamer_manager.gd`:
+
+```gdscript
+## El screamer de la ventana y la criatura comparten la figura: el desvanecimiento del uno no esconde al otro.
+func test_la_criatura_corta_el_desvanecimiento_del_screamer_de_la_ventana() -> bool:
+	var desk := _make_desk()
+	var screamers := _screamers(desk)
+	screamers.play(ScareKind.Kind.WINDOW)
+	var window_tween: Tween = screamers._figure_tween
+	check(window_tween.is_valid(), "el screamer de la ventana se desvanece solo")
+	screamers.play(ScareKind.Kind.JUMPSCARE)
+	check(not window_tween.is_valid(), "la criatura corta ese desvanecimiento")
+	check((desk.get_node("WallPlane/Enemy") as CanvasItem).visible, "y se queda a la vista")
+	desk.free()
+	return true
+```
+
+En `scripts/desk/screamer_manager.gd`, reemplazar:
+
+```gdscript
+var _window_visible := true
+```
+
+por:
+
+```gdscript
+var _window_visible := true
+## El desvanecimiento de la figura de la ventana, que comparten el screamer de la ventana y la criatura.
+var _figure_tween: Tween
+```
+
+En `scripts/desk/screamer_manager.gd`, reemplazar:
+
+```gdscript
+	figure.modulate.a = 1.0
+	figure.show()
+	var tween := create_tween()
+	tween.tween_interval(EFFECT_SECONDS * 0.6)
+```
+
+por:
+
+```gdscript
+	figure.modulate.a = 1.0
+	figure.show()
+	var tween := _new_figure_tween()
+	tween.tween_interval(EFFECT_SECONDS * 0.6)
+```
+
+En `scripts/desk/screamer_manager.gd`, reemplazar:
+
+```gdscript
+	_creature_seen = 0.0
+	figure.modulate.a = 1.0
+	figure.show()
+```
+
+por:
+
+```gdscript
+	_creature_seen = 0.0
+	if _figure_tween != null:
+		_figure_tween.kill()
+	figure.modulate.a = 1.0
+	figure.show()
+```
+
+En `scripts/desk/screamer_manager.gd`, reemplazar:
+
+```gdscript
+	_knocks.stop()
+	var tween := create_tween()
+	tween.tween_property(figure, ^"modulate:a", 0.0, LEAVE_SECONDS)
+	tween.tween_callback(figure.hide)
+```
+
+por:
+
+```gdscript
+	_knocks.stop()
+	var tween := _new_figure_tween()
+	tween.tween_property(figure, ^"modulate:a", 0.0, LEAVE_SECONDS)
+	tween.tween_callback(figure.hide)
+
+
+## Un tween nuevo para la figura de la ventana, que corta el anterior.
+func _new_figure_tween() -> Tween:
+	if _figure_tween != null:
+		_figure_tween.kill()
+	_figure_tween = create_tween()
+	return _figure_tween
+```
+
+Importar y correr las pruebas (ver "Antes de empezar"), y volver a sacar la captura del Paso 5: ahora `creature.png` muestra la figura en la ventana.
+
+Esperado: `0 fallidas`.
+
+- [ ] **Paso 7: Commit**
 
 ```bash
 git add scripts/ scenes/ data/ tools/ audio/ test/

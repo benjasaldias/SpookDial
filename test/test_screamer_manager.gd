@@ -44,7 +44,6 @@ func _process(desk: Node2D, seconds: int) -> void:
 func test_la_figura_de_la_ventana_esta_escondida() -> bool:
 	var desk := _make_desk()
 	check(not (desk.get_node("WallPlane/Enemy") as CanvasItem).visible, "la figura no está (decisión de Benja)")
-	check(not (desk.get_node("Overlay/Jumpscare") as Control).visible, "sin jumpscare")
 	check((desk.get_node("Ambient") as AudioStreamPlayer).playing, "suena el ambiente del cuarto")
 	desk.free()
 	return true
@@ -69,17 +68,62 @@ func test_un_screamer_se_anuncia_y_resta_sanity() -> bool:
 	return true
 
 
-func test_el_jumpscare_tapa_la_pantalla_y_pausa_la_noche() -> bool:
+## La criatura se arma detrás de un panel (el chat o el mixer) y está ahí al cerrarlo (decisión de Benja, 4 de
+## noviembre), con la respiración y los golpes sonando mientras tanto, sin tapar la pantalla ni pausar la noche.
+func test_la_criatura_se_arma_detras_de_un_panel() -> bool:
 	var desk := _make_desk()
+	var screamers := _screamers(desk)
+	var chat := desk.get_node("UI/ChatPanel") as Control
+	var figure := desk.get_node("WallPlane/Enemy") as CanvasItem
 	var sanity := _state(desk).sanity
 	_scare_now(desk, true)
 	desk._process(0.0)
+	check(not screamers.is_warning(), "con la ventana a la vista, espera")
+	chat.show()
+	desk._process(0.0)
+	check(screamers.is_warning(), "con el chat abierto, se anuncia")
 	desk._process(1.0)
-	check((desk.get_node("Overlay/Jumpscare") as Control).visible, "tapa la pantalla")
-	check(desk.get_node("NightManager").is_paused(), "la noche se pausa")
+	check(screamers.is_creature_near(), "la criatura está cerca")
+	check(not figure.visible, "pero no se ve: el chat tapa la ventana")
+	check((screamers.get_node("CreatureBreathing") as AudioStreamPlayer).playing, "se oye su respiración")
+	check((screamers.get_node("CreatureKnocks") as AudioStreamPlayer).playing, "y sus golpes en el vidrio")
 	check_eq(_state(desk).sanity, sanity - 15.0, "Sanity −15")
-	desk.get_node("NightManager").advance(1.0)
-	check_eq(_state(desk).elapsed, 0.0, "la hora no avanza durante el jumpscare")
+	check(not desk.get_node("NightManager").is_paused(), "la noche no se pausa")
+	chat.hide()
+	desk._process(0.0)
+	check(figure.visible, "al cerrar el chat, ya está ahí")
+	check_eq(figure.modulate.a, 1.0, "sin animación de entrada")
+	desk._process(3.9)
+	check(figure.visible, "a los 3,9 s, todavía")
+	desk._process(0.2)
+	check(not screamers.is_creature_near(), "a los 4 s, se retira")
+	check(not (screamers.get_node("CreatureBreathing") as AudioStreamPlayer).playing, "y se calla")
+	desk.free()
+	return true
+
+
+## Con la ventana a la vista (el susto guionado de la noche 0), la criatura aparece enseguida.
+func test_la_criatura_aparece_enseguida_con_la_ventana_a_la_vista() -> bool:
+	var desk := _make_desk()
+	var screamers := _screamers(desk)
+	screamers.play(ScareKind.Kind.JUMPSCARE)
+	check((desk.get_node("WallPlane/Enemy") as CanvasItem).visible, "se ve en la ventana")
+	check(screamers.is_creature_near(), "está cerca")
+	desk.free()
+	return true
+
+
+## Mientras la criatura está cerca no empieza otro screamer; cuando se retira, sí.
+func test_con_la_criatura_cerca_no_empiezan_otros_screamers() -> bool:
+	var desk := _make_desk()
+	var kinds := []
+	_record(desk, kinds)
+	_screamers(desk).play(ScareKind.Kind.JUMPSCARE)
+	_scare_now(desk)
+	_process(desk, 3)
+	check_eq(kinds, [ScareKind.Kind.JUMPSCARE], "solo la criatura")
+	_process(desk, 4)
+	check(kinds.size() >= 2, "al retirarse, llega el otro: %s" % [kinds])
 	desk.free()
 	return true
 
@@ -181,10 +225,10 @@ func test_el_susto_guionado_ensena_el_celular() -> bool:
 	var phone := desk.get_node("DeskPlane/Phone")
 	var kinds := []
 	_record(desk, kinds)
-	# A los 5 s, sin nada pendiente: la señal previa y, 1 s después, el jumpscare.
+	# A los 5 s, sin nada pendiente: la señal previa y, 1 s después, la criatura de la ventana.
 	_play(desk, 6)
 	check_eq(kinds, [ScareKind.Kind.JUMPSCARE], "el susto guionado de la noche 0")
-	# La pausa del jumpscare (1,5 s) y lo que tarda Gonzalo en escribir (2,5 s).
+	# Lo que tarda Gonzalo en escribir (2,5 s).
 	_play(desk, 4)
 	check_eq(gonzalo.state, ChatEntry.State.WARNING, "Gonzalo escribió y espera la respuesta de Matías")
 	gonzalo.pressed.emit()
@@ -216,17 +260,30 @@ func _flashes(alphas: Array[float]) -> int:
 	return count
 
 
-## "Reducir destellos" (diseño §19): la señal previa, el apagón de las luces y el rojo del jumpscare se oscurecen
+## "Reducir destellos" (diseño §19): la señal previa y el apagón de las luces se oscurecen
 ## una sola vez, más suave, en lugar de parpadear.
 func test_reducir_destellos() -> bool:
 	var desk := _make_desk()
 	var screamers := _screamers(desk)
 	check(_flashes(screamers.warning_alphas()) > 0, "la señal previa parpadea")
 	check(_flashes(screamers.lights_alphas()) > 0, "las luces parpadean")
-	check(_flashes(screamers.jumpscare_alphas()) > 0, "el rojo del jumpscare parpadea")
 	screamers.reduce_flashes = true
-	for alphas: Array[float] in [screamers.warning_alphas(), screamers.lights_alphas(), screamers.jumpscare_alphas()]:
+	for alphas: Array[float] in [screamers.warning_alphas(), screamers.lights_alphas()]:
 		check_eq(_flashes(alphas), 0, "sin destellos: %s" % [alphas])
 		check(alphas.max() <= 0.85, "sin pasar de la oscuridad de las luces: %s" % [alphas])
+	desk.free()
+	return true
+
+
+## El screamer de la ventana y la criatura comparten la figura: el desvanecimiento del uno no esconde al otro.
+func test_la_criatura_corta_el_desvanecimiento_del_screamer_de_la_ventana() -> bool:
+	var desk := _make_desk()
+	var screamers := _screamers(desk)
+	screamers.play(ScareKind.Kind.WINDOW)
+	var window_tween: Tween = screamers._figure_tween
+	check(window_tween.is_valid(), "el screamer de la ventana se desvanece solo")
+	screamers.play(ScareKind.Kind.JUMPSCARE)
+	check(not window_tween.is_valid(), "la criatura corta ese desvanecimiento")
+	check((desk.get_node("WallPlane/Enemy") as CanvasItem).visible, "y se queda a la vista")
 	desk.free()
 	return true

@@ -1,13 +1,15 @@
 extends Node
 ## Los screamers de la noche (Plan 7, diseño §11). El director dice cuándo toca uno y el escritorio, qué se ve;
 ## aquí se elige cuál (Screamer), se anuncia con su señal previa (las luces parpadean y baja el sonido
-## ambiente) y se muestra con su sonido. Cada uno resta Sanity, y el jumpscare pausa la noche mientras tapa la
-## pantalla. Después del susto guionado empieza su chat guionado (decisión de Benja).
+## ambiente) y se muestra con su sonido. Cada uno resta Sanity. El antiguo jumpscare es ahora la criatura que se
+## asoma por la ventana, con respiración pesada y golpes (decisión de Benja, 4 de noviembre): se arma cuando el
+## chat o el mixer tapan la ventana, y está ahí al cerrarlos. Después del susto guionado empieza su chat
+## guionado (decisión de Benja).
 ## Con Sanity bajo suenan alucinaciones: golpes, pasos, susurros y rasguños, y también la estática y el
 ## celular, que no vienen de nada (decisión de Benja). Nada de esto empieza durante una ronda de Audio Sync.
 ## Hasta el arte de Benja (docs/06 §3), los screamers usan las piezas del escritorio y la figura de la ventana.
-## Con "Reducir destellos" (diseño §19), la señal previa, el apagón de las luces y el rojo del jumpscare se
-## oscurecen una sola vez, más suave, en lugar de parpadear.
+## Con "Reducir destellos" (diseño §19), la señal previa y el apagón de las luces se oscurecen una sola vez,
+## más suave, en lugar de parpadear.
 
 ## Empezó un screamer, después de su señal previa.
 signal scare_started(kind: ScareKind.Kind)
@@ -36,23 +38,28 @@ const SOUND_NODES := {
 	ScareKind.Kind.LIGHTS: "LightsSound",
 	ScareKind.Kind.NOTEBOOK_SLAM: "SlamSound",
 	ScareKind.Kind.INK: "InkSound",
-	ScareKind.Kind.JUMPSCARE: "JumpscareSound",
+	ScareKind.Kind.JUMPSCARE: "CreatureBreathing",
 }
 ## Segundos de cada paso de un oscurecer suave, con "Reducir destellos".
 const GENTLE_STEP := 0.4
 ## Desde dónde suena una alucinación: fuera de la pantalla, a la izquierda o a la derecha.
 const HALLUCINATION_SIDES: Array[Vector2] = [Vector2(-200, 360), Vector2(1480, 360)]
+## Volumen de la respiración de la criatura mientras espera detrás de un panel, en decibeles.
+const HIDDEN_BREATHING_DB := -9.0
+## Segundos que tarda la criatura en desvanecerse al retirarse.
+const LEAVE_SECONDS := 0.4
+
+## Dónde está la criatura de la ventana: lejos, detrás de un panel que tapa la ventana, o a la vista.
+enum Creature { AWAY, HIDDEN, SEEN }
 
 @export var curtains: Node2D
-## La figura de la ventana: escondida, aparece en el screamer de la ventana (decisión de Benja).
+## La figura de la ventana: escondida. Aparece en el screamer de la ventana y es la criatura que se asoma
+## (decisión de Benja).
 @export var figure: CanvasItem
 ## El celular del escritorio.
 @export var phone: Node2D
 ## Oscurece el cuarto cuando las luces parpadean.
 @export var darkness: CanvasItem
-## La pantalla del jumpscare: la silueta de la figura a ×2 sobre un destello gris, provisional hasta el arte de
-## Benja.
-@export var jumpscare: Control
 @export var notebook: Control
 @export var ambient: AudioStreamPlayer
 ## Los sonidos que pueden ser una alucinación.
@@ -69,8 +76,17 @@ var _pending_scripted := false
 var _warning_left := 0.0
 var _ambient_db := 0.0
 var _phone_rest := Vector2.ZERO
+var _creature := Creature.AWAY
+## Segundos que lleva a la vista la criatura.
+var _creature_seen := 0.0
+## La ventana está a la vista (ni un panel ni el celular la tapan), según el último avance.
+var _window_visible := true
+## El desvanecimiento de la figura de la ventana, que comparten el screamer de la ventana y la criatura.
+var _figure_tween: Tween
 
 @onready var _hallucination: AudioStreamPlayer2D = $Hallucination
+@onready var _breathing: AudioStreamPlayer = $CreatureBreathing
+@onready var _knocks: AudioStreamPlayer = $CreatureKnocks
 
 
 func setup(requests: RequestManager, night: NightManager) -> void:
@@ -88,12 +104,19 @@ func is_warning() -> bool:
 	return _pending != Screamer.NONE
 
 
+## La criatura de la ventana está cerca: detrás de un panel o a la vista.
+func is_creature_near() -> bool:
+	return _creature != Creature.AWAY
+
+
 ## Avanza `delta` segundos con lo que se ve del escritorio (`view`). Con `busy` (una ronda de Audio Sync),
 ## no empieza nada: ni screamers ni alucinaciones.
 func advance(delta: float, view: Screamer.View, busy: bool) -> void:
 	if _requests == null or _night.ended:
 		return
-	var calm := not busy and not is_warning() and not _night.is_paused()
+	_window_visible = view.desk_visible
+	_advance_creature(delta)
+	var calm := not busy and not is_warning() and not _night.is_paused() and not is_creature_near()
 	if _clock.advance(delta, _requests.state.sanity, calm):
 		_hallucinate()
 	if is_warning():
@@ -144,7 +167,7 @@ func play(kind: ScareKind.Kind, scripted := false) -> void:
 		ScareKind.Kind.INK:
 			notebook.splash_ink(balance.ink_seconds)
 		ScareKind.Kind.JUMPSCARE:
-			_show_jumpscare(balance.jumpscare_seconds)
+			_creature_arrives()
 	var back := create_tween()
 	back.tween_interval(EFFECT_SECONDS)
 	back.tween_property(ambient, ^"volume_db", _ambient_db, RETURN_SECONDS)
@@ -173,7 +196,7 @@ func _sway_curtains() -> void:
 func _show_figure() -> void:
 	figure.modulate.a = 1.0
 	figure.show()
-	var tween := create_tween()
+	var tween := _new_figure_tween()
 	tween.tween_interval(EFFECT_SECONDS * 0.6)
 	tween.tween_property(figure, ^"modulate:a", 0.0, EFFECT_SECONDS * 0.4)
 	tween.tween_callback(figure.hide)
@@ -194,13 +217,59 @@ func _flicker_lights() -> void:
 	_tween_alphas(darkness, ^"modulate:a", alphas, EFFECT_SECONDS / alphas.size())
 
 
-## El jumpscare tapa la pantalla `seconds` segundos, con parpadeos rojos, y la noche se pausa mientras tanto.
-func _show_jumpscare(seconds: float) -> void:
-	_night.pause(seconds)
-	jumpscare.show()
-	var red := jumpscare.get_node("Red") as ColorRect
-	var alphas := jumpscare_alphas()
-	_tween_alphas(red, ^"color:a", alphas, seconds / alphas.size()).tween_callback(jumpscare.hide)
+## La criatura llega a la ventana, con su respiración y sus golpes en el vidrio. Si la ventana está a la vista,
+## aparece enseguida; si un panel la tapa, espera detrás, y al cerrarlo ya está ahí, sin animación de entrada.
+func _creature_arrives() -> void:
+	_knocks.play()
+	if _window_visible:
+		_show_creature()
+	else:
+		_creature = Creature.HIDDEN
+		_breathing.volume_db = HIDDEN_BREATHING_DB
+
+
+## La criatura se ve en la ventana, con la respiración más fuerte, durante creature_seconds.
+func _show_creature() -> void:
+	_creature = Creature.SEEN
+	_creature_seen = 0.0
+	if _figure_tween != null:
+		_figure_tween.kill()
+	figure.modulate.a = 1.0
+	figure.show()
+	_breathing.volume_db = 0.0
+	if not _breathing.playing:
+		_breathing.play()
+
+
+## La criatura detrás de un panel se ve apenas la ventana queda a la vista; a la vista, se retira a los
+## creature_seconds.
+func _advance_creature(delta: float) -> void:
+	match _creature:
+		Creature.HIDDEN:
+			if _window_visible:
+				_show_creature()
+		Creature.SEEN:
+			_creature_seen += delta
+			if _creature_seen >= _requests.catalog.balance.creature_seconds:
+				_creature_leaves()
+
+
+## La criatura se desvanece y se calla.
+func _creature_leaves() -> void:
+	_creature = Creature.AWAY
+	_breathing.stop()
+	_knocks.stop()
+	var tween := _new_figure_tween()
+	tween.tween_property(figure, ^"modulate:a", 0.0, LEAVE_SECONDS)
+	tween.tween_callback(figure.hide)
+
+
+## Un tween nuevo para la figura de la ventana, que corta el anterior.
+func _new_figure_tween() -> Tween:
+	if _figure_tween != null:
+		_figure_tween.kill()
+	_figure_tween = create_tween()
+	return _figure_tween
 
 
 ## Suena una alucinación al azar, a un lado de la pantalla, más fuerte mientras más baja Sanity.
@@ -228,13 +297,6 @@ func lights_alphas() -> Array[float]:
 	if reduce_flashes:
 		return [DARK, DARK, 0.0]
 	return [DARK, 0.2, DARK, 0.0, DARK, DARK, 0.3, 0.0]
-
-
-## El rojo del jumpscare: tres parpadeos, o uno suave.
-func jumpscare_alphas() -> Array[float]:
-	if reduce_flashes:
-		return [0.3, 0.3, 0.0]
-	return [0.5, 0.0, 0.35, 0.0, 0.25, 0.0]
 
 
 ## Lleva `property` de `target` por cada opacidad de `alphas`, `step` segundos cada una.

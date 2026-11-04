@@ -40,7 +40,8 @@ extends Resource
 ## Screamers de la noche, sin contar las alucinaciones ni el susto guionado. Llegan en cualquier momento,
 ## con las reglas de justicia (decisión de Benja).
 @export var scare_count := 0
-## Uno de los screamers es el jumpscare de pantalla completa: como máximo uno por noche, desde la noche 2.
+## Uno de los screamers es la criatura que se asoma por la ventana (el antiguo jumpscare): como máximo uno por
+## noche, desde la noche 2.
 @export var has_jumpscare := false
 
 @export_group("Guion")

@@ -14,6 +14,9 @@ class View:
 	var notebook_open := false
 	## El cuaderno muestra la página de una entidad, no el índice: la tinta tiene reglas que tapar.
 	var notebook_page := false
+	## El chat o el mixer están abiertos: tapan la ventana, y la criatura se arma detrás (decisión de Benja, 4
+	## de noviembre).
+	var panel_open := false
 
 
 ## Los screamers que se pueden elegir con lo que se ve. El jumpscare va aparte: lo decide el director.
@@ -33,8 +36,8 @@ static func sanity_cost(kind: ScareKind.Kind, balance: BalanceData) -> float:
 	return balance.jumpscare_sanity if kind == ScareKind.Kind.JUMPSCARE else balance.scare_sanity
 
 
-## Segundos que el screamer tapa algo mientras la noche sigue: la tinta tapa las reglas. El jumpscare tapa la
-## pantalla, pero pausa la noche, así que no cuenta.
+## Segundos que el screamer tapa algo mientras la noche sigue: la tinta tapa las reglas. La criatura de la
+## ventana no tapa nada.
 static func blocking_seconds(kind: ScareKind.Kind, balance: BalanceData) -> float:
 	return balance.ink_seconds if kind == ScareKind.Kind.INK else 0.0
 
@@ -53,8 +56,12 @@ static func is_fair(kind: ScareKind.Kind, time_lefts: Array, balance: BalanceDat
 ## justo.
 static func pick(view: View, jumpscare: bool, time_lefts: Array, balance: BalanceData,
 		rng: RandomNumberGenerator) -> int:
-	var kinds: Array[ScareKind.Kind] = [ScareKind.Kind.JUMPSCARE]
-	if not jumpscare:
+	var kinds: Array[ScareKind.Kind] = []
+	if jumpscare:
+		# La criatura solo se arma detrás de un panel (el chat o el mixer): se ve al cerrarlo.
+		if view.panel_open:
+			kinds.append(ScareKind.Kind.JUMPSCARE)
+	else:
 		kinds = candidates(view)
 	var fair := kinds.filter(func(kind: ScareKind.Kind) -> bool: return is_fair(kind, time_lefts, balance))
 	if fair.is_empty():

@@ -11,7 +11,7 @@ extends Node2D
 ## El botón «Sincronizar» del chat también abre el mixer, en el canal de ese amigo.
 ## Cuando se anuncia una interferencia, suena estática.
 ## Desde el Plan 7 suena el ambiente del cuarto, y los screamers (ScreamerManager) asustan con lo que se ve
-## del escritorio, con el cuaderno y con el jumpscare. En un chat guionado, la entrada del amigo avisa mientras
+## del escritorio, con el cuaderno y con la criatura de la ventana. En un chat guionado, la entrada del amigo avisa mientras
 ## espera la respuesta de Matías, y si el guion lo pide, el celular parpadea hasta que Matías lo abre.
 ## Desde el Plan 8, en la noche 0 (el tutorial) un aviso arriba de la pantalla dice qué hacer en cada paso
 ## (TutorialGuide), y la noche termina al cerrar el celular. El aviso tiene un botón para saltar el tutorial.
@@ -127,6 +127,7 @@ func _process(delta: float) -> void:
 func _scare_view() -> Screamer.View:
 	var view := Screamer.View.new()
 	view.desk_visible = not (_chat_panel.visible or _mixer.visible or _phone.visible)
+	view.panel_open = _chat_panel.visible or _mixer.visible
 	view.notebook_open = _notebook_panel.visible
 	view.notebook_page = _notebook_panel.shows_page()
 	return view

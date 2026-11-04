@@ -82,7 +82,7 @@ func test_valores_del_director_y_los_screamers() -> bool:
 	check_eq(balance.first_scare_after, 30.0, "sin screamers en los primeros 30 s")
 	check_eq(balance.scare_sanity, 8.0, "screamer: Sanity −8")
 	check_eq(balance.jumpscare_sanity, 15.0, "jumpscare: Sanity −15")
-	check_eq(balance.jumpscare_seconds, 1.5, "el jumpscare dura 1,5 s")
+	check_eq(balance.creature_seconds, 4.0, "la criatura se queda 4 s a la vista")
 	check_eq(balance.ink_seconds, 5.0, "la mancha de tinta dura 5 s")
 	check_eq(balance.hallucination_start, 50.0, "alucinaciones con Sanity bajo 50")
 	check_eq(balance.hallucination_slowest, 40.0, "una cada 40 s al empezar")

@@ -228,20 +228,6 @@ def splat():
     return samples
 
 
-def scream():
-    """El jumpscare: un grito disonante y fuerte."""
-    white, samples, phases, seconds = noise(18), [], [0.0, 0.0, 0.0], 1.5
-    for i in range(int(seconds * RATE)):
-        t = i / RATE
-        value = 0.0
-        for index, base in enumerate((520, 555, 740)):
-            phases[index] += 2 * math.pi * (base + 40 * math.sin(2 * math.pi * (6 + index) * t)) / RATE
-            value += 2 * (phases[index] / (2 * math.pi) % 1.0) - 1
-        envelope = min(t / 0.02, 1.0) * (1.0 if t < 1.0 else (seconds - t) / 0.5)
-        samples.append((0.22 * value + 0.25 * white()) * envelope)
-    return samples
-
-
 def knock():
     """Alucinación: tres golpes en la ventana."""
     samples, seconds = [], 1.0
@@ -314,7 +300,6 @@ if __name__ == "__main__":
     write("scare_lights", flicker())
     write("scare_slam", slam())
     write("scare_ink", splat())
-    write("scare_jumpscare", scream())
     write("scare_creature_breathing", breathing())
     write("scare_creature_knocks", knocks())
     write("hallucination_knock", knock())
