@@ -392,3 +392,30 @@ func test_el_boton_sincronizar() -> bool:
 	check_eq(requested, [1], "pide sincronizar a Gonzalo, el del chat")
 	_free(panel)
 	return true
+
+
+func test_el_chat_guionado_se_responde_con_un_boton() -> bool:
+	var panel := _make_panel()
+	var data := ChatScriptData.new()
+	data.friend = _manager.catalog.friends[1]
+	for speaker: ChatLineData.Speaker in [ChatLineData.Speaker.FRIEND, ChatLineData.Speaker.PLAYER]:
+		var line := ChatLineData.new()
+		line.speaker = speaker
+		line.text_key = "K_LINE_%d" % speaker
+		data.lines.append(line)
+	_manager.start_chat_script(data)
+	_manager.advance(2.5)
+	panel.open_for(1)
+	var reply := panel.get_node("Panel/ScriptReply") as Button
+	check(reply.visible, "el botón de Matías")
+	check(not (panel.get_node("Panel/AnswerHint") as Label).visible, "sin el aviso del cuaderno")
+	check_eq(reply.text, String(TranslationServer.translate("K_LINE_1")), "con su línea")
+	panel.open_for(0)
+	check(not reply.visible, "solo en el chat de Gonzalo")
+	panel.open_for(1)
+	reply.pressed.emit()
+	panel._process(0.0)
+	check(not reply.visible, "ya respondió")
+	check_eq(panel.message_views(1).size(), 2, "la línea de Gonzalo y la respuesta de Matías")
+	_free(panel)
+	return true

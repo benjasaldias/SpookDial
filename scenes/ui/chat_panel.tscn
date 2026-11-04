@@ -141,6 +141,15 @@ offset_right = 423.0
 offset_bottom = 671.0
 columns = 2
 
+[node name="ScriptReply" type="Button" parent="Panel"]
+visible = false
+layout_mode = 0
+offset_left = 25.0
+offset_top = 541.0
+offset_right = 423.0
+offset_bottom = 605.0
+autowrap_mode = 3
+
 [node name="Scanlines" type="ColorRect" parent="Panel"]
 material = SubResource("scanlines_material")
 layout_mode = 0

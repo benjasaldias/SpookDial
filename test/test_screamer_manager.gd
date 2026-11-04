@@ -1,12 +1,15 @@
 extends "res://test/test_case.gd"
 
 const DESK := preload("res://scenes/desk/desk.tscn")
+const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 
 
-## El escritorio en la noche 3, con un azar fijo. Nada avanza solo: las pruebas llaman a desk._process().
-func _make_desk() -> Node2D:
+## El escritorio en la noche `night_number`, con un azar fijo. Nada avanza solo: las pruebas llaman a
+## desk._process().
+func _make_desk(night_number := 3) -> Node2D:
 	var desk := DESK.instantiate()
+	desk.get_node("RequestManager").night_number = night_number
 	desk.get_node("RequestManager").random_seed = 11
 	(Engine.get_main_loop() as SceneTree).root.add_child(desk)
 	return desk
@@ -159,5 +162,39 @@ func test_al_terminar_la_noche_no_hay_mas_screamers() -> bool:
 	_scare_now(desk)
 	_process(desk, 2)
 	check(kinds.is_empty(), "la noche terminó")
+	desk.free()
+	return true
+
+
+## Avanza la noche y el escritorio `seconds` segundos, de a 1, como en el juego.
+func _play(desk: Node2D, seconds: int) -> void:
+	for _i in seconds:
+		desk.get_node("NightManager").advance(1.0)
+		desk._process(1.0)
+
+
+func test_el_susto_guionado_ensena_el_celular() -> bool:
+	var desk := _make_desk(1)
+	var gonzalo := desk.get_node("DeskPlane/Entries/EntryGonzalo")
+	var phone := desk.get_node("DeskPlane/Phone")
+	var kinds := []
+	_record(desk, kinds)
+	# A los 60 s, sin solicitudes: la señal previa y, 1 s después, el jumpscare.
+	_play(desk, 61)
+	check_eq(kinds, [ScareKind.Kind.JUMPSCARE], "el susto guionado de la noche 1")
+	# La pausa del jumpscare (1,5 s) y lo que tarda Gonzalo en escribir (2,5 s).
+	_play(desk, 4)
+	check_eq(gonzalo.state, ChatEntry.State.WARNING, "Gonzalo escribió y espera la respuesta de Matías")
+	gonzalo.pressed.emit()
+	var reply := desk.get_node("UI/ChatPanel/Panel/ScriptReply") as Button
+	check(reply.visible, "el botón con la respuesta de Matías")
+	check_eq(reply.text, String(TranslationServer.translate("SCRIPT_SCARE_REPLY")), "su línea")
+	reply.pressed.emit()
+	_play(desk, 3)
+	check_eq(desk.get_node("UI/ChatPanel").message_views(1).size(), 3, "las 3 líneas del chat guionado")
+	check(phone.blinking, "Gonzalo le dijo que use el celular, y el celular parpadea")
+	phone.clicked.emit()
+	check(not phone.blinking, "al abrirlo, deja de parpadear")
+	check((desk.get_node("UI/PhoneView") as Control).visible, "se abrió el celular")
 	desk.free()
 	return true

@@ -5,6 +5,7 @@ extends Control
 ## (diseño §8.5). Un video se descarga manteniendo presionada su barra (decisión de Benja), y con un amigo
 ## sin señal no se puede preguntar ni responder. El botón «Sincronizar» abre el mixer en el canal del amigo
 ## (decisión de Benja).
+## En un chat guionado, Matías responde con un botón que tiene su línea (decisión de Benja, Plan 7).
 ## Se ve como una terminal: cada mensaje lleva el nombre de quien escribe ("LEÓN:") en su color, y las
 ## pestañas y las preguntas van en mayúsculas (decisión de Benja, 31-oct).
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
@@ -79,6 +80,7 @@ var _holding_download := false
 @onready var _questions: GridContainer = $Panel/Questions
 @onready var _answer_hint: Label = $Panel/AnswerHint
 @onready var _answers: GridContainer = $Panel/Answers
+@onready var _script_reply: Button = $Panel/ScriptReply
 
 
 func _ready() -> void:
@@ -101,6 +103,7 @@ func _ready() -> void:
 	_entity_button.pressed.connect(_on_entity_pressed)
 	_sync_button.text = tr(SYNC_KEY).to_upper()
 	_sync_button.pressed.connect(_on_sync_pressed)
+	_script_reply.pressed.connect(_on_script_reply_pressed)
 	_panel.gui_input.connect(_on_panel_gui_input)
 	_download_hold.button_down.connect(_set_holding_download.bind(true))
 	_download_hold.button_up.connect(_set_holding_download.bind(false))
@@ -226,6 +229,14 @@ func _update_questions() -> void:
 ## "Abre el cuaderno para responder". Sin solicitud, los botones se ven pero no responden. Con el amigo sin
 ## señal, tampoco, y el aviso pide sincronizarlo en el mixer.
 func _update_answers() -> void:
+	# Mientras el chat guionado espera la respuesta de Matías, solo está su botón.
+	var reply := _manager.chat_script_reply(selected_friend)
+	_script_reply.visible = reply != null
+	_answer_hint.visible = reply == null
+	if reply != null:
+		_script_reply.text = tr(reply.text_key)
+		_answers.visible = false
+		return
 	var page := _memory.page_for(selected_friend)
 	var online := _manager.state.friends[selected_friend].is_online()
 	_answers.visible = page != null
@@ -322,6 +333,10 @@ func _on_entity_pressed() -> void:
 
 func _on_sync_pressed() -> void:
 	sync_requested.emit(selected_friend)
+
+
+func _on_script_reply_pressed() -> void:
+	_manager.reply_chat_script()
 
 
 func _scroll_to_bottom(scroll: ScrollContainer) -> void:

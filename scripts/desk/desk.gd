@@ -11,7 +11,8 @@ extends Node2D
 ## El botón «Sincronizar» del chat también abre el mixer, en el canal de ese amigo.
 ## Cuando se anuncia una interferencia, suena estática.
 ## Desde el Plan 7 suena el ambiente del cuarto, y los screamers (ScreamerManager) asustan con lo que se ve
-## del escritorio, con el cuaderno y con el jumpscare.
+## del escritorio, con el cuaderno y con el jumpscare. En un chat guionado, la entrada del amigo avisa mientras
+## espera la respuesta de Matías, y si el guion lo pide, el celular parpadea hasta que Matías lo abre.
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
@@ -45,6 +46,7 @@ var notebook_memory: NotebookMemory
 @onready var _phone: Control = $UI/PhoneView
 @onready var _interference_sound: AudioStreamPlayer = $InterferenceSound
 @onready var _screamers: ScreamerManager = $Screamers
+@onready var _phone_sprite: AnimatedSprite2D = $DeskPlane/Phone
 
 ## Qué amigos tenían anunciada una interferencia en el frame anterior: la estática suena al empezar el aviso.
 var _warned: Array[bool] = []
@@ -69,6 +71,7 @@ func _ready() -> void:
 	_chat_panel.entity_page_requested.connect(_on_entity_page_requested)
 	_chat_panel.sync_requested.connect(open_mixer_for)
 	_requests.request_started.connect(_on_request_started)
+	_requests.chat_script_finished.connect(_on_chat_script_finished)
 	_night.night_ended.connect(_on_night_ended)
 	_end_screen.retry_pressed.connect(_on_retry_pressed)
 	$DeskPlane/Notebook.clicked.connect(_open_notebook)
@@ -118,10 +121,11 @@ func open_mixer_for(friend_index: int) -> void:
 	_mixer.open_for(friend_index)
 
 
-## Las redes sociales: el celular se usa sin paneles y sin el mixer.
+## Las redes sociales: el celular se usa sin paneles y sin el mixer. Si parpadeaba, ya cumplió.
 func open_phone() -> void:
 	close_panels()
 	_mixer.close()
+	_phone_sprite.blinking = false
 	_phone.open()
 
 
@@ -161,6 +165,13 @@ func _on_request_started(friend_index: int, _request: FriendRequest) -> void:
 	notebook_memory.close_page(friend_index)
 
 
+## Terminó un chat guionado: si su guion lo pide, el celular parpadea hasta que Matías lo abre (así se enseña
+## que el celular calma, decisión de Benja).
+func _on_chat_script_finished(chat: RefCounted) -> void:
+	if chat.data.highlight_phone:
+		_phone_sprite.blinking = true
+
+
 ## Muestra cómo terminó la noche. Los paneles quedan como estaban, debajo: así se ve lo que pasó. El mixer
 ## y el celular se cierran, para que la ronda de Audio Sync no siga sonando.
 func _on_night_ended(ending: NightState.Ending, fatal_request: FriendRequest) -> void:
@@ -176,10 +187,10 @@ func _on_retry_pressed() -> void:
 	get_tree().reload_current_scene()
 
 
-## Seleccionada si su chat está abierto; si no, gris sin señal, en alerta mientras espera respuesta o la
-## descarga de su video, o más oscura si el amigo está aturdido. Muestra el tiempo que le queda para responder,
-## para descargar su video o para recuperarse, o que está sin señal; y su vida, su señal y si viene una
-## interferencia.
+## Seleccionada si su chat está abierto; si no, gris sin señal, en alerta mientras espera respuesta (también en
+## un chat guionado) o la descarga de su video, o más oscura si el amigo está aturdido. Muestra el tiempo que le
+## queda para responder, para descargar su video o para recuperarse, o que está sin señal; y su vida, su señal y
+## si viene una interferencia.
 func _refresh_entries() -> void:
 	var state := _requests.state
 	for index in _entries.size():
@@ -192,7 +203,7 @@ func _refresh_entries() -> void:
 			entry_state = ChatEntry.State.SELECTED
 		elif not friend.is_online():
 			entry_state = ChatEntry.State.DISCONNECTED
-		elif request != null or offer != null:
+		elif request != null or offer != null or _requests.chat_script_reply(index) != null:
 			entry_state = ChatEntry.State.WARNING
 		elif friend.is_stunned():
 			entry_state = ChatEntry.State.STUNNED
