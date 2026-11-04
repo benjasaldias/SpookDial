@@ -202,3 +202,71 @@ func test_reducir_destellos() -> bool:
 	check_eq(mixer.warning_led(), 1.0, "fijo")
 	_free(mixer)
 	return true
+
+
+## El mixer de la noche 2 con 8 aplausos: 2 rondas de 4 (decisión de Benja, 4 de noviembre).
+func _make_two_round_mixer() -> Control:
+	var mixer := _make_mixer()
+	_manager.catalog.nights[1].audio_sync_beats = 8
+	return mixer
+
+
+func test_8_aplausos_son_2_rondas_de_4() -> bool:
+	var mixer := _make_two_round_mixer()
+	check_eq(mixer.rounds_total(), 2, "2 rondas")
+	_manager.state.friends[1].signal_level = 20.0
+	mixer.open()
+	mixer.start_round(1)
+	check_eq(mixer.sync_round.beats, 4, "la primera, de 4 aplausos")
+	check_eq(mixer.round_index, 0, "ronda 1")
+	check(mixer.status_text().begins_with(tr("MIXER_ROUND").format({"round": 1, "total": 2})), "el mixer dice la ronda")
+	_tap_pattern(mixer)
+	check_eq(mixer.round_index, 1, "acertada la 1, pasa sola a la 2")
+	check_eq(mixer.sync_round.beats, 4, "la segunda, también de 4")
+	check_eq(mixer.sync_round.phase(), AudioSyncRound.Phase.COUNT_IN, "con su propia cuenta")
+	check_eq(_manager.state.friends[1].signal_level, 20.0, "la señal todavía no vuelve")
+	_tap_pattern(mixer)
+	check(mixer.sync_round.succeeded, "salió bien la 2")
+	check_eq(_manager.state.friends[1].signal_level, 100.0, "al terminar las 2, la señal vuelve a 100")
+	_free(mixer)
+	return true
+
+
+func test_si_falla_la_segunda_vuelve_a_la_primera() -> bool:
+	var mixer := _make_two_round_mixer()
+	_manager.state.friends[0].signal_level = 40.0
+	mixer.open()
+	mixer.start_round(0)
+	_tap_pattern(mixer)
+	check_eq(mixer.round_index, 1, "va en la 2")
+	_advance_to(mixer, mixer.sync_round.response_start() + 1.0)
+	check(mixer.sync_round.failed, "no golpeó: sale mal")
+	check_eq(mixer.status_text(), tr("MIXER_FAIL_RESTART"), "dice que vuelve a la ronda 1")
+	check_eq(_manager.state.friends[0].signal_level, 40.0, "la señal sigue igual")
+	mixer._unhandled_input(_space())
+	check_eq(mixer.round_index, 0, "vuelve a la ronda 1")
+	check_eq(mixer.sync_round.phase(), AudioSyncRound.Phase.COUNT_IN, "con su cuenta")
+	_free(mixer)
+	return true
+
+
+func test_si_falla_la_primera_se_reintenta_la_primera() -> bool:
+	var mixer := _make_two_round_mixer()
+	mixer.open()
+	mixer.start_round(0)
+	_advance_to(mixer, mixer.sync_round.response_start() + 1.0)
+	check_eq(mixer.status_text(), tr("MIXER_FAIL"), "el mensaje de siempre")
+	mixer._unhandled_input(_space())
+	check_eq(mixer.round_index, 0, "sigue en la ronda 1")
+	_free(mixer)
+	return true
+
+
+func test_con_4_aplausos_hay_una_sola_ronda() -> bool:
+	var mixer := _make_mixer()
+	check_eq(mixer.rounds_total(), 1, "una ronda")
+	mixer.open()
+	mixer.start_round(0)
+	check(not mixer.status_text().contains(tr("MIXER_ROUND").format({"round": 1, "total": 1})), "no dice 'ronda 1 de 1'")
+	_free(mixer)
+	return true

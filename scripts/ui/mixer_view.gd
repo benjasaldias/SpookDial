@@ -23,6 +23,11 @@ const SUCCESS_KEY := "MIXER_SUCCESS"
 const FAIL_KEY := "MIXER_FAIL"
 const HINT_KEY := "MIXER_HINT"
 const NO_SYNC_KEY := "MIXER_NO_SYNC"
+## MIXER_ROUND lleva {round} y {total}.
+const ROUND_KEY := "MIXER_ROUND"
+const FAIL_RESTART_KEY := "MIXER_FAIL_RESTART"
+## Aplausos de cada ronda. Una noche de 8 aplausos son 2 rondas de 4 seguidas (decisión de Benja, 4 de noviembre).
+const ROUND_BEATS := 4
 
 const SIZE := Vector2(440, 430)
 const FONT_SIZE := 11
@@ -60,6 +65,8 @@ const METER_FALL := 3.0
 var selected_friend := 0
 ## La ronda en curso o la última, o null si todavía no empieza ninguna.
 var sync_round: AudioSyncRound
+## Cuál de las rondas va, desde 0.
+var round_index := 0
 ## La aguja de cada VU-metro, de 0 a 1: la de Matías, a la izquierda, y la del amigo, a la derecha.
 var player_level := 0.0
 var friend_level := 0.0
@@ -109,6 +116,11 @@ func beats() -> int:
 	return _manager.night().audio_sync_beats
 
 
+## Cuántas rondas seguidas tiene el Audio Sync de esta noche: 0 si no hay.
+func rounds_total() -> int:
+	return ceili(beats() / float(ROUND_BEATS))
+
+
 ## Se abre en el canal del amigo con menos señal, sin ronda: Matías la empieza cuando quiere.
 func open() -> void:
 	sync_round = null
@@ -145,8 +157,15 @@ func start_round(friend_index: int) -> void:
 	if beats() <= 0:
 		return
 	selected_friend = friend_index
+	round_index = 0
+	_begin_round()
+
+
+## Arma la ronda `round_index`, con su cuenta y su patrón al azar.
+func _begin_round() -> void:
 	var balance := _manager.catalog.balance
-	sync_round = AudioSyncRound.new(beats(), balance.audio_sync_bpm, balance.audio_sync_tolerance, _manager.rng)
+	sync_round = AudioSyncRound.new(mini(beats(), ROUND_BEATS), balance.audio_sync_bpm, balance.audio_sync_tolerance,
+			_manager.rng)
 	_round_finished = false
 	_lights.clear()
 	_playhead = -1
@@ -185,14 +204,19 @@ func status_text() -> String:
 		return tr(NO_SYNC_KEY)
 	if sync_round == null:
 		return tr(PICK_KEY)
+	var round_label := ""
+	if rounds_total() > 1:
+		round_label = tr(ROUND_KEY).format({"round": round_index + 1, "total": rounds_total()}) + " · "
 	match sync_round.phase():
 		AudioSyncRound.Phase.COUNT_IN:
-			return tr(COUNT_IN_KEY)
+			return round_label + tr(COUNT_IN_KEY)
 		AudioSyncRound.Phase.CALL:
-			return tr(LISTEN_KEY).format({"friend": friend})
+			return round_label + tr(LISTEN_KEY).format({"friend": friend})
 		AudioSyncRound.Phase.RESPONSE:
-			return tr(YOUR_TURN_KEY)
-	return tr(SUCCESS_KEY if sync_round.succeeded else FAIL_KEY).format({"friend": friend})
+			return round_label + tr(YOUR_TURN_KEY)
+	if sync_round.succeeded:
+		return tr(SUCCESS_KEY).format({"friend": friend})
+	return tr(FAIL_RESTART_KEY if round_index > 0 else FAIL_KEY)
 
 
 func _process(delta: float) -> void:
@@ -267,7 +291,8 @@ func _play_step(step: int) -> void:
 
 
 ## Al terminar la ronda, las luces muestran el ritmo: en verde lo que acertó Matías y en rojo lo que se le
-## pasó. Si salió bien, la señal del amigo vuelve a 100 y el chat avisa si estaba desconectado.
+## pasó. Si salió bien y era la última, la señal del amigo vuelve a 100 y el chat avisa si estaba desconectado;
+## si no era la última, empieza la siguiente. Si salió mal, la próxima vuelve a empezar en la primera.
 func _finish_round() -> void:
 	if _round_finished:
 		return
@@ -277,7 +302,12 @@ func _finish_round() -> void:
 		_lights[call_step] = HIT_LIGHT if sync_round.hits().has(call_step) else MISS_LIGHT
 	if sync_round.succeeded:
 		_success.play()
-		_manager.restore_signal(selected_friend)
+		if round_index + 1 < rounds_total():
+			# Acertó una ronda de varias: sigue la siguiente. La señal vuelve al terminar la última.
+			round_index += 1
+			_begin_round()
+		else:
+			_manager.restore_signal(selected_friend)
 	else:
 		_fail.play()
 
