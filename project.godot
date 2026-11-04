@@ -11,13 +11,17 @@ config_version=5
 [application]
 
 config/name="Spook Dial"
-run/main_scene="res://scenes/desk/desk.tscn"
+run/main_scene="res://scenes/menu/main_menu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [aseprite]
 
 import/import_plugin/default_automatic_importer="SpriteFrames"
+
+[autoload]
+
+GameState="*res://scripts/autoload/game_state.gd"
 
 [display]
 

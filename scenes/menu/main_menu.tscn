@@ -1,0 +1,86 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="menu_script"]
+[ext_resource type="Theme" path="res://scenes/ui/chat_theme.tres" id="chat_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/options_panel.tscn" id="options_panel"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("chat_theme")
+script = ExtResource("menu_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.012, 0.024, 0.043, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Box" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Center/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.72, 0.3, 1)
+theme_override_font_sizes/font_size = 66
+text = "SPOOK DIAL"
+horizontal_alignment = 1
+
+[node name="Space" type="Control" parent="Center/Box"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+
+[node name="Continue" type="Button" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="NewGame" type="Button" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Options" type="Button" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Quit" type="Button" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Confirm" type="VBoxContainer" parent="Center/Box"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 11
+
+[node name="Question" type="Label" parent="Center/Box/Confirm"]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Box/Confirm"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 22
+
+[node name="Yes" type="Button" parent="Center/Box/Confirm/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="No" type="Button" parent="Center/Box/Confirm/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="OptionsPanel" parent="." instance=ExtResource("options_panel")]
+layout_mode = 1

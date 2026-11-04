@@ -15,6 +15,8 @@ func test_texturas_nearest_y_snap_a_pixel() -> bool:
 	return true
 
 
-func test_escena_principal_es_el_escritorio() -> bool:
-	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://scenes/desk/desk.tscn", "escena principal")
+## Desde el Plan 8, el juego empieza en el menú principal, y GameState lo lleva de noche en noche.
+func test_escena_principal_es_el_menu() -> bool:
+	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://scenes/menu/main_menu.tscn", "escena principal")
+	check_eq(ProjectSettings.get_setting("autoload/GameState"), "*res://scripts/autoload/game_state.gd", "autoload")
 	return true
