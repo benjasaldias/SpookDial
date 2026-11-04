@@ -1,6 +1,7 @@
 extends "res://test/test_case.gd"
 
 const DESK := preload("res://scenes/desk/desk.tscn")
+const GameSettings := preload("res://scripts/core/game_settings.gd")
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const InterferenceSchedule := preload("res://scripts/core/interference_schedule.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
@@ -447,5 +448,28 @@ func test_sincronizar_desde_el_chat() -> bool:
 	check(mixer.visible and not (desk.get_node("UI/ChatPanel") as Control).visible, "el chat se cierra y se abre el mixer")
 	check_eq(mixer.selected_friend, 2, "en el canal de Agustín")
 	check(mixer.sync_round != null, "con la ronda empezada")
+	desk.free()
+	return true
+
+
+## Las opciones del jugador (diseño §19) llegan a cada parte del escritorio.
+func test_aplica_las_opciones() -> bool:
+	var desk := _make_desk()
+	var settings := GameSettings.new()
+	settings.reduce_flashes = true
+	settings.still_camera = true
+	settings.slow_timers = true
+	desk.apply_settings(settings)
+	var camera := desk.get_node("LookCamera") as Camera2D
+	check_eq(camera.zoom, Vector2.ONE, "cámara sin zoom")
+	check_eq(camera.position, Vector2(640, 360), "y centrada")
+	check(not camera.get("look_enabled"), "fija")
+	check(desk.get_node("DeskPlane/Entries/EntryLeon").reduce_flashes, "entradas sin destellos")
+	check(desk.get_node("UI/MixerView").reduce_flashes, "mixer sin destellos")
+	check(desk.get_node("Screamers").reduce_flashes, "screamers sin destellos")
+	check_eq(desk.get_node("RequestManager").timer_scale, 1.5, "temporizadores ×1,5")
+	desk.apply_settings(GameSettings.new())
+	check(camera.get("look_enabled"), "la cámara vuelve a mirar hacia el mouse")
+	check_eq(camera.zoom, Vector2(1.05, 1.05), "con su zoom")
 	desk.free()
 	return true

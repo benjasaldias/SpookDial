@@ -191,3 +191,14 @@ func test_se_abre_en_el_canal_de_un_amigo() -> bool:
 	check(mixer.sync_round != null, "con la ronda empezada")
 	_free(mixer)
 	return true
+
+
+## "Reducir destellos" (diseño §19): el LED de una interferencia queda encendido, sin parpadear.
+func test_reducir_destellos() -> bool:
+	var mixer := _make_mixer()
+	mixer._blink = 0.18
+	check_eq(mixer.warning_led(), 0.0, "parpadea: en este momento, apagado")
+	mixer.reduce_flashes = true
+	check_eq(mixer.warning_led(), 1.0, "fijo")
+	_free(mixer)
+	return true

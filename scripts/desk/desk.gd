@@ -22,6 +22,7 @@ signal tutorial_skipped
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
+const GameSettings := preload("res://scripts/core/game_settings.gd")
 const NightManager := preload("res://scripts/desk/night_manager.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
@@ -112,6 +113,16 @@ func _scare_view() -> Screamer.View:
 	view.notebook_open = _notebook_panel.visible
 	view.notebook_page = _notebook_panel.shows_page()
 	return view
+
+
+## Aplica las opciones del jugador (diseño §19): menos destellos, la cámara fija y más tiempo para responder.
+func apply_settings(settings: GameSettings) -> void:
+	for entry: Node in _entries:
+		entry.reduce_flashes = settings.reduce_flashes
+	_mixer.reduce_flashes = settings.reduce_flashes
+	_screamers.reduce_flashes = settings.reduce_flashes
+	$LookCamera.set_look(not settings.still_camera)
+	_requests.timer_scale = settings.timer_scale()
 
 
 ## Cierra el chat y el cuaderno. El celular y el mixer se usan sin ningún panel abierto (decisión de Benja).

@@ -200,3 +200,33 @@ func test_el_susto_guionado_ensena_el_celular() -> bool:
 	check((desk.get_node("UI/PhoneView") as Control).visible, "se abrió el celular")
 	desk.free()
 	return true
+
+
+## Cuántas veces vuelve a oscurecerse una secuencia de opacidades: cada vuelta es un destello.
+func _flashes(alphas: Array[float]) -> int:
+	var count := 0
+	var previous := 0.0
+	var falling := false
+	for alpha: float in alphas:
+		if alpha < previous:
+			falling = true
+		elif alpha > previous and falling:
+			count += 1
+		previous = alpha
+	return count
+
+
+## "Reducir destellos" (diseño §19): la señal previa, el apagón de las luces y el rojo del jumpscare se oscurecen
+## una sola vez, más suave, en lugar de parpadear.
+func test_reducir_destellos() -> bool:
+	var desk := _make_desk()
+	var screamers := _screamers(desk)
+	check(_flashes(screamers.warning_alphas()) > 0, "la señal previa parpadea")
+	check(_flashes(screamers.lights_alphas()) > 0, "las luces parpadean")
+	check(_flashes(screamers.jumpscare_alphas()) > 0, "el rojo del jumpscare parpadea")
+	screamers.reduce_flashes = true
+	for alphas: Array[float] in [screamers.warning_alphas(), screamers.lights_alphas(), screamers.jumpscare_alphas()]:
+		check_eq(_flashes(alphas), 0, "sin destellos: %s" % [alphas])
+		check(alphas.max() <= 0.85, "sin pasar de la oscuridad de las luces: %s" % [alphas])
+	desk.free()
+	return true

@@ -3,6 +3,7 @@ extends Camera2D
 ## como si el jugador mirara hacia ese lado (mirar a la derecha corre la escena a la izquierda).
 ## El desplazamiento máximo es el margen que deja el zoom, así que todo sigue siendo alcanzable.
 ## Con look_enabled = false, o con el argumento `-- --no-parallax` (para capturas), queda sin zoom y fija.
+## La opción "Cámara fija" (desactivar el parallax, diseño §19) la deja así con set_look().
 
 const ParallaxMath := preload("res://scripts/desk/parallax_math.gd")
 
@@ -19,9 +20,15 @@ func _ready() -> void:
 	if OS.get_cmdline_user_args().has("--no-parallax"):
 		look_enabled = false
 	_center = get_viewport_rect().size * 0.5
+	set_look(look_enabled)
+	make_current()
+
+
+## Con `enabled`, mira hacia el mouse con su zoom; si no, queda sin zoom, fija y centrada.
+func set_look(enabled: bool) -> void:
+	look_enabled = enabled
 	position = _center
 	zoom = Vector2.ONE * (look_zoom if look_enabled else 1.0)
-	make_current()
 
 
 func _process(delta: float) -> void:

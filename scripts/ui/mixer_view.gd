@@ -78,6 +78,8 @@ var _led := 0.0
 ## Para el parpadeo de los LED de los canales.
 var _blink := 0.0
 var _round_finished := false
+## La opción "Reducir destellos" (diseño §19): el LED de una interferencia no parpadea.
+var reduce_flashes := false
 var _rest_position := Vector2.ZERO
 
 @onready var _kick: AudioStreamPlayer = $Kick
@@ -363,7 +365,7 @@ func _draw_channel(index: int) -> void:
 		lit = 1.0
 	elif _manager.state.interference_warning(index):
 		led_color = LED_RED
-		lit = 1.0 if fmod(_blink, 0.24) < 0.12 else 0.0
+		lit = warning_led()
 	_draw_led(Vector2(center_x - 4, rect.position.y + 28), led_color, lit)
 	var track := Rect2(center_x - 2, rect.position.y + FADER_TOP, 4, FADER_HEIGHT)
 	draw_rect(track, SHADOW_COLOR)
@@ -413,3 +415,9 @@ func _draw_text(text: String, baseline_left: Vector2, color: Color) -> void:
 func _draw_text_centered(text: String, center_x: float, baseline: float, color: Color) -> void:
 	var width := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
 	_draw_text(text, Vector2(roundf(center_x - width / 2.0), baseline), color)
+
+
+## Cuánto brilla el LED de un canal al que le viene una interferencia: parpadea, o queda fijo si se reducen los
+## destellos.
+func warning_led() -> float:
+	return 1.0 if reduce_flashes or fmod(_blink, 0.24) < 0.12 else 0.0

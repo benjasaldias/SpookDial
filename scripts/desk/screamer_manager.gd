@@ -6,6 +6,8 @@ extends Node
 ## Con Sanity bajo suenan alucinaciones: golpes, pasos, susurros y rasguños, y también la estática y el
 ## celular, que no vienen de nada (decisión de Benja). Nada de esto empieza durante una ronda de Audio Sync.
 ## Hasta el arte de Benja (docs/06 §3), los screamers usan las piezas del escritorio y la figura de la ventana.
+## Con "Reducir destellos" (diseño §19), la señal previa, el apagón de las luces y el rojo del jumpscare se
+## oscurecen una sola vez, más suave, en lugar de parpadear.
 
 ## Empezó un screamer, después de su señal previa.
 signal scare_started(kind: ScareKind.Kind)
@@ -36,6 +38,8 @@ const SOUND_NODES := {
 	ScareKind.Kind.INK: "InkSound",
 	ScareKind.Kind.JUMPSCARE: "JumpscareSound",
 }
+## Segundos de cada paso de un oscurecer suave, con "Reducir destellos".
+const GENTLE_STEP := 0.4
 ## Desde dónde suena una alucinación: fuera de la pantalla, a la izquierda o a la derecha.
 const HALLUCINATION_SIDES: Array[Vector2] = [Vector2(-200, 360), Vector2(1480, 360)]
 
@@ -53,6 +57,8 @@ const HALLUCINATION_SIDES: Array[Vector2] = [Vector2(-200, 360), Vector2(1480, 3
 @export var ambient: AudioStreamPlayer
 ## Los sonidos que pueden ser una alucinación.
 @export var hallucination_sounds: Array[AudioStream] = []
+## La opción "Reducir destellos" (diseño §19).
+var reduce_flashes := false
 
 var _requests: RequestManager
 var _night: NightManager
@@ -152,9 +158,7 @@ func _announce(kind: ScareKind.Kind, scripted: bool) -> void:
 	_pending = kind
 	_pending_scripted = scripted
 	_warning_left = _requests.catalog.balance.scare_warning
-	var flicker := create_tween()
-	for alpha: float in [0.6, 0.0, 0.75, 0.0]:
-		flicker.tween_property(darkness, ^"modulate:a", alpha, 0.08)
+	_tween_alphas(darkness, ^"modulate:a", warning_alphas(), GENTLE_STEP if reduce_flashes else 0.08)
 	create_tween().tween_property(ambient, ^"volume_db", DUCKED_DB, DUCK_SECONDS)
 
 
@@ -186,9 +190,8 @@ func _shake_phone() -> void:
 
 ## Las luces se apagan y se prenden varias veces.
 func _flicker_lights() -> void:
-	var tween := create_tween()
-	for alpha: float in [DARK, 0.2, DARK, 0.0, DARK, DARK, 0.3, 0.0]:
-		tween.tween_property(darkness, ^"modulate:a", alpha, EFFECT_SECONDS / 8.0)
+	var alphas := lights_alphas()
+	_tween_alphas(darkness, ^"modulate:a", alphas, EFFECT_SECONDS / alphas.size())
 
 
 ## El jumpscare tapa la pantalla `seconds` segundos, con parpadeos rojos, y la noche se pausa mientras tanto.
@@ -196,10 +199,8 @@ func _show_jumpscare(seconds: float) -> void:
 	_night.pause(seconds)
 	jumpscare.show()
 	var red := jumpscare.get_node("Red") as ColorRect
-	var tween := create_tween()
-	for alpha: float in [0.5, 0.0, 0.35, 0.0, 0.25, 0.0]:
-		tween.tween_property(red, ^"color:a", alpha, seconds / 6.0)
-	tween.tween_callback(jumpscare.hide)
+	var alphas := jumpscare_alphas()
+	_tween_alphas(red, ^"color:a", alphas, seconds / alphas.size()).tween_callback(jumpscare.hide)
 
 
 ## Suena una alucinación al azar, a un lado de la pantalla, más fuerte mientras más baja Sanity.
@@ -213,3 +214,32 @@ func _hallucinate() -> void:
 	_hallucination.volume_db = _clock.volume_db(_requests.state.sanity)
 	_hallucination.play()
 	hallucinated.emit(sound)
+
+
+## La oscuridad durante la señal previa: dos parpadeos, o un oscurecer suave.
+func warning_alphas() -> Array[float]:
+	if reduce_flashes:
+		return [0.35, 0.0]
+	return [0.6, 0.0, 0.75, 0.0]
+
+
+## La oscuridad del apagón de las luces: se apagan y se prenden varias veces, o se apagan una sola vez.
+func lights_alphas() -> Array[float]:
+	if reduce_flashes:
+		return [DARK, DARK, 0.0]
+	return [DARK, 0.2, DARK, 0.0, DARK, DARK, 0.3, 0.0]
+
+
+## El rojo del jumpscare: tres parpadeos, o uno suave.
+func jumpscare_alphas() -> Array[float]:
+	if reduce_flashes:
+		return [0.3, 0.3, 0.0]
+	return [0.5, 0.0, 0.35, 0.0, 0.25, 0.0]
+
+
+## Lleva `property` de `target` por cada opacidad de `alphas`, `step` segundos cada una.
+func _tween_alphas(target: Object, property: NodePath, alphas: Array[float], step: float) -> Tween:
+	var tween := create_tween()
+	for alpha: float in alphas:
+		tween.tween_property(target, property, alpha, step)
+	return tween

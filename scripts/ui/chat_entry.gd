@@ -1,7 +1,8 @@
 extends Node2D
 ## Entrada de un amigo en la pantalla del PC (243×26).
 ## El arte pone el fondo; Godot pone el nombre, la señal, la vida, el estado y el temporizador.
-## Titila mientras se anuncia una interferencia (diseño §10.1).
+## Titila mientras se anuncia una interferencia (diseño §10.1). Con "Reducir destellos" (diseño §19), la alerta
+## queda fija en lugar de parpadear, y el aviso de una interferencia atenúa la entrada en lugar de hacerla titilar.
 
 signal pressed
 
@@ -28,6 +29,8 @@ const VIDEO_KEY := "ENTRY_VIDEO"
 const OFFLINE_KEY := "ENTRY_OFFLINE"
 ## Cada cuánto titila la entrada mientras se anuncia una interferencia.
 const FLICKER_SECONDS := 0.12
+## Qué tan atenuada queda la entrada al titilar, o mientras dura el aviso si se reducen los destellos.
+const DIM_ALPHA := 0.35
 
 @export var display_name := "":
 	set(value):
@@ -43,6 +46,12 @@ var max_health := -1
 var signal_bars := -1
 ## Se anuncia una interferencia: la entrada titila.
 var interference_warning := false
+## La opción "Reducir destellos" (diseño §19).
+var reduce_flashes := false:
+	set(value):
+		reduce_flashes = value
+		if is_node_ready():
+			set_state(state)
 
 var _flicker_time := 0.0
 
@@ -63,12 +72,17 @@ func _process(delta: float) -> void:
 	if not interference_warning:
 		return
 	_flicker_time += delta
-	modulate.a = 0.35 if fmod(_flicker_time, FLICKER_SECONDS * 2.0) < FLICKER_SECONDS else 1.0
+	var dim := reduce_flashes or fmod(_flicker_time, FLICKER_SECONDS * 2.0) < FLICKER_SECONDS
+	modulate.a = DIM_ALPHA if dim else 1.0
 
 
 func set_state(new_state: State) -> void:
 	state = new_state
 	_background.play(&"warning" if new_state == State.WARNING else &"idle")
+	if reduce_flashes and new_state == State.WARNING:
+		# Fija en el cuadro de la alerta, sin parpadear.
+		_background.pause()
+		_background.frame = 0
 	_background.modulate = STATE_MODULATE[new_state]
 
 

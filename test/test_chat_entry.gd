@@ -120,3 +120,23 @@ func test_video_y_sin_senal() -> bool:
 	check(timer.text != "ENTRY_OFFLINE", "el texto está en ui.csv")
 	entry.free()
 	return true
+
+
+## "Reducir destellos" (diseño §19): la alerta queda fija en lugar de parpadear, y el aviso de una interferencia
+## atenúa la entrada en lugar de hacerla titilar.
+func test_reducir_destellos() -> bool:
+	var entry := _make_entry()
+	var background := entry.get_node("Background") as AnimatedSprite2D
+	entry.reduce_flashes = true
+	entry.set_state(ChatEntry.State.WARNING)
+	check_eq(background.animation, &"warning", "alerta")
+	check(not background.is_playing(), "sin parpadear")
+	check_eq(background.frame, 0, "en el cuadro de la alerta")
+	entry.set_interference_warning(true)
+	for _i in 4:
+		entry._process(0.06)
+		check(is_equal_approx(entry.modulate.a, ChatEntry.DIM_ALPHA), "atenuada, sin titilar: %s" % entry.modulate.a)
+	entry.reduce_flashes = false
+	check(background.is_playing(), "al apagar la opción, vuelve a parpadear")
+	entry.free()
+	return true
