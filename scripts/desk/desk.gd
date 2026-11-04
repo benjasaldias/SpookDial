@@ -13,6 +13,11 @@ extends Node2D
 ## Desde el Plan 7 suena el ambiente del cuarto, y los screamers (ScreamerManager) asustan con lo que se ve
 ## del escritorio, con el cuaderno y con el jumpscare. En un chat guionado, la entrada del amigo avisa mientras
 ## espera la respuesta de Matías, y si el guion lo pide, el celular parpadea hasta que Matías lo abre.
+## Desde el Plan 8, en la noche 0 (el tutorial) un aviso arriba de la pantalla dice qué hacer en cada paso
+## (TutorialGuide), y la noche termina al cerrar el celular. El aviso tiene un botón para saltar el tutorial.
+
+## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
+signal tutorial_skipped
 
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
@@ -23,6 +28,7 @@ const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const Screamer := preload("res://scripts/core/screamer.gd")
 const ScreamerManager := preload("res://scripts/desk/screamer_manager.gd")
+const TutorialGuide := preload("res://scripts/core/tutorial_guide.gd")
 
 ## Videos recibidos, en el PC (ui.csv). Lleva {received} y {quota}.
 const VIDEOS_KEY := "PC_VIDEOS"
@@ -47,6 +53,10 @@ var notebook_memory: NotebookMemory
 @onready var _interference_sound: AudioStreamPlayer = $InterferenceSound
 @onready var _screamers: ScreamerManager = $Screamers
 @onready var _phone_sprite: AnimatedSprite2D = $DeskPlane/Phone
+@onready var _tutorial_hint: Control = $Overlay/TutorialHint
+
+## El guía del tutorial en la noche 0, o null en las demás.
+var _guide: TutorialGuide
 
 ## Qué amigos tenían anunciada una interferencia en el frame anterior: la estática suena al empezar el aviso.
 var _warned: Array[bool] = []
@@ -77,12 +87,21 @@ func _ready() -> void:
 	$DeskPlane/Notebook.clicked.connect(_open_notebook)
 	$DeskPlane/Mixer.clicked.connect(open_mixer)
 	$DeskPlane/Phone.clicked.connect(open_phone)
+	if _requests.night().is_tutorial():
+		_guide = TutorialGuide.new()
+		_requests.request_finished.connect(func(_friend_index: int, request: FriendRequest) -> void:
+			_guide.request_finished(request))
+		_phone.visibility_changed.connect(_on_phone_visibility_changed)
+		_tutorial_hint.skip_pressed.connect(tutorial_skipped.emit)
+	_tutorial_hint.visible = _guide != null
 
 
 func _process(delta: float) -> void:
 	_refresh_entries()
 	_refresh_meters()
 	_screamers.advance(delta, _scare_view(), _mixer.is_playing())
+	if _guide != null:
+		_refresh_tutorial()
 
 
 ## Lo que se ve del escritorio, para elegir un screamer: el chat, el mixer y el celular ampliado tapan la
@@ -127,6 +146,8 @@ func open_phone() -> void:
 	_mixer.close()
 	_phone_sprite.blinking = false
 	_phone.open()
+	if _guide != null:
+		_guide.phone_opened()
 
 
 ## El escritorio es el último en recibir la entrada: aquí llega lo que nadie atendió. Las entradas del PC
@@ -170,12 +191,15 @@ func _on_request_started(friend_index: int, _request: FriendRequest) -> void:
 func _on_chat_script_finished(chat: RefCounted) -> void:
 	if chat.data.highlight_phone:
 		_phone_sprite.blinking = true
+		if _guide != null:
+			_guide.phone_highlighted()
 
 
 ## Muestra cómo terminó la noche. Los paneles quedan como estaban, debajo: así se ve lo que pasó. El mixer
 ## y el celular se cierran, para que la ronda de Audio Sync no siga sonando.
 func _on_night_ended(ending: NightState.Ending, fatal_request: FriendRequest) -> void:
 	close_modes()
+	_tutorial_hint.hide()
 	var names: Array[String] = []
 	for friend: FriendData in _requests.catalog.friends:
 		names.append(tr(friend.name_key))
@@ -238,3 +262,38 @@ func _refresh_meters() -> void:
 	_clock.text = state.clock_text()
 	_videos.text = tr(VIDEOS_KEY).format({"received": state.videos.received, "quota": state.videos.quota})
 	(_vignette.material as ShaderMaterial).set_shader_parameter(&"strength", state.vignette_strength())
+
+
+## El aviso del tutorial: qué hacer ahora. Cuando Matías termina de usar el celular, el tutorial se gana.
+func _refresh_tutorial() -> void:
+	if _night.ended:
+		return
+	var hint := _guide.hint(_tutorial_view())
+	var friend_name := ""
+	if hint.friend_index >= 0:
+		friend_name = tr(_requests.catalog.friends[hint.friend_index].name_key)
+	_tutorial_hint.show_text(tr(hint.key).format({"friend": friend_name}) if not hint.key.is_empty() else "")
+	if _guide.is_done():
+		_night.finish(NightState.Ending.WON)
+
+
+## Lo que el guía necesita ver: la solicitud en curso, el chat abierto, la página de ese amigo, el video que
+## espera y el chat guionado.
+func _tutorial_view() -> TutorialGuide.View:
+	var view := TutorialGuide.View.new()
+	var state := _requests.state
+	view.chat_friend = _chat_panel.selected_friend if _chat_panel.visible else -1
+	for index in _requests.requests.size():
+		if _requests.requests[index] != null:
+			view.request = _requests.requests[index]
+			view.page = notebook_memory.page_for(index)
+		if _requests.chat_script_reply(index) != null:
+			view.script_friend = index
+	if not state.videos.offers.is_empty():
+		view.video_friend = state.videos.offers[0].friend_index
+	return view
+
+
+func _on_phone_visibility_changed() -> void:
+	if not _phone.visible:
+		_guide.phone_closed()

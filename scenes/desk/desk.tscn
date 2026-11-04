@@ -28,6 +28,7 @@
 [ext_resource type="FontFile" path="res://fonts/departure_mono/DepartureMono-Regular.otf" id="pixel_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/mixer_view.tscn" id="mixer_view"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_view.tscn" id="phone_view"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tutorial_hint.tscn" id="tutorial_hint"]
 [ext_resource type="AudioStream" path="res://audio/sfx/interference_static.wav" id="static_sound"]
 [ext_resource type="Script" path="res://scripts/desk/screamer_manager.gd" id="screamers_script"]
 [ext_resource type="AudioStream" path="res://audio/sfx/ambient_room.wav" id="ambient_sound"]
@@ -264,6 +265,9 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+
+[node name="TutorialHint" parent="Overlay" instance=ExtResource("tutorial_hint")]
+visible = false
 
 [node name="Jumpscare" type="Control" parent="Overlay"]
 visible = false

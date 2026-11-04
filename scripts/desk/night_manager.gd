@@ -69,6 +69,14 @@ func _on_request_finished(_friend_index: int, request: FriendRequest) -> void:
 	_check_ending(request)
 
 
+## Termina la noche ahora con `ending`, si no había terminado: así termina el tutorial, al completarse.
+func finish(ending: NightState.Ending) -> void:
+	if ended:
+		return
+	ended = true
+	night_ended.emit(ending, null)
+
+
 func _check_ending(request: FriendRequest) -> void:
 	if ended:
 		return

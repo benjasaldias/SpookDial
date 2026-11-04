@@ -174,3 +174,16 @@ func test_el_jumpscare_pausa_la_noche() -> bool:
 	check_eq(request.time_left, 44.5, "el temporizador también")
 	_free(night)
 	return true
+
+
+## El tutorial termina cuando el escritorio lo dice: al completarse.
+func test_terminar_la_noche_desde_afuera() -> bool:
+	var night := _make_night()
+	var endings := []
+	_record_endings(night, endings)
+	night.finish(NightState.Ending.WON)
+	night.finish(NightState.Ending.SANITY)
+	check_eq(endings, [[NightState.Ending.WON, null]], "termina una sola vez")
+	check(night.ended, "terminó")
+	_free(night)
+	return true
