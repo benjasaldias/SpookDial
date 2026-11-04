@@ -1,5 +1,6 @@
 extends "res://test/test_case.gd"
-## Los sonidos provisionales del Plan 6 (tools/make_placeholder_sounds.py), hasta los definitivos del Plan 9.
+## Los sonidos provisionales de los planes 6 y 7 (tools/make_placeholder_sounds.py), hasta los definitivos del
+## Plan 9.
 
 ## Nombre de cada archivo de audio/sfx/ y cuántos segundos dura.
 const SOUNDS := {
@@ -10,6 +11,18 @@ const SOUNDS := {
 	"sync_success": 0.4,
 	"sync_fail": 0.44,
 	"interference_static": 3.0,
+	"ambient_room": 8.0,
+	"scare_curtains": 1.2,
+	"scare_window": 1.5,
+	"scare_phone": 1.2,
+	"scare_lights": 1.5,
+	"scare_slam": 0.5,
+	"scare_ink": 0.6,
+	"scare_jumpscare": 1.5,
+	"hallucination_knock": 1.0,
+	"hallucination_steps": 2.0,
+	"hallucination_whisper": 2.0,
+	"hallucination_scratch": 1.5,
 }
 
 

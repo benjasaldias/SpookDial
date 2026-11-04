@@ -1,7 +1,9 @@
-"""Genera los sonidos provisionales del Plan 6 en audio/sfx/ (WAV mono de 16 bits a 44 100 Hz).
+"""Genera los sonidos provisionales de los planes 6 y 7 en audio/sfx/ (WAV mono de 16 bits a 44 100 Hz).
 
-Son de relleno, hasta que Benja elija los definitivos (Plan 9): la base y los aplausos de Audio Sync,
-el golpe de Matías, el resultado de una ronda y la estática que anuncia una interferencia.
+Son de relleno, hasta que Benja elija los definitivos (Plan 9):
+- Plan 6: la base y los aplausos de Audio Sync, el golpe de Matías, el resultado de una ronda y la estática
+  que anuncia una interferencia;
+- Plan 7: el sonido ambiente del cuarto, uno por screamer y los cuatro de las alucinaciones.
 Siempre generan los mismos archivos.
 
 Uso, desde la carpeta del proyecto: python3 -I tools/make_placeholder_sounds.py
@@ -95,6 +97,168 @@ def static():
     return samples
 
 
+def noise(seed):
+    """Ruido blanco que siempre sale igual."""
+    rng = random.Random(seed)
+    return lambda: rng.uniform(-1, 1)
+
+
+def ambient():
+    """Sonido ambiente del cuarto, 8 s que se repiten: viento grave que sube y baja, y un zumbido eléctrico."""
+    white, samples, low, lower, seconds = noise(11), [], 0.0, 0.0, 8.0
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        low += 0.02 * (white() - low)
+        lower += 0.1 * (low - lower)
+        gust = 0.6 + 0.4 * math.sin(2 * math.pi * t / seconds) * math.sin(2 * math.pi * 3 * t / seconds)
+        hum = 0.03 * math.sin(2 * math.pi * 50 * t) + 0.015 * math.sin(2 * math.pi * 100 * t)
+        fade = min(t / 0.5, 1.0, (seconds - t) / 0.5)
+        samples.append((3.0 * lower * gust + hum) * fade)
+    return samples
+
+
+def rustle():
+    """La cortina: roce de tela, ráfagas de ruido que suben y bajan."""
+    white, samples, last_x, last_y, seconds = noise(12), [], 0.0, 0.0, 1.2
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        x = white()
+        last_y, last_x = 0.8 * (last_y + x - last_x), x
+        swish = abs(math.sin(2 * math.pi * 2.5 * t)) ** 2
+        samples.append(0.5 * last_y * swish * math.exp(-t * 1.5))
+    return samples
+
+
+def sting():
+    """La figura de la ventana: un golpe grave y un chillido que sube."""
+    white, samples, phase, seconds = noise(13), [], 0.0, 1.5
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        boom = 0.8 * math.sin(2 * math.pi * 48 * t) * math.exp(-t * 4)
+        phase += 2 * math.pi * (900 + 500 * t / seconds + 25 * math.sin(2 * math.pi * 7 * t)) / RATE
+        screech = 0.3 * (math.sin(phase) + 0.4 * math.sin(2.01 * phase)) * min(t / 0.05, 1.0) * math.exp(-t * 1.8)
+        samples.append(boom + screech + 0.05 * white() * math.exp(-t * 3))
+    return samples
+
+
+def buzz():
+    """El celular vibra: tres zumbidos graves."""
+    samples, seconds, partials = [], 1.2, ((160, 1.0), (320, 0.5), (480, 0.3))
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        on = (t % 0.4) < 0.3
+        tone = sum(volume * math.sin(2 * math.pi * frequency * t) for frequency, volume in partials)
+        samples.append(0.35 * tone if on else 0.0)
+    return samples
+
+
+def flicker():
+    """Las luces parpadean: zumbido eléctrico que se corta, con chasquidos."""
+    white, rng, samples, seconds = noise(14), random.Random(15), [], 1.5
+    cut, crackle = False, 0.0
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        if i % 2205 == 0:
+            cut = rng.random() < 0.4
+        if rng.random() < 0.003:
+            crackle = 1.0
+        crackle *= 0.995
+        hum = sum(math.sin(2 * math.pi * 100 * h * t) / h for h in (1, 2, 3, 5))
+        samples.append((0.0 if cut else 0.25 * hum) + 0.5 * crackle * white())
+    return samples
+
+
+def slam():
+    """El cuaderno se cierra de golpe: un golpe seco y grave."""
+    white, samples, seconds = noise(16), [], 0.5
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        samples.append(0.7 * math.sin(2 * math.pi * 70 * t) * math.exp(-t * 18) + 0.3 * white() * math.exp(-t * 60))
+    return samples
+
+
+def splat():
+    """La mancha de tinta: algo húmedo que se aplasta y gotea."""
+    white, samples, low, seconds = noise(17), [], 0.0, 0.6
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        low += 0.15 * (white() - low)
+        drips = sum(math.exp(-(t - start) * 40) for start in (0.25, 0.38, 0.47) if t >= start)
+        samples.append(1.2 * low * (math.exp(-t * 14) + 0.4 * drips))
+    return samples
+
+
+def scream():
+    """El jumpscare: un grito disonante y fuerte."""
+    white, samples, phases, seconds = noise(18), [], [0.0, 0.0, 0.0], 1.5
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        value = 0.0
+        for index, base in enumerate((520, 555, 740)):
+            phases[index] += 2 * math.pi * (base + 40 * math.sin(2 * math.pi * (6 + index) * t)) / RATE
+            value += 2 * (phases[index] / (2 * math.pi) % 1.0) - 1
+        envelope = min(t / 0.02, 1.0) * (1.0 if t < 1.0 else (seconds - t) / 0.5)
+        samples.append((0.22 * value + 0.25 * white()) * envelope)
+    return samples
+
+
+def knock():
+    """Alucinación: tres golpes en la ventana."""
+    samples, seconds = [], 1.0
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        value = 0.0
+        for start in (0.0, 0.25, 0.5):
+            if t >= start:
+                local = t - start
+                value += math.sin(2 * math.pi * 130 * local) * math.exp(-local * 35)
+                value += 0.3 * math.sin(2 * math.pi * 900 * local) * math.exp(-local * 200)
+        samples.append(0.8 * value)
+    return samples
+
+
+def steps():
+    """Alucinación: cuatro pasos lentos sobre madera."""
+    white, samples, low, seconds = noise(19), [], 0.0, 2.0
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        low += 0.2 * (white() - low)
+        value = 0.0
+        for start in (0.0, 0.5, 1.0, 1.5):
+            if t >= start:
+                local = t - start
+                value += 0.6 * math.sin(2 * math.pi * 85 * local) * math.exp(-local * 25)
+                value += 0.6 * low * math.exp(-local * 30)
+        samples.append(value)
+    return samples
+
+
+def whisper():
+    """Alucinación: un susurro sin palabras, ruido agudo con sílabas."""
+    white, samples, last_x, last_y, seconds = noise(20), [], 0.0, 0.0, 2.0
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        x = white()
+        last_y, last_x = 0.6 * (last_y + x - last_x), x
+        syllables = max(math.sin(2 * math.pi * 4.5 * t) * math.sin(2 * math.pi * 1.3 * t + 1.0), 0.0)
+        fade = min(t / 0.2, 1.0, (seconds - t) / 0.3)
+        samples.append(0.7 * last_y * syllables * fade)
+    return samples
+
+
+def scratch():
+    """Alucinación: rasguños en la pared, trazos de ruido áspero."""
+    white, samples, last_x, last_y, seconds = noise(21), [], 0.0, 0.0, 1.5
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        x = white()
+        last_y, last_x = 0.7 * (last_y + x - last_x), x
+        stroke = (t % 0.5) / 0.5
+        grain = 0.5 + 0.5 * math.sin(2 * math.pi * 60 * t)
+        samples.append(0.6 * last_y * math.sin(math.pi * stroke) * grain)
+    return samples
+
+
 if __name__ == "__main__":
     write("sync_kick", kick())
     write("sync_tick", tick())
@@ -103,4 +267,16 @@ if __name__ == "__main__":
     write("sync_success", notes([523.25, 659.25, 783.99, 1046.5], 0.1, 9, 0.35))
     write("sync_fail", notes([233.08, 174.61], 0.22, 6, 0.4))
     write("interference_static", static())
+    write("ambient_room", ambient())
+    write("scare_curtains", rustle())
+    write("scare_window", sting())
+    write("scare_phone", buzz())
+    write("scare_lights", flicker())
+    write("scare_slam", slam())
+    write("scare_ink", splat())
+    write("scare_jumpscare", scream())
+    write("hallucination_knock", knock())
+    write("hallucination_steps", steps())
+    write("hallucination_whisper", whisper())
+    write("hallucination_scratch", scratch())
     print("Sonidos provisionales en", OUT)
