@@ -1,8 +1,9 @@
 extends RefCounted
 ## El guía de la noche 0, el tutorial (decisión de Benja): mira cómo va la noche y dice qué hacer ahora, en un
 ## aviso arriba de la pantalla. Enseña a abrir el chat, preguntar, marcar las características, abrir la página
-## de la entidad, responder desde el cuaderno y descargar un video. Después del susto guionado, a responderle al
-## amigo y a usar el celular. El tutorial termina cuando Matías cierra el celular.
+## de la entidad, responder desde el cuaderno y descargar un video. Después del susto guionado, a cerrar las
+## cortinas y revisar si la criatura sigue ahí, a responderle al amigo y a usar el celular. El tutorial termina
+## cuando Matías cierra el celular.
 ## Lógica pura: el escritorio le cuenta lo que se ve (View) y muestra el aviso (Hint).
 
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
@@ -27,6 +28,8 @@ const PHONE_KEY := "TUTORIAL_PHONE"
 const SCROLL_KEY := "TUTORIAL_SCROLL"
 const DIALS_KEY := "TUTORIAL_DIALS"
 const DIALS_OK_KEY := "TUTORIAL_DIALS_OK"
+const CLOSE_CURTAINS_KEY := "TUTORIAL_CLOSE_CURTAINS"
+const OPEN_CURTAINS_KEY := "TUTORIAL_OPEN_CURTAINS"
 ## Cómo le fue al amigo con la última respuesta.
 const OUTCOME_KEYS := {
 	RuleEvaluator.Outcome.CORRECT: CORRECT_KEY,
@@ -46,6 +49,9 @@ class View:
 	var video_friend := -1
 	## El amigo del chat guionado que espera la respuesta de Matías, o -1.
 	var script_friend := -1
+	## La criatura está afuera y las cortinas abiertas.
+	var creature_at_window := false
+	var curtains_closed := false
 
 
 ## El aviso: su clave en ui.csv (vacía: sin aviso) y el amigo del que habla, o -1.
@@ -100,10 +106,15 @@ func dials_understood() -> void:
 	explain_dials = false
 
 
-## Qué hacer ahora. Primero los diales, después el celular, el chat guionado, el video y la solicitud en curso.
+## Qué hacer ahora. Primero los diales, después las cortinas, el celular, el chat guionado, el video y la solicitud
+## en curso.
 func hint(view: View) -> Hint:
 	if explain_dials:
 		return Hint.new(DIALS_KEY, -1, true)
+	if view.creature_at_window:
+		return Hint.new(CLOSE_CURTAINS_KEY)
+	if view.curtains_closed:
+		return Hint.new(OPEN_CURTAINS_KEY)
 	match _phone:
 		Phone.HIGHLIGHTED:
 			return Hint.new(PHONE_KEY)

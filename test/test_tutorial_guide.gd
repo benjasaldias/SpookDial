@@ -104,6 +104,20 @@ func test_el_chat_guionado_y_el_celular() -> bool:
 	return true
 
 
+## La criatura del susto guionado enseña las cortinas (decisión de Benja, 7 de noviembre).
+func test_las_cortinas() -> bool:
+	var guide := TutorialGuide.new()
+	var view := _view()
+	view.creature_at_window = true
+	_check_hint(guide, view, TutorialGuide.CLOSE_CURTAINS_KEY)
+	view.creature_at_window = false
+	view.curtains_closed = true
+	_check_hint(guide, view, TutorialGuide.OPEN_CURTAINS_KEY)
+	view.curtains_closed = false
+	_check_hint(guide, view, TutorialGuide.WELCOME_KEY)
+	return true
+
+
 func test_sus_textos_existen() -> bool:
 	for key: String in [TutorialGuide.TITLE_KEY, TutorialGuide.SKIP_KEY, TutorialGuide.WELCOME_KEY,
 			TutorialGuide.OPEN_CHAT_KEY, TutorialGuide.ASK_KEY, TutorialGuide.MARK_KEY, TutorialGuide.OPEN_PAGE_KEY,

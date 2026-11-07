@@ -128,6 +128,15 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	check_eq(manager.state.friends[1].health, 3, "pero no salió herido")
 	# El respiro, el susto guionado (con su señal previa y su pausa) y lo que tarda Gonzalo en escribir.
 	_play(desk, 10)
+	# La criatura enseña las cortinas: se cierran, se espera y se abren para revisar.
+	var curtains := desk.get_node("WallPlane/Curtains") as AnimatedSprite2D
+	check_eq(_hint_text(desk), _expected(TutorialGuide.CLOSE_CURTAINS_KEY), "cerrar las cortinas")
+	curtains.clicked.emit()
+	desk._process(0.0)
+	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_CURTAINS_KEY), "revisar")
+	_play(desk, 25)
+	curtains.clicked.emit()
+	desk._process(0.0)
 	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_CHAT_KEY, "FRIEND_GONZALO_NAME"), "Gonzalo escribió")
 	desk.get_node("DeskPlane/Entries/EntryGonzalo").pressed.emit()
 	desk._process(0.0)
@@ -145,5 +154,21 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	desk._process(0.0)
 	check_eq(endings, [NightState.Ending.WON], "al cerrar el celular, terminó el tutorial")
 	check(not hint.visible, "el aviso se va con la pantalla final")
+	desk.free()
+	return true
+
+
+## La criatura del susto guionado: el aviso pide cerrar las cortinas, y después abrirlas para revisar (decisión de
+## Benja, 7 de noviembre).
+func test_la_criatura_ensena_las_cortinas() -> bool:
+	var desk := _make_desk()
+	desk.get_node("RequestManager").tutorial_queue.clear()
+	var curtains := desk.get_node("WallPlane/Curtains") as AnimatedSprite2D
+	(desk.get_node("Overlay/TutorialHint/Box/Ok") as Button).pressed.emit()
+	_play(desk, 6)
+	check_eq(_hint_text(desk), _expected(TutorialGuide.CLOSE_CURTAINS_KEY), "pide cerrarlas")
+	curtains.clicked.emit()
+	desk._process(0.0)
+	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_CURTAINS_KEY), "pide revisar")
 	desk.free()
 	return true

@@ -345,11 +345,13 @@ func _refresh_tutorial() -> void:
 
 
 ## Lo que el guía necesita ver: la solicitud en curso, el chat abierto, la página de ese amigo, el video que
-## espera y el chat guionado.
+## espera, el chat guionado, la criatura y las cortinas.
 func _tutorial_view() -> TutorialGuide.View:
 	var view := TutorialGuide.View.new()
 	var state := _requests.state
 	view.chat_friend = _chat_panel.selected_friend if _chat_panel.visible else -1
+	view.creature_at_window = state.creature_outside and not state.curtains_closed
+	view.curtains_closed = state.curtains_closed
 	for index in _requests.requests.size():
 		if _requests.requests[index] != null:
 			view.request = _requests.requests[index]
