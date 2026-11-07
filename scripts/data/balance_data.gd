@@ -47,6 +47,9 @@ extends Resource
 ## Segundos que cuenta como scroll cada movimiento de la rueda del mouse: al dejar de scrollear, Sanity
 ## deja de subir.
 @export var scroll_grace := 0.3
+## Segundos de scroll que dura la batería del celular, que vuelve a llenarse solo al empezar la noche (decisión de
+## Benja, 7 de noviembre). 38 s a 4 de Sanity por segundo son una vez y media la barra.
+@export var phone_battery_seconds := 38.0
 
 @export_group("Señal")
 ## Señal que le quita una interferencia a un amigo.

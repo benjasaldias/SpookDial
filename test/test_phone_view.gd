@@ -92,3 +92,14 @@ func test_sus_textos_existen() -> bool:
 	check(String(TranslationServer.translate(PhoneView.APP_NAME_KEY)) != PhoneView.APP_NAME_KEY, "falta PHONE_APP_NAME en phone.csv")
 	TranslationServer.set_locale(previous)
 	return true
+
+
+func test_sin_bateria_el_feed_no_avanza() -> bool:
+	var phone := _make_phone()
+	_state.battery = 0.0
+	phone.scroll_by(120.0)
+	for _frame in 60:
+		phone._process(0.05)
+	check_eq(phone.scroll, 0.0, "el feed no se mueve")
+	phone.free()
+	return true

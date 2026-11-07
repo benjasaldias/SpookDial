@@ -148,6 +148,14 @@ text = "00:00"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="BatteryBar" type="ColorRect" parent="DeskPlane/Phone"]
+offset_left = 29.0
+offset_top = 20.0
+offset_right = 73.0
+offset_bottom = 22.0
+mouse_filter = 2
+color = Color(0.49, 0.88, 0.54, 1)
+
 [node name="Mixer" type="AnimatedSprite2D" parent="DeskPlane"]
 position = Vector2(130, 565)
 sprite_frames = ExtResource("mixer")

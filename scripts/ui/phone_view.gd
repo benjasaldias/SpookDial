@@ -3,13 +3,18 @@ extends Control
 ## recuperar Sanity. Es provisional hasta el arte de Benja: el celular y las publicaciones se dibujan con
 ## rectángulos, y una publicación sin imagen muestra un paisaje de su color.
 ## Las publicaciones se repiten sin fin. Se cierra con clic derecho; Esc y un clic fuera lo cierran desde
-## el escritorio.
+## el escritorio. La batería alcanza para un rato por noche y, sin ella, no hay nada que mirar (decisión de Benja,
+## 7 de noviembre).
 
 const NightState := preload("res://scripts/core/night_state.gd")
 const FONT := preload("res://fonts/departure_mono/DepartureMono-Regular.otf")
 
 ## El nombre de la red social (phone.csv).
 const APP_NAME_KEY := "PHONE_APP_NAME"
+## Lo que se ve sin batería (phone.csv).
+const NO_BATTERY_KEY := "PHONE_NO_BATTERY"
+## Bajo este porcentaje, la batería se ve en rojo.
+const LOW_BATTERY := 20.0
 const SIZE := Vector2(260, 520)
 const FONT_SIZE := 11
 ## Alto de cada publicación en el feed.
@@ -70,6 +75,8 @@ func close() -> void:
 
 ## Avanza el feed `amount` píxeles (hacia abajo si es positivo). Mientras Matías scrollea, Sanity sube.
 func scroll_by(amount: float) -> void:
+	if not _state.has_battery():
+		return
 	_target_scroll += amount
 	_state.scroll()
 
@@ -122,17 +129,29 @@ func _draw() -> void:
 	_draw_text(self, _state.clock_text(), Vector2(22, 31), TEXT_COLOR)
 	for bar in 4:
 		draw_rect(Rect2(196 + bar * 4, 28 - bar * 2, 3, 3 + bar * 2), TEXT_COLOR)
-	draw_rect(Rect2(216, 22, 20, 9), TEXT_COLOR, false)
-	draw_rect(Rect2(218, 24, 12, 5), TEXT_COLOR)
-	draw_rect(Rect2(236, 24, 2, 5), TEXT_COLOR)
+	_draw_battery()
 	draw_string(FONT, Vector2(22, 57), tr(APP_NAME_KEY), HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE * 2, ACCENT_COLOR)
 	draw_string(FONT, Vector2(214, 55), "♥", HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, TEXT_COLOR)
 	draw_rect(Rect2(14, 63, 232, 1), DIVIDER_COLOR)
 	draw_rect(Rect2(98, 487, 64, 3), DIM_COLOR)
 
 
-## Las publicaciones, una debajo de otra y repetidas sin fin, corridas según el scroll.
+## La batería: el ícono, que se vacía, y su porcentaje. Con poca, en rojo.
+func _draw_battery() -> void:
+	var color := HEART_COLOR if _state.battery < LOW_BATTERY else TEXT_COLOR
+	draw_rect(Rect2(216, 22, 20, 9), color, false)
+	draw_rect(Rect2(218, 24, roundf(16.0 * _state.battery / 100.0), 5), color)
+	draw_rect(Rect2(236, 24, 2, 5), color)
+	_draw_text(self, "%d%%" % ceili(_state.battery), Vector2(162, 31), color)
+
+
+## Las publicaciones, una debajo de otra y repetidas sin fin, corridas según el scroll. Sin batería, un aviso.
 func _draw_feed() -> void:
+	if not _state.has_battery():
+		_feed.draw_rect(Rect2(Vector2.ZERO, _feed.size), GLASS_COLOR)
+		var center := Vector2(0, _feed.size.y / 2.0)
+		_feed.draw_string(FONT, center, tr(NO_BATTERY_KEY), HORIZONTAL_ALIGNMENT_CENTER, _feed.size.x, FONT_SIZE, DIM_COLOR)
+		return
 	if _posts.is_empty():
 		return
 	var offset := fposmod(scroll, POST_HEIGHT * _posts.size())

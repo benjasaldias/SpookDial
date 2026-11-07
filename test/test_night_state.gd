@@ -302,3 +302,34 @@ func test_la_espera_baja_trust() -> bool:
 	state.advance(8.0)
 	check_eq(state.trust, 96.0, "después de 20 s sin bajar, vuelve a subir")
 	return true
+
+
+## Scrollea `seconds` segundos: mantiene la rueda en movimiento, de a 0,1 s.
+func _scroll_for(state: NightState, seconds: float) -> void:
+	for _step in roundi(seconds * 10.0):
+		state.scroll()
+		state.advance(0.1)
+
+
+## La batería del celular es un tope por noche, sin recarga (decisión de Benja, 7 de noviembre).
+func test_la_bateria_se_gasta_solo_al_scrollear() -> bool:
+	var state := _make_state()
+	check_eq(state.battery, 100.0, "empieza llena")
+	state.advance(30.0)
+	check_eq(state.battery, 100.0, "sin scrollear no se gasta")
+	_scroll_for(state, 19.0)
+	check(absf(state.battery - 50.0) < 1.0, "19 de 38 s: la mitad: %s" % state.battery)
+	state.advance(30.0)
+	check(absf(state.battery - 50.0) < 1.0, "no se recarga: %s" % state.battery)
+	return true
+
+
+func test_sin_bateria_sanity_no_sube() -> bool:
+	var state := _make_state()
+	_scroll_for(state, 40.0)
+	check_eq(state.battery, 0.0, "se acabó")
+	check(not state.has_battery(), "sin batería")
+	state.sanity = 50.0
+	_scroll_for(state, 5.0)
+	check(state.sanity < 50.0, "scrollear ya no sirve: %s" % state.sanity)
+	return true

@@ -31,6 +31,9 @@ var balance: BalanceData
 var elapsed := 0.0
 var sanity := METER_MAX
 var trust := METER_MAX
+## La batería del celular (0–100). Se gasta solo mientras Matías scrollea y no se recarga (decisión de Benja, 7 de
+## noviembre).
+var battery := METER_MAX
 var friends: Array[FriendState] = []
 var videos: VideoSchedule
 ## El amigo cuya descarga mantiene presionada Matías en el chat, o -1 (decisión de Benja).
@@ -106,9 +109,15 @@ func scare(amount: float) -> void:
 	sanity = maxf(sanity - amount, 0.0)
 
 
-## Matías scrolleó el celular: durante scroll_grace segundos, Sanity sube (diseño §10.2).
+## Matías scrolleó el celular: durante scroll_grace segundos, Sanity sube (diseño §10.2). Sin batería, no pasa nada.
 func scroll() -> void:
-	_scroll_left = balance.scroll_grace
+	if has_battery():
+		_scroll_left = balance.scroll_grace
+
+
+## Al celular le queda batería.
+func has_battery() -> bool:
+	return battery > 0.0
 
 
 ## Al amigo `friend_index` le va a golpear una interferencia: su entrada titila y suena estática.
@@ -160,10 +169,12 @@ func ending() -> Ending:
 	return Ending.NONE
 
 
-## Sanity baja con el tiempo y sube mientras Matías scrollea el celular.
+## Sanity baja con el tiempo y sube mientras Matías scrollea el celular, hasta que se acaba la batería.
 func _advance_sanity(delta: float) -> void:
-	var scrolling := minf(_scroll_left, delta)
+	var battery_left := battery / METER_MAX * balance.phone_battery_seconds
+	var scrolling := minf(minf(_scroll_left, delta), battery_left)
 	_scroll_left = maxf(_scroll_left - delta, 0.0)
+	battery = maxf(battery - scrolling / balance.phone_battery_seconds * METER_MAX, 0.0)
 	sanity = clampf(sanity - delta / night.sanity_drain_interval + scrolling * balance.scroll_sanity_per_second,
 			0.0, METER_MAX)
 

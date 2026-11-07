@@ -32,6 +32,7 @@ func test_valores_del_mantenimiento() -> bool:
 		return true
 	check_eq(balance.scroll_sanity_per_second, 4.0, "scrollear: Sanity +4 por segundo")
 	check_eq(balance.scroll_grace, 0.3, "cada movimiento de la rueda cuenta 0,3 s")
+	check_eq(balance.phone_battery_seconds, 38.0, "la batería alcanza para 38 s de scroll")
 	check_eq(balance.interference_damage, 40.0, "interferencia: −40 de señal")
 	check_eq(balance.interference_warning, 3.0, "anunciada 3 s antes")
 	check_eq(balance.offline_trust_interval, 4.0, "desconectado: Trust −1 cada 4 s por amigo")

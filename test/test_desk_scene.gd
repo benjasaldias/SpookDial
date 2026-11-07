@@ -44,6 +44,18 @@ func test_cada_objeto_en_su_posicion() -> bool:
 	return true
 
 
+## La batería también se ve en el celular del escritorio: su barra se acorta (decisión de Benja, 7 de noviembre).
+func test_la_barra_de_bateria_del_celular() -> bool:
+	var desk := _make_desk()
+	var bar := desk.get_node("DeskPlane/Phone/BatteryBar") as ColorRect
+	var full := bar.size.x
+	desk.get_node("RequestManager").state.battery = 50.0
+	desk._process(0.0)
+	check_eq(bar.size.x, roundf(full / 2.0), "a la mitad")
+	desk.free()
+	return true
+
+
 func test_todo_el_arte_cargado() -> bool:
 	var desk := _make_desk()
 	for sprite in desk.find_children("*", "AnimatedSprite2D", true, false):

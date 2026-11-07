@@ -44,6 +44,9 @@ const TutorialGuide := preload("res://scripts/core/tutorial_guide.gd")
 ## Videos recibidos, en el PC (ui.csv). Lleva {received} y {quota}.
 const VIDEOS_KEY := "PC_VIDEOS"
 
+## El largo de la barra de batería del celular del escritorio, llena.
+const BATTERY_BAR_WIDTH := 44.0
+
 ## Qué página del cuaderno tiene abierta cada amigo. La usan el cuaderno y los botones de respuesta del chat.
 var notebook_memory: NotebookMemory
 
@@ -56,6 +59,7 @@ var notebook_memory: NotebookMemory
 @onready var _dial_sanity: DialGauge = $WallPlane/DialSanity
 @onready var _dial_trust: DialGauge = $WallPlane/DialTrust
 @onready var _clock: Label = $DeskPlane/Phone/Clock
+@onready var _battery_bar: ColorRect = $DeskPlane/Phone/BatteryBar
 @onready var _videos: Label = $DeskPlane/PC/Videos
 @onready var _vignette: ColorRect = $Overlay/Vignette
 @onready var _stat_bars: Control = $Overlay/StatBars
@@ -318,6 +322,7 @@ func _refresh_meters() -> void:
 	_dial_trust.value = state.trust / NightState.METER_MAX
 	_stat_bars.set_values(state.connection(), state.sanity, state.trust)
 	_clock.text = state.clock_text()
+	_battery_bar.size.x = roundf(BATTERY_BAR_WIDTH * state.battery / NightState.METER_MAX)
 	_videos.text = tr(VIDEOS_KEY).format({"received": state.videos.received, "quota": state.videos.quota})
 	(_vignette.material as ShaderMaterial).set_shader_parameter(&"strength", state.vignette_strength())
 
