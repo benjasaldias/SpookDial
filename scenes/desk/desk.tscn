@@ -94,7 +94,10 @@ centered = false
 [node name="Curtains" type="AnimatedSprite2D" parent="WallPlane"]
 position = Vector2(219, 92)
 sprite_frames = ExtResource("curtains")
+animation = &"Open"
 centered = false
+script = ExtResource("clickable_script")
+hit_animation = &"Closed"
 
 [node name="DialConnection" parent="WallPlane" instance=ExtResource("dial")]
 position = Vector2(840, 89)
@@ -197,6 +200,11 @@ display_name = "Gonzalo"
 position = Vector2(518, 534)
 display_name = "Agustín"
 
+[node name="CurtainShade" type="Polygon2D" parent="."]
+modulate = Color(1, 1, 1, 0)
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(-64, -64, 1344, -64, 1344, 784, -64, 784)
+
 [node name="Darkness" type="Polygon2D" parent="."]
 modulate = Color(1, 1, 1, 0)
 color = Color(0, 0, 0, 1)
@@ -235,12 +243,13 @@ volume_db = -12.0
 autoplay = true
 bus = &"Ambience"
 
-[node name="Screamers" type="Node" parent="." node_paths=PackedStringArray("curtains", "figure", "phone", "darkness", "notebook", "ambient")]
+[node name="Screamers" type="Node" parent="." node_paths=PackedStringArray("curtains", "figure", "phone", "darkness", "curtain_shade", "notebook", "ambient")]
 script = ExtResource("screamers_script")
 curtains = NodePath("../WallPlane/Curtains")
 figure = NodePath("../WallPlane/Enemy")
 phone = NodePath("../DeskPlane/Phone")
 darkness = NodePath("../Darkness")
+curtain_shade = NodePath("../CurtainShade")
 notebook = NodePath("../UI/NotebookPanel")
 ambient = NodePath("../Ambient")
 hallucination_sounds = Array[AudioStream]([ExtResource("knock_sound"), ExtResource("steps_sound"), ExtResource("whisper_sound"), ExtResource("scratch_sound"), ExtResource("static_sound"), ExtResource("phone_sound")])

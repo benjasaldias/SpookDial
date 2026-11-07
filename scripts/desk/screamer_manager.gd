@@ -21,12 +21,17 @@ const NightManager := preload("res://scripts/desk/night_manager.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const Screamer := preload("res://scripts/core/screamer.gd")
 
+## Las animaciones de las cortinas (tags del arte de Benja).
+const CURTAINS_OPEN := &"Open"
+const CURTAINS_CLOSED := &"Closed"
+## Cuánto se oscurece el cuarto con las cortinas cerradas.
+const CLOSED_SHADE := 0.35
 ## Volumen del sonido ambiente durante la señal previa y el screamer, en decibeles.
 const DUCKED_DB := -40.0
 ## Segundos que tarda en bajar el sonido ambiente y, después del screamer, en volver.
 const DUCK_SECONDS := 0.3
 const RETURN_SECONDS := 2.0
-## Segundos que duran la cortina, la figura, el celular y las luces.
+## Segundos que duran la figura, el celular y las luces.
 const EFFECT_SECONDS := 1.5
 ## Opacidad de la oscuridad con las luces apagadas.
 const DARK := 0.85
@@ -52,7 +57,7 @@ const LEAVE_SECONDS := 0.4
 ## Dónde está la criatura de la ventana: lejos, detrás de un panel que tapa la ventana, o a la vista.
 enum Creature { AWAY, HIDDEN, SEEN }
 
-@export var curtains: Node2D
+@export var curtains: AnimatedSprite2D
 ## La figura de la ventana: escondida. Aparece en el screamer de la ventana y es la criatura que se asoma
 ## (decisión de Benja).
 @export var figure: CanvasItem
@@ -60,6 +65,8 @@ enum Creature { AWAY, HIDDEN, SEEN }
 @export var phone: Node2D
 ## Oscurece el cuarto cuando las luces parpadean.
 @export var darkness: CanvasItem
+## Oscurece el cuarto mientras las cortinas están cerradas.
+@export var curtain_shade: CanvasItem
 @export var notebook: Control
 @export var ambient: AudioStreamPlayer
 ## Los sonidos que pueden ser una alucinación.
@@ -147,6 +154,12 @@ func advance(delta: float, view: Screamer.View, busy: bool) -> void:
 	_announce(kind, false)
 
 
+## Clic en las cortinas: se cierran o se abren, con su sonido (decisión de Benja, 7 de noviembre).
+func toggle_curtains() -> void:
+	_set_curtains(not _requests.state.curtains_closed)
+	($CurtainsSound as AudioStreamPlayer).play()
+
+
 ## Muestra el screamer `kind` ahora, con su sonido, y resta Sanity. Después del susto guionado (`scripted`)
 ## empieza su chat guionado.
 func play(kind: ScareKind.Kind, scripted := false) -> void:
@@ -155,7 +168,7 @@ func play(kind: ScareKind.Kind, scripted := false) -> void:
 	(get_node(SOUND_NODES[kind]) as AudioStreamPlayer).play()
 	match kind:
 		ScareKind.Kind.CURTAINS:
-			_sway_curtains()
+			_set_curtains(not _requests.state.curtains_closed)
 		ScareKind.Kind.WINDOW:
 			_show_figure()
 		ScareKind.Kind.PHONE:
@@ -185,11 +198,11 @@ func _announce(kind: ScareKind.Kind, scripted: bool) -> void:
 	create_tween().tween_property(ambient, ^"volume_db", DUCKED_DB, DUCK_SECONDS)
 
 
-## La cortina se mece, colgada de su barra.
-func _sway_curtains() -> void:
-	var tween := create_tween()
-	for skew_value: float in [0.08, -0.05, 0.03, 0.0]:
-		tween.tween_property(curtains, ^"skew", skew_value, EFFECT_SECONDS / 4.0)
+## Las cortinas quedan cerradas o abiertas. Cerradas, tapan la ventana y el cuarto se oscurece.
+func _set_curtains(closed: bool) -> void:
+	_requests.state.curtains_closed = closed
+	curtains.animation = CURTAINS_CLOSED if closed else CURTAINS_OPEN
+	curtain_shade.modulate.a = CLOSED_SHADE if closed else 0.0
 
 
 ## La figura aparece en la ventana y se desvanece.

@@ -1,6 +1,7 @@
 extends "res://test/test_case.gd"
 
 const CLICKABLE := preload("res://scripts/desk/clickable_sprite.gd")
+const PixelHit := preload("res://scripts/desk/pixel_hit.gd")
 
 
 func _make_phone() -> AnimatedSprite2D:
@@ -60,4 +61,18 @@ func test_parpadea_cuando_pide_atencion() -> bool:
 	phone._process(0.1)
 	check_eq(material.get_shader_parameter("enabled"), false, "deja de parpadear")
 	phone.free()
+	return true
+
+
+## Las cortinas abiertas se clickean también en el hueco de la ventana: el clic usa el dibujo de las cerradas.
+func test_el_clic_puede_usar_el_dibujo_de_otra_animacion() -> bool:
+	var curtains := AnimatedSprite2D.new()
+	curtains.set_script(CLICKABLE)
+	curtains.sprite_frames = load("res://art/sprites/curtains_sprite.aseprite")
+	curtains.animation = &"Open"
+	curtains.centered = false
+	curtains.hit_animation = &"Closed"
+	(Engine.get_main_loop() as SceneTree).root.add_child(curtains)
+	check(PixelHit.is_opaque(curtains._bitmap, Vector2(170, 200)), "el hueco de la ventana recibe el clic")
+	curtains.free()
 	return true

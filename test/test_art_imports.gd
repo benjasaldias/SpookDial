@@ -25,3 +25,11 @@ func test_panel_como_textura() -> bool:
 	if panel is Texture2D:
 		check_eq(panel.get_size(), Vector2(449, 696), "tamaño del panel")
 	return true
+
+
+## Benja dibujó las cortinas abiertas y cerradas (tags Open y Closed).
+func test_las_cortinas_tienen_sus_2_estados() -> bool:
+	var frames: SpriteFrames = load(SPRITES + "curtains_sprite.aseprite")
+	check(frames.has_animation(&"Open"), "abiertas")
+	check(frames.has_animation(&"Closed"), "cerradas")
+	return true

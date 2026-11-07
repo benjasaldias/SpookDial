@@ -23,6 +23,15 @@ func test_con_el_escritorio_a_la_vista() -> bool:
 	return true
 
 
+## Con las cortinas cerradas no se ve la ventana (decisión de Benja, 7 de noviembre).
+func test_con_las_cortinas_cerradas_no_hay_figura_en_la_ventana() -> bool:
+	var view := _view(true)
+	view.curtains_closed = true
+	check_eq(Screamer.candidates(view), [ScareKind.Kind.LIGHTS, ScareKind.Kind.CURTAINS, ScareKind.Kind.PHONE],
+			"la cortina y el celular, sin la ventana")
+	return true
+
+
 func test_con_el_cuaderno_abierto() -> bool:
 	check_eq(Screamer.candidates(_view(false, true)), [ScareKind.Kind.LIGHTS, ScareKind.Kind.NOTEBOOK_SLAM],
 			"en el índice, se puede cerrar de golpe")

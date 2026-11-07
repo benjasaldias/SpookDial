@@ -289,6 +289,19 @@ func test_la_criatura_corta_el_desvanecimiento_del_screamer_de_la_ventana() -> b
 	return true
 
 
+## El screamer de la cortina ya no la mece: se abre o se cierra sola (decisión de Benja, 7 de noviembre).
+func test_la_cortina_se_abre_o_se_cierra_sola() -> bool:
+	var desk := _make_desk()
+	var curtains := desk.get_node("WallPlane/Curtains") as AnimatedSprite2D
+	_screamers(desk).play(ScareKind.Kind.CURTAINS)
+	check_eq(curtains.animation, &"Closed", "abierta, se cierra sola")
+	check(_state(desk).curtains_closed, "y la noche lo sabe")
+	_screamers(desk).play(ScareKind.Kind.CURTAINS)
+	check_eq(curtains.animation, &"Open", "cerrada, se abre sola")
+	desk.free()
+	return true
+
+
 ## Mientras suena un audio de un amigo no empieza nada que se confunda con él (decisión de Benja, 7 de noviembre).
 func test_nada_mientras_suena_un_audio() -> bool:
 	var desk := _make_desk()

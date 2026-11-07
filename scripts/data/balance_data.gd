@@ -51,6 +51,13 @@ extends Resource
 ## Benja, 7 de noviembre). 38 s a 4 de Sanity por segundo son una vez y media la barra.
 @export var phone_battery_seconds := 38.0
 
+## Sanity que se pierde por segundo con las cortinas cerradas: la pieza a oscuras también pesa (decisión de Benja,
+## 7 de noviembre). Se suma a lo que baja con el tiempo.
+@export var closed_curtains_sanity := 0.3
+## Sanity que se pierde por segundo con la criatura afuera y las cortinas abiertas (decisión de Benja, 7 de
+## noviembre). Se suma a lo que baja con el tiempo.
+@export var creature_sanity := 2.0
+
 @export_group("Señal")
 ## Señal que le quita una interferencia a un amigo.
 @export var interference_damage := 40.0

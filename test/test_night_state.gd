@@ -333,3 +333,21 @@ func test_sin_bateria_sanity_no_sube() -> bool:
 	_scroll_for(state, 5.0)
 	check(state.sanity < 50.0, "scrollear ya no sirve: %s" % state.sanity)
 	return true
+
+
+## Cerrar las cortinas baja Sanity de a poco; con la criatura afuera y la cortina abierta, baja rápido (decisión de
+## Benja, 7 de noviembre).
+func test_las_cortinas_y_la_criatura_bajan_sanity() -> bool:
+	var state := _make_state()
+	var base := 1.0 / state.night.sanity_drain_interval
+	check(is_equal_approx(state.sanity_drain_per_second(), base), "sin nada, el goteo de la noche")
+	state.curtains_closed = true
+	check(is_equal_approx(state.sanity_drain_per_second(), base + 0.3), "cerradas, goteo lento")
+	state.creature_outside = true
+	check(is_equal_approx(state.sanity_drain_per_second(), base + 0.3), "con la criatura afuera, igual: no se ve")
+	state.curtains_closed = false
+	check(is_equal_approx(state.sanity_drain_per_second(), base + 2.0), "abiertas con la criatura, rápido")
+	state.sanity = 50.0
+	state.advance(1.0)
+	check(is_equal_approx(state.sanity, 50.0 - base - 2.0), "y Sanity baja: %s" % state.sanity)
+	return true

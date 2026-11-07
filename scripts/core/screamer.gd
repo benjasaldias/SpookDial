@@ -17,13 +17,18 @@ class View:
 	## El chat o el mixer están abiertos: tapan la ventana, y la criatura se arma detrás (decisión de Benja, 4
 	## de noviembre).
 	var panel_open := false
+	## Las cortinas tapan la ventana: no se ve nada afuera.
+	var curtains_closed := false
 
 
 ## Los screamers que se pueden elegir con lo que se ve. El jumpscare va aparte: lo decide el director.
 static func candidates(view: View) -> Array[ScareKind.Kind]:
 	var kinds: Array[ScareKind.Kind] = [ScareKind.Kind.LIGHTS]
 	if view.desk_visible:
-		kinds.append_array([ScareKind.Kind.CURTAINS, ScareKind.Kind.WINDOW, ScareKind.Kind.PHONE])
+		kinds.append(ScareKind.Kind.CURTAINS)
+		if not view.curtains_closed:
+			kinds.append(ScareKind.Kind.WINDOW)
+		kinds.append(ScareKind.Kind.PHONE)
 	if view.notebook_open:
 		kinds.append(ScareKind.Kind.NOTEBOOK_SLAM)
 		if view.notebook_page:

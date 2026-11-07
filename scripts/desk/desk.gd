@@ -17,7 +17,8 @@ extends Node2D
 ## (TutorialGuide), y la noche termina al cerrar el celular. El aviso tiene un botón para saltar el tutorial.
 ## Con Esc y sin nada abierto, la noche se pausa y aparece el menú de pausa (decisión de Benja, sesión 18).
 ## Desde el Plan 9, unas barras arriba de la pantalla muestran lo mismo que los diales, que se quedan (decisión de
-## Benja).
+## Benja). Las cortinas se abren y se cierran con un clic (ScreamerManager), y la batería del celular se ve en su
+## barra.
 
 ## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
 signal tutorial_skipped
@@ -106,6 +107,7 @@ func _ready() -> void:
 	_end_screen.retry_pressed.connect(_on_retry_pressed)
 	_end_screen.next_pressed.connect(next_night_requested.emit)
 	_end_screen.menu_pressed.connect(menu_requested.emit)
+	$WallPlane/Curtains.clicked.connect(_screamers.toggle_curtains)
 	$DeskPlane/Notebook.clicked.connect(_open_notebook)
 	$DeskPlane/Mixer.clicked.connect(open_mixer)
 	$DeskPlane/Phone.clicked.connect(open_phone)
@@ -137,6 +139,7 @@ func _scare_view() -> Screamer.View:
 	var view := Screamer.View.new()
 	view.desk_visible = not (_chat_panel.visible or _mixer.visible or _phone.visible)
 	view.panel_open = _chat_panel.visible or _mixer.visible
+	view.curtains_closed = _requests.state.curtains_closed
 	view.notebook_open = _notebook_panel.visible
 	view.notebook_page = _notebook_panel.shows_page()
 	return view

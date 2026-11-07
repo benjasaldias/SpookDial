@@ -34,6 +34,10 @@ var trust := METER_MAX
 ## La batería del celular (0–100). Se gasta solo mientras Matías scrollea y no se recarga (decisión de Benja, 7 de
 ## noviembre).
 var battery := METER_MAX
+## Las cortinas están cerradas: el cuarto se oscurece y Sanity baja de a poco (decisión de Benja, 7 de noviembre).
+var curtains_closed := false
+## La criatura está afuera: con las cortinas abiertas, Sanity baja rápido (decisión de Benja, 7 de noviembre).
+var creature_outside := false
 var friends: Array[FriendState] = []
 var videos: VideoSchedule
 ## El amigo cuya descarga mantiene presionada Matías en el chat, o -1 (decisión de Benja).
@@ -115,6 +119,17 @@ func scroll() -> void:
 		_scroll_left = balance.scroll_grace
 
 
+## Cuánta Sanity se pierde por segundo: lo de la noche, más lo de las cortinas cerradas o, si están abiertas, lo de
+## la criatura. Cerradas, la criatura no se ve (decisión de Benja, 7 de noviembre).
+func sanity_drain_per_second() -> float:
+	var drain := 1.0 / night.sanity_drain_interval
+	if curtains_closed:
+		drain += balance.closed_curtains_sanity
+	elif creature_outside:
+		drain += balance.creature_sanity
+	return drain
+
+
 ## Al celular le queda batería.
 func has_battery() -> bool:
 	return battery > 0.0
@@ -175,7 +190,7 @@ func _advance_sanity(delta: float) -> void:
 	var scrolling := minf(minf(_scroll_left, delta), battery_left)
 	_scroll_left = maxf(_scroll_left - delta, 0.0)
 	battery = maxf(battery - scrolling / balance.phone_battery_seconds * METER_MAX, 0.0)
-	sanity = clampf(sanity - delta / night.sanity_drain_interval + scrolling * balance.scroll_sanity_per_second,
+	sanity = clampf(sanity - delta * sanity_drain_per_second() + scrolling * balance.scroll_sanity_per_second,
 			0.0, METER_MAX)
 
 

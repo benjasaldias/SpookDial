@@ -5,6 +5,10 @@ extends AnimatedSprite2D
 
 signal clicked
 
+## La animación cuyo dibujo recibe los clics. Vacía: la que tiene el sprite. Así las cortinas abiertas se clickean
+## también en el hueco de la ventana.
+@export var hit_animation: StringName
+
 const PixelHit := preload("res://scripts/desk/pixel_hit.gd")
 const OUTLINE_SHADER := preload("res://shaders/outline.gdshader")
 ## Segundos que el contorno está encendido, y después apagado, mientras parpadea.
@@ -32,7 +36,8 @@ func _ready() -> void:
 	outline.shader = OUTLINE_SHADER
 	outline.set_shader_parameter("enabled", false)
 	material = outline
-	_bitmap = PixelHit.bitmap_from_texture(sprite_frames.get_frame_texture(animation, 0))
+	var drawing := animation if hit_animation.is_empty() else hit_animation
+	_bitmap = PixelHit.bitmap_from_texture(sprite_frames.get_frame_texture(drawing, 0))
 
 
 func _process(delta: float) -> void:

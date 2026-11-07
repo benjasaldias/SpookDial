@@ -56,6 +56,28 @@ func test_la_barra_de_bateria_del_celular() -> bool:
 	return true
 
 
+## Las cortinas se abren y se cierran con un clic (decisión de Benja, 7 de noviembre). Cerradas, el cuarto se
+## oscurece.
+func test_las_cortinas_se_abren_y_se_cierran() -> bool:
+	var desk := _make_desk()
+	var curtains := desk.get_node("WallPlane/Curtains") as AnimatedSprite2D
+	var shade := desk.get_node("CurtainShade") as CanvasItem
+	var state: RefCounted = desk.get_node("RequestManager").state
+	check_eq(curtains.animation, &"Open", "empiezan abiertas")
+	check_eq(shade.modulate.a, 0.0, "con el cuarto iluminado")
+	curtains.clicked.emit()
+	check_eq(curtains.animation, &"Closed", "un clic las cierra")
+	check(state.curtains_closed, "la noche lo sabe")
+	check(shade.modulate.a > 0.0, "y el cuarto se oscurece")
+	check((desk.get_node("Screamers/CurtainsSound") as AudioStreamPlayer).playing, "con su sonido")
+	curtains.clicked.emit()
+	check_eq(curtains.animation, &"Open", "otro clic las abre")
+	check(not state.curtains_closed, "la noche lo sabe")
+	check_eq(shade.modulate.a, 0.0, "y vuelve la luz")
+	desk.free()
+	return true
+
+
 func test_todo_el_arte_cargado() -> bool:
 	var desk := _make_desk()
 	for sprite in desk.find_children("*", "AnimatedSprite2D", true, false):
