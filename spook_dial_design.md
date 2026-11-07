@@ -7,7 +7,7 @@
 - El detalle de la mecánica central (reglas, valores numéricos, modelo de datos) está en `docs/02_bucle_central.md`.
 - El orden de trabajo y el calendario están en `docs/05_plan_produccion.md`.
 
-Última actualización: 4 de noviembre de 2026.
+Última actualización: 7 de noviembre de 2026.
 
 - 26 de octubre: identificación por características, acción de mayor riesgo y cuota cubierta por los envíos. En la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos.
 - 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
@@ -16,6 +16,7 @@
 - 2 de noviembre (sesión 16): el ritmo de la noche en olas, los screamers en cualquier momento, las alucinaciones, la figura de la ventana, la noche 0 (tutorial) y el chat guionado que enseña el celular.
 - 4 de noviembre (sesión 18): la noche 0 guiada y sin perder, las 7 entidades como borrador de Claude, el menú de pausa y los temporizadores ×1,5 solo para responder.
 - 4 de noviembre (después de probar el Plan 8): la criatura se asoma por la ventana en lugar del jumpscare (se arma detrás del chat o el mixer), las noches 1 y 2 con más sucesos, Audio Sync de 8 aplausos en 2 rondas de 4, Trust que también baja si tardas en contestar y los diales explicados en la noche 0.
+- 7 de noviembre (notas de prueba, `docs/17`): las barras arriba de la pantalla, acertar más difícil, los audios en «¿Qué oyes?», Audio Sync más rápido, la batería del celular, las cortinas, la criatura que se queda y hay que revisar, y los accidentes.
 
 ---
 
@@ -88,13 +89,14 @@ Cada objeto cumple una función:
 | **PC** | Muestra siempre las 3 entradas de los amigos: estado, señal, temporizador y avisos. Al hacer clic en una se abre su conversación. También muestra el contador de contenido de la noche. |
 | **Cuaderno** | El manual: un índice con el nombre de cada entidad y una página por entidad con sus reglas (§12). |
 | **Mixer** | Audio Sync. Al hacer clic se abre visto desde arriba: sus 3 faders son los canales de los 3 amigos, y sus dos VU-metros azules muestran el ritmo de Matías (el de la izquierda) y el del amigo (el de la derecha) (§10.6). |
-| **Celular** | Muestra la hora. Al abrirlo se scrollea con la rueda del mouse para recuperar Sanity (§10). |
+| **Celular** | Muestra la hora y su batería. Al abrirlo se scrollea con la rueda del mouse para recuperar Sanity (§10). |
 | **Diales** (en la pared) | Connection, Sanity y Trust. Tienen cara de manómetro, un ícono propio y un LED de alerta, para que no dependan del color. Cada uno conserva el color de su aguja: Connection verde, Sanity roja y Trust amarilla. |
 | **Micrófono** | Su LED se enciende al responder (ambientación). |
-| **Ventana y cortinas** | Ambientación y blanco de screamers. |
+| **Ventana y cortinas** | Las cortinas se abren y se cierran con un clic (§10.2). Por la ventana se asoma la criatura (§11). |
 
 ## 7. Interfaz
 
+- **Barras arriba de la pantalla** (decisión de Benja, 7 de noviembre): Connection, Sanity y Trust, en el hueco entre el chat y el cuaderno, que no las tapan. Cada una tiene el color de su dial, titila si baja de golpe y prende una luz bajo 25.
 - **El PC siempre muestra la lista** de las 3 entradas. La conversación abierta se ve destacada.
 - **Panel de chat** a la izquierda de la pantalla:
   - una pestaña por amigo, con aviso y temporizador;
@@ -183,6 +185,25 @@ Las observaciones cambian en cada solicitud, así que la misma entidad pide acci
 
 Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones) y la consecuencia se resuelve igual. Además baja Trust por no contestar. Un amigo sin señal también decide solo al acabarse su tiempo, pero elige mal (al azar entre las 3 acciones que no son la correcta), y esa decisión no baja Trust (§10.1).
 
+### 8.8 Audios en «¿Qué oyes?»
+
+Decisión de Benja, 7 de noviembre.
+
+- Cada entidad tiene una observación que **el amigo manda como audio** en vez de contarla. Se escucha con un clic en el mensaje, las veces que se quiera: lo único que cuesta es el tiempo que pasa.
+- **Lo que se oye cambia la acción correcta:** que El Tue Tué grite 1 vez, 3 veces o ninguna son casos distintos, y que La Calchona bale o bufe, también. Las reglas del cuaderno lo dicen.
+- Las características que se oyen siguen siendo texto clickeable: el audio no identifica a la entidad.
+- La estática tapa el audio entero o no lo tapa (§8.2). Tapado no se puede escuchar: hay que volver a preguntar.
+- La opción "Subtítulos de los audios" (§19) muestra qué se oye.
+
+### 8.9 Accidentes
+
+Decisión de Benja, 7 de noviembre.
+
+- Un amigo puede tener un accidente sin que nadie tenga la culpa: se tropieza, se corta o se cae al agua. Son 1, 1, 2, 2 y 3 por noche, y no hay en la noche 0.
+- Se responde en el chat, en 15 s, con las opciones del accidente, sin cuaderno: una buena idea y 1 o 2 malas, que se eligen con sentido común.
+- Una mala respuesta o no contestar le quita 1 de vida y lo deja aturdido, sin bajar Trust. La buena idea no le quita nada.
+- Solo le pasa a un amigo libre, con señal y con más de 1 de vida: **un accidente nunca mata**. Si la ola está llena, espera.
+
 ## 9. Consecuencias
 
 - **Vida:** cada amigo tiene **3 PV por noche**, que se restauran al empezar la siguiente.
@@ -222,6 +243,8 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 
 - Baja lento todo el tiempo, y de golpe con cada screamer (una cantidad fija).
 - Se recupera **scrolleando el celular**: sube mientras el jugador scrollea y deja de subir cuando se detiene.
+- **El celular tiene batería** (decisión de Benja, 7 de noviembre): un tope por noche, sin recarga, que alcanza para unos 38 s de scroll (una vez y media la barra). Se gasta solo al scrollear. Sin batería no hay feed.
+- **Las cortinas** (decisión de Benja, 7 de noviembre): se abren y se cierran con un clic. Cerradas, el cuarto se oscurece y Sanity baja de a poco. Abiertas no pasa nada, salvo que la criatura esté afuera (§11): entonces baja rápido.
 - **Efecto gradual:** mientras más baja, más se oscurece la visión con una viñeta y más **screamers auditivos falsos** aparecen (sonidos que no vienen de nada).
   - Son sonidos del cuarto (golpes en la ventana, pasos, susurros y rasguños) y también del juego (la estática de una interferencia y el celular vibrando). Confunden: el jugador mira y no hay nada (decisión de Benja, sesión 16).
   - No restan Sanity y nunca suenan durante Audio Sync.
@@ -252,6 +275,7 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 
 ### 10.6 Audio Sync
 
+- La base sube noche a noche (90, 100, 115, 130 y 145 golpes por minuto), y cada ronda va un 15 % más rápida que la anterior (decisión de Benja, 7 de noviembre).
 - Se empieza cuando el jugador quiere, con un clic en el mixer, que se abre visto desde arriba. Se elige el canal del amigo en su fader, o con el botón «Sincronizar» del chat de ese amigo, que abre el mixer en su canal y empieza la ronda enseguida.
 - Una base marca el tiempo, y el amigo marca un ritmo de **4 aplausos**. El mixer parpadea con el ritmo y suena (decisión de Benja, sesión 14). Las noches de 8 aplausos son **2 rondas de 4 seguidas**, cada una con su cuenta y su patrón: si se falla la segunda, se vuelve a la primera (decisión de Benja, 4 de noviembre). La señal solo vuelve a 100 al terminar todas.
 - Después, el jugador lo imita con **clics en el mixer o con la barra espaciadora**.
@@ -262,13 +286,14 @@ Si el temporizador llega a 0, el amigo decide solo (al azar entre sus 4 acciones
 
 - **Llegan en cualquier momento** de la noche, solo con las reglas de justicia (decisión de Benja, sesión 16).
 - **Tipos:**
-  - ambientales: la cortina se mueve, aparece la figura en la ventana, el celular vibra, las luces parpadean. La figura de la ventana está escondida y solo aparece al asustar (decisión de Benja, sesión 16);
+  - ambientales: la cortina se abre o se cierra sola (decisión de Benja, 7 de noviembre), aparece la figura en la ventana, el celular vibra, las luces parpadean. La figura de la ventana está escondida y solo aparece al asustar (decisión de Benja, sesión 16);
   - sobre el cuaderno: se cierra de golpe, o una mancha de tinta tapa las reglas durante 5 segundos;
-  - **la criatura en la ventana** (antes, un jumpscare de pantalla completa; decisión de Benja, 4 de noviembre): como máximo **uno por noche**, desde la noche 2. Se asoma por la ventana con respiración pesada y golpes en el vidrio. Se arma solo cuando el chat o el mixer tapan la ventana, y al cerrarlos ya está ahí; se queda unos 4 segundos. No tapa la pantalla ni pausa la noche.
+  - **la criatura en la ventana** (antes, un jumpscare de pantalla completa; decisión de Benja, 4 de noviembre): desde la noche 2 (1, 2, 2 y 3 veces por noche). Se asoma por la ventana con respiración pesada y golpes en el vidrio. Se arma solo cuando el chat o el mixer tapan la ventana, y al cerrarlos ya está ahí. No tapa la pantalla ni pausa la noche. **Se queda 25 s desde que llega** (decisión de Benja, 7 de noviembre): si la cortina estaba cerrada, la abre; mientras esté afuera con la cortina abierta, Sanity baja rápido. Cerrar la cortina no la espanta, y con la cortina cerrada no se oye, así que hay que abrirla para revisar si sigue ahí y volver a cerrarla si sigue.
 - **Señal previa breve:** un parpadeo de luz y una caída del sonido ambiente.
 - **Reglas de justicia:**
   - los que tapan la pantalla **pausan los temporizadores**;
-  - nunca ocurren en los últimos 5 segundos de una decisión.
+  - nunca ocurren en los últimos 5 segundos de una decisión;
+  - no empiezan mientras suena un audio de un amigo, para que no se confundan con él.
 - Cada uno resta una cantidad fija de Sanity. No dañan a Matías.
 - **El susto guionado** (decisión de Benja, sesión 16) enseña Sanity y el celular. Va al final de la noche 0. Después del susto:
   1. un amigo escribe: "Todo bien hermano?? Se te quedó el micro prendido y te escuché gritar";
@@ -310,10 +335,10 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 
 | Noche | Dónde están los amigos | Entidades nuevas | Qué se agrega |
 | --- | --- | --- | --- |
-| 0 (tutorial) | Alrededores de la cabaña | (usa las páginas de la noche 1) | Guiada y sin perder (§5): preguntar, identificar, responder desde el cuaderno y descargar un video. Al final, el susto guionado y su chat enseñan Sanity y el celular (§11). |
-| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust, ya sin ayuda. La señal baja un poco, con 1 interferencia y Audio Sync de 4 aplausos, y hay 2 screamers ambientales. El mensaje inicial siempre trae una pista. |
+| 0 (tutorial) | Alrededores de la cabaña | (usa las páginas de la noche 1) | Guiada y sin perder (§5): preguntar, identificar, escuchar un audio, responder desde el cuaderno y descargar un video. Al final, el susto guionado y su chat enseñan las cortinas, Sanity y el celular (§11). |
+| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust, ya sin ayuda. La señal baja un poco, con 1 interferencia y Audio Sync de 4 aplausos, y hay 2 screamers ambientales y 1 accidente. El mensaje inicial siempre trae una pista. |
 | 2 | Camino y lago | El Cuero, La Viuda | Señal por amigo, interferencias, Audio Sync de 4 tiempos, estática y screamers regulares. |
-| 3 | Bosque | El Trauco | Mensajes con menos observaciones: preguntar se vuelve necesario. |
+| 3 | Bosque | El Trauco | Sin pista en el mensaje inicial: preguntar es necesario. El Trauco comparte 2 características con La Calchona. |
 | 4 | Casa abandonada y cueva | El Basilisco, El Imbunche | Audio Sync de 8 aplausos (2 rondas de 4) y varias solicitudes a la vez. |
 | 5 | Todos los lugares | — | Todo a la vez, al máximo. |
 
@@ -354,6 +379,7 @@ El guion de las cinemáticas lo escribe Benja.
 - Desactivar el parallax.
 - Temporizadores ×1,5: alarga solo el tiempo para responder una solicitud (decisión de Benja, sesión 18).
 - Ninguna información crítica depende solo del color.
+- **Subtítulos de los audios** (Plan 9, para quien no pueda oírlos): el mensaje con audio muestra qué se oye.
 
 ## 20. Por confirmar
 

@@ -4,6 +4,76 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 21 — 7 de noviembre de 2026 — Plan 9 ejecutado: dinamismo
+
+S21 se adelantó al mismo 7 de noviembre (fecha objetivo: 10 a 17 de noviembre), justo después de S20, y se ejecutó inline con `superpowers:executing-plans` en Sonnet 5.5 · high, como proponía el registro. Benja autorizó los 11 commits en `main` al empezar. El plan se aplicó tal como está escrito: un script leyó los bloques de `docs/18` y los aplicó paso a paso, y en cada tarea los conteos de pruebas dieron los que el plan anticipa (461 → 521).
+
+### Realizado
+
+- **Tarea 1, las barras** (`scripts/ui/stat_bars.gd`): Connection, Sanity y Trust arriba, en el hueco entre el chat y el cuaderno, cada una con el color de su dial. Titilan si bajan 2 puntos o más de una vez y prenden una luz bajo 25. Los diales de la pared se quedan, y el aviso de la noche 0 baja a y = 70, bajo las barras. 469 pruebas.
+- **Tarea 2, acertar es más difícil:** tiempo para responder de 80, 65, 55, 45 y 40 s; pista de 100, 75, 0, 0 y 0 %; señuelos de 1, 2, 3, 3 y 4. El Trauco comparte 2 características con La Calchona (suma `long_tangled_hair`) y El Imbunche, con El Basilisco (suma `shed_skin`). 470 pruebas.
+- **Tarea 3, Audio Sync más rápido:** `audio_sync_bpm` pasa a cada noche (90, 100, 115, 130 y 145) y cada ronda va un 15 % más rápida que la anterior (`audio_sync_round_speedup`). La tolerancia no se tocó. 471 pruebas.
+- **Tarea 4, los audios en el chat:** `ChatMessage.add_audio()` y un enlace "▶ Escuchar audio" que suena con un clic, la estática lo tapa entero, no empiezan screamers ni alucinaciones mientras suena, y la opción nueva "Subtítulos de los audios" (apagada por defecto). 483 pruebas.
+- **Tarea 5, los audios de las 7 entidades:** cada una manda un audio en «¿Qué oyes?» y lo que se oye cambia la acción correcta (`cries`, `bleat_tone`, `whistle`, `heels`, `ground`, `crows` y `called_name`). 15 audios provisionales en `audio/clues/`, generados con `tools/make_placeholder_sounds.py`, y reglas y textos reescritos. 485 pruebas.
+- **Tarea 6, la batería del celular:** un tope de 38 s de scroll por noche, sin recarga, con su barra en el celular del escritorio y "Sin batería". 489 pruebas.
+- **Tarea 7, las cortinas:** se abren y se cierran con un clic, con el arte de Benja (tags `Open` y `Closed`). Cerradas, el cuarto se oscurece (`CurtainShade`) y Sanity baja de a poco. El screamer de la cortina la abre o la cierra. 495 pruebas.
+- **Tarea 8, la criatura se queda:** `creature_visits` (1, 2, 2 y 3 en las noches 2 a 5) reemplaza a `has_jumpscare`. La criatura abre la cortina al llegar, se queda 25 s aunque se cierre, baja Sanity rápido con la cortina abierta y no se oye con la cortina cerrada: hay que abrirla para revisar. 500 pruebas.
+- **Tarea 9, la noche 0:** el aviso enseña las cortinas con la criatura del susto guionado, y también los audios y la batería. 502 pruebas.
+- **Tarea 10, los accidentes:** `IncidentData` y `FriendIncident`, repartidos por el director. Un amigo libre, con señal y con más de 1 de vida se tropieza o se corta; se responde en el chat con 3 opciones de sentido común y 15 s, sin cuaderno. Una mala respuesta o no responder le quita 1 de vida y lo aturde, sin bajar Trust, y nunca mata. 521 pruebas.
+- **Tarea 11, documentos:** las decisiones de Benja del 7-nov entraron a `CLAUDE.md` y al diseño v2, y se actualizaron `docs/02`, `docs/04` (nueva sección N), `docs/06`, `docs/17`, `arte_pendiente.md` y `sonidos_pendiente.md`.
+- **Capturas** (`C:\dev\capturas\plan9_*.png`), las 5 revisadas a ojo: las barras con el cuaderno abierto, "▶ Escuchar audio" en turquesa, las cortinas cerradas con el cuarto oscuro, el celular con "15%" en rojo y el accidente con "¿Qué le dices?" y sus 3 opciones.
+- **Commits (11, directo en `main`, sin push):** `91b1925`, `aaa56e3`, `f500807`, `e5dfc6f`, `a967a9a`, `54e1927`, `142bc7b`, `0c360b4`, `34c2368`, `ba34ce3` y el de cierre, "Plan 9 terminado: dinamismo".
+- **El pendiente de las ayudas para los diales** ya se cumplió con las barras.
+
+### Errores encontrados
+
+- **Un detalle de formato del plan, en unos 15 bloques:** los bloques "reemplazar" cuyo texto está al final del archivo terminan con una línea en blanco que el archivo no tiene (casi siempre, el final de un archivo de pruebas; también `docs/04` y `chat_panel.tscn`). El aplicador los reconoce, los aplica sin esa línea y exige que estén al final del archivo; el resultado es el que el plan describe y los conteos coinciden.
+- **Un mensaje de commit distinto al del plan** en la Tarea 4: Claude escribió uno propio, y se corrigió con `amend` (el commit era local) antes de seguir.
+- **Aviso al cerrar el escritorio suelto** (`--quit-after`): `ambient_room.wav` sigue sonando cuando se cierra el juego y Godot avisa de 2 objetos sin liberar. No es un error de script ni viene de este plan; el menú principal arranca sin ninguna línea de error.
+- **Lo que no se probó:** cómo se sienten los valores, si los 15 audios provisionales se distinguen de oído y jugar una noche de punta a punta. Las pruebas y las capturas no dicen si es más entretenido: eso solo lo dice jugarlo (`docs/04`, N).
+
+### Pendientes Código
+
+- [ ] **S22: correcciones tras las pruebas con personas** (`docs/00_log.md`), con el contenido congelado el 25 de noviembre. Todos los valores del Plan 9 son de partida y se ajustan ahí: tiempos, señuelos, batería (38 s), cortinas, la criatura (25 s) y los accidentes.
+- [ ] Si en las pruebas con personas no entienden Audio Sync o los accidentes: enseñarlos en la noche 0.
+- [ ] Si la velocidad de Audio Sync se queda corta: bajar `audio_sync_tolerance` por noche.
+- [ ] Si Benja dibuja la animación de las cortinas o de la criatura: va en `curtains_sprite`.
+- [ ] Menor: el panel de opciones deja ver tenue el menú de pausa detrás (fondo al 95 %).
+- [ ] Menor: abrir el escritorio solo (F6): "Empezar la noche N" y "Volver al menú" no hacen nada, porque los atiende `GameState`.
+- [ ] Menor: al cerrar el escritorio suelto, el sonido ambiente en bucle queda sonando y Godot avisa de 2 objetos sin liberar.
+- [ ] Planes 10 en adelante según `docs/00_log.md`.
+- [ ] Registrar los `.en.translation` cuando la columna `en` tenga textos (también el de `phone.csv`).
+- [ ] Plan 10: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Plan 10: reemplazar los sonidos provisionales de `audio/sfx/` y `audio/clues/` (ver `sonidos_pendiente.md`) y, si hace falta, separar más canales que `Ambience` y `Effects`.
+- [ ] Cuando llegue el arte: el menú y el logo, las pantallas de victoria y derrota, el mixer, el celular, las barras de señal y de HUD, y los screamers.
+- [ ] Si en las pruebas con personas los videos y las interferencias se juntan con las olas de solicitudes: el director no los mueve hoy (`docs/14`, "Fuera de este plan").
+- [ ] Menor: que los segundos de una entrada en alerta no toquen el ícono ⚠ del arte.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si al probar se siente seco o lento: una demora de "escribiendo…" en las respuestas del amigo, y marcar en el chat qué categorías ya se preguntaron.
+- [ ] Borrar `~/godot-games/spook-dial` y las copias `C:\dev\plan8`, `C:\dev\plan8_check`, `C:\dev\plan9` y `C:\dev\plan9_check` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar el dinamismo** (`docs/04`, N, unos 20 minutos) y decir cómo se sienten la dificultad, las cortinas, la batería y los accidentes.
+- [ ] **Escuchar los 15 audios** (`audio/clues/`) y poner los reales (`sonidos_pendiente.md`), porque hay que distinguirlos de oído. Después, los de la criatura (`scare_creature_*.wav`) y el resto de `audio/sfx/`.
+- [ ] **Corregir las reglas de las 7 entidades** (están en `data/entities/`, en el Inspector, con sus textos en `messages.csv` y `notebook.csv`) y los textos nuevos del Plan 9: `RULE_*`, `OBS_*`, `INCIDENT_*`, `HUD_*`, `TUTORIAL_*`, `CHAT_AUDIO`, `CHAT_INCIDENT_HINT`, `OPTIONS_AUDIO_CAPTIONS` y `PHONE_NO_BATTERY`. Antes del congelamiento del contenido (25 de noviembre).
+- [ ] **Revisar los supuestos del Plan 9** (`docs/18`, al inicio), sobre todo que la criatura no se oiga con la cortina cerrada y que un accidente nunca mate.
+- [ ] **Probar el feedback** (`docs/04`, M, unos 15 minutos) y decir cómo se sienten las noches 1 y 2, Trust y la criatura. Los valores son de partida: `data/balance.tres` y `data/nights/night_N.tres`.
+- [ ] **Corregir los textos del Plan 8.1** (en `ui.csv`): `MIXER_ROUND` y `MIXER_FAIL_RESTART`. `TUTORIAL_DIALS` ya se reescribió en el Plan 9 para hablar de las barras.
+- [ ] **Probar el juego de punta a punta** (`docs/04`, L, unos 25 minutos): la noche 0, el menú, el guardado, la pausa y las opciones.
+- [ ] **Corregir los textos nuevos del Plan 8** (en `ui.csv`): el aviso del tutorial (`TUTORIAL_*`), el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el resumen y la victoria (`END_*`); y los 7 señuelos nuevos (`DECOY_*`, en `messages.csv`).
+- [ ] **Probar los screamers y el director** (`docs/04`, K), **la identificación por preguntas** (G), **el mantenimiento** (J), **la noche** (I) y **el chat y el cuaderno** (G y H).
+- [ ] **Corregir los textos que escribió Claude en los planes anteriores** (la lista completa está en la Sesión 17).
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara, y **probar el escalado a pantalla completa** (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] **Arte: la lista completa está en `arte_pendiente.md`.** El menú principal y el logo, las pantallas de victoria y derrota, y, si quieres animarlas, las cortinas y la criatura de la ventana.
+- [ ] Al probar con personas (semana 5): fijarse si notan que hay que preguntar, si la noche de práctica es muy larga o muy corta, y si entienden las barras, Audio Sync, los audios, las cortinas, la batería y los accidentes.
+- [x] El commit de la cortina cerrada de Benja (`art/sprites/curtains_sprite.aseprite`) ya estaba hecho: el Plan 9 partió con git limpio.
+
+---
+
 ## Sesión 20 — 7 de noviembre de 2026 — Notas de prueba ordenadas y Plan 9 escrito: dinamismo
 
 Benja probó el juego y notó que no era tan entretenido ni dinámico. Pidió ordenar sus 8 notas y volverlas acciones, respondió las preguntas y decidió que todo entra antes del 25 de noviembre, salvo la historia y editar videos. Se ordenaron en Sonnet y el plan se escribió en Opus 5.5 con `superpowers:writing-plans`. Benja también dibujó las cortinas cerradas durante la sesión. El código del plan **todavía no está en el juego**: se ejecuta en S21.

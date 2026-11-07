@@ -33,6 +33,8 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 | `arte_pendiente.md` | **Todo el arte que falta**, por urgencia, con tamaños y lo que hay hoy en su lugar. |
 | `sonidos_pendiente.md` | **Todos los sonidos provisionales**: dónde suena cada uno, cómo tendría que sonar y cómo reemplazarlo. |
 | `docs/16_plan_feedback_1.md` | Plan 8.1: el feedback de la primera prueba (la criatura en la ventana, las noches 1 y 2, Audio Sync en rondas, Trust y los diales). |
+| `docs/17_ideas_dinamismo.md` | Las notas de la prueba del 7-nov, ordenadas y con sus decisiones: de aquí sale el Plan 9. |
+| `docs/18_plan_dinamismo.md` | Plan 9, paso a paso: las barras, la dificultad, los audios, la batería, las cortinas y los accidentes. |
 | `art/positions.md` | Posición de cada objeto recortado en la escena. |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1. Es **histórico**: su encabezado dice qué se aceptó y qué no. |
 | `spook_dial_design_v1.md` | Diseño original (histórico). |
@@ -94,6 +96,16 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 04-11-2026 | **Audio Sync de 8 aplausos son 2 rondas de 4**, cada una con su cuenta y su patrón: si se falla la segunda, se vuelve a la primera. La señal solo vuelve a 100 al terminar las 2. |
 | 04-11-2026 | **Trust también baja si tardas en contestar:** cada solicitud que lleva más de 30 s abierta (45 con "Temporizadores ×1,5") le quita 0,25 por segundo, y mientras haya una Trust no se recupera. Preguntar cuenta como tiempo abierto. No aplica en la noche 0. |
 | 04-11-2026 | **Los diales se explican en la noche 0:** el primer aviso del tutorial dice qué es cada uno, con un botón "Entendido". No hay letreros ni avisos de cambio por ahora. |
+| 07-11-2026 | **Barras arriba de la pantalla:** Connection, Sanity y Trust también se ven como barras, cada una con su color, en el hueco entre el chat y el cuaderno, que no las tapan. Los diales de la pared se quedan. |
+| 07-11-2026 | **Acertar es más difícil:** menos tiempo por noche (80, 65, 55, 45 y 40 s), sin pista inicial desde la noche 3 y más señuelos (1, 2, 3, 3 y 4). Desde la noche 3 hay entidades que comparten 2 características. |
+| 07-11-2026 | **Audios en «¿Qué oyes?»:** cada entidad tiene una observación que el amigo manda como audio, y el jugador la escucha con un clic en el chat. Lo que se oye cambia la acción correcta (1, 3 o ningún grito del Tue Tué no son lo mismo; que La Calchona bale o bufe, tampoco). Las características siguen siendo texto clickeable. Se pueden repetir gratis, la estática puede tapar el audio (hay que volver a preguntar) y mientras suena no empiezan screamers ni alucinaciones. Opción "Subtítulos de los audios". |
+| 07-11-2026 | **Audio Sync más rápido:** la base sube noche a noche (90, 100, 115, 130 y 145 golpes por minuto), y la segunda ronda va un 15 % más rápida que la primera. |
+| 07-11-2026 | **El celular tiene batería:** un tope por noche, sin recarga, que alcanza para unos 38 s de scroll. Sin batería no hay feed. |
+| 07-11-2026 | **Las cortinas se abren y se cierran con un clic.** Cerradas, el cuarto se oscurece y Sanity baja de a poco; abiertas, no pasa nada, salvo que haya algo afuera. |
+| 07-11-2026 | **La criatura se queda un tiempo fijo** (25 s) y reemplaza a la decisión del 4-nov en lo que dura: mientras esté afuera con la cortina abierta, Sanity baja rápido. Si la cortina estaba cerrada, la abre al llegar. Cerrarla no la espanta y con la cortina cerrada no se oye, así que hay que abrirla para revisar si sigue ahí. Llega más veces: 1, 2, 2 y 3 en las noches 2 a 5. |
+| 07-11-2026 | **El screamer de la cortina** ya no la mece: la cortina se abre o se cierra sola. |
+| 07-11-2026 | **Accidentes:** un amigo se tropieza o se corta sin que nadie tenga la culpa (1, 1, 2, 2 y 3 por noche). Se responde en el chat con sentido común, sin cuaderno, en 15 s. Una mala respuesta o no contestar le quita 1 de vida y lo aturde, sin bajar Trust. Nunca matan a un amigo. |
+| 07-11-2026 | **La historia con decisiones y editar los videos quedan para después** de hacer divertidas las mecánicas (`docs/05`, puntos 21 y 22). |
 | 02-11-2026 | **Noche 0 (tutorial):** una noche nueva antes de la 1. El susto guionado y su chat son datos de una noche y van al final de la noche 0. |
 | 04-11-2026 | **La noche 0 es guiada y no se pierde:** unos 3 o 4 minutos, con 3 solicitudes fijas (una de cada amigo, con El Tue Tué y La Calchona). Un aviso arriba de la pantalla dice qué hacer en cada paso. El tiempo para responder no corre solo (solo las preguntas le quitan tiempo), nadie sale herido y Trust no baja. Enseña también a descargar un video (sus plazos esperan). Termina con el susto guionado, el chat de Gonzalo y el celular. "Nueva partida" empieza en la noche 0, y el aviso tiene un botón "Saltar tutorial". |
 | 04-11-2026 | **Las 7 entidades son un borrador de Claude:** las 3 de `docs/09` y 4 nuevas, como `.tres` y CSV. Benja las corrige antes del congelamiento del contenido (25-nov). |

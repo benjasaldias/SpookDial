@@ -149,16 +149,18 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 | --- | --- | --- | --- | --- | --- |
 | Solicitudes por noche (aprox.) | 5 | 7 | 7 | 8 | 10 |
 | Solicitudes simultáneas máx. | 2 | 2 | 2 | 3 | 3 |
-| Tiempo base para responder (s) | 85 | 80 | 75 | 70 | 65 |
-| Probabilidad de pista en el mensaje inicial | 100 % | 75 % | 50 % | 35 % | 20 % |
-| Señuelos por solicitud | 1 | 1 | 2 | 2 | 3 |
+| Tiempo base para responder (s) | 80 | 65 | 55 | 45 | 40 |
+| Probabilidad de pista en el mensaje inicial | 100 % | 75 % | 0 % | 0 % | 0 % |
+| Señuelos por solicitud | 1 | 2 | 3 | 3 | 4 |
+| Accidentes por noche | 1 | 1 | 2 | 2 | 3 |
 | La señal baja | Sí | Sí | Sí | Sí | Sí |
 | Interferencias (aprox. por noche) | 1 | 3 | 3 | 4 | 6 |
 | Audio Sync (aplausos; 8 son 2 rondas de 4) | 4 | 4 | 4 | 8 | 8 |
+| Audio Sync (golpes por minuto de la base) | 90 | 100 | 115 | 130 | 145 |
 | Cuota de videos (= envíos programados) | 2 | 3 | 3 | 4 | 4 |
 | Solicitudes por ola | 2 | 3 | 3 | 4 | 4 |
 | Screamers (sin contar las alucinaciones) | 2 | 4 | 4 | 5 | 6 |
-| Uno de ellos es la criatura de la ventana (el antiguo jumpscare) | No | Sí | Sí | Sí | Sí |
+| Cuántos de ellos son la criatura de la ventana (el antiguo jumpscare) | 0 | 1 | 2 | 2 | 3 |
 | Susto guionado (va en la noche 0 cuando exista) | A los 60 s | — | — | — | — |
 
 ### Medidores
@@ -167,9 +169,9 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 | --- | --- | --- | --- | --- | --- |
 | Señal (cada amigo) | 100 | Entre −1 cada 3 s y −1 cada 6 s: a cada amigo le toca un ritmo al azar en ese rango. Interferencia: −40, anunciada 3 s antes. | Audio Sync exitoso: vuelve a 100 | Estática (§4). Descargas más lentas bajo 50. | Ese amigo queda sin señal (§4.1) |
 | Connection (dial) | — | Es el promedio de las 3 señales | — | — | Se pierde la noche |
-| Sanity | 100 | −1 cada 6 s (N1: cada 10 s). Screamer: −8 ambiental, −15 la criatura de la ventana. | +4 por segundo mientras scrolleas | Viñeta oscura y screamers auditivos falsos, más fuertes cuanto más baja | Se pierde la noche |
+| Sanity | 100 | −1 cada 6 s (N1: cada 10 s). Screamer: −8 ambiental, −15 la criatura de la ventana. Cortinas cerradas: −0,3 por segundo más. Criatura afuera con la cortina abierta: −2 por segundo más. | +4 por segundo mientras scrolleas, con batería (38 s de scroll por noche, sin recarga) | Viñeta oscura y screamers auditivos falsos, más fuertes cuanto más baja | Se pierde la noche |
 | Trust | 100 al empezar cada noche | Ver §5.2. Con amigos sin señal, −1 cada 4 s por cada uno (§4.1). Cada solicitud abierta más de 30 s: −0,25 por segundo (45 s con "Temporizadores ×1,5"; decisión de Benja, 4 de noviembre). | +1 cada 8 s si no bajó en 20 s | Temporizador × (0,6 + 0,4 × Trust/100) | Se pierde la noche |
-| Vida (cada amigo) | 3 PV | Ver §5.2 | No se recupera durante la noche | Avatar herido | Muere y se pierde la noche |
+| Vida (cada amigo) | 3 PV | Ver §5.2. Accidente mal respondido o sin respuesta: −1 PV, sin bajar Trust. | No se recupera durante la noche | Avatar herido | Muere y se pierde la noche |
 
 ### Otros
 
@@ -178,16 +180,17 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 - Espera de identificación: 3 s.
 - Empezar a descargar un video que llegó: 15 s; si no, se pierde. Terminar la descarga: 20 s desde que empezó (decisión de Benja, sesión 14).
 - Descarga: 10 s manteniendo presionada la barra del chat (15 s si la señal de ese amigo está bajo 50; sin señal no avanza). Si se suelta, se pausa.
-- Audio Sync: una base de 100 golpes por minuto. Tras un compás de cuenta, el amigo aplaude 4 veces en corcheas (el primer aplauso al comienzo) y Matías lo repite en el compás siguiente. Las noches de 8 aplausos son 2 rondas de 4 seguidas, cada una con su cuenta y su patrón; si se falla la segunda, se vuelve a la primera con patrones nuevos (decisión de Benja, 4 de noviembre). Tolerancia de cada golpe: ±150 ms.
+- Audio Sync: la base va en los golpes por minuto de cada noche, y cada ronda va un 15 % más rápida que la anterior. Tras un compás de cuenta, el amigo aplaude 4 veces en corcheas (el primer aplauso al comienzo) y Matías lo repite en el compás siguiente. Las noches de 8 aplausos son 2 rondas de 4 seguidas, cada una con su cuenta y su patrón; si se falla la segunda, se vuelve a la primera con patrones nuevos (decisión de Benja, 4 de noviembre). Tolerancia de cada golpe: ±150 ms.
 - Scroll del celular: cada movimiento de la rueda cuenta 0,3 s de scroll.
 - Director de ritmo (decisión de Benja, sesión 16): la primera solicitud a los 5 s; un respiro de 25 s después de cada ola; al final de la noche, los espacios entre solicitudes son la mitad que al principio; al menos 6 s entre dos solicitudes; un amigo herido atrasa 10 s las que faltan.
 - Screamers (decisión de Benja, sesión 16: en cualquier momento, con las reglas de justicia):
   - uno por tramo igual de la noche, desde los 30 s y con al menos 25 s entre dos;
   - la señal previa dura 1 s: las luces parpadean y baja el sonido ambiente;
-  - nunca empiezan si a una decisión le quedan 5 s o menos al terminar la señal previa (la mancha de tinta, que tapa las reglas 5 s, necesita 5 s más), ni durante una ronda de Audio Sync;
+  - nunca empiezan si a una decisión o a un accidente le quedan 5 s o menos al terminar la señal previa (la mancha de tinta, que tapa las reglas 5 s, necesita 5 s más), ni durante una ronda de Audio Sync o un audio de un amigo;
   - los ambientales se eligen solo si su objeto está a la vista (el chat, el mixer y el celular ampliado tapan la ventana y el celular), y los del cuaderno, si está abierto. Las luces se ven siempre;
-  - la criatura de la ventana (el antiguo jumpscare) solo se arma con el chat o el mixer abiertos, que tapan la ventana; se ve apenas se cierran y se queda 4 s. No tapa nada ni pausa la noche (decisión de Benja, 4 de noviembre).
-- Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync ni durante un screamer.
+  - la criatura de la ventana (el antiguo jumpscare) solo se arma con el chat o el mixer abiertos, que tapan la ventana; se ve apenas se cierran y se queda 25 s desde que llega, aunque se cierren las cortinas. No tapa nada ni pausa la noche (decisiones de Benja, 4 y 7 de noviembre).
+- Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync, un audio de un amigo ni un screamer.
+- Accidentes (decisión de Benja, 7 de noviembre): se reparten en la noche como los screamers, 15 s para responder (22,5 s con "Temporizadores ×1,5"). Solo le pasan a un amigo libre, con señal y con más de 1 PV; si la ola está llena, esperan.
 - El chat guionado: cada línea del amigo llega 2,5 s después de la anterior; las de Matías esperan su botón.
 
 ---
@@ -280,7 +283,8 @@ Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`d
 DecoyData        señuelo: como TraitData (id, category, text_key), más place_keys[] (vacío = cualquier lugar)
 TraitData        id, category (SIGHT/SOUND/ENVIRONMENT/TRACES = Vista/Sonido/Ambiente/Rastro),
                  text_key (fragmento con la frase destacable entre asteriscos)
-ObservationData  id, category, question_key (la pregunta en el cuaderno),
+IncidentData     id, message_key, correct_key, wrong_keys (1 o 2): un accidente, en ContentCatalog.incidents
+ObservationData  id, category, audio_values (valor → audio; solo en "¿Qué oyes?"), question_key (la pregunta en el cuaderno),
                  values {valor → clave de su fragmento} (ej. friend, trauco)
 ActionData       id, label_key
 RuleData         conditions {id de observación → valor}, correct_action_id,
@@ -293,7 +297,7 @@ NightData        number, place_key, new_entities[], requests_total, max_simultan
                  decoys_per_request, wave_size (solicitudes por ola),
                  signal_decays, signal_decay_interval, interference_count,
                  audio_sync_beats, sanity_drain_interval, content_quota,
-                 scare_count, has_jumpscare,
+                 scare_count, creature_visits, incident_count, audio_sync_bpm,
                  scripted_scare_time, scripted_scare (ScareKind), scripted_chat (ChatScriptData),
                  tutorial_requests[] (solo la noche 0)
 TutorialRequestData  una solicitud fija de la noche 0: friend, entity, situation {observación → valor},

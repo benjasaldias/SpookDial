@@ -11,7 +11,7 @@ Hoja de ruta para construir la v1 (`docs/05` §1) antes del 10 de diciembre. Div
 - El **Plan 7** está escrito paso a paso en `docs/14_plan_screamers_director.md` (ejecutado).
 - El **Plan 8** está escrito paso a paso en `docs/15_plan_noches_menu.md` (ejecutado).
 - Sus decisiones (el feedback de la primera prueba) están en el **Plan 8.1**, `docs/16_plan_feedback_1.md` (ejecutado).
-- El **Plan 9: dinamismo** tiene sus decisiones en `docs/17_ideas_dinamismo.md` y se escribe paso a paso en `docs/18_plan_dinamismo.md` (sesión S20).
+- El **Plan 9: dinamismo** tiene sus decisiones en `docs/17_ideas_dinamismo.md` y está escrito paso a paso en `docs/18_plan_dinamismo.md` (ejecutado).
 - Cada plan siguiente se escribe en detalle al comenzar su sesión, con el mismo formato (skill `superpowers:writing-plans`).
 
 ---

@@ -1,6 +1,6 @@
 # Ideas para hacer el juego más dinámico (notas de la prueba del 7-nov)
 
-**Esto es un borrador de Claude, ya con todas las decisiones de diseño tomadas (7-nov).** Ordena las notas de Benja y las vuelve acciones concretas. Falta solo planificar las sesiones (§4) y actualizar `docs/05`.
+**Las notas de Benja del 7 de noviembre, ordenadas y con sus decisiones.** Ya se volvieron plan: `docs/18_plan_dinamismo.md`, que además fija lo que aquí quedó abierto. Si algo no coincide, vale el plan.
 
 ## 1. Diagnóstico
 

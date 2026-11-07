@@ -1,6 +1,6 @@
 """Genera los sonidos provisionales de los planes 6 y 7 en audio/sfx/ (WAV mono de 16 bits a 44 100 Hz).
 
-Son de relleno, hasta que Benja elija los definitivos (Plan 9):
+Son de relleno, hasta que Benja elija los definitivos (Plan 10):
 - Plan 6: la base y los aplausos de Audio Sync, el golpe de Matías, el resultado de una ronda y la estática
   que anuncia una interferencia;
 - Plan 7: el sonido ambiente del cuarto, uno por screamer y los cuatro de las alucinaciones;

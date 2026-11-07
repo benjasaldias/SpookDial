@@ -18,6 +18,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **E.** Cómo mover un objeto de la escena | Referencia |
 | **F.** Revisar una entidad en el Inspector (Plan 2) | ⬜ Pendiente (unos 5 minutos) |
 | **G.** Probar las solicitudes y el chat (Plan 3) | ⬜ Pendiente (unos 10 minutos) |
+| **N.** Probar el dinamismo (Plan 9) | ⬜ Pendiente (unos 20 minutos) |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
 | **J.** Probar el mantenimiento (Plan 6) | ⬜ Pendiente (unos 20 minutos) |
@@ -359,7 +360,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
 
 1. **Los diales:** con **Nueva partida**, lo primero que dice el aviso de la noche 0 son los 3 diales, con un botón **Entendido**. Presiónalo: sigue el aviso de siempre.
-2. **La criatura en la ventana:** en la noche 2 o más, deja el chat de un amigo abierto cuando llegue el susto (se nota por la señal previa: las luces parpadean y baja el ambiente). Se oyen una respiración y golpes en el vidrio, pero no se ve nada. Cierra el chat: la criatura ya está en la ventana, y se va a los 4 s. No tapa la pantalla.
+2. **La criatura en la ventana:** en la noche 2 o más, deja el chat de un amigo abierto cuando llegue el susto (se nota por la señal previa: las luces parpadean y baja el ambiente). Se oyen una respiración y golpes en el vidrio, pero no se ve nada. Cierra el chat: la criatura ya está en la ventana. No tapa la pantalla. (Desde el Plan 9 se queda 25 s: ver la sección N.)
 3. **Las noches 1 y 2:** la noche 1 ahora tiene señal que baja, 1 interferencia, Audio Sync de 4 aplausos y 2 screamers (sin la criatura). ¿Pasa más? ¿Es muy difícil? Anota qué sientes.
 4. **Audio Sync en 2 rondas:** en la noche 4 o 5, el mixer dice "Ronda 1 de 2". Si aciertas, pasa sola a la 2. Si fallas la 2, dice que vuelves a la ronda 1.
 5. **Trust:** deja una solicitud sin responder más de 30 s y mira el dial amarillo: baja de a poco. Responde y deja de bajar.
@@ -369,6 +370,33 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 ### Para ajustar
 
 - **Trust por tardar:** `data/balance.tres`, `Slow Answer Grace` (30 s) y `Slow Answer Trust` (0,25 por segundo).
-- **Cuánto se queda la criatura:** `Creature Seconds` (4 s).
+- **Cuánto se queda la criatura:** `Creature Seconds` (25 s desde el Plan 9).
 - **Las noches 1 y 2:** `data/nights/night_1.tres` y `night_2.tres`, en el Inspector.
 - **Los sonidos de la criatura:** `sonidos_pendiente.md`.
+
+## N. Probar el dinamismo (Plan 9)
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez. Con **Nueva partida** o **Continuar**, según la noche que quieras ver.
+
+1. **Las barras:** arriba, en el centro, están Connection, Sanity y Trust. Abre el chat y el cuaderno a la vez: se siguen viendo. Equivócate en una respuesta: Trust titila.
+2. **Los audios:** en una solicitud, presiona **¿Qué oyes?**. El amigo manda **▶ Escuchar audio**: haz clic para oírlo, las veces que quieras. Abre la página de la entidad: lo que se oye cambia la regla que se aplica.
+3. **Audio Sync:** en la noche 1 la base es lenta, y en la noche 5, bastante más rápida. En la noche 4 o 5, la ronda 2 va más rápida que la 1.
+4. **La batería:** scrollea el celular: el porcentaje baja, y también la barrita verde del celular del escritorio. Con 0 %, dice "Sin batería" y Sanity ya no sube.
+5. **Las cortinas:** haz clic en ellas: se cierran, el cuarto se oscurece y Sanity baja un poco más rápido. Otro clic las abre.
+6. **La criatura:** desde la noche 2, con el chat abierto se oyen golpes. Ciérralo: la criatura está en la ventana y Sanity baja rápido. Cierra la cortina: deja de oírse. Ábrela: si sigue ahí, se ve y se oye; se va a los 25 s de llegar.
+7. **La cortina sola:** a veces un screamer abre o cierra la cortina.
+8. **Los accidentes:** un amigo escribe que se tropezó o se cortó. En su chat aparecen opciones, sin cuaderno, y tienes 15 s. Elige la mala a propósito: pierde 1 de vida y queda aturdido, pero Trust no baja.
+9. **La noche 0:** el aviso ya no va pegado arriba, sino bajo las barras, y al final enseña las cortinas.
+
+**Verifica:** los pasos 1 a 9 se cumplen. Si algo falla o se siente mal, anótalo.
+
+### Para ajustar
+
+- **Tiempo, pista, señuelos, accidentes y visitas de la criatura:** `data/nights/night_N.tres`, en el Inspector (`Base Decision Time`, `First Hint Chance`, `Decoys Per Request`, `Incident Count` y `Creature Visits`).
+- **Audio Sync:** `Audio Sync Bpm` en cada noche, y `Audio Sync Round Speedup` en `data/balance.tres`.
+- **La batería:** `Phone Battery Seconds` en `data/balance.tres` (38 s).
+- **Las cortinas y la criatura:** `Closed Curtains Sanity` (0,3), `Creature Sanity` (2) y `Creature Seconds` (25).
+- **Los accidentes:** `Incident Seconds` (15) e `Incident Damage` (1); sus textos, en `messages.csv` (`INCIDENT_*`).
+- **Las reglas y los audios de cada entidad:** `data/entities/`, en el Inspector.
+
+Si cambias un valor de `data/balance.tres` o de una noche a propósito, avísale a Claude: `test_balance.gd` lo compara con `docs/02`.
