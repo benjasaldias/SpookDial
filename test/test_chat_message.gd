@@ -62,3 +62,18 @@ func test_lo_tapado_se_ve_como_estatica() -> bool:
 	(message.tokens[6] as ChatMessage.Token).covered = true
 	check_eq(message.plain_text(), "Vi un %s %s" % [ChatMessage.COVER_TEXT, ChatMessage.COVER_TEXT], "texto con estática")
 	return true
+
+
+func test_un_audio_es_una_sola_pieza() -> bool:
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	message.add_fragment("Escucha.")
+	var stream := AudioStreamWAV.new()
+	message.add_audio(stream, "▶ Escuchar audio", "Gritó tres veces.")
+	check_eq(message.audio, stream, "el mensaje guarda el audio")
+	check_eq(message.audio_caption, "Gritó tres veces.", "y su subtítulo")
+	var token: ChatMessage.Token = message.tokens[-1]
+	check(token.is_audio, "la última pieza es el audio")
+	check_eq(token.text, "▶ Escuchar audio", "entera, sin separar las palabras")
+	check(token.can_be_covered(), "la estática lo puede tapar")
+	check(not token.is_clue(), "no es una frase clickeable")
+	return true

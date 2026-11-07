@@ -18,6 +18,8 @@ var reduce_flashes := false
 var still_camera := false
 ## El tiempo para responder una solicitud es 1,5 veces más largo.
 var slow_timers := false
+## Los audios de los amigos muestran qué se oye, para quien no pueda oírlos.
+var audio_captions := false
 
 
 func timer_scale() -> float:
@@ -34,6 +36,7 @@ func read(path: String) -> void:
 	reduce_flashes = bool(file.get_value(SECTION, "reduce_flashes", false))
 	still_camera = bool(file.get_value(SECTION, "still_camera", false))
 	slow_timers = bool(file.get_value(SECTION, "slow_timers", false))
+	audio_captions = bool(file.get_value(SECTION, "audio_captions", false))
 
 
 func write(path: String) -> Error:
@@ -43,6 +46,7 @@ func write(path: String) -> Error:
 	file.set_value(SECTION, "reduce_flashes", reduce_flashes)
 	file.set_value(SECTION, "still_camera", still_camera)
 	file.set_value(SECTION, "slow_timers", slow_timers)
+	file.set_value(SECTION, "audio_captions", audio_captions)
 	return file.save(path)
 
 

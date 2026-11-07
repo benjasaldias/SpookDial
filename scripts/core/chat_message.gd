@@ -21,6 +21,8 @@ class Token:
 	## id de la característica o del señuelo; vacío si la pieza no se puede clickear.
 	var clue_id: StringName
 	var covered := false
+	## Es el audio del mensaje: se clickea para escucharlo.
+	var is_audio := false
 
 	func _init(token_text: String, token_clue_id: StringName = &"") -> void:
 		text = token_text
@@ -45,6 +47,10 @@ var tone := Tone.DANGER
 var tokens: Array[Token] = []
 ## La solicitud a la que pertenece el mensaje: de ella salen el estado de cada frase clickeable.
 var request: FriendRequest
+## El audio que manda el amigo, o null (decisión de Benja, 7 de noviembre).
+var audio: AudioStream
+## Qué se oye en el audio, para la opción "Subtítulos de los audios".
+var audio_caption := ""
 
 
 func _init(message_sender: Sender, message_request: FriendRequest) -> void:
@@ -63,6 +69,17 @@ func add_fragment(text: String, clue_id: StringName = &"") -> void:
 			tokens.append(Token.new(piece_text.substr(1, piece_text.length() - 2), clue_id))
 		else:
 			tokens.append(Token.new(piece_text))
+
+
+## Agrega un audio: una sola pieza con `label`, que la estática tapa entera o no tapa.
+func add_audio(stream: AudioStream, label: String, caption: String) -> void:
+	audio = stream
+	audio_caption = caption
+	if not tokens.is_empty():
+		tokens.append(Token.new(" "))
+	var token := Token.new(label)
+	token.is_audio = true
+	tokens.append(token)
 
 
 ## El texto como se ve, con la estática.

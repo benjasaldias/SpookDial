@@ -4,8 +4,11 @@ extends MarginContainer
 ## RichTextLabel, y la estática se ve como ▒▒▒. El nombre aparece de una vez y el mensaje, de a poco.
 ## Características y señuelos se ven iguales hasta que se clickean: la característica queda marcada
 ## y el señuelo vibra y queda rojo. Los avisos del juego, como el de daño, van centrados y en rojo.
+## Un audio es otro enlace: se escucha con un clic (decisión de Benja, 7 de noviembre).
 
 signal clue_clicked(view: Node, clue_id: StringName)
+## Clic en el audio del mensaje.
+signal audio_clicked(view: Node)
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
@@ -16,6 +19,9 @@ const CHARS_PER_SECOND := 60.0
 const SHAKE_SECONDS := 0.6
 ## Lo que separa la burbuja del borde contrario: el amigo escribe a la izquierda y Matías a la derecha.
 const INDENT := 48
+## El enlace del audio, que no se confunde con el id de una frase clickeable.
+const AUDIO_META := "__audio"
+const AUDIO_COLOR := "40c2c9"
 const CLUE_COLOR := "ffb347"
 const MARKED_COLOR := "7ee08a"
 const DECOY_COLOR := "ff4d5e"
@@ -28,16 +34,19 @@ var message: ChatMessage
 ## Quién escribe, en mayúsculas ("LEÓN"), y su color. Sin nombre, el mensaje va sin etiqueta.
 var speaker := ""
 var speaker_color := Color.WHITE
+## Se muestra qué se oye en el audio: la opción "Subtítulos de los audios".
+var show_caption := false
 
 var _label: RichTextLabel
 var _typing: Tween
 var _shaking_clue := &""
 
 
-func _init(chat_message: ChatMessage, speaker_name := "", color := Color.WHITE) -> void:
+func _init(chat_message: ChatMessage, speaker_name := "", color := Color.WHITE, caption := false) -> void:
 	message = chat_message
 	speaker = speaker_name
 	speaker_color = color
+	show_caption = caption
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	var from_player := message.sender == ChatMessage.Sender.PLAYER
 	var bubble := PanelContainer.new()
@@ -122,6 +131,8 @@ func _token_bbcode(token: ChatMessage.Token) -> String:
 		return _colored(ChatMessage.COVER_TEXT, STATIC_COLOR)
 	# [lb] escribe un corchete literal: así "[PROTO]" no se lee como etiqueta.
 	var text := token.text.replace("[", "[lb]")
+	if token.is_audio:
+		return _audio_bbcode(text)
 	if not token.is_clue():
 		return text
 	match message.request.clue_state(token.clue_id):
@@ -135,13 +146,26 @@ func _token_bbcode(token: ChatMessage.Token) -> String:
 	return "[url=%s]%s[/url]" % [token.clue_id, _colored(text, CLUE_COLOR)]
 
 
+## El audio se escucha con un clic, hasta que termina su solicitud. Con la opción, se lee qué se oye.
+func _audio_bbcode(text: String) -> String:
+	var bbcode := _colored(text, AUDIO_COLOR)
+	if message.request == null or not message.request.finished:
+		bbcode = "[url=%s]%s[/url]" % [AUDIO_META, bbcode]
+	if show_caption:
+		bbcode += " (%s)" % message.audio_caption.replace("[", "[lb]")
+	return bbcode
+
+
 ## Cuántas letras ocupa "LEÓN: ", que se ven antes de que empiece a escribir.
 func _speaker_prefix_length() -> int:
 	return 0 if speaker.is_empty() else speaker.length() + 2
 
 
 func _on_meta_clicked(meta: Variant) -> void:
-	clue_clicked.emit(self, StringName(str(meta)))
+	if str(meta) == AUDIO_META:
+		audio_clicked.emit(self)
+	else:
+		clue_clicked.emit(self, StringName(str(meta)))
 
 
 static func _colored(text: String, color: String) -> String:

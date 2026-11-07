@@ -176,3 +176,50 @@ func test_un_aviso_bueno_va_en_verde() -> bool:
 	check(not label.text.contains(ChatMessageView.DANGER_COLOR), "no en rojo")
 	view.free()
 	return true
+
+
+## Un mensaje de la solicitud con un audio.
+func _make_audio_message(request: FriendRequest) -> ChatMessage:
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
+	message.add_audio(Fixtures.make_audio(), "▶ Audio", "Gritó tres veces.")
+	return message
+
+
+func test_un_audio_es_un_enlace() -> bool:
+	var view := _make_view(_make_audio_message(_make_request()))
+	check(_label(view).text.contains("[url=%s]" % ChatMessageView.AUDIO_META), "se puede clickear")
+	check(not _label(view).get_parsed_text().contains("Gritó"), "sin subtítulo")
+	var clicked: Array = []
+	view.audio_clicked.connect(func(clicked_view: Node) -> void: clicked.append(clicked_view))
+	view._on_meta_clicked(ChatMessageView.AUDIO_META)
+	check_eq(clicked, [view], "avisa que se clickeó")
+	view.free()
+	return true
+
+
+func test_un_audio_tapado_no_se_puede_escuchar() -> bool:
+	var message := _make_audio_message(_make_request())
+	message.tokens[-1].covered = true
+	var view := _make_view(message)
+	check(not _label(view).text.contains("[url"), "sin enlace: hay que volver a preguntar")
+	check(_label(view).get_parsed_text().contains(ChatMessage.COVER_TEXT), "se ve tapado")
+	view.free()
+	return true
+
+
+func test_un_audio_de_una_solicitud_terminada_no_se_escucha() -> bool:
+	var request := _make_request()
+	var view := _make_view(_make_audio_message(request))
+	request.finished = true
+	view.refresh()
+	check(not _label(view).text.contains("[url"), "sin enlace")
+	view.free()
+	return true
+
+
+func test_el_subtitulo_del_audio() -> bool:
+	var view := ChatMessageView.new(_make_audio_message(_make_request()), "", Color.WHITE, true)
+	(Engine.get_main_loop() as SceneTree).root.add_child(view)
+	check(_label(view).get_parsed_text().contains("Gritó tres veces."), "con la opción, se lee")
+	view.free()
+	return true

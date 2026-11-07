@@ -21,6 +21,8 @@ const NOTHING_KEYS := {
 	ClueCategory.Kind.ENVIRONMENT: "ANSWER_NOTHING_ENVIRONMENT",
 	ClueCategory.Kind.TRACES: "ANSWER_NOTHING_TRACES",
 }
+## Lo que se ve en lugar de una observación que el amigo manda como audio (ui.csv).
+const AUDIO_LABEL_KEY := "CHAT_AUDIO"
 ## El amigo decidió solo porque nadie respondió a tiempo. {action} es la acción que eligió (messages.csv).
 const DECIDED_ALONE_KEY := "FRIEND_DECIDED_ALONE"
 ## Lo que cuenta el amigo después de la acción, según el resultado, si no quedó herido (messages.csv).
@@ -60,13 +62,19 @@ static func first_message(request: FriendRequest, translate: Callable) -> ChatMe
 
 ## Respuesta a una pregunta: las características y los señuelos de esa categoría (con la pista del mensaje
 ## inicial, si es de esa categoría) y todas las observaciones de esa categoría. Es la única forma de saberlos.
+## Una observación con audio llega como audio: hay que escucharla (decisión de Benja, 7 de noviembre).
 static func answer(request: FriendRequest, category: ClueCategory.Kind, translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
 	for clue: TraitData in request.clues:
 		if clue.category == category:
 			message.add_fragment(_text(translate, clue.text_key), clue.id)
 	for observation: ObservationData in request.entity.observations:
-		if observation.category == category:
+		if observation.category != category:
+			continue
+		var stream := observation.audio_for(request.situation[observation.id])
+		if stream != null:
+			message.add_audio(stream, _text(translate, AUDIO_LABEL_KEY), _observation_text(request, observation, translate))
+		else:
 			message.add_fragment(_observation_text(request, observation, translate))
 	if message.tokens.is_empty():
 		message.add_fragment(_text(translate, NOTHING_KEYS[category]))

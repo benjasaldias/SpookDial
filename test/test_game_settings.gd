@@ -15,6 +15,7 @@ func test_valores_por_defecto() -> bool:
 	for bus: StringName in GameSettings.BUSES:
 		check_eq(settings.volumes[bus], 1.0, "volumen de %s" % bus)
 	check(not settings.reduce_flashes and not settings.still_camera and not settings.slow_timers, "todo apagado")
+	check(not settings.audio_captions, "sin subtítulos: hay que oír los audios")
 	check_eq(settings.timer_scale(), 1.0, "temporizadores normales")
 	settings.slow_timers = true
 	check_eq(settings.timer_scale(), 1.5, "temporizadores ×1,5")
@@ -28,12 +29,14 @@ func test_se_guardan_y_se_leen() -> bool:
 	settings.reduce_flashes = true
 	settings.still_camera = true
 	settings.slow_timers = true
+	settings.audio_captions = true
 	check_eq(settings.write(TEST_PATH), OK, "se guardan")
 	var read := GameSettings.new()
 	read.read(TEST_PATH)
 	check_eq(read.volumes[&"Effects"], 0.25, "volumen")
 	check_eq(read.volumes[&"Master"], 1.0, "el resto igual")
 	check(read.reduce_flashes and read.still_camera and read.slow_timers, "los interruptores")
+	check(read.audio_captions, "los subtítulos de los audios")
 	_remove_test_file()
 	return true
 
@@ -67,7 +70,8 @@ func test_el_volumen_de_cada_canal() -> bool:
 
 ## Cada sonido va a su canal: el ambiente del cuarto a Ambience, y todo lo demás a Effects.
 func test_cada_sonido_en_su_canal() -> bool:
-	for path: String in ["res://scenes/desk/desk.tscn", "res://scenes/ui/mixer_view.tscn"]:
+	for path: String in ["res://scenes/desk/desk.tscn", "res://scenes/ui/mixer_view.tscn",
+			"res://scenes/ui/chat_panel.tscn"]:
 		var scene := (load(path) as PackedScene).instantiate()
 		var players := scene.find_children("*", "AudioStreamPlayer", true, false)
 		players.append_array(scene.find_children("*", "AudioStreamPlayer2D", true, false))

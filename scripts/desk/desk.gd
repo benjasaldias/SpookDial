@@ -122,7 +122,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_refresh_entries()
 	_refresh_meters()
-	_screamers.advance(delta, _scare_view(), _mixer.is_playing())
+	_screamers.advance(delta, _scare_view(), _mixer.is_playing() or _chat_panel.is_audio_playing())
 	if _guide != null:
 		_refresh_tutorial()
 
@@ -148,6 +148,7 @@ func apply_settings(settings: GameSettings) -> void:
 	_stat_bars.reduce_flashes = settings.reduce_flashes
 	$LookCamera.set_look(not settings.still_camera)
 	_requests.timer_scale = settings.timer_scale()
+	_chat_panel.audio_captions = settings.audio_captions
 
 
 ## Pausa la noche y abre el menú de pausa. Una noche que terminó no se pausa.

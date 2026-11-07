@@ -191,3 +191,24 @@ func test_los_textos_de_videos_y_senal_existen() -> bool:
 				"CHAT_VIDEO_RECEIVED debe tener %s" % placeholder)
 	TranslationServer.set_locale(previous)
 	return true
+
+
+## El amigo manda un audio en lugar de contar la observación (decisión de Benja, 7 de noviembre).
+func test_una_observacion_con_audio_llega_como_audio() -> bool:
+	var request := _make_request()
+	var stream := Fixtures.make_audio()
+	request.entity.observations[1].audio_values = {&"yes": Fixtures.make_audio(), &"no": stream}
+	var message := MessageBuilder.answer(request, ClueCategory.Kind.SOUND, _translate)
+	check_eq(message.audio, stream, "el audio del valor de esta solicitud")
+	check_eq(message.audio_caption, "K_beast_O2_NO.", "su texto queda de subtítulo")
+	check(not message.plain_text().contains("K_beast_O2_NO"), "el amigo no lo cuenta")
+	check(message.plain_text().contains(MessageBuilder.AUDIO_LABEL_KEY), "se ve el audio: " + message.plain_text())
+	check(_clue_ids(message).has(&"beast_trait_2"), "la característica sigue siendo clickeable")
+	return true
+
+
+func test_las_otras_categorias_no_traen_audio() -> bool:
+	var request := _make_request()
+	request.entity.observations[1].audio_values = {&"yes": Fixtures.make_audio(), &"no": Fixtures.make_audio()}
+	check_eq(MessageBuilder.answer(request, ClueCategory.Kind.SIGHT, _translate).audio, null, "¿Qué ves?, sin audio")
+	return true

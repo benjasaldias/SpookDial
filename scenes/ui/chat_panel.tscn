@@ -158,3 +158,6 @@ offset_top = 21.0
 offset_right = 428.0
 offset_bottom = 675.0
 mouse_filter = 2
+
+[node name="AudioClip" type="AudioStreamPlayer" parent="."]
+bus = &"Effects"

@@ -8,6 +8,8 @@ extends Control
 ## En un chat guionado, Matías responde con un botón que tiene su línea (decisión de Benja, Plan 7).
 ## Se ve como una terminal: cada mensaje lleva el nombre de quien escribe ("LEÓN:") en su color, y las
 ## pestañas y las preguntas van en mayúsculas (decisión de Benja, 31-oct).
+## Los audios que mandan los amigos suenan aquí, con un clic en el mensaje (decisión de Benja, 7 de noviembre), y
+## al cerrar el chat se cortan.
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
 ## Clic en el nombre de la entidad: el cuaderno abre su página.
@@ -54,6 +56,8 @@ const CONVERSATION_BOTTOM := 431.0
 const CONVERSATION_BOTTOM_WITH_DOWNLOAD := 395.0
 
 var selected_friend := 0
+## La opción "Subtítulos de los audios": vale para los mensajes que llegan desde ahora.
+var audio_captions := false
 
 var _manager: RequestManager
 var _memory: NotebookMemory
@@ -81,6 +85,7 @@ var _holding_download := false
 @onready var _answer_hint: Label = $Panel/AnswerHint
 @onready var _answers: GridContainer = $Panel/Answers
 @onready var _script_reply: Button = $Panel/ScriptReply
+@onready var _audio_clip: AudioStreamPlayer = $AudioClip
 
 
 func _ready() -> void:
@@ -109,6 +114,7 @@ func _ready() -> void:
 	_download_hold.button_up.connect(_set_holding_download.bind(false))
 	# Al cerrar el chat, la descarga se suelta.
 	visibility_changed.connect(_set_holding_download.bind(false))
+	visibility_changed.connect(_audio_clip.stop)
 
 
 ## Conecta el panel a las solicitudes y a la memoria del cuaderno. Crea una pestaña y una conversación
@@ -153,6 +159,11 @@ func setup(manager: RequestManager, friends: Array[FriendData], memory: Notebook
 func open_for(friend_index: int) -> void:
 	_select(friend_index)
 	show()
+
+
+## Suena un audio de un amigo. Mientras tanto no empiezan screamers ni alucinaciones, que se confundirían con él.
+func is_audio_playing() -> bool:
+	return _audio_clip.playing
 
 
 ## Mensajes de un amigo, en orden.
@@ -295,11 +306,17 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 			color = _friend_colors[friend_index]
 		ChatMessage.Sender.PLAYER:
 			speaker = tr(PLAYER_NAME_KEY).to_upper()
-	var view := ChatMessageView.new(message, speaker, color)
+	var view := ChatMessageView.new(message, speaker, color, audio_captions)
 	view.clue_clicked.connect(_on_clue_clicked)
+	view.audio_clicked.connect(_on_audio_clicked)
 	_lists[friend_index].add_child(view)
 	if message.sender != ChatMessage.Sender.PLAYER and not (visible and friend_index == selected_friend):
 		_unread[friend_index] = true
+
+
+func _on_audio_clicked(view: ChatMessageView) -> void:
+	_audio_clip.stream = view.message.audio
+	_audio_clip.play()
 
 
 func _on_clue_clicked(view: ChatMessageView, clue_id: StringName) -> void:

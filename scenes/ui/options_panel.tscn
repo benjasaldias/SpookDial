@@ -94,6 +94,10 @@ theme_override_font_sizes/font_size = 22
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 
+[node name="Captions" type="CheckBox" parent="Center/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
 [node name="Back" type="Button" parent="Center/Box"]
 layout_mode = 2
 size_flags_horizontal = 4

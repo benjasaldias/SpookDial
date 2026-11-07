@@ -19,6 +19,7 @@ const TEXT_KEYS := {
 	"Flashes": "OPTIONS_REDUCE_FLASHES",
 	"Camera": "OPTIONS_STILL_CAMERA",
 	"Timers": "OPTIONS_SLOW_TIMERS",
+	"Captions": "OPTIONS_AUDIO_CAPTIONS",
 	"Back": "OPTIONS_BACK",
 }
 
@@ -28,6 +29,7 @@ var settings: GameSettings
 @onready var _flashes: CheckBox = $Center/Box/Flashes
 @onready var _camera: CheckBox = $Center/Box/Camera
 @onready var _timers: CheckBox = $Center/Box/Timers
+@onready var _captions: CheckBox = $Center/Box/Captions
 
 
 func _ready() -> void:
@@ -37,7 +39,7 @@ func _ready() -> void:
 		var row := _box.get_node(String(bus))
 		(row.get_node("Label") as Label).text = tr(TEXT_KEYS[String(bus)])
 		(row.get_node("Slider") as HSlider).value_changed.connect(_on_volume_changed.bind(bus))
-	for check_name: String in ["Flashes", "Camera", "Timers"]:
+	for check_name: String in ["Flashes", "Camera", "Timers", "Captions"]:
 		var check_box := _box.get_node(check_name) as CheckBox
 		check_box.text = tr(TEXT_KEYS[check_name])
 		check_box.toggled.connect(_on_toggled.bind(check_name))
@@ -54,6 +56,7 @@ func open(game_settings: GameSettings) -> void:
 	_flashes.button_pressed = game_settings.reduce_flashes
 	_camera.button_pressed = game_settings.still_camera
 	_timers.button_pressed = game_settings.slow_timers
+	_captions.button_pressed = game_settings.audio_captions
 	# Recién ahora: así, mostrar los valores no cuenta como un cambio.
 	settings = game_settings
 	show()
@@ -96,4 +99,6 @@ func _on_toggled(on: bool, check_name: String) -> void:
 			settings.still_camera = on
 		"Timers":
 			settings.slow_timers = on
+		"Captions":
+			settings.audio_captions = on
 	changed.emit(settings)

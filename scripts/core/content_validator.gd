@@ -41,6 +41,7 @@ static func validate_entity(entity: EntityData) -> Array[String]:
 	for observation: ObservationData in entity.observations:
 		if observation.values.size() < MIN_VALUES:
 			errors.append("%s: la observación '%s' necesita al menos %d valores" % [who, observation.id, MIN_VALUES])
+		_check_audio(errors, who, observation)
 	for index in entity.rules.size():
 		_check_rule(errors, who, entity, index)
 	# Buscar reglas que nunca se aplican solo tiene sentido si todo lo anterior está bien.
@@ -215,6 +216,21 @@ static func _check_unique_ids(errors: Array[String], who: String, what: String, 
 		elif seen.has(item_id):
 			errors.append("%s: el id '%s' está repetido en %s" % [who, item_id, what])
 		seen[item_id] = true
+
+
+## Una observación con audios los tiene en "¿Qué oyes?" y tiene uno por cada valor, ni más ni menos.
+static func _check_audio(errors: Array[String], who: String, observation: ObservationData) -> void:
+	if observation.audio_values.is_empty():
+		return
+	var where := "%s, observación '%s'" % [who, observation.id]
+	if observation.category != ClueCategory.Kind.SOUND:
+		errors.append("%s: los audios van en '¿Qué oyes?'" % where)
+	for value: StringName in observation.values:
+		if observation.audio_for(value) == null:
+			errors.append("%s: le falta el audio de '%s'" % [where, value])
+	for value: StringName in observation.audio_values:
+		if not observation.has_value(value):
+			errors.append("%s: el audio '%s' no es de ningún valor" % [where, value])
 
 
 static func _check_rule(errors: Array[String], who: String, entity: EntityData, index: int) -> void:

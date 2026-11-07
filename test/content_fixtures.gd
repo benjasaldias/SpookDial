@@ -112,3 +112,14 @@ static func make_tutorial_request(friend: FriendData, entity: EntityData, situat
 	data.with_hint = with_hint
 	data.sends_video = sends_video
 	return data
+
+
+## Un audio de `seconds` segundos de silencio.
+static func make_audio(seconds := 1.0) -> AudioStreamWAV:
+	var stream := AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = 44100
+	var data := PackedByteArray()
+	data.resize(int(seconds * 44100) * 2)
+	stream.data = data
+	return stream

@@ -86,3 +86,19 @@ func test_observacion_con_un_valor_y_sin_lugares() -> bool:
 	check_contains(errors, "la observación 'o1' necesita al menos 2 valores")
 	check_contains(errors, "no tiene lugares")
 	return true
+
+
+func test_los_audios_de_una_observacion() -> bool:
+	var entity := Fixtures.make_entity()
+	var observation := entity.observations[0]
+	observation.category = ClueCategory.Kind.SOUND
+	observation.audio_values = {&"yes": AudioStreamWAV.new(), &"no": AudioStreamWAV.new()}
+	check(ContentValidator.validate_entity(entity).is_empty(), "con un audio por valor, está bien")
+	observation.audio_values = {&"yes": AudioStreamWAV.new()}
+	check_contains(ContentValidator.validate_entity(entity), "le falta el audio de 'no'")
+	observation.audio_values = {&"yes": AudioStreamWAV.new(), &"no": AudioStreamWAV.new(), &"maybe": AudioStreamWAV.new()}
+	check_contains(ContentValidator.validate_entity(entity), "el audio 'maybe' no es de ningún valor")
+	observation.audio_values = {&"yes": AudioStreamWAV.new(), &"no": AudioStreamWAV.new()}
+	observation.category = ClueCategory.Kind.SIGHT
+	check_contains(ContentValidator.validate_entity(entity), "los audios van en '¿Qué oyes?'")
+	return true

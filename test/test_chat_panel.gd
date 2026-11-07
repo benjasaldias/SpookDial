@@ -419,3 +419,44 @@ func test_el_chat_guionado_se_responde_con_un_boton() -> bool:
 	check_eq(panel.message_views(1).size(), 2, "la línea de Gonzalo y la respuesta de Matías")
 	_free(panel)
 	return true
+
+
+## Abre el chat del amigo 0 con un mensaje con audio.
+func _send_audio(panel: Control) -> ChatMessage:
+	panel.open_for(0)
+	var request := _manager.start_request(0)
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
+	message.add_audio(Fixtures.make_audio(), "▶ Audio", "Gritó tres veces.")
+	_manager.message_added.emit(0, message)
+	return message
+
+
+func test_clic_en_un_audio_lo_hace_sonar() -> bool:
+	var panel := _make_panel()
+	var message := _send_audio(panel)
+	check(not panel.is_audio_playing(), "todavía no")
+	panel.message_views(0)[-1]._on_meta_clicked(ChatMessageView.AUDIO_META)
+	check(panel.is_audio_playing(), "suena")
+	check_eq((panel.get_node("AudioClip") as AudioStreamPlayer).stream, message.audio, "el audio del mensaje")
+	_free(panel)
+	return true
+
+
+func test_al_cerrar_el_chat_el_audio_se_corta() -> bool:
+	var panel := _make_panel()
+	_send_audio(panel)
+	panel.message_views(0)[-1]._on_meta_clicked(ChatMessageView.AUDIO_META)
+	panel.hide()
+	check(not panel.is_audio_playing(), "se corta")
+	_free(panel)
+	return true
+
+
+func test_con_subtitulos_el_audio_se_lee() -> bool:
+	var panel := _make_panel()
+	panel.audio_captions = true
+	_send_audio(panel)
+	var label := panel.message_views(0)[-1].get_node("Bubble/Text") as RichTextLabel
+	check(label.get_parsed_text().contains("Gritó tres veces."), "con la opción, se lee")
+	_free(panel)
+	return true

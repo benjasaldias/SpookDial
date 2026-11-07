@@ -39,8 +39,10 @@ func test_cada_cambio_se_aplica() -> bool:
 	(panel.get_node("Center/Box/Flashes") as CheckBox).button_pressed = true
 	(panel.get_node("Center/Box/Camera") as CheckBox).button_pressed = true
 	(panel.get_node("Center/Box/Timers") as CheckBox).button_pressed = true
+	(panel.get_node("Center/Box/Captions") as CheckBox).button_pressed = true
 	check(settings.reduce_flashes and settings.still_camera and settings.slow_timers, "los interruptores")
-	check_eq(changes.size(), 4, "avisa cada cambio")
+	check(settings.audio_captions, "los subtítulos de los audios")
+	check_eq(changes.size(), 5, "avisa cada cambio")
 	check(changes.all(func(changed: GameSettings) -> bool: return changed == settings), "con las opciones")
 	GameSettings.new().apply_audio()
 	panel.free()

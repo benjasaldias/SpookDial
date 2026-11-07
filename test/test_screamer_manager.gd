@@ -287,3 +287,24 @@ func test_la_criatura_corta_el_desvanecimiento_del_screamer_de_la_ventana() -> b
 	check((desk.get_node("WallPlane/Enemy") as CanvasItem).visible, "y se queda a la vista")
 	desk.free()
 	return true
+
+
+## Mientras suena un audio de un amigo no empieza nada que se confunda con él (decisión de Benja, 7 de noviembre).
+func test_nada_mientras_suena_un_audio() -> bool:
+	var desk := _make_desk()
+	var chat := desk.get_node("UI/ChatPanel")
+	chat.open_for(0)
+	var clip := chat.get_node("AudioClip") as AudioStreamPlayer
+	var stream := AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	var data := PackedByteArray()
+	data.resize(44100 * 20)
+	stream.data = data
+	clip.stream = stream
+	clip.play()
+	_scare_now(desk)
+	_state(desk).elapsed = 100.0
+	_process(desk, 3)
+	check(not _screamers(desk).is_warning(), "no se anuncia nada")
+	desk.free()
+	return true

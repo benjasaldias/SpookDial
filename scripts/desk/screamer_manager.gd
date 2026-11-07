@@ -109,8 +109,8 @@ func is_creature_near() -> bool:
 	return _creature != Creature.AWAY
 
 
-## Avanza `delta` segundos con lo que se ve del escritorio (`view`). Con `busy` (una ronda de Audio Sync),
-## no empieza nada: ni screamers ni alucinaciones.
+## Avanza `delta` segundos con lo que se ve del escritorio (`view`). Con `busy` (una ronda de Audio Sync o un audio
+## de un amigo), no empieza nada: ni screamers ni alucinaciones.
 func advance(delta: float, view: Screamer.View, busy: bool) -> void:
 	if _requests == null or _night.ended:
 		return
