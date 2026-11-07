@@ -58,8 +58,9 @@ extends Resource
 @export var offline_trust_interval := 4.0
 
 @export_group("Audio Sync")
-## Golpes por minuto de la base. El ritmo del amigo va en corcheas, 2 por golpe.
-@export var audio_sync_bpm := 100.0
+## Cuánto más rápida es cada ronda que la anterior, en las noches de varias rondas (decisión de Benja, 7 de
+## noviembre). La base de la primera es la de NightData.audio_sync_bpm.
+@export var audio_sync_round_speedup := 1.15
 ## Cuánto puede adelantarse o atrasarse cada golpe de Matías, en segundos (docs/02 §6).
 @export var audio_sync_tolerance := 0.15
 

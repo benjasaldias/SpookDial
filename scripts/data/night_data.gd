@@ -29,6 +29,9 @@ extends Resource
 @export var interference_count := 0
 ## Tiempos del Audio Sync (0 si esta noche no hay).
 @export var audio_sync_beats := 0
+## Golpes por minuto de la base del Audio Sync, que sube noche a noche (decisión de Benja, 7 de noviembre). El
+## ritmo del amigo va en corcheas, 2 por golpe.
+@export var audio_sync_bpm := 100.0
 
 @export_group("Sanity y cuota")
 ## Segundos por cada punto de Sanity perdido.

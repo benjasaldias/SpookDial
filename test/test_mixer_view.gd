@@ -270,3 +270,18 @@ func test_con_4_aplausos_hay_una_sola_ronda() -> bool:
 	check(not mixer.status_text().contains(tr("MIXER_ROUND").format({"round": 1, "total": 1})), "no dice 'ronda 1 de 1'")
 	_free(mixer)
 	return true
+
+
+## La base de cada noche es la de NightData, y la segunda ronda va más rápida (decisión de Benja, 7 de noviembre).
+func test_la_base_es_la_de_la_noche_y_la_segunda_ronda_va_mas_rapida() -> bool:
+	var mixer := _make_two_round_mixer()
+	_manager.catalog.nights[1].audio_sync_bpm = 120.0
+	mixer.open()
+	mixer.start_round(0)
+	check_eq(mixer.sync_round.step_seconds, 0.25, "la primera, a 120 golpes por minuto")
+	_advance_to(mixer, mixer.sync_round.response_start())
+	_tap_pattern(mixer)
+	check_eq(mixer.round_index, 1, "pasó a la segunda")
+	check(is_equal_approx(mixer.sync_round.step_seconds, 0.25 / 1.15), "la segunda, un 15 % más rápida")
+	_free(mixer)
+	return true

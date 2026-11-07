@@ -19,6 +19,7 @@ signal_decays = true
 signal_decay_interval = Vector2(3, 6)
 interference_count = 3
 audio_sync_beats = 4
+audio_sync_bpm = 115.0
 sanity_drain_interval = 6.0
 content_quota = 3
 scare_count = 4

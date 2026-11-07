@@ -161,11 +161,12 @@ func start_round(friend_index: int) -> void:
 	_begin_round()
 
 
-## Arma la ronda `round_index`, con su cuenta y su patrón al azar.
+## Arma la ronda `round_index`, con su cuenta y su patrón al azar. La base es la de la noche, y cada ronda va más
+## rápida que la anterior (decisión de Benja, 7 de noviembre).
 func _begin_round() -> void:
 	var balance := _manager.catalog.balance
-	sync_round = AudioSyncRound.new(mini(beats(), ROUND_BEATS), balance.audio_sync_bpm, balance.audio_sync_tolerance,
-			_manager.rng)
+	var bpm := _manager.night().audio_sync_bpm * pow(balance.audio_sync_round_speedup, round_index)
+	sync_round = AudioSyncRound.new(mini(beats(), ROUND_BEATS), bpm, balance.audio_sync_tolerance, _manager.rng)
 	_round_finished = false
 	_lights.clear()
 	_playhead = -1

@@ -35,7 +35,7 @@ func test_valores_del_mantenimiento() -> bool:
 	check_eq(balance.interference_damage, 40.0, "interferencia: −40 de señal")
 	check_eq(balance.interference_warning, 3.0, "anunciada 3 s antes")
 	check_eq(balance.offline_trust_interval, 4.0, "desconectado: Trust −1 cada 4 s por amigo")
-	check_eq(balance.audio_sync_bpm, 100.0, "base de Audio Sync a 100 golpes por minuto")
+	check_eq(balance.audio_sync_round_speedup, 1.15, "cada ronda va un 15 % más rápido que la anterior")
 	check_eq(balance.audio_sync_tolerance, 0.15, "tolerancia de ±150 ms")
 	check_eq(balance.video_accept_seconds, 15.0, "15 s para empezar a descargar")
 	check_eq(balance.video_finish_seconds, 20.0, "20 s para terminar")
@@ -134,6 +134,7 @@ func test_mantenimiento_de_cada_noche() -> bool:
 	var simultaneous := [2, 2, 2, 3, 3]
 	var interferences := [1, 3, 3, 4, 6]
 	var beats := [4, 4, 4, 8, 8]
+	var bpms := [90.0, 100.0, 115.0, 130.0, 145.0]
 	for index in catalog.nights.size():
 		var night: NightData = catalog.nights[index]
 		var who := "noche %d" % night.number
@@ -141,6 +142,7 @@ func test_mantenimiento_de_cada_noche() -> bool:
 		check(night.signal_decays, who + ": la señal baja")
 		check_eq(night.interference_count, interferences[index], who + ": interferencias")
 		check_eq(night.audio_sync_beats, beats[index], who + ": aplausos de Audio Sync")
+		check_eq(night.audio_sync_bpm, bpms[index], who + ": golpes por minuto de Audio Sync")
 	return true
 
 
