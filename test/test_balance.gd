@@ -150,6 +150,18 @@ func test_mantenimiento_de_cada_noche() -> bool:
 	return true
 
 
+## Los accidentes de los amigos (decisión de Benja, 7 de noviembre).
+func test_accidentes() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	check_eq(catalog.balance.incident_seconds, 15.0, "15 s para responder un accidente")
+	check_eq(catalog.balance.incident_damage, 1, "una mala respuesta: −1 PV")
+	var counts := [1, 1, 2, 2, 3]
+	for index in catalog.nights.size():
+		check_eq(catalog.nights[index].incident_count, counts[index], "noche %d: accidentes" % (index + 1))
+	check_eq(catalog.tutorial.incident_count, 0, "en la noche 0 no hay")
+	return true
+
+
 ## Trust también baja si tardas en contestar (decisión de Benja, 4 de noviembre).
 func test_trust_por_tardar() -> bool:
 	var balance: BalanceData = load(BALANCE_PATH)

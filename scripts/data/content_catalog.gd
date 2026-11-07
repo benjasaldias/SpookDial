@@ -13,6 +13,8 @@ extends Resource
 ## Con qué saludo pide ayuda un amigo al empezar una solicitud ("¡Mati, ayuda!!", "¿Estás ahí?"): claves de
 ## messages.csv, una al azar por solicitud (decisión de Benja, 3-nov). El mensaje inicial no describe nada más.
 @export var greeting_keys: Array[String] = []
+## Los accidentes que les pueden pasar a los amigos (decisión de Benja, 7 de noviembre).
+@export var incidents: Array[IncidentData] = []
 ## Valores de equilibrio de todas las noches (data/balance.tres).
 @export var balance: BalanceData
 ## Las publicaciones que se scrollean en el celular (PhonePostData), en orden.

@@ -83,7 +83,24 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 		errors.append_array(validate_entity(entity))
 	_check_shared_traits(errors, entities)
 	_check_decoys(errors, catalog, entities)
+	_check_incidents(errors, catalog)
 	return errors
+
+
+## Los accidentes: ids únicos, una buena idea y 1 o 2 malas. Una noche que pide accidentes necesita que existan.
+static func _check_incidents(errors: Array[String], catalog: ContentCatalog) -> void:
+	if catalog.incidents.has(null):
+		errors.append("Catálogo: hay un espacio vacío en 'incidents'")
+		return
+	_check_unique_ids(errors, "Catálogo", "accidentes", catalog.incidents)
+	for incident: IncidentData in catalog.incidents:
+		if incident.wrong_keys.size() < 1 or incident.wrong_keys.size() > 2:
+			errors.append("Accidente '%s': necesita 1 o 2 malas ideas" % incident.id)
+	if not catalog.incidents.is_empty():
+		return
+	for night: NightData in catalog.nights:
+		if night.incident_count > 0:
+			errors.append("Catálogo: la noche %d pide accidentes y el catálogo no tiene" % night.number)
 
 
 ## Revisa que cada clave de texto exista y que cada característica tenga una sola frase entre asteriscos.
@@ -148,6 +165,12 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 		keys.append(["Señuelo '%s'" % decoy.id, decoy.text_key])
 	for index in catalog.greeting_keys.size():
 		keys.append(["Saludo %d" % (index + 1), catalog.greeting_keys[index]])
+	for incident: IncidentData in catalog.incidents:
+		var where := "Accidente '%s'" % incident.id
+		keys.append([where + ", mensaje", incident.message_key])
+		keys.append([where + ", buena idea", incident.correct_key])
+		for wrong_key: String in incident.wrong_keys:
+			keys.append([where + ", mala idea", wrong_key])
 	for index in catalog.phone_posts.size():
 		var post := catalog.phone_posts[index]
 		keys.append(["Publicación %d del celular, autor" % (index + 1), post.author_key])

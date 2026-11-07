@@ -460,3 +460,25 @@ func test_con_subtitulos_el_audio_se_lee() -> bool:
 	check(label.get_parsed_text().contains("Gritó tres veces."), "con la opción, se lee")
 	_free(panel)
 	return true
+
+
+func test_un_accidente_se_responde_desde_el_chat() -> bool:
+	var panel := _make_panel()
+	_manager.catalog.incidents.append(Fixtures.make_incident())
+	panel.open_for(0)
+	var incident: RefCounted = _manager.start_incident(0)
+	panel._process(0.0)
+	check((panel.get_node("Panel/Answers") as Control).visible, "se ven las opciones, sin cuaderno")
+	var buttons := _answer_buttons(panel)
+	for index in incident.options.size():
+		check((buttons[index] as Button).visible, "opción %d" % index)
+		check_eq((buttons[index] as Button).text, tr(incident.options[index]), "su texto")
+		check(not (buttons[index] as Button).disabled, "se puede elegir")
+	check(not (buttons[3] as Button).visible, "la cuarta no se usa")
+	check_eq((panel.get_node("Panel/AnswerHint") as Label).text, tr(panel.INCIDENT_HINT_KEY), "el aviso")
+	check(_question_buttons(panel).all(func(button: Button) -> bool: return button.disabled), "no se pregunta")
+	check(panel._tab_text(0).contains("15"), "la pestaña muestra su tiempo")
+	(buttons[0] as Button).pressed.emit()
+	check_eq(_manager.incidents[0], null, "al elegir, termina")
+	_free(panel)
+	return true

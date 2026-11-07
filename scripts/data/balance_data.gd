@@ -29,6 +29,12 @@ extends Resource
 ## Trust que se pierde, además, cuando nadie responde a tiempo y el amigo decide solo (negativo).
 @export var no_answer_trust := -15.0
 
+@export_group("Accidentes")
+## Segundos para responder un accidente (decisión de Benja, 7 de noviembre).
+@export var incident_seconds := 15.0
+## Vida que le quita al amigo una mala respuesta o no responder. No baja Trust: un accidente no es culpa de Matías.
+@export var incident_damage := 1
+
 @export_group("Trust")
 ## Trust sube 1 punto cada tantos segundos…
 @export var trust_recovery_interval := 8.0

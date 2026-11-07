@@ -78,6 +78,17 @@ func test_las_cortinas_se_abren_y_se_cierran() -> bool:
 	return true
 
 
+## La entrada del amigo avisa el accidente y muestra su tiempo.
+func test_la_entrada_avisa_un_accidente() -> bool:
+	var desk := _make_desk()
+	var manager := desk.get_node("RequestManager")
+	manager.start_incident(0)
+	desk._process(0.0)
+	check_eq(desk.get_node("DeskPlane/Entries/EntryLeon").state, ChatEntry.State.WARNING, "en alerta")
+	desk.free()
+	return true
+
+
 func test_todo_el_arte_cargado() -> bool:
 	var desk := _make_desk()
 	for sprite in desk.find_children("*", "AnimatedSprite2D", true, false):

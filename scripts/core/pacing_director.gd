@@ -6,6 +6,7 @@ extends RefCounted
 ## las que faltan se atrasan, y nunca empieza una que no alcanza a terminar antes de las 06:00.
 ## Los screamers llegan en cualquier momento, repartidos en la noche, y algunos son el jumpscare. El susto
 ## guionado espera un momento sin solicitudes. Las reglas de justicia las revisa Screamer al elegir cuál.
+## Los accidentes también se reparten en la noche (decisión de Benja, 7 de noviembre).
 ## Lógica pura: RequestManager la consulta para las solicitudes y ScreamerManager, para los screamers.
 
 ## Las horas de las solicitudes que faltan, en segundos desde las 00:00 y en orden.
@@ -20,6 +21,8 @@ var jumpscare_slots: Array[int] = []
 var scripted_scare_time := -1.0
 ## La hora en que empezó el último screamer.
 var last_scare := -INF
+## Las horas de los accidentes que faltan, en orden.
+var incident_times: Array[float] = []
 
 var _balance: BalanceData
 
@@ -31,6 +34,7 @@ func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator) -
 	jumpscare_slots = plan_jumpscares(night.creature_visits, scare_times.size(), rng)
 	if night.scripted_scare_time > 0.0:
 		scripted_scare_time = night.scripted_scare_time
+	incident_times = plan_scares(night.incident_count, balance, rng)
 
 
 ## Las horas de las solicitudes de la noche. La primera llega a los first_request_delay segundos y la última,
@@ -142,6 +146,16 @@ func scare_started(now: float) -> void:
 			slots.append(slot - 1)
 	jumpscare_slots = slots
 	last_scare = now
+
+
+## Toca un accidente: llegó su hora.
+func incident_due(now: float) -> bool:
+	return not incident_times.is_empty() and now >= incident_times[0]
+
+
+## Empezó el accidente que tocaba.
+func incident_started() -> void:
+	incident_times.pop_front()
 
 
 ## Toca el susto guionado: llegó su hora y no hay solicitudes activas.

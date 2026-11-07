@@ -276,7 +276,7 @@ func _on_retry_pressed() -> void:
 
 
 ## Seleccionada si su chat está abierto; si no, gris sin señal, en alerta mientras espera respuesta (también en
-## un chat guionado) o la descarga de su video, o más oscura si el amigo está aturdido. Muestra el tiempo que le
+## un accidente o un chat guionado) o la descarga de su video, o más oscura si el amigo está aturdido. Muestra el tiempo que le
 ## queda para responder, para descargar su video o para recuperarse, o que está sin señal; y su vida, su señal y
 ## si viene una interferencia.
 func _refresh_entries() -> void:
@@ -284,6 +284,7 @@ func _refresh_entries() -> void:
 	for index in _entries.size():
 		var entry := _entries[index]
 		var request := _requests.requests[index]
+		var incident := _requests.incidents[index]
 		var friend := state.friends[index]
 		var offer := state.videos.offer_for(index)
 		var entry_state := ChatEntry.State.IDLE
@@ -291,7 +292,7 @@ func _refresh_entries() -> void:
 			entry_state = ChatEntry.State.SELECTED
 		elif not friend.is_online():
 			entry_state = ChatEntry.State.DISCONNECTED
-		elif request != null or offer != null or _requests.chat_script_reply(index) != null:
+		elif request != null or incident != null or offer != null or _requests.chat_script_reply(index) != null:
 			entry_state = ChatEntry.State.WARNING
 		elif friend.is_stunned():
 			entry_state = ChatEntry.State.STUNNED
@@ -306,6 +307,8 @@ func _refresh_entries() -> void:
 		_warned[index] = warning
 		if request != null:
 			entry.set_seconds_left(ceili(request.time_left))
+		elif incident != null:
+			entry.set_seconds_left(ceili(incident.time_left))
 		elif offer != null:
 			entry.show_video(ceili(offer.time_left))
 		elif friend.is_stunned():

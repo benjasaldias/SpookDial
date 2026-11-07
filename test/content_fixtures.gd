@@ -123,3 +123,13 @@ static func make_audio(seconds := 1.0) -> AudioStreamWAV:
 	data.resize(int(seconds * 44100) * 2)
 	stream.data = data
 	return stream
+
+
+## Un accidente: "K_INCIDENT_<id>", una buena idea y 2 malas. No va en el catálogo de prueba: cada prueba lo agrega.
+static func make_incident(incident_id: StringName = &"trip") -> IncidentData:
+	var incident := IncidentData.new()
+	incident.id = incident_id
+	incident.message_key = "K_INCIDENT_%s" % incident_id
+	incident.correct_key = "K_INCIDENT_%s_OK" % incident_id
+	incident.wrong_keys.assign(["K_INCIDENT_%s_BAD_1" % incident_id, "K_INCIDENT_%s_BAD_2" % incident_id])
+	return incident

@@ -8,6 +8,8 @@ extends Control
 ## En un chat guionado, Matías responde con un botón que tiene su línea (decisión de Benja, Plan 7).
 ## Se ve como una terminal: cada mensaje lleva el nombre de quien escribe ("LEÓN:") en su color, y las
 ## pestañas y las preguntas van en mayúsculas (decisión de Benja, 31-oct).
+## Un accidente se responde aquí mismo, con sus opciones en los botones de respuesta, sin cuaderno (decisión de
+## Benja, 7 de noviembre).
 ## Los audios que mandan los amigos suenan aquí, con un clic en el mensaje (decisión de Benja, 7 de noviembre), y
 ## al cerrar el chat se cortan.
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
@@ -49,6 +51,8 @@ const DOWNLOAD_OFFLINE_KEY := "DOWNLOAD_OFFLINE"
 const DOWNLOAD_MARK := "▼"
 ## Sin señal no se puede preguntar ni responder (ui.csv). Lleva {friend}.
 const OFFLINE_KEY := "CHAT_OFFLINE"
+## Sobre las opciones de un accidente (ui.csv).
+const INCIDENT_HINT_KEY := "CHAT_INCIDENT_HINT"
 ## El botón que abre el mixer en el canal del amigo (ui.csv).
 const SYNC_KEY := "CHAT_SYNC"
 ## Dónde termina la conversación: sobre la barra de identificación o, si hay un video, sobre su descarga.
@@ -204,8 +208,11 @@ func _select(friend_index: int) -> void:
 func _tab_text(index: int) -> String:
 	var text := _friend_names[index].to_upper()
 	var request := _manager.requests[index]
+	var incident := _manager.incidents[index]
 	if request != null:
 		text += "  %d" % ceili(request.time_left)
+	elif incident != null:
+		text += "  %d" % ceili(incident.time_left)
 	if _unread[index]:
 		text += "  " + UNREAD_MARK
 	return text
@@ -248,8 +255,12 @@ func _update_answers() -> void:
 		_script_reply.text = tr(reply.text_key)
 		_answers.visible = false
 		return
-	var page := _memory.page_for(selected_friend)
 	var online := _manager.state.friends[selected_friend].is_online()
+	var incident := _manager.incidents[selected_friend]
+	if incident != null:
+		_show_incident_options(incident.options, online)
+		return
+	var page := _memory.page_for(selected_friend)
 	_answers.visible = page != null
 	if not online:
 		_answer_hint.text = tr(OFFLINE_KEY).format({"friend": _friend_names[selected_friend]})
@@ -266,6 +277,18 @@ func _update_answers() -> void:
 		if button.visible:
 			button.text = tr(page.actions[index].label_key)
 		button.disabled = not waiting
+
+
+## Las opciones de un accidente, en los botones de respuesta. Sin señal, el amigo no las lee.
+func _show_incident_options(options: Array[String], online: bool) -> void:
+	_answers.visible = true
+	_answer_hint.text = tr(INCIDENT_HINT_KEY) if online else tr(OFFLINE_KEY).format({"friend": _friend_names[selected_friend]})
+	for index in _answer_buttons.size():
+		var button := _answer_buttons[index]
+		button.visible = index < options.size()
+		if button.visible:
+			button.text = tr(options[index])
+		button.disabled = not online
 
 
 ## La barra de descarga del video que mandó este amigo, si mandó uno. Mientras el chat esté abierto y la
@@ -335,8 +358,11 @@ func _on_question_pressed(category: ClueCategory.Kind) -> void:
 	_manager.ask(selected_friend, category)
 
 
-## Responde con la acción `index` de la página abierta para este amigo.
+## Responde el accidente del amigo o, si no tiene, con la acción `index` de la página abierta para él.
 func _on_answer_pressed(index: int) -> void:
+	if _manager.incidents[selected_friend] != null:
+		_manager.answer_incident(selected_friend, index)
+		return
 	var page := _memory.page_for(selected_friend)
 	if page != null and index < page.actions.size():
 		_manager.answer(selected_friend, page.actions[index])

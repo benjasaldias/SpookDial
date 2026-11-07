@@ -378,6 +378,18 @@ func test_la_cortina_se_abre_o_se_cierra_sola() -> bool:
 	return true
 
 
+func test_nunca_en_los_ultimos_5_s_de_un_accidente() -> bool:
+	var desk := _make_desk()
+	var manager := desk.get_node("RequestManager")
+	manager.start_incident(0)
+	manager.incidents[0].time_left = 4.0
+	_scare_now(desk)
+	desk._process(0.0)
+	check(not _screamers(desk).is_warning(), "espera a que el jugador responda")
+	desk.free()
+	return true
+
+
 ## Mientras suena un audio de un amigo no empieza nada que se confunda con él (decisión de Benja, 7 de noviembre).
 func test_nada_mientras_suena_un_audio() -> bool:
 	var desk := _make_desk()

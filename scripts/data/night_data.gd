@@ -22,6 +22,10 @@ extends Resource
 ## Solicitudes por ola: llegan seguidas y, después de cada ola, hay un respiro (decisión de Benja).
 @export var wave_size := 3
 
+## Accidentes de la noche: un amigo se tropieza o se corta, y se responde con sentido común (decisión de Benja, 7
+## de noviembre).
+@export var incident_count := 0
+
 @export_group("Señal")
 @export var signal_decays := false
 ## Segundos por cada punto de señal perdido (mínimo y máximo; varía).

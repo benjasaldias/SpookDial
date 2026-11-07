@@ -550,3 +550,120 @@ func test_solicitudes_que_esperan_demasiado() -> bool:
 	check_eq(manager.impatient_count(), 0, "sin señal ya baja Trust por eso")
 	manager.free()
 	return true
+
+
+## Manager de la noche 1 con un accidente en el catálogo.
+func _make_incident_manager() -> RequestManager:
+	var catalog := Fixtures.make_catalog()
+	catalog.incidents.append(Fixtures.make_incident())
+	return _make_manager(catalog)
+
+
+## La opción correcta o una incorrecta del accidente del amigo `friend_index`.
+func _option(manager: RequestManager, friend_index: int, correct: bool) -> int:
+	var incident: RefCounted = manager.incidents[friend_index]
+	for index in incident.options.size():
+		if incident.is_correct(index) == correct:
+			return index
+	return -1
+
+
+func test_un_accidente_llega_al_chat() -> bool:
+	var manager := _make_incident_manager()
+	var events := []
+	_record(manager, events)
+	var incident: RefCounted = manager.start_incident(1)
+	check(incident != null, "empezó")
+	check_eq(manager.incidents[1], incident, "es del amigo")
+	check_eq(incident.time_left, 15.0, "15 s")
+	check_eq(events.size(), 1, "un mensaje")
+	if events.size() == 1:
+		check_eq(events[0][0], "message_added", "del amigo")
+		check_eq(events[0][2].sender, ChatMessage.Sender.FRIEND, "lo escribe el amigo")
+	manager.free()
+	return true
+
+
+func test_la_buena_idea_lo_salva() -> bool:
+	var manager := _make_incident_manager()
+	manager.start_incident(0)
+	check(manager.answer_incident(0, _option(manager, 0, true)), "respondió")
+	check_eq(manager.incidents[0], null, "terminó")
+	check_eq(manager.state.friends[0].health, 3, "no perdió vida")
+	check(not manager.state.friends[0].is_stunned(), "ni quedó aturdido")
+	manager.free()
+	return true
+
+
+func test_una_mala_idea_lo_hiere() -> bool:
+	var manager := _make_incident_manager()
+	var events := []
+	manager.start_incident(0)
+	_record(manager, events)
+	manager.answer_incident(0, _option(manager, 0, false))
+	check_eq(manager.state.friends[0].health, 2, "−1 PV")
+	check(manager.state.friends[0].is_stunned(), "aturdido")
+	check_eq(manager.state.trust, 100.0, "un accidente no baja Trust")
+	var senders := events.map(func(event: Array) -> ChatMessage.Sender: return event[2].sender)
+	check_eq(senders, [ChatMessage.Sender.PLAYER, ChatMessage.Sender.FRIEND, ChatMessage.Sender.SYSTEM],
+			"Matías, el amigo y el aviso de daño")
+	manager.free()
+	return true
+
+
+func test_si_nadie_responde_lo_hiere() -> bool:
+	var manager := _make_incident_manager()
+	manager.start_incident(0)
+	manager.advance(16.0)
+	check_eq(manager.incidents[0], null, "terminó")
+	check_eq(manager.state.friends[0].health, 2, "−1 PV")
+	manager.free()
+	return true
+
+
+## Con la opción "Temporizadores ×1,5", también hay más tiempo para responder un accidente.
+func test_un_accidente_con_temporizadores_lentos() -> bool:
+	var manager := _make_incident_manager()
+	manager.timer_scale = 1.5
+	check_eq(manager.start_incident(0).time_left, 22.5, "22,5 s")
+	manager.free()
+	return true
+
+
+func test_un_amigo_ocupado_no_tiene_accidentes() -> bool:
+	var manager := _make_incident_manager()
+	manager.start_request(0)
+	check_eq(manager.start_incident(0), null, "con una solicitud, no")
+	check(manager.start_incident(1) != null, "otro amigo, sí")
+	check_eq(manager.start_request(1), null, "y con un accidente, no le llegan solicitudes")
+	manager.state.friends[2].health = 1
+	check_eq(manager.start_incident(2), null, "un accidente nunca lo mata: con 1 PV no tiene")
+	manager.free()
+	return true
+
+
+func test_sin_senal_no_responde() -> bool:
+	var manager := _make_incident_manager()
+	manager.start_incident(0)
+	manager.state.friends[0].signal_level = 0.0
+	check(not manager.answer_incident(0, 0), "no lee la respuesta")
+	check(manager.incidents[0] != null, "sigue esperando")
+	manager.free()
+	return true
+
+
+## El director reparte los accidentes, y uno llega solo si hay espacio: no se suman a una ola llena.
+func test_llegan_a_su_hora_si_hay_espacio() -> bool:
+	var manager := _make_incident_manager()
+	manager.requests_arrive = true
+	manager.director.request_times.clear()
+	manager.director.incident_times.assign([10.0])
+	manager.night().max_simultaneous = 1
+	manager.start_request(0)
+	manager.advance(11.0)
+	check(manager.incidents.all(func(incident: RefCounted) -> bool: return incident == null), "con la ola llena, espera")
+	manager.answer(0, manager.requests[0].entity.actions[0])
+	manager.advance(1.0)
+	check_eq(manager.incidents.count(null), 2, "al desocuparse, llega")
+	manager.free()
+	return true

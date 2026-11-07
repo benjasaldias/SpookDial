@@ -101,6 +101,12 @@ func test_el_celular_tiene_publicaciones() -> bool:
 	return true
 
 
+func test_hay_accidentes() -> bool:
+	var catalog: ContentCatalog = load(CATALOG_PATH)
+	check(catalog.incidents.size() >= 5, "varios accidentes: %d" % catalog.incidents.size())
+	return true
+
+
 ## Desde la noche 3 hay entidades que se confunden: comparten 2 características, y solo se distinguen por otra
 ## (decisión de Benja, 7 de noviembre).
 func test_entidades_que_comparten_2_caracteristicas() -> bool:

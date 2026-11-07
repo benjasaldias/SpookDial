@@ -6,6 +6,8 @@ extends Node
 ## respiro después de cada una (decisión de Benja), sin pasar de las simultáneas.
 ## Desde el Plan 8, en la noche 0 (el tutorial) llegan las solicitudes fijas de la noche, de a una, y nadie sale
 ## herido (decisión de Benja).
+## Desde el Plan 9, también los accidentes de los amigos: se responden en el chat, sin cuaderno, y una mala
+## respuesta los hiere (decisión de Benja, 7 de noviembre).
 ## En el escritorio lo avanza NightManager, junto con el estado de la noche.
 
 signal message_added(friend_index: int, message: ChatMessage)
@@ -21,6 +23,7 @@ const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatScript := preload("res://scripts/core/chat_script.gd")
 const ChatStatic := preload("res://scripts/core/chat_static.gd")
 const Consequence := preload("res://scripts/core/consequence.gd")
+const FriendIncident := preload("res://scripts/core/friend_incident.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const MessageBuilder := preload("res://scripts/core/message_builder.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
@@ -46,6 +49,8 @@ var timer_scale := 1.0
 var rng := RandomNumberGenerator.new()
 ## La solicitud activa de cada amigo, o null si no tiene.
 var requests: Array[FriendRequest] = []
+## El accidente en curso de cada amigo, o null.
+var incidents: Array[FriendIncident] = []
 ## El estado de la noche: la hora, Sanity, Trust, cómo está cada amigo y los videos. Lo crea el manager,
 ## que tiene el catálogo y la noche; NightManager lo avanza.
 var state: NightState
@@ -75,6 +80,7 @@ func _ready() -> void:
 	_next_tutorial_at = catalog.balance.first_request_delay
 	for index in catalog.friends.size():
 		requests.append(null)
+		incidents.append(null)
 		state.friends[index].signal_level = test_signal
 
 
@@ -125,6 +131,7 @@ func advance(delta: float) -> void:
 			request_changed.emit(index, request)
 		if request.is_out_of_time():
 			_decide_alone(index)
+	_advance_incidents(delta)
 	_advance_chat_script(delta)
 	if not requests_arrive:
 		return
@@ -132,13 +139,14 @@ func advance(delta: float) -> void:
 		_maybe_start_tutorial_request()
 	else:
 		_maybe_start_request()
+		_maybe_start_incident()
 
 
-## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una, si no está disponible
-## (aturdido o muerto) o si no hay entidades. Con Trust bajo, el temporizador es más corto, y con la opción
-## "Temporizadores ×1,5", más largo.
+## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una o un accidente, si no está
+## disponible (aturdido o muerto) o si no hay entidades. Con Trust bajo, el temporizador es más corto, y con la
+## opción "Temporizadores ×1,5", más largo.
 func start_request(friend_index: int) -> FriendRequest:
-	if requests[friend_index] != null or not state.is_available(friend_index):
+	if not _is_free(friend_index):
 		return null
 	var request := RequestGenerator.generate(catalog, night(), friend_index, rng, state.trust)
 	if request == null:
@@ -148,6 +156,33 @@ func start_request(friend_index: int) -> FriendRequest:
 	request_started.emit(friend_index, request)
 	_add_friend_message(friend_index, MessageBuilder.first_message(request, tr))
 	return request
+
+
+## Empieza un accidente al azar para el amigo `friend_index`. Devuelve null si no puede tenerlo: tiene que estar
+## libre y con señal, y con vida de sobra, porque un accidente nunca mata a un amigo.
+func start_incident(friend_index: int) -> FriendIncident:
+	if not _can_have_incident(friend_index) or catalog.incidents.is_empty():
+		return null
+	var data := catalog.incidents[rng.randi_range(0, catalog.incidents.size() - 1)]
+	var incident := FriendIncident.new(data, friend_index, catalog.balance.incident_seconds * timer_scale, rng)
+	incidents[friend_index] = incident
+	_add_friend_message(friend_index, MessageBuilder.incident(data, tr))
+	return incident
+
+
+## Matías responde el accidente con la opción `option`. Devuelve false si el amigo no espera respuesta o está sin
+## señal.
+func answer_incident(friend_index: int, option: int) -> bool:
+	var incident := incidents[friend_index]
+	if incident == null or not state.friends[friend_index].is_online():
+		return false
+	message_added.emit(friend_index, MessageBuilder.line(ChatMessage.Sender.PLAYER, incident.options[option], tr))
+	if incident.is_correct(option):
+		incidents[friend_index] = null
+		_add_friend_message(friend_index, MessageBuilder.line(ChatMessage.Sender.FRIEND, MessageBuilder.INCIDENT_GOOD_KEY, tr))
+	else:
+		_incident_hurts(friend_index, MessageBuilder.INCIDENT_BAD_KEY)
+	return true
 
 
 ## Matías pregunta por una categoría: cuesta 5 s y el amigo responde. false si no se pudo preguntar:
@@ -241,6 +276,39 @@ func restore_signal(friend_index: int) -> void:
 		_add_notice(friend_index, MessageBuilder.SIGNAL_BACK_KEY, ChatMessage.Tone.GOOD)
 
 
+## El amigo no tiene ni solicitud ni accidente, y está disponible.
+func _is_free(friend_index: int) -> bool:
+	return requests[friend_index] == null and incidents[friend_index] == null and state.is_available(friend_index)
+
+
+func _can_have_incident(friend_index: int) -> bool:
+	var friend := state.friends[friend_index]
+	return _is_free(friend_index) and friend.is_online() and friend.health > catalog.balance.incident_damage
+
+
+## Avanza los accidentes. Si a uno se le acaba el tiempo, el amigo sale herido.
+func _advance_incidents(delta: float) -> void:
+	for index in incidents.size():
+		var incident := incidents[index]
+		if incident == null:
+			continue
+		incident.advance(delta)
+		if incident.is_out_of_time():
+			_incident_hurts(index, MessageBuilder.INCIDENT_NO_ANSWER_KEY)
+
+
+## Termina el accidente con el amigo herido: lo cuenta y el juego avisa cuánta vida le queda. Las solicitudes que
+## faltan se atrasan, como con cualquier amigo herido.
+func _incident_hurts(friend_index: int, reaction_key: String) -> void:
+	incidents[friend_index] = null
+	state.injure(friend_index)
+	director.friend_hurt()
+	_add_friend_message(friend_index, MessageBuilder.line(ChatMessage.Sender.FRIEND, reaction_key, tr))
+	var friend := state.friends[friend_index]
+	var friend_name := tr(catalog.friends[friend_index].name_key)
+	message_added.emit(friend_index, MessageBuilder.damage_notice(null, friend_name, friend.health, friend.max_health, tr))
+
+
 ## Sin respuesta a tiempo, el amigo elige solo y cuenta qué hizo y cómo le fue. Si está sin señal, elige mal
 ## (decisión de Benja), y sus mensajes llegan tapados enteros.
 func _decide_alone(friend_index: int) -> void:
@@ -316,12 +384,27 @@ func _maybe_start_request() -> void:
 		return
 	var free_friends: Array[int] = []
 	for index in requests.size():
-		if requests[index] == null and state.is_available(index):
+		if _is_free(index):
 			free_friends.append(index)
 	if free_friends.is_empty():
 		return
 	if start_request(free_friends[rng.randi_range(0, free_friends.size() - 1)]) != null:
 		director.request_started(_elapsed)
+
+
+## Cuando el director lo pide, a un amigo libre al azar le pasa un accidente. Si la ola está llena o nadie puede
+## tenerlo, espera.
+func _maybe_start_incident() -> void:
+	if not director.incident_due(_elapsed) or active_count() >= night().max_simultaneous:
+		return
+	var free_friends: Array[int] = []
+	for index in requests.size():
+		if _can_have_incident(index):
+			free_friends.append(index)
+	if free_friends.is_empty():
+		return
+	if start_incident(free_friends[rng.randi_range(0, free_friends.size() - 1)]) != null:
+		director.incident_started()
 
 
 ## En el tutorial, la próxima solicitud fija llega cuando no hay otra, pasó el respiro y no hay un video

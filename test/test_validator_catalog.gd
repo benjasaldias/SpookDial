@@ -118,3 +118,16 @@ func test_sin_tutorial_tambien_es_valido() -> bool:
 	catalog.tutorial = null
 	check(ContentValidator.validate_catalog(catalog).is_empty(), "el tutorial es opcional para el validador")
 	return true
+
+
+func test_los_accidentes() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.nights[0].incident_count = 1
+	check_contains(ContentValidator.validate_catalog(catalog), "la noche 1 pide accidentes y el catálogo no tiene")
+	catalog.incidents.append(Fixtures.make_incident())
+	check(ContentValidator.validate_catalog(catalog).is_empty(), "con uno, está bien")
+	catalog.incidents[0].wrong_keys.clear()
+	check_contains(ContentValidator.validate_catalog(catalog), "Accidente 'trip': necesita 1 o 2 malas ideas")
+	catalog.incidents.append(null)
+	check_contains(ContentValidator.validate_catalog(catalog), "hay un espacio vacío en 'incidents'")
+	return true

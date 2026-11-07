@@ -15,6 +15,7 @@
 [ext_resource type="Resource" path="res://data/balance.tres" id="13_balance"]
 [ext_resource type="Script" path="res://scripts/data/phone_post_data.gd" id="14_post"]
 [ext_resource type="Resource" path="res://data/nights/night_0.tres" id="15_night_0"]
+[ext_resource type="Script" path="res://scripts/data/incident_data.gd" id="16_incident"]
 
 [sub_resource type="Resource" id="Decoy_cold_breath"]
 script = ExtResource("12_decoy")
@@ -99,6 +100,41 @@ id = &"smoke_smell"
 category = 2
 text_key = "DECOY_SMOKE_SMELL"
 
+[sub_resource type="Resource" id="Incident_cut"]
+script = ExtResource("16_incident")
+id = &"cut"
+message_key = "INCIDENT_CUT"
+correct_key = "INCIDENT_CUT_OK"
+wrong_keys = Array[String](["INCIDENT_CUT_BAD_1", "INCIDENT_CUT_BAD_2"])
+
+[sub_resource type="Resource" id="Incident_ankle"]
+script = ExtResource("16_incident")
+id = &"ankle"
+message_key = "INCIDENT_ANKLE"
+correct_key = "INCIDENT_ANKLE_OK"
+wrong_keys = Array[String](["INCIDENT_ANKLE_BAD_1", "INCIDENT_ANKLE_BAD_2"])
+
+[sub_resource type="Resource" id="Incident_soaked"]
+script = ExtResource("16_incident")
+id = &"soaked"
+message_key = "INCIDENT_SOAKED"
+correct_key = "INCIDENT_SOAKED_OK"
+wrong_keys = Array[String](["INCIDENT_SOAKED_BAD_1", "INCIDENT_SOAKED_BAD_2"])
+
+[sub_resource type="Resource" id="Incident_bump"]
+script = ExtResource("16_incident")
+id = &"bump"
+message_key = "INCIDENT_BUMP"
+correct_key = "INCIDENT_BUMP_OK"
+wrong_keys = Array[String](["INCIDENT_BUMP_BAD_1", "INCIDENT_BUMP_BAD_2"])
+
+[sub_resource type="Resource" id="Incident_thorn"]
+script = ExtResource("16_incident")
+id = &"thorn"
+message_key = "INCIDENT_THORN"
+correct_key = "INCIDENT_THORN_OK"
+wrong_keys = Array[String](["INCIDENT_THORN_BAD_1", "INCIDENT_THORN_BAD_2"])
+
 [sub_resource type="Resource" id="PhonePost_01"]
 script = ExtResource("14_post")
 author_key = "PHONE_POST_01_AUTHOR"
@@ -177,6 +213,7 @@ friends = Array[ExtResource("2_friend")]([ExtResource("4_leon"), ExtResource("5_
 nights = Array[ExtResource("3_night")]([ExtResource("7_night_1"), ExtResource("8_night_2"), ExtResource("9_night_3"), ExtResource("10_night_4"), ExtResource("11_night_5")])
 decoys = Array[ExtResource("12_decoy")]([SubResource("Decoy_cold_breath"), SubResource("Decoy_distant_dog"), SubResource("Decoy_flickering_light"), SubResource("Decoy_wet_grass"), SubResource("Decoy_trunk_moss"), SubResource("Decoy_creaking_branches"), SubResource("Decoy_hanging_laundry"), SubResource("Decoy_barbed_fence"), SubResource("Decoy_lapping_water"), SubResource("Decoy_creaking_door"), SubResource("Decoy_dripping_water"), SubResource("Decoy_dog_prints"), SubResource("Decoy_smoke_smell")])
 tutorial = ExtResource("15_night_0")
+incidents = Array[ExtResource("16_incident")]([SubResource("Incident_cut"), SubResource("Incident_ankle"), SubResource("Incident_soaked"), SubResource("Incident_bump"), SubResource("Incident_thorn")])
 greeting_keys = Array[String](["FIRST_CALL_1", "FIRST_CALL_2", "FIRST_CALL_3", "FIRST_CALL_4", "FIRST_CALL_5", "FIRST_CALL_6"])
 balance = ExtResource("13_balance")
 phone_posts = Array[ExtResource("14_post")]([SubResource("PhonePost_01"), SubResource("PhonePost_02"), SubResource("PhonePost_03"), SubResource("PhonePost_04"), SubResource("PhonePost_05"), SubResource("PhonePost_06"), SubResource("PhonePost_07"), SubResource("PhonePost_08"), SubResource("PhonePost_09"), SubResource("PhonePost_10"), SubResource("PhonePost_11"), SubResource("PhonePost_12")])

@@ -103,6 +103,11 @@ func apply(friend_index: int, consequence: Consequence) -> void:
 		videos.add_extra(friend_index, elapsed)
 
 
+## Un accidente hirió al amigo `friend_index`: pierde vida y queda aturdido, sin que baje Trust.
+func injure(friend_index: int) -> void:
+	friends[friend_index].hurt(balance.incident_damage, balance.stun_seconds)
+
+
 ## Puede recibir solicitudes: está vivo y no está aturdido.
 func is_available(friend_index: int) -> bool:
 	return friends[friend_index].is_available()

@@ -168,3 +168,16 @@ func test_el_susto_guionado_espera_un_momento_sin_solicitudes() -> bool:
 	check(director.scare_due(95.0), "a los 25 s, sí")
 	check(not _director(_night()).scripted_scare_due(100.0, 0), "una noche sin susto guionado")
 	return true
+
+
+func test_reparte_los_accidentes_en_la_noche() -> bool:
+	var night := _night()
+	night.incident_count = 3
+	var director := _director(night)
+	check_eq(director.incident_times.size(), 3, "3 accidentes")
+	var first: float = director.incident_times[0]
+	check(not director.incident_due(first - 1.0), "todavía no")
+	check(director.incident_due(first), "a su hora")
+	director.incident_started()
+	check_eq(director.incident_times.size(), 2, "quedan 2")
+	return true

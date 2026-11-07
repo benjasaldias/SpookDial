@@ -146,9 +146,10 @@ func advance(delta: float, view: Screamer.View, busy: bool) -> void:
 	if not director.scare_due(now):
 		return
 	var time_lefts := []
-	for request: RefCounted in _requests.requests:
-		if request != null:
-			time_lefts.append(request.time_left)
+	for pending: Array in [_requests.requests, _requests.incidents]:
+		for item: RefCounted in pending:
+			if item != null:
+				time_lefts.append(item.time_left)
 	var kind := Screamer.pick(view, director.next_is_jumpscare(), time_lefts, _requests.catalog.balance, _requests.rng)
 	if kind == Screamer.NONE:
 		return

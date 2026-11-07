@@ -38,6 +38,10 @@ const HURT_REACTION_KEYS := {
 }
 ## El aviso del juego cuando un amigo queda herido (ui.csv). Lleva {friend}, {health} y {max}.
 const DAMAGE_KEY := "CHAT_DAMAGE"
+## Cómo le fue con un accidente: una buena idea, una mala o sin respuesta (messages.csv).
+const INCIDENT_GOOD_KEY := "INCIDENT_GOOD"
+const INCIDENT_BAD_KEY := "INCIDENT_BAD"
+const INCIDENT_NO_ANSWER_KEY := "INCIDENT_NO_ANSWER"
 ## El amigo avisa que mandó un video (messages.csv).
 const VIDEO_SENT_KEY := "FRIEND_VIDEO_SENT"
 ## Avisos del juego sobre los videos y la señal (ui.csv). Llevan {friend}; el del video recibido, también
@@ -119,6 +123,20 @@ static func damage_notice(request: FriendRequest, friend_name: String, health: i
 		translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.SYSTEM, request)
 	message.add_fragment(_text(translate, DAMAGE_KEY).format({"friend": friend_name, "health": health, "max": max_health}))
+	return message
+
+
+## El amigo cuenta su accidente.
+static func incident(data: IncidentData, translate: Callable) -> ChatMessage:
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	message.add_fragment(_text(translate, data.message_key))
+	return message
+
+
+## Una línea del amigo o de Matías, sin solicitud: la opción elegida o cómo le fue en un accidente.
+static func line(sender: ChatMessage.Sender, key: String, translate: Callable) -> ChatMessage:
+	var message := ChatMessage.new(sender, null)
+	message.add_fragment(_text(translate, key))
 	return message
 
 
