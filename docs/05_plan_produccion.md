@@ -23,6 +23,10 @@ El juego se construye en este orden. La **v1** es lo mínimo para entregar. Lo q
 | 9 | Opciones: volumen por canal, reducir destellos, desactivar parallax y temporizadores ×1,5 | Diseño §19 |
 | 10 | Sonido básico: ambiente, mensajes, alarmas, screamers y un sonido por entidad | Diseño §17 |
 
+### 10bis — dinamismo (agregado el 7-nov, antes de probar con personas)
+
+Tras probar el juego, Benja notó que es poco dinámico. El detalle y las decisiones están en `docs/17_ideas_dinamismo.md`, y el plan paso a paso, en `docs/18_plan_dinamismo.md` (Plan 9 de `docs/06`): barras de HUD, ajustes de dificultad y audios en «¿Qué oyes?» que cambian la acción correcta, batería del celular y cortinas (la criatura que se queda y hay que revisar), e incidentes con respuesta de sentido común. Entra en la semana 4–5, antes de probar con 3 a 5 personas. Editar los videos recibidos y la historia con decisiones quedan fuera, en la lista de después.
+
 ### Prioridad 2 — antes del 10 de diciembre, si alcanza el tiempo
 
 | # | Qué |
@@ -42,6 +46,8 @@ El juego se construye en este orden. La **v1** es lo mínimo para entregar. Lo q
 | 18 | Trust por amigo. |
 | 19 | Audífonos en el escritorio (decorativos). |
 | 20 | Progresión guionada entre los amigos: chats guionados que avanzan noche a noche, como el que sigue al susto guionado (idea de Benja, sesión 16). El Plan 7 ya deja los chats guionados como datos de una noche. |
+| 21 | Editar los videos recibidos (nota de Benja, 7-nov), si al probar sigue faltando algo que hacer entre solicitudes. Detalle en `docs/17_ideas_dinamismo.md`, Lote D. |
+| 22 | Historia con pseudo-lore y decisiones de sentido común (notas de Benja, 7-nov): los amigos se separan, se encuentran heridos, decisiones básicas contestadas por intuición. Choca con la regla 9 de `CLAUDE.md` (la historia no cambia las mecánicas) y habría que enmendarla. Detalle en `docs/17_ideas_dinamismo.md`, "Para después". Recomendación de Benja y de Claude: esperar a que las mecánicas se sientan bien solas. |
 
 **Eliminado:** la cruz, el retrato y mentir (obsoletos), y el buscador por rasgos (reemplazado por las características clickeables).
 
@@ -56,6 +62,8 @@ El juego se construye en este orden. La **v1** es lo mínimo para entregar. Lo q
 | 5 | 23–29 nov | Correcciones. **El contenido se congela el 25 de noviembre.** | Pruebas con 3 a 5 personas. | Lista de problemas priorizada. |
 | 6 | 30 nov – 5 dic | Plan 9 (sonido, pulido y versión de Windows) | Sonido y pulido. | Versión candidata lista el 5 de diciembre. |
 | — | 6–10 dic | Correcciones finales | Prioridad 2, si alcanza. | Entregado el 10 de diciembre. |
+
+**7-nov:** se agregó el Plan 9 (dinamismo, ítem 10bis de §1) entre la semana 4 y la 5, antes de probar con personas. El detalle de la secuencia real de sesiones, que ya se había adelantado bastante respecto a esta tabla, está en `docs/00_log.md`.
 
 ## 3. Riesgos
 

@@ -6,28 +6,30 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ---
 
-## ▶ Siguiente sesión: S20 — Correcciones tras las pruebas
+## ▶ Siguiente sesión: S21 — Ejecutar el Plan 9: dinamismo
 
 | | |
 | --- | --- |
-| **Qué se hace** | Corregir lo que salga de las pruebas: las tuyas (`docs/04`, G a L) y las de 3 a 5 personas. El equilibrio de las noches, la noche 0 (su largo y sus avisos), las 7 entidades y los textos. **El contenido se congela el 25 de noviembre.** |
-| **Tipo** | Corrección. |
-| **Modelo** | **Opus 5.5** |
+| **Qué se hace** | Ejecutar `docs/18_plan_dinamismo.md`: 11 tareas, de 461 a 521 pruebas. Las barras, la dificultad, Audio Sync más rápido, los audios en «¿Qué oyes?», la batería, las cortinas, la criatura que se queda y los accidentes. |
+| **Tipo** | Ejecución. |
+| **Modelo** | **Sonnet 5.5** |
 | **Esfuerzo** | **high** |
-| **Antes de empezar** | Prueba el juego de punta a punta (`docs/04`, L y M, unos 40 minutos) y anota lo que falla o se siente mal. Corrige las 7 entidades y los textos nuevos en el Inspector y en los CSV (lista en `resumen.md`, Sesión 19). Cierra Godot. |
-| **Qué escribirle a Claude** | "Notas de prueba del juego:" y tus notas (qué probaste, qué falló o se sintió mal). Claude lee este registro y `resumen.md`. |
-| **Tu parte** | Probar, anotar, corregir el contenido antes del 25, y autorizar los commits. |
-| **Está terminada cuando** | Cada nota está resuelta o quedó como pendiente con fecha, las pruebas pasan y el contenido queda congelado. |
+| **Antes de empezar** | Revisa los **supuestos** del plan (`docs/18`, al inicio) y corrige lo que no te guste. Cierra Godot. El plan pide git limpio, con tu cortina ya en un commit. |
+| **Qué escribirle a Claude** | "Ejecuta el Plan 9" y si autorizas los 11 commits. Claude lee este registro y `resumen.md`. |
+| **Tu parte** | Autorizar los commits y, al terminar, probar (`docs/04`, N, unos 20 minutos). |
+| **Está terminada cuando** | Las 11 tareas están hechas, las 521 pruebas pasan y las capturas se ven como dice el plan. |
 
 ---
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **no hay ninguno pendiente**: el siguiente es el Plan 9 (sonido, pulido y versión), que se escribe en S21.
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **hay uno pendiente**: el **Plan 9: dinamismo** (`docs/18_plan_dinamismo.md`), que se ejecuta en S21. El Plan 9 original (sonido, pulido y versión) pasa a ser el **Plan 10** y se escribe en S23.
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
+| `docs/18_plan_dinamismo.md` | **Plan 9** (nuevo): dinamismo, paso a paso, con código | **Sí, en S21** |
+| `docs/17_ideas_dinamismo.md` | Notas de la prueba del 7-nov, ordenadas, con las decisiones del Plan 9 | No (referencia; de aquí sale el Plan 9) |
 | `docs/16_plan_feedback_1.md` | **Plan 8.1**: el feedback de la primera prueba, paso a paso, con código | Ya ejecutado (S19) ✅ |
 | `docs/15_plan_noches_menu.md` | **Plan 8**, paso a paso, con código | Ya ejecutado (S19) ✅ |
 | `docs/14_plan_screamers_director.md` | **Plan 7**, paso a paso, con código | Ya ejecutado (S17) ✅ |
@@ -38,11 +40,11 @@ Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta
 | `docs/09_propuesta_entidades.md` | Borrador de 3 entidades para que Benja las refine | No (referencia para Benja) |
 | `docs/08_plan_datos_textos.md` | **Plan 2**, paso a paso, con código | Ya ejecutado (S7) ✅ |
 | `docs/07_plan_escena_arte.md` | **Plan 1**, paso a paso, con código | Ya ejecutado (S5) ✅ |
-| `docs/06_plan_v1.md` | Hoja de ruta: los 9 planes de la v1 y el estado del arte | No; de aquí salen los planes 2 a 9 |
+| `docs/06_plan_v1.md` | Hoja de ruta: los 10 planes de la v1 y el estado del arte | No; de aquí salen los planes 2 a 10 |
 | `docs/05_plan_produccion.md` | Alcance por prioridad y calendario por semana | No |
 | `docs/02_bucle_central.md` | Detalle de la mecánica central y plantilla de entidades | No (referencia) |
 | `docs/03_plan_arte.md` | Reglas del pipeline de arte y arte faltante | No (referencia) |
-| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L y M) |
+| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L y M; la N llega con el Plan 9) |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1 | No (histórico) |
 | `spook_dial_design.md` | Qué es el juego (diseño v2) | No (referencia principal) |
 | `resumen.md` | Detalle de cada sesión: hecho, errores y pendientes | No |
@@ -77,10 +79,12 @@ Hay dos tipos de sesión, que se alternan:
 | S17 | 3 nov | Ejecutar el Plan 7 → una noche con ritmo y screamers justos | Ejecución | Sonnet 5.5 · high | Autorizar commits; probar (`docs/04`, K) | ✅ |
 | S18 | 4 nov | Escribir el Plan 8: noches (con la noche 0, el tutorial), menú, guardado y opciones | Plan | Opus 5.5 · high (se adelantó) | Decisiones de la noche 0, las entidades y las opciones | ✅ |
 | S19 | 4 nov | Ejecutar el Plan 8 → el juego se puede terminar | Ejecución | Sonnet 5.5 · high (se adelantó) | Autorizar commits; probar (`docs/04`, L) | ✅ |
-| **S20** | 23–29 nov | **Correcciones tras las pruebas con personas** (contenido congelado el 25) | Corrección | **Opus 5.5 · high** | Pruebas con 3 a 5 personas | ▶ |
-| S21 | 30 nov | Escribir el Plan 9: sonido, pulido y versión | Plan | Opus 5.5 · high | Sonidos elegidos | ⏳ |
-| S22 | 1–5 dic | Ejecutar el Plan 9 → versión candidata | Ejecución | Sonnet 5.5 · high | — | ⏳ |
-| S23 | 6–10 dic | Correcciones finales y entrega | Corrección | Opus 5.5 · high | — | ⏳ |
+| S20 | 7 nov | Escribir el Plan 9: dinamismo (nuevo, `docs/17`) | Plan | Opus 5.5 · high | Decisiones del dinamismo | ✅ |
+| **S21** | 10–17 nov | **Ejecutar el Plan 9 → el juego es más dinámico** | Ejecución | **Sonnet 5.5 · high** | Autorizar commits; probar (`docs/04`, N) | ▶ |
+| S22 | 23–29 nov | Correcciones tras las pruebas con personas (contenido congelado el 25) | Corrección | Opus 5.5 · high | Pruebas con 3 a 5 personas | ⏳ |
+| S23 | 30 nov | Escribir el Plan 10: sonido, pulido y versión | Plan | Opus 5.5 · high | Sonidos elegidos | ⏳ |
+| S24 | 1–5 dic | Ejecutar el Plan 10 → versión candidata | Ejecución | Sonnet 5.5 · high | — | ⏳ |
+| S25 | 6–10 dic | Correcciones finales y entrega | Corrección | Opus 5.5 · high | — | ⏳ |
 
 **Si una sesión de ejecución no termina su plan**, la siguiente sesión la continúa (se anota como ✏️) antes de pasar a la que sigue en la tabla.
 
@@ -90,6 +94,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 7-nov | ✏️ Benja probó el juego y dio 8 notas sobre que el juego es poco dinámico. Se ordenaron y se brainstormearon con preguntas con opciones (`docs/17_ideas_dinamismo.md`): barras de HUD (nueva, nota 9), ajustes de dificultad y audios en «¿Qué oyes?» que cambian la acción correcta, batería del celular (tope por noche), cortinas con la criatura que se queda y hay que revisar, e incidentes con respuesta de sentido común. La historia con decisiones (notas 3 y 6) y editar videos (nota 5) quedan para después. **Nuevo Plan 9: dinamismo** (escrito en S20, `docs/18`, 11 tareas, de 461 a 521 pruebas), que entra antes de probar con personas y empuja el resto de la secuencia: S20–S21 nuevas (escribir y ejecutar el Plan 9), y lo que era S20–S23 pasa a S22–S25. El Plan 9 original (sonido) pasa a ser el **Plan 10**. |
 | 4-nov | ✏️ Después de ejecutar el Plan 8, Benja probó el juego y dio feedback (la criatura en la ventana en lugar del jumpscare, las noches 1 y 2, Audio Sync en 2 rondas, Trust por tardar y los diales). Se trabajó en la misma sesión S19, con `superpowers:brainstorming` y `superpowers:writing-plans`: el plan quedó en `docs/16_plan_feedback_1.md` (Plan 8.1, 7 tareas, de 446 a 461 pruebas) y se ejecutó inline en Sonnet 5.5 · high, con los 7 commits autorizados en `main` (detalle en `resumen.md`, Sesión 19, continuación). Nuevo `sonidos_pendiente.md`. |
 | 4-nov | ✏️ S19 se adelantó al 4 de noviembre (fecha objetivo: 20 a 22 de noviembre), justo después de S18, y se ejecutó inline con `superpowers:executing-plans` en Sonnet 5.5 · high, como proponía el registro. Benja autorizó los 14 commits al empezar, directo en `main`. El plan se aplicó tal como está escrito (446 pruebas OK), sin correcciones; solo queda anotado un detalle visual menor del panel de opciones (detalle en `resumen.md`, Sesión 19). S20 depende ahora de que Benja pruebe el juego (`docs/04`, L). |
 | 4-nov | ✏️ S18 se adelantó al 4 de noviembre (fecha objetivo: 19 de noviembre) y se escribió en Opus 5.5 con esfuerzo high. Benja todavía no había probado la identificación por preguntas ni los screamers (`docs/04`, G y K), así que no hubo notas de prueba. Tomó 6 decisiones: la noche 0 guiada y sin perder, que enseña también a descargar un video y se puede saltar; las 7 entidades como borrador de Claude; los temporizadores ×1,5 solo para responder, y el menú de pausa con Esc (detalle en `resumen.md`, Sesión 18). |
@@ -137,4 +142,5 @@ Hay dos tipos de sesión, que se alternan:
 | S17 | 3-nov | Plan 7 ejecutado: 373 pruebas OK. El director con olas y respiro, los 7 screamers con sus reglas de justicia, las alucinaciones, la figura de la ventana escondida, el sonido ambiente, el susto guionado de la noche 1 y el chat de Gonzalo con el botón de Matías y el celular que parpadea. 12 sonidos provisionales. Capturas revisadas. `docs/04`, K. Después, a pedido de Benja, la entidad se identifica preguntando (`docs/04`, G) | `resumen.md`, Sesión 17 y su continuación |
 | S18 | 4-nov | Plan 8 escrito (`docs/15`): 14 tareas, de 382 a 446 pruebas. La noche 0 guiada y sin perder, las 7 entidades (borrador de Claude), el menú principal, el guardado, el resumen entre noches, la victoria final, el menú de pausa y las opciones (decisiones de Benja). Código probado en una copia aparte y plan validado sobre una copia limpia | `resumen.md`, Sesión 18 |
 | S19 | 4-nov | Plan 8 ejecutado: 446 pruebas OK, en 14 commits (y, el mismo día, el Plan 8.1 con el feedback de Benja: 461 pruebas OK, en 7 commits más). La noche 0 guiada con su aviso, las 7 entidades (borrador de Claude), las opciones con 3 canales de audio, el guardado, `GameState` y el menú principal, el resumen entre noches y la victoria, y el menú de pausa con Esc. Capturas revisadas y arranque sin errores. `docs/04`, L. **El juego se puede terminar** | `resumen.md`, Sesión 19 |
+| S20 | 7-nov | Notas de prueba ordenadas (`docs/17`) y Plan 9 escrito (`docs/18`): 11 tareas, de 461 a 521 pruebas. Las barras, la dificultad, Audio Sync más rápido, los audios que cambian la acción, la batería, las cortinas, la criatura que se queda y los accidentes (decisiones de Benja). Código probado en una copia aparte y plan validado sobre una copia limpia | `resumen.md`, Sesión 20 |
 | S15 | 2-nov | Plan 6 ejecutado: 326 pruebas OK. La señal de cada amigo con interferencias, las reglas de un amigo sin señal, los avisos de videos y señal en el chat, la descarga en el chat, Audio Sync en el mixer (también con «Sincronizar»), el celular con su feed y 7 sonidos provisionales. Capturas del mixer, de la descarga y del celular revisadas. `docs/04`, J | `resumen.md`, Sesión 15 |

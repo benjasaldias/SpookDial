@@ -1,6 +1,6 @@
 # Plan de la primera versión (v1)
 
-Hoja de ruta para construir la v1 (`docs/05` §1) antes del 10 de diciembre. Divide el trabajo en **9 planes**. Cada uno deja algo que funciona y se puede probar por sí solo.
+Hoja de ruta para construir la v1 (`docs/05` §1) antes del 10 de diciembre. Divide el trabajo en **10 planes** (el Plan 9, dinamismo, se agregó el 7 de noviembre, con las notas de prueba de Benja; el Plan 9 original, sonido, pasó a ser el Plan 10). Cada uno deja algo que funciona y se puede probar por sí solo.
 
 - El **Plan 1** está escrito paso a paso en `docs/07_plan_escena_arte.md` (ejecutado).
 - El **Plan 2** está escrito paso a paso en `docs/08_plan_datos_textos.md` (ejecutado).
@@ -10,6 +10,8 @@ Hoja de ruta para construir la v1 (`docs/05` §1) antes del 10 de diciembre. Div
 - El **Plan 6** está escrito paso a paso en `docs/13_plan_mantenimiento.md` (ejecutado).
 - El **Plan 7** está escrito paso a paso en `docs/14_plan_screamers_director.md` (ejecutado).
 - El **Plan 8** está escrito paso a paso en `docs/15_plan_noches_menu.md` (ejecutado).
+- Sus decisiones (el feedback de la primera prueba) están en el **Plan 8.1**, `docs/16_plan_feedback_1.md` (ejecutado).
+- El **Plan 9: dinamismo** tiene sus decisiones en `docs/17_ideas_dinamismo.md` y se escribe paso a paso en `docs/18_plan_dinamismo.md` (sesión S20).
 - Cada plan siguiente se escribe en detalle al comenzar su sesión, con el mismo formato (skill `superpowers:writing-plans`).
 
 ---
@@ -43,7 +45,7 @@ res://
 
 ---
 
-## 2. Los 9 planes
+## 2. Los 10 planes
 
 | Plan | Qué construye | Depende de | Está listo cuando… | Semana |
 | --- | --- | --- | --- | --- |
@@ -55,9 +57,10 @@ res://
 | **6. Mantenimiento** | Señal por amigo con interferencias y desconexión, Audio Sync en el mixer visto desde arriba, recepción de videos (empezar a descargar en 15 s y terminar en 20 s, manteniendo presionado en el chat) y scroll del celular. El mixer y el celular, provisionales hasta el arte | 5 | Las tres tareas de mantenimiento funcionan en la noche | 3 |
 | **7. Screamers y director** | Director de ritmo (olas con respiro), tipos de screamer con sus reglas de justicia, alucinaciones auditivas y el susto guionado con su chat (decisiones de Benja, sesión 16) | 5, 6 | Una noche con ritmo controlado y screamers justos | 4 |
 | **8. Noches, menú, guardado y opciones** | La noche 0 (tutorial, decisión de Benja, sesión 16) y las 5 `NightData`, menú principal, guardado al inicio de cada noche, resumen entre noches, victoria final y opciones | 7 | El juego se puede terminar | 4 |
-| **9. Sonido, pulido y versión** | Buses de audio, efectos, ambiente, pulido y exportación a Windows | 8 | Versión candidata el 5 de diciembre | 6 |
+| **9. Dinamismo** | Barras de HUD de Connection, Sanity y Trust; tiempos, pistas y señuelos más duros por noche, entidades con características compartidas, audios en «¿Qué oyes?» que cambian la acción correcta, Audio Sync más rápido por noche; batería del celular y cortinas (la criatura que se queda y hay que revisar); incidentes con respuesta de sentido común | 8 | El juego se siente más dinámico, antes de probar con personas | 4–5 |
+| **10. Sonido, pulido y versión** | Buses de audio, efectos, ambiente, pulido y exportación a Windows | 9 | Versión candidata el 5 de diciembre | 6 |
 
-La semana 5 queda para corregir y probar con personas (`docs/05` §2).
+La semana 5 queda para corregir y probar con personas (`docs/05` §2), ya con el Plan 9 (dinamismo) terminado.
 
 ---
 
