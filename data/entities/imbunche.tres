@@ -23,6 +23,12 @@ id = &"stale_air"
 category = 2
 text_key = "TRAIT_STALE_AIR"
 
+[sub_resource type="Resource" id="Trait_shed_skin"]
+script = ExtResource("2_trait")
+id = &"shed_skin"
+category = 3
+text_key = "TRAIT_SHED_SKIN"
+
 [sub_resource type="Resource" id="Action_back_out"]
 script = ExtResource("3_action")
 id = &"back_out"
@@ -111,7 +117,7 @@ id = &"imbunche"
 name_key = "ENTITY_IMBUNCHE_NAME"
 lore_key = "ENTITY_IMBUNCHE_LORE"
 place_keys = Array[String](["PLACE_CAVE", "PLACE_CLIFF"])
-traits = Array[ExtResource("2_trait")]([SubResource("Trait_one_leg_hop"), SubResource("Trait_hoarse_grunts"), SubResource("Trait_stale_air")])
+traits = Array[ExtResource("2_trait")]([SubResource("Trait_one_leg_hop"), SubResource("Trait_hoarse_grunts"), SubResource("Trait_stale_air"), SubResource("Trait_shed_skin")])
 actions = Array[ExtResource("3_action")]([SubResource("Action_back_out"), SubResource("Action_stay_outside"), SubResource("Action_offer_bread"), SubResource("Action_go_deeper")])
 observations = Array[ExtResource("4_observation")]([SubResource("Observation_called_name"), SubResource("Observation_torches"), SubResource("Observation_entrance")])
 rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_3"), SubResource("Rule_otherwise")])

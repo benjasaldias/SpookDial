@@ -106,16 +106,17 @@ func test_olas_y_screamers_de_cada_noche() -> bool:
 	return true
 
 
-## La identificación por preguntas (decisión de Benja, 3 de noviembre): más tiempo por solicitud, menos
-## solicitudes por noche (la atención es en serie) y una pista opcional en el mensaje inicial.
+## La identificación por preguntas (decisión de Benja, 3 de noviembre): menos solicitudes por noche (la atención
+## es en serie) y una pista opcional en el mensaje inicial. Desde el 7 de noviembre, el tiempo baja más rápido, no
+## hay pista desde la noche 3 y hay más señuelos: acertar a tiempo era demasiado fácil.
 func test_identificacion_por_preguntas() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	check_eq(catalog.balance.question_cost, 5.0, "preguntar cuesta 5 s")
 	check(catalog.greeting_keys.size() >= 5, "el amigo tiene varios saludos: %d" % catalog.greeting_keys.size())
 	var requests := [5, 7, 7, 8, 10]
-	var times := [85.0, 80.0, 75.0, 70.0, 65.0]
-	var hints := [1.0, 0.75, 0.5, 0.35, 0.2]
-	var decoys := [1, 1, 2, 2, 3]
+	var times := [80.0, 65.0, 55.0, 45.0, 40.0]
+	var hints := [1.0, 0.75, 0.0, 0.0, 0.0]
+	var decoys := [1, 2, 3, 3, 4]
 	for index in catalog.nights.size():
 		var night: NightData = catalog.nights[index]
 		var who := "noche %d" % night.number

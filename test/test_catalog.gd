@@ -3,6 +3,7 @@ extends "res://test/test_case.gd"
 ## el mensaje dice qué hay que arreglar.
 
 const ContentValidator := preload("res://scripts/core/content_validator.gd")
+const RequestGenerator := preload("res://scripts/core/request_generator.gd")
 const CATALOG_PATH := "res://data/catalog.tres"
 const ENTITIES_DIR := "res://data/entities"
 
@@ -97,3 +98,28 @@ func test_el_celular_tiene_publicaciones() -> bool:
 	for post: PhonePostData in catalog.phone_posts:
 		check(not post.author_key.is_empty() and not post.text_key.is_empty(), "cada una con su autor y su texto")
 	return true
+
+
+## Desde la noche 3 hay entidades que se confunden: comparten 2 características, y solo se distinguen por otra
+## (decisión de Benja, 7 de noviembre).
+func test_entidades_que_comparten_2_caracteristicas() -> bool:
+	var catalog: ContentCatalog = load(CATALOG_PATH)
+	for pair: Array in [[&"trauco", &"calchona"], [&"imbunche", &"basilisco"]]:
+		var first := _entity(catalog, pair[0])
+		var second := _entity(catalog, pair[1])
+		var shared := 0
+		for trait_data: TraitData in first.traits:
+			if second.traits.any(func(other: TraitData) -> bool: return other.id == trait_data.id):
+				shared += 1
+		check_eq(shared, 2, "%s y %s comparten 2" % pair)
+		var known := catalog.all_entities()
+		check(not RequestGenerator.distinguishing_pairs(first, known).is_empty(), "%s se puede distinguir" % pair[0])
+		check(not RequestGenerator.distinguishing_pairs(second, known).is_empty(), "%s se puede distinguir" % pair[1])
+	return true
+
+
+func _entity(catalog: ContentCatalog, entity_id: StringName) -> EntityData:
+	for entity: EntityData in catalog.all_entities():
+		if entity.id == entity_id:
+			return entity
+	return null
