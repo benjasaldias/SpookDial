@@ -24,4 +24,4 @@ audio_sync_bpm = 90.0
 sanity_drain_interval = 10.0
 content_quota = 2
 scare_count = 2
-has_jumpscare = false
+creature_visits = 0

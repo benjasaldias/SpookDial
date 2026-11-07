@@ -105,17 +105,17 @@ func test_no_empieza_una_que_no_alcanza_a_terminar() -> bool:
 	return true
 
 
-## Una noche con `count` screamers y, si `jumpscare`, uno de ellos es el jumpscare.
-func _scary_night(count: int, jumpscare: bool) -> NightData:
+## Una noche con `count` screamers, de los que `visits` son la criatura de la ventana.
+func _scary_night(count: int, visits: int) -> NightData:
 	var night := _night()
 	night.scare_count = count
-	night.has_jumpscare = jumpscare
+	night.creature_visits = visits
 	return night
 
 
 func test_reparte_los_screamers_en_la_noche() -> bool:
 	for seed_value in range(1, 21):
-		var times := _director(_scary_night(6, true), seed_value).scare_times
+		var times := _director(_scary_night(6, 1), seed_value).scare_times
 		check_eq(times.size(), 6, "6 screamers")
 		check(times[0] >= 30.0, "ninguno en los primeros 30 s: %s" % times[0])
 		check(times[-1] <= 420.0, "todos antes de las 06:00")
@@ -124,21 +124,27 @@ func test_reparte_los_screamers_en_la_noche() -> bool:
 	return true
 
 
-func test_uno_es_el_jumpscare_si_la_noche_lo_tiene() -> bool:
-	for jumpscare: bool in [true, false]:
+func test_la_criatura_llega_las_veces_que_pide_la_noche() -> bool:
+	for visits: int in [0, 1, 3]:
 		for seed_value in range(1, 11):
-			var director := _director(_scary_night(4, jumpscare), seed_value)
+			var director := _director(_scary_night(4, visits), seed_value)
 			var found := 0
 			while not director.scare_times.is_empty():
 				if director.next_is_jumpscare():
 					found += 1
 				director.scare_started(director.scare_times[0])
-			check_eq(found, 1 if jumpscare else 0, "jumpscares en una noche %s jumpscare" % ("con" if jumpscare else "sin"))
+			check_eq(found, visits, "visitas de la criatura")
+	return true
+
+
+func test_la_criatura_no_llega_mas_veces_que_los_screamers() -> bool:
+	var director := _director(_scary_night(2, 5))
+	check_eq(director.jumpscare_slots.size(), 2, "2 screamers, 2 visitas")
 	return true
 
 
 func test_un_screamer_llega_a_su_hora_y_espaciado() -> bool:
-	var director := _director(_scary_night(0, false))
+	var director := _director(_scary_night(0, 0))
 	director.scare_times.assign([40.0, 50.0])
 	check(not director.scare_due(39.0), "todavía no")
 	check(director.scare_due(40.0), "a su hora")

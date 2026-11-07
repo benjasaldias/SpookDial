@@ -4,7 +4,7 @@ extends RefCounted
 ## Las solicitudes llegan en olas de NightData.wave_size, y después de cada ola hay un respiro sin solicitudes
 ## nuevas. Se aprietan hacia las 06:00. Si una llega tarde (no había a quién dársela) o un amigo queda herido,
 ## las que faltan se atrasan, y nunca empieza una que no alcanza a terminar antes de las 06:00.
-## Los screamers llegan en cualquier momento, repartidos en la noche, y uno puede ser el jumpscare. El susto
+## Los screamers llegan en cualquier momento, repartidos en la noche, y algunos son el jumpscare. El susto
 ## guionado espera un momento sin solicitudes. Las reglas de justicia las revisa Screamer al elegir cuál.
 ## Lógica pura: RequestManager la consulta para las solicitudes y ScreamerManager, para los screamers.
 
@@ -14,8 +14,8 @@ var request_times: Array[float] = []
 var last_request := -INF
 ## Las horas de los screamers que faltan, sin el guionado, en orden.
 var scare_times: Array[float] = []
-## Cuál de los screamers que faltan es el jumpscare, contado desde el próximo (0); -1 si no hay.
-var jumpscare_at := -1
+## Cuáles de los screamers que faltan son el jumpscare, contados desde el próximo (0).
+var jumpscare_slots: Array[int] = []
 ## La hora del susto guionado, o -1 si no hay o ya pasó.
 var scripted_scare_time := -1.0
 ## La hora en que empezó el último screamer.
@@ -28,8 +28,7 @@ func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator) -
 	_balance = balance
 	request_times = plan_requests(night, balance, rng)
 	scare_times = plan_scares(night.scare_count, balance, rng)
-	if night.has_jumpscare and not scare_times.is_empty():
-		jumpscare_at = rng.randi_range(0, scare_times.size() - 1)
+	jumpscare_slots = plan_jumpscares(night.creature_visits, scare_times.size(), rng)
 	if night.scripted_scare_time > 0.0:
 		scripted_scare_time = night.scripted_scare_time
 
@@ -109,6 +108,19 @@ static func plan_scares(count: int, balance: BalanceData, rng: RandomNumberGener
 	return times
 
 
+## Cuáles de `scare_count` screamers son el jumpscare: `visits` al azar, sin pasar de los que hay.
+static func plan_jumpscares(visits: int, scare_count: int, rng: RandomNumberGenerator) -> Array[int]:
+	var slots: Array[int] = []
+	for index in scare_count:
+		slots.append(index)
+	for index in range(slots.size() - 1, 0, -1):
+		var other := rng.randi_range(0, index)
+		var swap := slots[index]
+		slots[index] = slots[other]
+		slots[other] = swap
+	return slots.slice(0, mini(visits, scare_count))
+
+
 ## Toca un screamer: llegó su hora y pasaron scare_min_gap segundos desde el anterior.
 func scare_due(now: float) -> bool:
 	return not scare_times.is_empty() and now >= scare_times[0] and now - last_scare >= _balance.scare_min_gap
@@ -116,7 +128,7 @@ func scare_due(now: float) -> bool:
 
 ## El próximo screamer es el jumpscare.
 func next_is_jumpscare() -> bool:
-	return jumpscare_at == 0
+	return jumpscare_slots.has(0)
 
 
 ## Empezó el screamer que tocaba.
@@ -124,7 +136,11 @@ func scare_started(now: float) -> void:
 	if scare_times.is_empty():
 		return
 	scare_times.pop_front()
-	jumpscare_at -= 1
+	var slots: Array[int] = []
+	for slot: int in jumpscare_slots:
+		if slot > 0:
+			slots.append(slot - 1)
+	jumpscare_slots = slots
 	last_scare = now
 
 

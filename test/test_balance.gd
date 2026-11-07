@@ -85,7 +85,7 @@ func test_valores_del_director_y_los_screamers() -> bool:
 	check_eq(balance.jumpscare_sanity, 15.0, "jumpscare: Sanity −15")
 	check_eq(balance.closed_curtains_sanity, 0.3, "con las cortinas cerradas, Sanity −0,3 por segundo")
 	check_eq(balance.creature_sanity, 2.0, "con la criatura a cortina abierta, Sanity −2 por segundo")
-	check_eq(balance.creature_seconds, 4.0, "la criatura se queda 4 s a la vista")
+	check_eq(balance.creature_seconds, 25.0, "la criatura se queda 25 s afuera")
 	check_eq(balance.ink_seconds, 5.0, "la mancha de tinta dura 5 s")
 	check_eq(balance.hallucination_start, 50.0, "alucinaciones con Sanity bajo 50")
 	check_eq(balance.hallucination_slowest, 40.0, "una cada 40 s al empezar")
@@ -98,12 +98,13 @@ func test_olas_y_screamers_de_cada_noche() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	var wave_sizes := [2, 3, 3, 4, 4]
 	var scare_counts := [2, 4, 4, 5, 6]
+	var creature_visits := [0, 1, 2, 2, 3]
 	for index in catalog.nights.size():
 		var night: NightData = catalog.nights[index]
 		var who := "noche %d" % night.number
 		check_eq(night.wave_size, wave_sizes[index], who + ": solicitudes por ola")
 		check_eq(night.scare_count, scare_counts[index], who + ": screamers")
-		check_eq(night.has_jumpscare, night.number >= 2, who + ": un jumpscare desde la noche 2")
+		check_eq(night.creature_visits, creature_visits[index], who + ": visitas de la criatura")
 		check_eq(night.scripted_scare_time, 0.0, who + ": el susto guionado va en la noche 0")
 	check_eq(catalog.tutorial.scripted_scare, ScareKind.Kind.JUMPSCARE, "el susto guionado es un jumpscare")
 	return true

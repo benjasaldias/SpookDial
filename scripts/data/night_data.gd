@@ -43,9 +43,9 @@ extends Resource
 ## Screamers de la noche, sin contar las alucinaciones ni el susto guionado. Llegan en cualquier momento,
 ## con las reglas de justicia (decisión de Benja).
 @export var scare_count := 0
-## Uno de los screamers es la criatura que se asoma por la ventana (el antiguo jumpscare): como máximo uno por
-## noche, desde la noche 2.
-@export var has_jumpscare := false
+## Cuántos de esos screamers son la criatura que se asoma por la ventana (el antiguo jumpscare): desde la noche 2,
+## y más seguido hacia el final (decisión de Benja, 7 de noviembre).
+@export var creature_visits := 0
 
 @export_group("Guion")
 ## Segundos desde las 00:00 del susto guionado (0: no hay). Llega en el primer momento sin solicitudes.

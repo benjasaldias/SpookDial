@@ -27,7 +27,7 @@ func _state(desk: Node2D) -> NightState:
 func _scare_now(desk: Node2D, jumpscare := false) -> void:
 	var director: RefCounted = desk.get_node("RequestManager").director
 	director.scare_times.assign([_state(desk).elapsed])
-	director.jumpscare_at = 0 if jumpscare else -1
+	director.jumpscare_slots.assign([0] if jumpscare else [])
 
 
 ## Guarda en `kinds` cada screamer que empieza.
@@ -93,11 +93,87 @@ func test_la_criatura_se_arma_detras_de_un_panel() -> bool:
 	desk._process(0.0)
 	check(figure.visible, "al cerrar el chat, ya está ahí")
 	check_eq(figure.modulate.a, 1.0, "sin animación de entrada")
-	desk._process(3.9)
-	check(figure.visible, "a los 3,9 s, todavía")
+	desk._process(24.9)
+	check(figure.visible, "a los 24,9 s de llegar, todavía")
 	desk._process(0.2)
-	check(not screamers.is_creature_near(), "a los 4 s, se retira")
+	check(not screamers.is_creature_near(), "a los 25 s, se va")
 	check(not (screamers.get_node("CreatureBreathing") as AudioStreamPlayer).playing, "y se calla")
+	desk.free()
+	return true
+
+
+## Hace llegar a la criatura detrás del chat y cierra el chat: queda a la vista.
+func _creature_at_window(desk: Node2D) -> void:
+	var chat := desk.get_node("UI/ChatPanel") as Control
+	_scare_now(desk, true)
+	chat.show()
+	desk._process(0.0)
+	desk._process(1.0)
+	chat.hide()
+	desk._process(0.0)
+
+
+## Mientras la criatura está afuera, la cortina abierta baja Sanity rápido (decisión de Benja, 7 de noviembre).
+func test_la_criatura_afuera_baja_sanity() -> bool:
+	var desk := _make_desk()
+	_creature_at_window(desk)
+	check(_state(desk).creature_outside, "la noche sabe que está afuera")
+	desk._process(25.0)
+	check(not _state(desk).creature_outside, "cuando se va, ya no")
+	desk.free()
+	return true
+
+
+## Si la cortina estaba cerrada, la criatura la abre al llegar (idea de Benja, 7 de noviembre).
+func test_la_criatura_abre_la_cortina_cerrada() -> bool:
+	var desk := _make_desk()
+	var curtains := desk.get_node("WallPlane/Curtains") as AnimatedSprite2D
+	curtains.clicked.emit()
+	check_eq(curtains.animation, &"Closed", "cerrada")
+	_creature_at_window(desk)
+	check_eq(curtains.animation, &"Open", "la criatura la abrió")
+	check(not _state(desk).curtains_closed, "y la noche lo sabe")
+	desk.free()
+	return true
+
+
+## Se queda un tiempo fijo, aunque se cierre la cortina: hay que abrirla para ver si sigue ahí. Con la cortina
+## cerrada no se oye, para que haya que revisar (decisión de Benja, 7 de noviembre).
+func test_cerrar_la_cortina_no_la_espanta() -> bool:
+	var desk := _make_desk()
+	var screamers := _screamers(desk)
+	var curtains := desk.get_node("WallPlane/Curtains") as AnimatedSprite2D
+	var breathing := screamers.get_node("CreatureBreathing") as AudioStreamPlayer
+	var knocks := screamers.get_node("CreatureKnocks") as AudioStreamPlayer
+	_creature_at_window(desk)
+	curtains.clicked.emit()
+	desk._process(0.5)
+	check(screamers.is_creature_near(), "sigue ahí")
+	check(not breathing.playing and not knocks.playing, "pero no se oye")
+	curtains.clicked.emit()
+	desk._process(0.0)
+	check((desk.get_node("WallPlane/Enemy") as CanvasItem).visible, "al abrir la cortina, se ve")
+	check(breathing.playing, "y se oye")
+	curtains.clicked.emit()
+	desk._process(24.6)
+	check(not screamers.is_creature_near(), "se fue sola, a su hora")
+	check(not _state(desk).creature_outside, "y al abrir la cortina ya no baja Sanity rápido")
+	desk.free()
+	return true
+
+
+## Detrás de un panel, sus golpes se repiten: son el aviso de que hay que ir a la ventana.
+func test_detras_de_un_panel_los_golpes_se_repiten() -> bool:
+	var desk := _make_desk()
+	var chat := desk.get_node("UI/ChatPanel") as Control
+	var knocks := _screamers(desk).get_node("CreatureKnocks") as AudioStreamPlayer
+	_scare_now(desk, true)
+	chat.show()
+	desk._process(0.0)
+	desk._process(1.0)
+	knocks.stop()
+	desk._process(0.1)
+	check(knocks.playing, "vuelven a sonar")
 	desk.free()
 	return true
 
@@ -122,8 +198,8 @@ func test_con_la_criatura_cerca_no_empiezan_otros_screamers() -> bool:
 	_scare_now(desk)
 	_process(desk, 3)
 	check_eq(kinds, [ScareKind.Kind.JUMPSCARE], "solo la criatura")
-	_process(desk, 4)
-	check(kinds.size() >= 2, "al retirarse, llega el otro: %s" % [kinds])
+	_process(desk, 24)
+	check(kinds.size() >= 2, "al irse, llega el otro: %s" % [kinds])
 	desk.free()
 	return true
 

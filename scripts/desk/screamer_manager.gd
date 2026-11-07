@@ -3,8 +3,10 @@ extends Node
 ## aquí se elige cuál (Screamer), se anuncia con su señal previa (las luces parpadean y baja el sonido
 ## ambiente) y se muestra con su sonido. Cada uno resta Sanity. El antiguo jumpscare es ahora la criatura que se
 ## asoma por la ventana, con respiración pesada y golpes (decisión de Benja, 4 de noviembre): se arma cuando el
-## chat o el mixer tapan la ventana, y está ahí al cerrarlos. Después del susto guionado empieza su chat
-## guionado (decisión de Benja).
+## chat o el mixer tapan la ventana, y está ahí al cerrarlos. Se queda un tiempo fijo: si las cortinas estaban
+## cerradas las abre, y cerrarlas no la espanta, pero baja menos Sanity y no se oye, así que hay que abrirlas para
+## revisar si sigue ahí (decisión de Benja, 7 de noviembre). Después del susto guionado empieza su chat guionado
+## (decisión de Benja).
 ## Con Sanity bajo suenan alucinaciones: golpes, pasos, susurros y rasguños, y también la estática y el
 ## celular, que no vienen de nada (decisión de Benja). Nada de esto empieza durante una ronda de Audio Sync.
 ## Hasta el arte de Benja (docs/06 §3), los screamers usan las piezas del escritorio y la figura de la ventana.
@@ -84,8 +86,8 @@ var _warning_left := 0.0
 var _ambient_db := 0.0
 var _phone_rest := Vector2.ZERO
 var _creature := Creature.AWAY
-## Segundos que lleva a la vista la criatura.
-var _creature_seen := 0.0
+## Segundos que la criatura se queda todavía afuera.
+var _creature_left := 0.0
 ## La ventana está a la vista (ni un panel ni el celular la tapan), según el último avance.
 var _window_visible := true
 ## El desvanecimiento de la figura de la ventana, que comparten el screamer de la ventana y la criatura.
@@ -230,46 +232,66 @@ func _flicker_lights() -> void:
 	_tween_alphas(darkness, ^"modulate:a", alphas, EFFECT_SECONDS / alphas.size())
 
 
-## La criatura llega a la ventana, con su respiración y sus golpes en el vidrio. Si la ventana está a la vista,
-## aparece enseguida; si un panel la tapa, espera detrás, y al cerrarlo ya está ahí, sin animación de entrada.
+## La criatura llega a la ventana, con su respiración y sus golpes en el vidrio, y abre las cortinas si estaban
+## cerradas. Si la ventana está a la vista, aparece enseguida; si un panel la tapa, espera detrás, y al cerrarlo ya
+## está ahí, sin animación de entrada.
 func _creature_arrives() -> void:
+	var state := _requests.state
+	state.creature_outside = true
+	_creature_left = _requests.catalog.balance.creature_seconds
+	if state.curtains_closed:
+		_set_curtains(false)
+		($CurtainsSound as AudioStreamPlayer).play()
 	_knocks.play()
 	if _window_visible:
 		_show_creature()
 	else:
 		_creature = Creature.HIDDEN
-		_breathing.volume_db = HIDDEN_BREATHING_DB
+	_refresh_creature_sound()
 
 
-## La criatura se ve en la ventana, con la respiración más fuerte, durante creature_seconds.
+## La criatura se ve en la ventana. Las cortinas cerradas la tapan, porque se dibujan encima.
 func _show_creature() -> void:
 	_creature = Creature.SEEN
-	_creature_seen = 0.0
 	if _figure_tween != null:
 		_figure_tween.kill()
 	figure.modulate.a = 1.0
 	figure.show()
-	_breathing.volume_db = 0.0
+
+
+## La criatura detrás de un panel se ve apenas la ventana queda a la vista, y se va a los creature_seconds de
+## llegar, con las cortinas abiertas o cerradas.
+func _advance_creature(delta: float) -> void:
+	if _creature == Creature.AWAY:
+		return
+	_creature_left -= delta
+	if _creature_left <= 0.0:
+		_creature_leaves()
+		return
+	if _creature == Creature.HIDDEN and _window_visible:
+		_show_creature()
+	_refresh_creature_sound()
+
+
+## Con las cortinas abiertas se oye su respiración, más fuerte si se ve, y detrás de un panel se repiten sus golpes,
+## que avisan que hay que ir a la ventana. Con las cortinas cerradas no se oye nada: hay que abrirlas para saber si
+## sigue ahí.
+func _refresh_creature_sound() -> void:
+	if _requests.state.curtains_closed:
+		_breathing.stop()
+		_knocks.stop()
+		return
+	_breathing.volume_db = 0.0 if _creature == Creature.SEEN else HIDDEN_BREATHING_DB
 	if not _breathing.playing:
 		_breathing.play()
-
-
-## La criatura detrás de un panel se ve apenas la ventana queda a la vista; a la vista, se retira a los
-## creature_seconds.
-func _advance_creature(delta: float) -> void:
-	match _creature:
-		Creature.HIDDEN:
-			if _window_visible:
-				_show_creature()
-		Creature.SEEN:
-			_creature_seen += delta
-			if _creature_seen >= _requests.catalog.balance.creature_seconds:
-				_creature_leaves()
+	if _creature == Creature.HIDDEN and not _knocks.playing:
+		_knocks.play()
 
 
 ## La criatura se desvanece y se calla.
 func _creature_leaves() -> void:
 	_creature = Creature.AWAY
+	_requests.state.creature_outside = false
 	_breathing.stop()
 	_knocks.stop()
 	var tween := _new_figure_tween()

@@ -119,9 +119,9 @@ extends Resource
 @export var scare_sanity := 8.0
 ## Sanity que resta la criatura de la ventana, el antiguo jumpscare (docs/02 §6).
 @export var jumpscare_sanity := 15.0
-## Segundos que la criatura de la ventana se queda a la vista, desde que se ve (decisión de Benja, 4 de
-## noviembre). No tapa nada: la noche no se pausa.
-@export var creature_seconds := 4.0
+## Segundos que la criatura de la ventana se queda afuera, desde que llega, aunque se cierren las cortinas: hay que
+## abrirlas para revisar si sigue ahí (decisión de Benja, 7 de noviembre). No tapa nada: la noche no se pausa.
+@export var creature_seconds := 25.0
 ## Segundos que la mancha de tinta tapa la página del cuaderno (diseño §11).
 @export var ink_seconds := 5.0
 
