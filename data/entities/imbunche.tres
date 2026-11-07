@@ -5,6 +5,8 @@
 [ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
 [ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
 [ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+[ext_resource type="AudioStream" path="res://audio/clues/imbunche_called_name_yes.wav" id="audio_yes"]
+[ext_resource type="AudioStream" path="res://audio/clues/imbunche_called_name_no.wav" id="audio_no"]
 
 [sub_resource type="Resource" id="Trait_one_leg_hop"]
 script = ExtResource("2_trait")
@@ -57,6 +59,10 @@ question_key = "OBS_IMBUNCHE_CALLED_NAME_Q"
 values = Dictionary[StringName, String]({
 &"yes": "OBS_IMBUNCHE_CALLED_NAME_YES",
 &"no": "OBS_IMBUNCHE_CALLED_NAME_NO"
+})
+audio_values = Dictionary[StringName, AudioStream]({
+&"yes": ExtResource("audio_yes"),
+&"no": ExtResource("audio_no")
 })
 
 [sub_resource type="Resource" id="Observation_torches"]

@@ -36,7 +36,7 @@ friend = ExtResource("7_leon")
 entity = ExtResource("9_tue_tue")
 situation = Dictionary[StringName, StringName]({
 &"circling": &"over_house",
-&"cried_three_times": &"no"
+&"cries": &"one"
 })
 
 [sub_resource type="Resource" id="Tutorial_2"]
@@ -55,7 +55,7 @@ friend = ExtResource("5_gonzalo")
 entity = ExtResource("9_tue_tue")
 situation = Dictionary[StringName, StringName]({
 &"circling": &"passing",
-&"cried_three_times": &"yes"
+&"cries": &"three"
 })
 with_hint = false
 

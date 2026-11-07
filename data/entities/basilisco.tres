@@ -5,6 +5,8 @@
 [ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
 [ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
 [ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+[ext_resource type="AudioStream" path="res://audio/clues/basilisco_crows_once.wav" id="audio_once"]
+[ext_resource type="AudioStream" path="res://audio/clues/basilisco_crows_twice.wav" id="audio_twice"]
 
 [sub_resource type="Resource" id="Trait_crow_underfloor"]
 script = ExtResource("2_trait")
@@ -62,23 +64,46 @@ values = Dictionary[StringName, String]({
 &"intact": "OBS_BASILISCO_FLOOR_INTACT"
 })
 
+[sub_resource type="Resource" id="Observation_crows"]
+script = ExtResource("4_observation")
+id = &"crows"
+category = 1
+question_key = "OBS_BASILISCO_CROWS_Q"
+values = Dictionary[StringName, String]({
+&"once": "OBS_BASILISCO_CROWS_ONCE",
+&"twice": "OBS_BASILISCO_CROWS_TWICE"
+})
+audio_values = Dictionary[StringName, AudioStream]({
+&"once": ExtResource("audio_once"),
+&"twice": ExtResource("audio_twice")
+})
+
 [sub_resource type="Resource" id="Rule_1"]
 script = ExtResource("5_rule")
 conditions = Dictionary[StringName, StringName]({
-&"egg": &"small"
+&"crows": &"twice"
 })
-correct_action_id = &"burn_egg"
+correct_action_id = &"leave_house"
 risky_action_id = &"lift_board"
 text_key = "RULE_BASILISCO_1"
 
 [sub_resource type="Resource" id="Rule_2"]
 script = ExtResource("5_rule")
 conditions = Dictionary[StringName, StringName]({
+&"egg": &"small"
+})
+correct_action_id = &"burn_egg"
+risky_action_id = &"lift_board"
+text_key = "RULE_BASILISCO_2"
+
+[sub_resource type="Resource" id="Rule_3"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
 &"floor": &"raised"
 })
 correct_action_id = &"leave_house"
 risky_action_id = &"lift_board"
-text_key = "RULE_BASILISCO_2"
+text_key = "RULE_BASILISCO_3"
 
 [sub_resource type="Resource" id="Rule_otherwise"]
 script = ExtResource("5_rule")
@@ -94,5 +119,5 @@ lore_key = "ENTITY_BASILISCO_LORE"
 place_keys = Array[String](["PLACE_ABANDONED_HOUSE", "PLACE_HENHOUSE"])
 traits = Array[ExtResource("2_trait")]([SubResource("Trait_crow_underfloor"), SubResource("Trait_shed_skin"), SubResource("Trait_stale_air")])
 actions = Array[ExtResource("3_action")]([SubResource("Action_burn_egg"), SubResource("Action_leave_house"), SubResource("Action_cover_mouth"), SubResource("Action_lift_board")])
-observations = Array[ExtResource("4_observation")]([SubResource("Observation_egg"), SubResource("Observation_floor")])
-rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_otherwise")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_egg"), SubResource("Observation_floor"), SubResource("Observation_crows")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_3"), SubResource("Rule_otherwise")])

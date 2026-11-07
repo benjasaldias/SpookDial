@@ -5,6 +5,9 @@
 [ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
 [ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
 [ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+[ext_resource type="AudioStream" path="res://audio/clues/tue_tue_cries_one.wav" id="audio_one"]
+[ext_resource type="AudioStream" path="res://audio/clues/tue_tue_cries_three.wav" id="audio_three"]
+[ext_resource type="AudioStream" path="res://audio/clues/tue_tue_cries_none.wav" id="audio_none"]
 
 [sub_resource type="Resource" id="Trait_bird_with_face"]
 script = ExtResource("2_trait")
@@ -52,38 +55,54 @@ values = Dictionary[StringName, String]({
 &"passing": "OBS_TUE_TUE_CIRCLING_PASSING"
 })
 
-[sub_resource type="Resource" id="Observation_cried_three_times"]
+[sub_resource type="Resource" id="Observation_cries"]
 script = ExtResource("4_observation")
-id = &"cried_three_times"
+id = &"cries"
 category = 1
-question_key = "OBS_TUE_TUE_CRIED_THREE_TIMES_Q"
+question_key = "OBS_TUE_TUE_CRIES_Q"
 values = Dictionary[StringName, String]({
-&"yes": "OBS_TUE_TUE_CRIED_THREE_TIMES_YES",
-&"no": "OBS_TUE_TUE_CRIED_THREE_TIMES_NO"
+&"one": "OBS_TUE_TUE_CRIES_ONE",
+&"three": "OBS_TUE_TUE_CRIES_THREE",
+&"none": "OBS_TUE_TUE_CRIES_NONE"
+})
+audio_values = Dictionary[StringName, AudioStream]({
+&"one": ExtResource("audio_one"),
+&"three": ExtResource("audio_three"),
+&"none": ExtResource("audio_none")
 })
 
 [sub_resource type="Resource" id="Rule_1"]
 script = ExtResource("5_rule")
 conditions = Dictionary[StringName, StringName]({
-&"circling": &"over_house"
+&"cries": &"three"
 })
-correct_action_id = &"cross_scissors"
-risky_action_id = &"mimic_cry"
+correct_action_id = &"stay_silent"
+risky_action_id = &"offer_salt"
 text_key = "RULE_TUE_TUE_1"
 
 [sub_resource type="Resource" id="Rule_2"]
 script = ExtResource("5_rule")
 conditions = Dictionary[StringName, StringName]({
-&"cried_three_times": &"yes"
+&"cries": &"one",
+&"circling": &"over_house"
 })
-correct_action_id = &"stay_silent"
-risky_action_id = &"offer_salt"
+correct_action_id = &"cross_scissors"
+risky_action_id = &"mimic_cry"
 text_key = "RULE_TUE_TUE_2"
+
+[sub_resource type="Resource" id="Rule_3"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"cries": &"none"
+})
+correct_action_id = &"offer_salt"
+risky_action_id = &"mimic_cry"
+text_key = "RULE_TUE_TUE_3"
 
 [sub_resource type="Resource" id="Rule_otherwise"]
 script = ExtResource("5_rule")
-correct_action_id = &"offer_salt"
-risky_action_id = &"mimic_cry"
+correct_action_id = &"mimic_cry"
+risky_action_id = &"cross_scissors"
 text_key = "RULE_OTHERWISE"
 
 [resource]
@@ -94,5 +113,5 @@ lore_key = "ENTITY_TUE_TUE_LORE"
 place_keys = Array[String](["PLACE_YARD", "PLACE_WOODSHED"])
 traits = Array[ExtResource("2_trait")]([SubResource("Trait_bird_with_face"), SubResource("Trait_two_note_cry"), SubResource("Trait_ointment_smell")])
 actions = Array[ExtResource("3_action")]([SubResource("Action_cross_scissors"), SubResource("Action_stay_silent"), SubResource("Action_offer_salt"), SubResource("Action_mimic_cry")])
-observations = Array[ExtResource("4_observation")]([SubResource("Observation_circling"), SubResource("Observation_cried_three_times")])
-rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_otherwise")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_circling"), SubResource("Observation_cries")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_3"), SubResource("Rule_otherwise")])

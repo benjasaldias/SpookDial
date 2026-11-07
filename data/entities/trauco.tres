@@ -5,6 +5,8 @@
 [ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
 [ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
 [ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+[ext_resource type="AudioStream" path="res://audio/clues/trauco_ground_muddy.wav" id="audio_muddy"]
+[ext_resource type="AudioStream" path="res://audio/clues/trauco_ground_dry.wav" id="audio_dry"]
 
 [sub_resource type="Resource" id="Trait_little_man"]
 script = ExtResource("2_trait")
@@ -69,37 +71,41 @@ values = Dictionary[StringName, String]({
 [sub_resource type="Resource" id="Observation_ground"]
 script = ExtResource("4_observation")
 id = &"ground"
-category = 3
+category = 1
 question_key = "OBS_TRAUCO_GROUND_Q"
 values = Dictionary[StringName, String]({
 &"muddy": "OBS_TRAUCO_GROUND_MUDDY",
 &"dry": "OBS_TRAUCO_GROUND_DRY"
 })
+audio_values = Dictionary[StringName, AudioStream]({
+&"muddy": ExtResource("audio_muddy"),
+&"dry": ExtResource("audio_dry")
+})
 
 [sub_resource type="Resource" id="Rule_1"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"ground": &"muddy"
+})
+correct_action_id = &"follow_to_tree"
+risky_action_id = &"throw_sand"
+text_key = "RULE_TRAUCO_1"
+
+[sub_resource type="Resource" id="Rule_2"]
 script = ExtResource("5_rule")
 conditions = Dictionary[StringName, StringName]({
 &"saw_first": &"trauco"
 })
 correct_action_id = &"look_down"
 risky_action_id = &"follow_to_tree"
-text_key = "RULE_TRAUCO_1"
-
-[sub_resource type="Resource" id="Rule_2"]
-script = ExtResource("5_rule")
-conditions = Dictionary[StringName, StringName]({
-&"in_hand": &"cane"
-})
-correct_action_id = &"talk_loud"
-risky_action_id = &"throw_sand"
 text_key = "RULE_TRAUCO_2"
 
 [sub_resource type="Resource" id="Rule_3"]
 script = ExtResource("5_rule")
 conditions = Dictionary[StringName, StringName]({
-&"ground": &"muddy"
+&"in_hand": &"cane"
 })
-correct_action_id = &"follow_to_tree"
+correct_action_id = &"talk_loud"
 risky_action_id = &"throw_sand"
 text_key = "RULE_TRAUCO_3"
 

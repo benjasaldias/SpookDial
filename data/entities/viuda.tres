@@ -5,6 +5,8 @@
 [ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
 [ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
 [ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+[ext_resource type="AudioStream" path="res://audio/clues/viuda_heels_slow.wav" id="audio_slow"]
+[ext_resource type="AudioStream" path="res://audio/clues/viuda_heels_fast.wav" id="audio_fast"]
 
 [sub_resource type="Resource" id="Trait_black_veil"]
 script = ExtResource("2_trait")
@@ -63,23 +65,46 @@ values = Dictionary[StringName, String]({
 &"normal": "OBS_VIUDA_FOOTPRINTS_NORMAL"
 })
 
+[sub_resource type="Resource" id="Observation_heels"]
+script = ExtResource("4_observation")
+id = &"heels"
+category = 1
+question_key = "OBS_VIUDA_HEELS_Q"
+values = Dictionary[StringName, String]({
+&"slow": "OBS_VIUDA_HEELS_SLOW",
+&"fast": "OBS_VIUDA_HEELS_FAST"
+})
+audio_values = Dictionary[StringName, AudioStream]({
+&"slow": ExtResource("audio_slow"),
+&"fast": ExtResource("audio_fast")
+})
+
 [sub_resource type="Resource" id="Rule_1"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"heels": &"fast"
+})
+correct_action_id = &"pray"
+risky_action_id = &"greet"
+text_key = "RULE_VIUDA_1"
+
+[sub_resource type="Resource" id="Rule_2"]
 script = ExtResource("5_rule")
 conditions = Dictionary[StringName, StringName]({
 &"request": &"cross"
 })
 correct_action_id = &"keep_walking"
 risky_action_id = &"carry_her"
-text_key = "RULE_VIUDA_1"
+text_key = "RULE_VIUDA_2"
 
-[sub_resource type="Resource" id="Rule_2"]
+[sub_resource type="Resource" id="Rule_3"]
 script = ExtResource("5_rule")
 conditions = Dictionary[StringName, StringName]({
 &"footprints": &"none"
 })
-correct_action_id = &"pray"
+correct_action_id = &"keep_walking"
 risky_action_id = &"greet"
-text_key = "RULE_VIUDA_2"
+text_key = "RULE_VIUDA_3"
 
 [sub_resource type="Resource" id="Rule_otherwise"]
 script = ExtResource("5_rule")
@@ -95,5 +120,5 @@ lore_key = "ENTITY_VIUDA_LORE"
 place_keys = Array[String](["PLACE_DIRT_ROAD", "PLACE_BRIDGE"])
 traits = Array[ExtResource("2_trait")]([SubResource("Trait_black_veil"), SubResource("Trait_heel_steps"), SubResource("Trait_icy_mist")])
 actions = Array[ExtResource("3_action")]([SubResource("Action_pray"), SubResource("Action_keep_walking"), SubResource("Action_greet"), SubResource("Action_carry_her")])
-observations = Array[ExtResource("4_observation")]([SubResource("Observation_request"), SubResource("Observation_footprints")])
-rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_otherwise")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_request"), SubResource("Observation_footprints"), SubResource("Observation_heels")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_3"), SubResource("Rule_otherwise")])

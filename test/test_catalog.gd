@@ -3,6 +3,7 @@ extends "res://test/test_case.gd"
 ## el mensaje dice qué hay que arreglar.
 
 const ContentValidator := preload("res://scripts/core/content_validator.gd")
+const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
 const CATALOG_PATH := "res://data/catalog.tres"
 const ENTITIES_DIR := "res://data/entities"
@@ -123,3 +124,28 @@ func _entity(catalog: ContentCatalog, entity_id: StringName) -> EntityData:
 		if entity.id == entity_id:
 			return entity
 	return null
+
+
+## Cada entidad tiene una observación que el amigo manda como audio, y lo que se oye cambia la acción correcta: 1
+## grito no es lo mismo que 3 (decisión de Benja, 7 de noviembre).
+func test_cada_entidad_tiene_un_audio_que_cambia_la_accion() -> bool:
+	var catalog: ContentCatalog = load(CATALOG_PATH)
+	for entity: EntityData in catalog.all_entities():
+		var with_audio := entity.observations.filter(func(observation: ObservationData) -> bool:
+			return not observation.audio_values.is_empty())
+		check_eq(with_audio.size(), 1, "'%s' tiene una observación con audio" % entity.id)
+		if with_audio.size() == 1:
+			check(_audio_changes_the_action(entity, with_audio[0]), "en '%s', el audio no cambia nada" % entity.id)
+	return true
+
+
+## Hay dos situaciones que solo difieren en `observation` y que piden acciones distintas.
+func _audio_changes_the_action(entity: EntityData, observation: ObservationData) -> bool:
+	for situation: Dictionary in RuleEvaluator.all_situations(entity):
+		var correct := RuleEvaluator.applicable_rule(entity, situation).correct_action_id
+		for value: StringName in observation.value_ids():
+			var other := situation.duplicate()
+			other[observation.id] = value
+			if RuleEvaluator.applicable_rule(entity, other).correct_action_id != correct:
+				return true
+	return false

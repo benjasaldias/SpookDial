@@ -4,7 +4,8 @@ Son de relleno, hasta que Benja elija los definitivos (Plan 9):
 - Plan 6: la base y los aplausos de Audio Sync, el golpe de Matías, el resultado de una ronda y la estática
   que anuncia una interferencia;
 - Plan 7: el sonido ambiente del cuarto, uno por screamer y los cuatro de las alucinaciones;
-- 4 de noviembre: la respiración y los golpes de la criatura de la ventana, que reemplazan al grito del jumpscare.
+- 4 de noviembre: la respiración y los golpes de la criatura de la ventana, que reemplazan al grito del jumpscare;
+- Plan 9: los audios que mandan los amigos, en audio/clues/ (3 s cada uno, con el lugar de fondo).
 Siempre generan los mismos archivos.
 
 Uso, desde la carpeta del proyecto: python3 -I tools/make_placeholder_sounds.py
@@ -17,12 +18,14 @@ from pathlib import Path
 
 RATE = 44100
 OUT = Path(__file__).resolve().parent.parent / "audio" / "sfx"
+CLUES = OUT.parent / "clues"
+CLUE_SECONDS = 3.0
 
 
-def write(name, samples):
-    OUT.mkdir(parents=True, exist_ok=True)
+def write(name, samples, folder=OUT):
+    folder.mkdir(parents=True, exist_ok=True)
     frames = b"".join(struct.pack("<h", int(max(-1.0, min(1.0, s)) * 32767)) for s in samples)
-    with wave.open(str(OUT / (name + ".wav")), "wb") as out:
+    with wave.open(str(folder / (name + ".wav")), "wb") as out:
         out.setnchannels(1)
         out.setsampwidth(2)
         out.setframerate(RATE)
@@ -285,6 +288,168 @@ def scratch():
     return samples
 
 
+def outdoors(seed):
+    """El fondo de un audio de un amigo: 3 s de viento suave."""
+    white, samples, low = noise(seed), [], 0.0
+    for i in range(int(CLUE_SECONDS * RATE)):
+        t = i / RATE
+        low += 0.03 * (white() - low)
+        samples.append(0.5 * low * min(t / 0.1, 1.0, (CLUE_SECONDS - t) / 0.1))
+    return samples
+
+
+def water(seed):
+    """El fondo de un audio junto al lago: 3 s de agua que golpea la orilla."""
+    white, samples, low = noise(seed), [], 0.0
+    for i in range(int(CLUE_SECONDS * RATE)):
+        t = i / RATE
+        low += 0.08 * (white() - low)
+        wave_level = 0.35 + 0.65 * math.sin(2 * math.pi * 0.7 * t) ** 2
+        samples.append(0.5 * low * wave_level * min(t / 0.1, 1.0, (CLUE_SECONDS - t) / 0.1))
+    return samples
+
+
+def over(background, sound, starts):
+    """Mezcla `sound` sobre `background`, una vez por cada segundo de `starts`."""
+    mixed = list(background)
+    for start in starts:
+        first = int(start * RATE)
+        for i, value in enumerate(sound):
+            if first + i < len(mixed):
+                mixed[first + i] += value
+    return mixed
+
+
+def cry():
+    """El Tue Tué: un grito de dos notas, como de queltehue."""
+    samples = []
+    for frequency in (1900, 1400):
+        for i in range(int(0.22 * RATE)):
+            t = i / RATE
+            samples.append(0.5 * math.sin(2 * math.pi * frequency * t) * min(t / 0.01, 1.0) * math.exp(-t * 6))
+    return samples
+
+
+def bleat():
+    """La Calchona bala como llorando: un tono que tiembla y cae."""
+    samples, phase, seconds = [], 0.0, 1.0
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        phase += 2 * math.pi * (340 - 90 * t / seconds + 22 * math.sin(2 * math.pi * 7 * t)) / RATE
+        tone = math.sin(phase) + 0.5 * math.sin(2 * phase) + 0.3 * math.sin(3 * phase)
+        samples.append(0.3 * tone * min(t / 0.05, 1.0, (seconds - t) / 0.2))
+    return samples
+
+
+def snort():
+    """La Calchona bufa: un soplido grave y corto."""
+    white, samples, low, seconds = noise(41), [], 0.0, 0.45
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        low += 0.2 * (white() - low)
+        samples.append(1.6 * low * min(t / 0.02, 1.0) * math.exp(-t * 6))
+    return samples
+
+
+def whistle():
+    """El Cuero: un silbido agudo que sube, como si alguien llamara."""
+    samples, phase, seconds = [], 0.0, 1.2
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        phase += 2 * math.pi * (1500 + 800 * t / seconds) / RATE
+        samples.append(0.35 * math.sin(phase) * min(t / 0.08, 1.0, (seconds - t) / 0.15))
+    return samples
+
+
+def heel():
+    """La Viuda: un paso de taco, seco y agudo."""
+    samples = []
+    for i in range(int(0.1 * RATE)):
+        t = i / RATE
+        samples.append(0.6 * (math.sin(2 * math.pi * 1800 * t) + 0.6 * math.sin(2 * math.pi * 420 * t)) * math.exp(-t * 70))
+    return samples
+
+
+def squelch():
+    """El Trauco en el barro: un paso húmedo y grave."""
+    white, samples, low, seconds = noise(42), [], 0.0, 0.35
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        low += 0.1 * (white() - low)
+        wobble = 0.6 + 0.4 * math.sin(2 * math.pi * 26 * t)
+        samples.append(2.6 * low * wobble * math.exp(-t * 9))
+    return samples
+
+
+def crunch():
+    """El Trauco en tierra seca: un paso áspero y corto."""
+    white, samples, last_x, last_y, seconds = noise(43), [], 0.0, 0.0, 0.18
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        x = white()
+        last_y, last_x = 0.85 * (last_y + x - last_x), x
+        samples.append(0.7 * last_y * math.exp(-t * 22))
+    return samples
+
+
+def crow():
+    """El Basilisco: un canto de gallo apagado, que sube y cae."""
+    samples, phase, seconds = [], 0.0, 0.9
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        progress = t / seconds
+        phase += 2 * math.pi * (600 + 520 * math.sin(math.pi * progress) ** 2) / RATE
+        tone = math.sin(phase) + 0.6 * math.sin(2 * phase) + 0.4 * math.sin(3 * phase)
+        samples.append(0.25 * tone * min(t / 0.05, 1.0, (seconds - t) / 0.15))
+    return samples
+
+
+def grunt():
+    """El Imbunche: un gruñido ronco."""
+    samples, seconds = [], 0.4
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        tone = sum(math.sin(2 * math.pi * 85 * harmonic * t) / harmonic for harmonic in (1, 2, 3, 4, 5))
+        rasp = 0.6 + 0.4 * math.sin(2 * math.pi * 31 * t)
+        samples.append(0.3 * tone * rasp * min(t / 0.03, 1.0, (seconds - t) / 0.1))
+    return samples
+
+
+def name_call():
+    """El Imbunche dice el nombre: tres sílabas de una voz ronca, "Ma-tí-as"."""
+    samples, seconds = [], 0.9
+    for i in range(int(seconds * RATE)):
+        t = i / RATE
+        syllable = max(math.sin(2 * math.pi * 3.3 * t), 0.0)
+        pitch = 150 + 40 * math.sin(2 * math.pi * 1.1 * t)
+        tone = sum(math.sin(2 * math.pi * pitch * harmonic * t) / harmonic for harmonic in (1, 2, 3, 5, 7))
+        samples.append(0.35 * tone * syllable)
+    return samples
+
+
+def clue_sounds():
+    """Los audios que mandan los amigos: {nombre del archivo: muestras}."""
+    steps_at = (0.3, 0.9, 1.5, 2.1)
+    grunts_at = (0.2, 0.8, 2.2)
+    return {
+        "tue_tue_cries_one": over(outdoors(51), cry(), (1.0,)),
+        "tue_tue_cries_three": over(outdoors(51), cry(), (0.3, 1.2, 2.1)),
+        "tue_tue_cries_none": outdoors(51),
+        "calchona_bleat_tone_weeping": over(outdoors(52), bleat(), (0.3, 1.7)),
+        "calchona_bleat_tone_snorting": over(outdoors(52), snort(), (0.4, 1.3, 2.2)),
+        "cuero_whistle_yes": over(water(53), whistle(), (0.8,)),
+        "cuero_whistle_no": water(53),
+        "viuda_heels_slow": over(outdoors(54), heel(), (0.3, 1.1, 1.9, 2.7)),
+        "viuda_heels_fast": over(outdoors(54), heel(), tuple(0.2 + 0.28 * step for step in range(10))),
+        "trauco_ground_muddy": over(outdoors(55), squelch(), steps_at),
+        "trauco_ground_dry": over(outdoors(55), crunch(), steps_at),
+        "basilisco_crows_once": over(outdoors(56), crow(), (1.0,)),
+        "basilisco_crows_twice": over(outdoors(56), crow(), (0.4, 1.7)),
+        "imbunche_called_name_yes": over(over(outdoors(57), grunt(), grunts_at), name_call(), (1.25,)),
+        "imbunche_called_name_no": over(outdoors(57), grunt(), grunts_at),
+    }
+
+
 if __name__ == "__main__":
     write("sync_kick", kick())
     write("sync_tick", tick())
@@ -306,4 +471,6 @@ if __name__ == "__main__":
     write("hallucination_steps", steps())
     write("hallucination_whisper", whisper())
     write("hallucination_scratch", scratch())
-    print("Sonidos provisionales en", OUT)
+    for clue_name, clue_samples in clue_sounds().items():
+        write(clue_name, clue_samples, CLUES)
+    print("Sonidos provisionales en", OUT, "y", CLUES)

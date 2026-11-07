@@ -5,6 +5,8 @@
 [ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
 [ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
 [ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+[ext_resource type="AudioStream" path="res://audio/clues/calchona_bleat_tone_weeping.wav" id="audio_weeping"]
+[ext_resource type="AudioStream" path="res://audio/clues/calchona_bleat_tone_snorting.wav" id="audio_snorting"]
 
 [sub_resource type="Resource" id="Trait_lone_bleat"]
 script = ExtResource("2_trait")
@@ -57,6 +59,10 @@ question_key = "OBS_CALCHONA_BLEAT_TONE_Q"
 values = Dictionary[StringName, String]({
 &"weeping": "OBS_CALCHONA_BLEAT_TONE_WEEPING",
 &"snorting": "OBS_CALCHONA_BLEAT_TONE_SNORTING"
+})
+audio_values = Dictionary[StringName, AudioStream]({
+&"weeping": ExtResource("audio_weeping"),
+&"snorting": ExtResource("audio_snorting")
 })
 
 [sub_resource type="Resource" id="Observation_approaching"]
