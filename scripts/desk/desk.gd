@@ -16,6 +16,8 @@ extends Node2D
 ## Desde el Plan 8, en la noche 0 (el tutorial) un aviso arriba de la pantalla dice qué hacer en cada paso
 ## (TutorialGuide), y la noche termina al cerrar el celular. El aviso tiene un botón para saltar el tutorial.
 ## Con Esc y sin nada abierto, la noche se pausa y aparece el menú de pausa (decisión de Benja, sesión 18).
+## Desde el Plan 9, unas barras arriba de la pantalla muestran lo mismo que los diales, que se quedan (decisión de
+## Benja).
 
 ## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
 signal tutorial_skipped
@@ -56,6 +58,7 @@ var notebook_memory: NotebookMemory
 @onready var _clock: Label = $DeskPlane/Phone/Clock
 @onready var _videos: Label = $DeskPlane/PC/Videos
 @onready var _vignette: ColorRect = $Overlay/Vignette
+@onready var _stat_bars: Control = $Overlay/StatBars
 @onready var _end_screen: Control = $Overlay/EndScreen
 @onready var _mixer: Control = $UI/MixerView
 @onready var _phone: Control = $UI/PhoneView
@@ -142,6 +145,7 @@ func apply_settings(settings: GameSettings) -> void:
 		entry.reduce_flashes = settings.reduce_flashes
 	_mixer.reduce_flashes = settings.reduce_flashes
 	_screamers.reduce_flashes = settings.reduce_flashes
+	_stat_bars.reduce_flashes = settings.reduce_flashes
 	$LookCamera.set_look(not settings.still_camera)
 	_requests.timer_scale = settings.timer_scale()
 
@@ -304,13 +308,14 @@ func _refresh_entries() -> void:
 			entry.set_seconds_left(-1)
 
 
-## Los diales (cada uno con su color fijo, decisión de Benja), la hora del celular, los videos del PC
-## y la viñeta de Sanity.
+## Los diales y las barras (cada uno con su color fijo, decisión de Benja), la hora del celular, los videos del
+## PC y la viñeta de Sanity.
 func _refresh_meters() -> void:
 	var state := _requests.state
 	_dial_connection.value = state.connection() / NightState.METER_MAX
 	_dial_sanity.value = state.sanity / NightState.METER_MAX
 	_dial_trust.value = state.trust / NightState.METER_MAX
+	_stat_bars.set_values(state.connection(), state.sanity, state.trust)
 	_clock.text = state.clock_text()
 	_videos.text = tr(VIDEOS_KEY).format({"received": state.videos.received, "quota": state.videos.quota})
 	(_vignette.material as ShaderMaterial).set_shader_parameter(&"strength", state.vignette_strength())

@@ -28,6 +28,7 @@
 [ext_resource type="FontFile" path="res://fonts/departure_mono/DepartureMono-Regular.otf" id="pixel_font"]
 [ext_resource type="PackedScene" path="res://scenes/ui/mixer_view.tscn" id="mixer_view"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_view.tscn" id="phone_view"]
+[ext_resource type="Script" path="res://scripts/ui/stat_bars.gd" id="stat_bars_script"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tutorial_hint.tscn" id="tutorial_hint"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="pause_menu"]
 [ext_resource type="AudioStream" path="res://audio/sfx/interference_static.wav" id="static_sound"]
@@ -280,6 +281,16 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+
+[node name="StatBars" type="Control" parent="Overlay"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 490.0
+offset_top = 8.0
+offset_right = 790.0
+offset_bottom = 62.0
+mouse_filter = 2
+script = ExtResource("stat_bars_script")
 
 [node name="TutorialHint" parent="Overlay" instance=ExtResource("tutorial_hint")]
 visible = false
