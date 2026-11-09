@@ -59,7 +59,7 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
    - **Benja corrige los diálogos.** Claude escribe un borrador real de cada texto, sin marcas de prototipo: corto, y en primera persona cuando habla un amigo. Siempre dice en qué archivo quedó, y Benja lo corrige después (decisión de Benja, 31-10-2026).
    - Todos los textos van en `data/text/*.csv` (columnas `keys,es,en`) para poder traducirlos al inglés.
 9. **El juego es estrictamente el escritorio.** La historia va solo en cinemáticas opcionales y nunca cambia las mecánicas.
-10. **Pixel art.** 1 píxel de arte = 1 unidad de Godot, con posiciones enteras y filtro Nearest. No se escalan sprites, salvo las vistas ampliadas a ×2 exacto.
+10. **Pixel art.** 1 píxel de arte = 1 unidad de Godot, con posiciones enteras y filtro Nearest. No se escalan sprites, salvo las vistas ampliadas a ×2 exacto. Las fotos de Snapgram son la única excepción al pixel art: son fotos reales, de 232×232 y sin escalar.
 11. **Commits:** preguntar a Benja durante la sesión antes de **cada** commit, salvo que él lo haya pedido explícitamente antes. Nunca hacer push sin su autorización.
 
 ## Decisiones tomadas
@@ -87,7 +87,9 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 31-10-2026 | **Un amigo sin señal** sigue recibiendo situaciones, pero su mensaje llega tapado entero y no lee preguntas ni respuestas. Si no lo reconectan antes de que se acabe su tiempo, elige al azar una de las 3 acciones que no son la correcta: daño normal y sin bajar Trust por esa decisión. Mientras haya amigos sin señal, Trust baja 1 punto cada 4 s por cada uno y no se recupera. |
 | 31-10-2026 | **Videos:** el amigo avisa en su chat. Hay 15 s para empezar a descargarlo y, desde ahí, 20 s para terminar, manteniendo presionada su barra en el chat. La descarga tarda 10 s (15 s con la señal del amigo bajo 50; sin señal no avanza). |
 | 31-10-2026 | **Audio Sync en el mixer visto desde arriba** (Benja lo dibuja): el VU-metro azul de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo. Una base marca el tiempo, el amigo aplaude un ritmo y Matías lo imita con clics o con la barra espaciadora. Se empieza con un clic en el mixer. Hasta el arte, la vista es provisional. |
-| 31-10-2026 | **El celular** (el scroll de redes sociales) es provisional hasta que Benja lo anime. |
+| 31-10-2026 | **El celular** (el scroll de redes sociales) es provisional hasta que Benja lo anime. Desde el 9-nov, lo provisional es solo el marco y los íconos. |
+| 09-11-2026 | **Snapgram:** la red social del celular se llama así (elección de Benja) e imita la forma de Instagram, sin historias: barra superior, cabecera, foto cuadrada de 232×232, íconos y barra de navegación. **Son solo fotos reales de gatitos** (mixed media), las cuentas no tienen nombre, el texto son barras grises y los botones son solo dibujo. Scroll, Sanity y batería no cambian. |
+| 09-11-2026 | **Fotos perturbadoras en Snapgram:** con Sanity bajo 30, 1 de cada 6 publicaciones; bajo 15, 1 de cada 3 (`data/balance.tres`). No restan Sanity. Una foto a la vista nunca cambia: se decide al entrar a la pantalla. Son 4 fotos que pasó Benja. |
 | 02-11-2026 | **«Sincronizar» desde el chat:** el chat de cada amigo tiene un botón que abre el mixer en su canal y empieza la ronda. El canal también se elige en el fader del mixer, y la entrada del PC siempre abre el chat: cada control hace una sola cosa. |
 | 02-11-2026 | **El director reparte las solicitudes en olas con respiro:** después de cada ola hay unos 25 s sin solicitudes nuevas, las olas se aprietan hacia las 06:00 y, cuando un amigo queda herido, las que faltan se atrasan. |
 | 02-11-2026 | **Los screamers llegan en cualquier momento de la noche**, solo con las reglas de justicia del diseño (§11). |
@@ -152,6 +154,7 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 - **Aseprite (Steam):** `C:\Program Files (x86)\Steam\steamapps\common\Aseprite\Aseprite.exe` (versión 1.3.18). El plugin **Aseprite Wizard 9.8.0** está instalado, activado y con la ruta correcta (corregida por Claude el 26-10-2026). Los 16 sprites importan bien.
 - **Reimportar un `.aseprite`:** Godot no reintenta un archivo cuyo `.import` quedó con `valid=false`. Para forzar la reimportación, hay que borrar su `.import` (o su `.md5` y su `.res` en `.godot/imported/`) y correr `godot-wsl.sh --headless --path "$PWD" --import` con el editor cerrado.
 - **Fuente:** Departure Mono, en `fonts/departure_mono/`, con su licencia (`OFL.txt`), que debe ir con el juego. Se importa sin suavizado ni hinting (en su `.otf.import`) y se usa en múltiplos de 11 px.
+- **Fotos de Snapgram:** los originales de Benja están en `art/phone/source/` (Godot los ignora) y `tools/crop_phone_photos.sh` los recorta a `art/phone/`, a 232×232.
 - **Arte:** los sprites están en `art/sprites/` (posiciones en `art/positions.md`). La maqueta está en `art/_layout/` (`scene_layout.aseprite` y `scene_layout.png`), que Godot ignora.
 - **Git:** remoto `origin` = `https://github.com/benjasaldias/SpookDial.git` (privado; `gh` está autenticado como `benjasaldias`). Rama `main`. Usar `core.filemode=false` (el disco es NTFS).
 - **Pantalla:** viewport de 1280×720, stretch mode `canvas_items`, aspect `keep` (Godot no lo escribe en `project.godot` porque es el valor por defecto), filtro `Nearest` y snap a píxel. Falta que Benja confirme el escalado a 1080p (`docs/04`, D).

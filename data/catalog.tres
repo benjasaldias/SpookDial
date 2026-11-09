@@ -16,6 +16,22 @@
 [ext_resource type="Script" path="res://scripts/data/phone_post_data.gd" id="14_post"]
 [ext_resource type="Resource" path="res://data/nights/night_0.tres" id="15_night_0"]
 [ext_resource type="Script" path="res://scripts/data/incident_data.gd" id="16_incident"]
+[ext_resource type="Texture2D" path="res://art/phone/post_01.png" id="post_01"]
+[ext_resource type="Texture2D" path="res://art/phone/post_02.png" id="post_02"]
+[ext_resource type="Texture2D" path="res://art/phone/post_03.png" id="post_03"]
+[ext_resource type="Texture2D" path="res://art/phone/post_04.png" id="post_04"]
+[ext_resource type="Texture2D" path="res://art/phone/post_05.png" id="post_05"]
+[ext_resource type="Texture2D" path="res://art/phone/post_06.png" id="post_06"]
+[ext_resource type="Texture2D" path="res://art/phone/post_07.png" id="post_07"]
+[ext_resource type="Texture2D" path="res://art/phone/post_08.png" id="post_08"]
+[ext_resource type="Texture2D" path="res://art/phone/post_09.png" id="post_09"]
+[ext_resource type="Texture2D" path="res://art/phone/post_10.png" id="post_10"]
+[ext_resource type="Texture2D" path="res://art/phone/post_11.png" id="post_11"]
+[ext_resource type="Texture2D" path="res://art/phone/post_12.png" id="post_12"]
+[ext_resource type="Texture2D" path="res://art/phone/disturbing_1.png" id="disturbing_1"]
+[ext_resource type="Texture2D" path="res://art/phone/disturbing_2.png" id="disturbing_2"]
+[ext_resource type="Texture2D" path="res://art/phone/disturbing_3.png" id="disturbing_3"]
+[ext_resource type="Texture2D" path="res://art/phone/disturbing_4.png" id="disturbing_4"]
 
 [sub_resource type="Resource" id="Decoy_cold_breath"]
 script = ExtResource("12_decoy")
@@ -137,75 +153,67 @@ wrong_keys = Array[String](["INCIDENT_THORN_BAD_1", "INCIDENT_THORN_BAD_2"])
 
 [sub_resource type="Resource" id="PhonePost_01"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_01_AUTHOR"
-text_key = "PHONE_POST_01_TEXT"
-color = Color(0.93, 0.55, 0.3, 1)
+picture = ExtResource("post_01")
 
 [sub_resource type="Resource" id="PhonePost_02"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_02_AUTHOR"
-text_key = "PHONE_POST_02_TEXT"
-color = Color(0.62, 0.42, 0.28, 1)
+picture = ExtResource("post_02")
 
 [sub_resource type="Resource" id="PhonePost_03"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_03_AUTHOR"
-text_key = "PHONE_POST_03_TEXT"
-color = Color(0.9, 0.74, 0.3, 1)
+picture = ExtResource("post_03")
 
 [sub_resource type="Resource" id="PhonePost_04"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_04_AUTHOR"
-text_key = "PHONE_POST_04_TEXT"
-color = Color(0.45, 0.3, 0.7, 1)
+picture = ExtResource("post_04")
 
 [sub_resource type="Resource" id="PhonePost_05"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_05_AUTHOR"
-text_key = "PHONE_POST_05_TEXT"
-color = Color(0.72, 0.45, 0.32, 1)
+picture = ExtResource("post_05")
 
 [sub_resource type="Resource" id="PhonePost_06"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_06_AUTHOR"
-text_key = "PHONE_POST_06_TEXT"
-color = Color(0.42, 0.5, 0.62, 1)
+picture = ExtResource("post_06")
 
 [sub_resource type="Resource" id="PhonePost_07"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_07_AUTHOR"
-text_key = "PHONE_POST_07_TEXT"
-color = Color(0.3, 0.6, 0.42, 1)
+picture = ExtResource("post_07")
 
 [sub_resource type="Resource" id="PhonePost_08"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_08_AUTHOR"
-text_key = "PHONE_POST_08_TEXT"
-color = Color(0.85, 0.6, 0.35, 1)
+picture = ExtResource("post_08")
 
 [sub_resource type="Resource" id="PhonePost_09"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_09_AUTHOR"
-text_key = "PHONE_POST_09_TEXT"
-color = Color(0.85, 0.5, 0.65, 1)
+picture = ExtResource("post_09")
 
 [sub_resource type="Resource" id="PhonePost_10"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_10_AUTHOR"
-text_key = "PHONE_POST_10_TEXT"
-color = Color(0.35, 0.68, 0.35, 1)
+picture = ExtResource("post_10")
 
 [sub_resource type="Resource" id="PhonePost_11"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_11_AUTHOR"
-text_key = "PHONE_POST_11_TEXT"
-color = Color(0.82, 0.68, 0.45, 1)
+picture = ExtResource("post_11")
 
 [sub_resource type="Resource" id="PhonePost_12"]
 script = ExtResource("14_post")
-author_key = "PHONE_POST_12_AUTHOR"
-text_key = "PHONE_POST_12_TEXT"
-color = Color(0.35, 0.48, 0.7, 1)
+picture = ExtResource("post_12")
+
+[sub_resource type="Resource" id="PhoneDisturbing_1"]
+script = ExtResource("14_post")
+picture = ExtResource("disturbing_1")
+
+[sub_resource type="Resource" id="PhoneDisturbing_2"]
+script = ExtResource("14_post")
+picture = ExtResource("disturbing_2")
+
+[sub_resource type="Resource" id="PhoneDisturbing_3"]
+script = ExtResource("14_post")
+picture = ExtResource("disturbing_3")
+
+[sub_resource type="Resource" id="PhoneDisturbing_4"]
+script = ExtResource("14_post")
+picture = ExtResource("disturbing_4")
 
 [resource]
 script = ExtResource("1_catalog")
@@ -217,3 +225,4 @@ incidents = Array[ExtResource("16_incident")]([SubResource("Incident_cut"), SubR
 greeting_keys = Array[String](["FIRST_CALL_1", "FIRST_CALL_2", "FIRST_CALL_3", "FIRST_CALL_4", "FIRST_CALL_5", "FIRST_CALL_6"])
 balance = ExtResource("13_balance")
 phone_posts = Array[ExtResource("14_post")]([SubResource("PhonePost_01"), SubResource("PhonePost_02"), SubResource("PhonePost_03"), SubResource("PhonePost_04"), SubResource("PhonePost_05"), SubResource("PhonePost_06"), SubResource("PhonePost_07"), SubResource("PhonePost_08"), SubResource("PhonePost_09"), SubResource("PhonePost_10"), SubResource("PhonePost_11"), SubResource("PhonePost_12")])
+phone_disturbing_posts = Array[ExtResource("14_post")]([SubResource("PhoneDisturbing_1"), SubResource("PhoneDisturbing_2"), SubResource("PhoneDisturbing_3"), SubResource("PhoneDisturbing_4")])

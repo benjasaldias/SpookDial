@@ -84,7 +84,18 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 	_check_shared_traits(errors, entities)
 	_check_decoys(errors, catalog, entities)
 	_check_incidents(errors, catalog)
+	_check_phone_posts(errors, "Publicación", catalog.phone_posts)
+	_check_phone_posts(errors, "Publicación perturbadora", catalog.phone_disturbing_posts)
 	return errors
+
+
+## Cada publicación del celular tiene su foto: Godot no tiene con qué reemplazarla.
+static func _check_phone_posts(errors: Array[String], who: String, posts: Array[PhonePostData]) -> void:
+	for index in posts.size():
+		if posts[index] == null:
+			errors.append("%s %d del celular: está vacía" % [who, index + 1])
+		elif posts[index].picture == null:
+			errors.append("%s %d del celular: no tiene foto" % [who, index + 1])
 
 
 ## Los accidentes: ids únicos, una buena idea y 1 o 2 malas. Una noche que pide accidentes necesita que existan.
@@ -171,10 +182,6 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 		keys.append([where + ", buena idea", incident.correct_key])
 		for wrong_key: String in incident.wrong_keys:
 			keys.append([where + ", mala idea", wrong_key])
-	for index in catalog.phone_posts.size():
-		var post := catalog.phone_posts[index]
-		keys.append(["Publicación %d del celular, autor" % (index + 1), post.author_key])
-		keys.append(["Publicación %d del celular, texto" % (index + 1), post.text_key])
 	return keys
 
 

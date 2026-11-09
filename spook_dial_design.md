@@ -17,6 +17,7 @@
 - 4 de noviembre (sesión 18): la noche 0 guiada y sin perder, las 7 entidades como borrador de Claude, el menú de pausa y los temporizadores ×1,5 solo para responder.
 - 4 de noviembre (después de probar el Plan 8): la criatura se asoma por la ventana en lugar del jumpscare (se arma detrás del chat o el mixer), las noches 1 y 2 con más sucesos, Audio Sync de 8 aplausos en 2 rondas de 4, Trust que también baja si tardas en contestar y los diales explicados en la noche 0.
 - 7 de noviembre (notas de prueba, `docs/17`): las barras arriba de la pantalla, acertar más difícil, los audios en «¿Qué oyes?», Audio Sync más rápido, la batería del celular, las cortinas, la criatura que se queda y hay que revisar, y los accidentes.
+- 9 de noviembre (S21c): Snapgram, la red social con fotos reales de gatitos y fotos perturbadoras con poca Sanity.
 
 ---
 
@@ -244,6 +245,8 @@ Decisión de Benja, 7 de noviembre.
 - Baja lento todo el tiempo, y de golpe con cada screamer (una cantidad fija).
 - Se recupera **scrolleando el celular**: sube mientras el jugador scrollea y deja de subir cuando se detiene.
 - **El celular tiene batería** (decisión de Benja, 7 de noviembre): un tope por noche, sin recarga, que alcanza para unos 38 s de scroll (una vez y media la barra). Se gasta solo al scrollear. Sin batería no hay feed.
+- **Snapgram** (decisión de Benja, 9 de noviembre): la red social del celular imita la forma de Instagram, con barra superior, cabecera, foto cuadrada, íconos y barra de navegación. Todo son **fotos reales de gatitos** (mixed media): las cuentas no tienen nombre, el texto se simula con barras grises y los botones son solo dibujo.
+- **Fotos perturbadoras** (decisión de Benja, 9 de noviembre): con Sanity bajo 30, 1 de cada 6 publicaciones es una foto perturbadora; bajo 15, 1 de cada 3. Solo es un susto: no resta Sanity. Una foto a la vista nunca cambia.
 - **Las cortinas** (decisión de Benja, 7 de noviembre): se abren y se cierran con un clic. Cerradas, el cuarto se oscurece y Sanity baja de a poco. Abiertas no pasa nada, salvo que la criatura esté afuera (§11): entonces baja rápido.
 - **Efecto gradual:** mientras más baja, más se oscurece la visión con una viñeta y más **screamers auditivos falsos** aparecen (sonidos que no vienen de nada).
   - Son sonidos del cuarto (golpes en la ventana, pasos, susurros y rasguños) y también del juego (la estática de una interferencia y el celular vibrando). Confunden: el jugador mira y no hay nada (decisión de Benja, sesión 16).
@@ -359,6 +362,7 @@ El guion de las cinemáticas lo escribe Benja.
 
 - **Pixel art 2D** a 1280×720, en perspectiva de un punto de fuga.
 - **Cámara que mira hacia el mouse (a prueba):** toda la escena tiene un zoom leve (×1,05) y se desplaza hacia donde apunta el mouse, como si el jugador mirara hacia ese lado. El desplazamiento no supera el margen del zoom, así que todos los objetos siguen alcanzables. Si no funciona, se quita.
+- **Fotos reales en el celular** (decisión de Benja, 9 de noviembre): las fotos de Snapgram son la única excepción al pixel art. Se muestran a 232×232, sin escalar.
 - **Iluminación baja.** La pantalla del PC y la ventana son las fuentes principales. Cada entidad puede teñir la luz, pero siempre con sonido además del color.
 - **Detalle técnico:** `docs/03_plan_arte.md`.
 

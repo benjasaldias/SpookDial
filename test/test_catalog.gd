@@ -110,9 +110,15 @@ func test_el_celular_tiene_publicaciones() -> bool:
 	var catalog := _load_catalog()
 	if catalog == null:
 		return true
-	check_eq(catalog.phone_posts.size(), 12, "unas 12 publicaciones (docs/06 §3)")
-	for post: PhonePostData in catalog.phone_posts:
-		check(not post.author_key.is_empty() and not post.text_key.is_empty(), "cada una con su autor y su texto")
+	check_eq(catalog.phone_posts.size(), 12, "12 fotos de gatitos")
+	check_eq(catalog.phone_disturbing_posts.size(), 4, "4 fotos perturbadoras")
+	var posts: Array[PhonePostData] = []
+	posts.append_array(catalog.phone_posts)
+	posts.append_array(catalog.phone_disturbing_posts)
+	for post: PhonePostData in posts:
+		check(post.picture != null, "cada publicación tiene su foto")
+		if post.picture != null:
+			check_eq(post.picture.get_size(), Vector2(232, 232), "la foto se muestra sin escalar: " + post.picture.resource_path)
 	return true
 
 

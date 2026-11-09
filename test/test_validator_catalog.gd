@@ -131,3 +131,15 @@ func test_los_accidentes() -> bool:
 	catalog.incidents.append(null)
 	check_contains(ContentValidator.validate_catalog(catalog), "hay un espacio vacío en 'incidents'")
 	return true
+
+
+func test_publicaciones_del_celular_sin_foto() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.phone_posts.append(PhonePostData.new())
+	check_contains(ContentValidator.validate_catalog(catalog), "Publicación 1 del celular: no tiene foto")
+	catalog.phone_posts.clear()
+	catalog.phone_disturbing_posts.append(PhonePostData.new())
+	check_contains(ContentValidator.validate_catalog(catalog), "Publicación perturbadora 1 del celular: no tiene foto")
+	catalog.phone_disturbing_posts[0] = null
+	check_contains(ContentValidator.validate_catalog(catalog), "Publicación perturbadora 1 del celular: está vacía")
+	return true

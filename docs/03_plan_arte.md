@@ -184,11 +184,11 @@ Prioridades:
 - **Diales** rediseñados como manómetros con ícono (`docs/01` §3.12).
 - **Cursor:** normal y mano.
 - **Mixer visto desde arriba (decisión de Benja, sesión 14):** la vista ampliada de Audio Sync. El cuerpo, los dos VU-metros azules (el de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo), una perilla de fader (Godot la mueve en los 3 canales), los LED y una fila de luces para el ritmo. Mide 440×430, o 220×215 para mostrarla a ×2 exacto. Con esta vista, el mixer del escritorio ya no necesita `mixer_vu` ni `mixer_fader_knob`: puede quedar de una sola pieza. Mientras tanto, el Plan 6 la dibuja provisional en Godot.
-- **Celular ampliado:** las redes sociales, con unas 12 publicaciones o con la animación del scroll, como prefieras. Mide 260×520, o 130×260 a ×2. Mientras tanto, el Plan 6 lo dibuja provisional, y cada publicación puede llevar su imagen.
+- **Celular ampliado:** solo el marco, de 260×520 o 130×260 a ×2. El feed de Snapgram lo dibuja Godot, con las fotos reales de `art/phone/` (decisión de Benja, 9 de noviembre).
 
 ### P2 (semanas 5 y 6)
 
-- **Publicaciones perturbadoras** para el celular ampliado (3 de las 12), para cuando Sanity está baja.
+- **Publicaciones perturbadoras:** ya están, como 4 fotos reales en `art/phone/` (decisión de Benja, 9 de noviembre).
 - **Pantalla entre noches:** la página del canal.
 - **Menú principal:** el logo "Spook Dial" y la escena con otra iluminación.
 - **Screamers:**

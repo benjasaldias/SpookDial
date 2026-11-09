@@ -57,6 +57,16 @@ extends Resource
 ## Benja, 7 de noviembre). 38 s a 4 de Sanity por segundo son una vez y media la barra.
 @export var phone_battery_seconds := 38.0
 
+## Bajo este valor de Sanity, algunas publicaciones del celular son fotos perturbadoras (decisión de Benja,
+## 9 de noviembre)…
+@export var disturbing_post_sanity := 30.0
+## …una de cada tantas…
+@export var disturbing_post_every := 6
+## …y bajo este valor empeora…
+@export var disturbing_post_worse_sanity := 15.0
+## …a una de cada tantas.
+@export var disturbing_post_worse_every := 3
+
 ## Sanity que se pierde por segundo con las cortinas cerradas: la pieza a oscuras también pesa (decisión de Benja,
 ## 7 de noviembre). Se suma a lo que baja con el tiempo.
 @export var closed_curtains_sanity := 0.3

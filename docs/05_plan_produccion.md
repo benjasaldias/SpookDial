@@ -32,7 +32,7 @@ Tras probar el juego, Benja notó que es poco dinámico. El detalle y las decisi
 | Qué | Dónde se decide |
 | --- | --- |
 | Lore por noche (el grupo se separa, alguien cae inconsciente, alguien actúa raro y relleno de vlog). Toca los puntos 20 y 22, y la regla 9. Su alcance real se decide en esa sesión. | `docs/19_prompt_lore.md` |
-| La red social del celular imita a una real, como Instagram. | `docs/20_prompt_red_social.md` |
+| ✅ La red social del celular imita a una real: Snapgram (hecho en S21c, 9-nov). | `docs/20_prompt_red_social.md` |
 
 ### Prioridad 2 — antes del 10 de diciembre, si alcanza el tiempo
 

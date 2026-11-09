@@ -303,10 +303,10 @@ NightData        number, place_key, new_entities[], requests_total, max_simultan
 TutorialRequestData  una solicitud fija de la noche 0: friend, entity, situation {observación → valor},
                  with_hint, sends_video
 ChatScriptData   friend, lines[] (ChatLineData: speaker FRIEND/PLAYER, text_key), highlight_phone
-BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start, el scroll del celular, la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`), el director (olas y respiros), los screamers (señal previa, justicia, Sanity, jumpscare y tinta) y las alucinaciones
-PhonePostData    author_key, text_key, picture (sin imagen, se dibuja un paisaje), color
+BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start, el scroll del celular, las fotos perturbadoras (`disturbing_post_*`), la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`), el director (olas y respiros), los screamers (señal previa, justicia, Sanity, jumpscare y tinta) y las alucinaciones
+PhonePostData    picture (la foto, de 232×232; las cuentas no tienen nombre ni texto)
 ContentCatalog   friends[3], nights[5], tutorial (la noche 0), decoys[], greeting_keys[] (saludos), balance,
-                 phone_posts[] (data/catalog.tres)
+                 phone_posts[] (12 gatitos), phone_disturbing_posts[] (4 fotos, con poca Sanity) (data/catalog.tres)
 ```
 
 - Una entidad es **un solo `.tres`** en `data/entities/`, con todas sus partes dentro.

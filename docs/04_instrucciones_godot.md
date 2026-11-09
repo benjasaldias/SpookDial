@@ -20,6 +20,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **G.** Probar las solicitudes y el chat (Plan 3) | ⬜ Pendiente (unos 10 minutos) |
 | **N.** Probar el dinamismo (Plan 9) | ✅ Benja lo probó el 8-nov y anotó las correcciones |
 | **O.** Probar las correcciones del 8-nov | ⬜ Pendiente (unos 10 minutos) |
+| **P.** Probar Snapgram | ⬜ Pendiente (unos 10 minutos) |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
 | **J.** Probar el mantenimiento (Plan 6) | ⬜ Pendiente (unos 20 minutos) |
@@ -421,3 +422,33 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 4. Guarda con `Ctrl+S` y prueba con **F5**.
 
 Para el volumen de todas las voces: abre `scenes/ui/chat_panel.tscn`, selecciona el nodo `Voice` en el panel **Scene** y cambia `Volume Db` en el Inspector (hoy −8; −14 es bastante más bajo).
+
+## P. Probar Snapgram
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. Abre el proyecto y presiona **F5**. En el menú, entra a una noche.
+2. **El feed:** haz clic en el celular del escritorio. Arriba dice "Snapgram". Se ve una foto de gatitos completa, con barras grises en vez de nombres y textos, y más abajo el comienzo de la siguiente publicación. Abajo está la barra con 5 íconos.
+3. **El scroll:** mueve la rueda del mouse. El feed avanza y Sanity sube, como antes. Los botones no hacen nada, a propósito.
+4. **Sin batería:** sigue scrolleando hasta que se acabe (unos 38 s). La pantalla queda negra, con la hora y "Sin batería".
+5. **Clic derecho** cierra el celular.
+
+### Para ver las fotos perturbadoras sin esperar
+
+Sin este truco, aparecen solo con Sanity bajo 30. Es un cambio temporal:
+
+1. En el panel **FileSystem** de Godot (abajo a la izquierda), abre `data/` y haz doble clic en `balance.tres`.
+2. En el panel **Inspector** (a la derecha), abre el grupo **Sanity**.
+3. Cambia `Disturbing Post Sanity` a `100` y `Disturbing Post Every` a `2`. Guarda con `Ctrl+S`.
+4. Presiona **F5** y scrollea en el celular: 1 de cada 2 publicaciones es perturbadora. Una foto a la vista no cambia nunca.
+5. **Déjalo como estaba:** `Disturbing Post Sanity` en `30` y `Disturbing Post Every` en `6`. Guarda con `Ctrl+S`.
+
+**Verifica:** los pasos anteriores se cumplen, y en `balance.tres` volvieron los valores 30 y 6. Después juega una noche hasta tener poca Sanity y di si las fotos perturbadoras se alcanzan a ver bajo la viñeta, porque la viñeta también oscurece el celular. Claude puede dejar el celular por encima de ella.
+
+### Para cambiar una foto
+
+Exporta un PNG de exactamente **232×232** con el mismo nombre en `art/phone/` (`post_01.png` a `post_12.png` y `disturbing_1.png` a `disturbing_4.png`). Godot lo reimporta al abrir el proyecto. Si la imagen tiene otro tamaño, déjala en `art/phone/source/` y pídele a Claude que la recorte: usa `tools/crop_phone_photos.sh`.
+
+### Para ajustar cuándo aparecen
+
+En `data/balance.tres`, grupo **Sanity**: `Disturbing Post Sanity` y `Disturbing Post Every` (hoy, bajo 30, una de cada 6), y `Disturbing Post Worse Sanity` y `Disturbing Post Worse Every` (hoy, bajo 15, una de cada 3).

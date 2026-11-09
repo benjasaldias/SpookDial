@@ -17,8 +17,10 @@ extends Resource
 @export var incidents: Array[IncidentData] = []
 ## Valores de equilibrio de todas las noches (data/balance.tres).
 @export var balance: BalanceData
-## Las publicaciones que se scrollean en el celular (PhonePostData), en orden.
+## Las publicaciones de gatitos que se scrollean en el celular (PhonePostData), en orden.
 @export var phone_posts: Array[PhonePostData] = []
+## Las fotos perturbadoras que aparecen entre ellas con poca Sanity (decisión de Benja, 9 de noviembre).
+@export var phone_disturbing_posts: Array[PhonePostData] = []
 
 
 ## La noche `number`: 0 es el tutorial, y de 1 a 5, las del catálogo.

@@ -4,6 +4,83 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 21c — 9 de noviembre de 2026 — Snapgram: la red social imita a una real
+
+S21c se hizo antes que S21b (el registro lo permitía), en Opus 5.5 · high, con `superpowers:brainstorming` y `superpowers:test-driven-development`. Se diseñó con Benja y se programó en la misma sesión, sin un plan aparte.
+
+### Realizado
+
+- **Decisiones de Benja:** el nombre Snapgram; la forma de Instagram, sin historias; **solo fotos reales de gatitos** (mixed media), cuentas sin nombre y texto simulado con barras grises; botones solo de dibujo; y las fotos perturbadoras entran ahora, cada vez más seguido con menos Sanity. Benja cambió bastante la propuesta: Claude proponía variedad de temas, usuarios creíbles y pixel art.
+- **El celular** (`scripts/ui/phone_view.gd`): barra superior, publicación de 332 px (avatar, barra de usuario, foto de 232×232, íconos y 3 barras) y navegación abajo. Sin batería se apaga toda la app, y quedan la hora y "Sin batería".
+- **Los íconos** (`scripts/ui/phone_icons.gd`): 9 de 11×11, provisionales.
+- **Las fotos perturbadoras** (`scripts/core/phone_feed.gd`): bajo Sanity 30, 1 de cada 6; bajo 15, 1 de cada 3. Se turnan y no restan Sanity. Una foto a la vista nunca cambia: se decide al entrar a la pantalla o al abrir el celular.
+- **Los datos:** `PhonePostData` queda solo con `picture`; `ContentCatalog.phone_disturbing_posts` y 4 valores `disturbing_post_*` en `data/balance.tres`. El validador exige que cada publicación tenga foto. `phone.csv` pierde los 24 textos de publicaciones.
+- **Las fotos:** Benja pasó 12 de gatitos y 4 perturbadoras (no 3) a `art/phone/source/`, que Godot ignora. `tools/crop_phone_photos.sh` las recorta a `art/phone/`. A `cat4` se le recorta desde arriba, porque al centro quedaba sin orejas.
+- **Pruebas:** de 542 a 555 OK. Se quitó `test_publicacion_sin_texto`, porque ya no hay textos, y se ajustó la ayuda `_make_phone`, que usaba los campos eliminados. Las pruebas de Sanity y batería no cambiaron.
+- **Capturas revisadas** (`C:\dev\capturas\snapgram_*.png`, con `test/capture_snapgram.gd`): el feed, una foto perturbadora con Sanity en 10 y sin batería. También se revisó que el juego arranca sin errores.
+- **Documentos:** `CLAUDE.md`, el diseño v2 (§10.2 y §16), `arte_pendiente.md`, `docs/02`, `docs/03`, `docs/04` (nueva sección P), `docs/05` y `docs/00_log.md`.
+
+### Errores encontrados
+
+- **Los derechos de las fotos no están confirmados.** Las 4 perturbadoras parecen sacadas de internet (de 320 a 447 px de ancho), y `scary2` tiene abajo la marca de agua de una cámara. Los gatitos parecen de un banco de fotos, pero Claude no lo puede confirmar. No frena el desarrollo; hay que resolverlo antes de publicar.
+- **El nombre Snapgram junta "Snap" e "-gram"**, que recuerdan a Snapchat e Instagram. Una búsqueda rápida no encontró una app activa con ese nombre exacto, solo Snapigram, pero no es una revisión legal. Se cambia en `phone.csv`.
+- **La viñeta oscurece las fotos perturbadoras,** porque va por encima del celular. Con Sanity en 10, la figura se ve, pero apagada. Se decide jugando (`docs/04`, P).
+- **Aviso de la primera importación:** "Failed loading resource" de las fotos nuevas, igual que con las voces. En la segunda pasada no aparece.
+- **Lo que no se probó:** cómo se sienten las fotos jugando, cuántas veces llega a verlas el jugador antes de que se acabe la batería y cómo se ven a pantalla completa (a 1080p se escalan ×1,5).
+
+### Pendientes Código
+
+- [ ] **Planificar el lore** (`docs/19_prompt_lore.md`).
+- [x] **Rediseñar la red social** (`docs/20_prompt_red_social.md`): hecho en esta sesión.
+- [ ] Si las fotos perturbadoras no se alcanzan a ver bajo la viñeta: dejar el celular por encima de ella, en su propia capa. Hay que cambiar `UI/PhoneView` en `desk.gd` y en los 5 archivos de pruebas y capturas que lo usan.
+- [ ] Plan 10: agregar los créditos de las fotos de Snapgram, si sus licencias los piden.
+- [ ] Al probar el escalado a 1080p (`docs/04`, D): mirar cómo se ven las fotos a ×1,5 con el filtro Nearest.
+- [ ] Lore (S21b): decidir si el canal de los amigos aparece en Snapgram. Con cuentas sin nombre, habría que ver cómo se reconoce.
+- [ ] **S22: correcciones tras las pruebas con personas** (`docs/00_log.md`), con el contenido congelado el 25 de noviembre. Todos los valores del Plan 9 son de partida y se ajustan ahí: tiempos, señuelos, batería (38 s), cortinas, la criatura (25 s) y los accidentes.
+- [ ] Si en las pruebas con personas no entienden Audio Sync o los accidentes: enseñarlos en la noche 0.
+- [ ] Si la velocidad de Audio Sync se queda corta: bajar `audio_sync_tolerance` por noche.
+- [ ] Si Benja dibuja la animación de las cortinas o de la criatura: va en `curtains_sprite`.
+- [ ] Si las voces cansan: subir `CHARS_PER_SECOND` no ayuda; bajar la frecuencia con `voice_every`, o hacer sonar solo el comienzo de cada mensaje.
+- [ ] Menor: el panel de opciones deja ver tenue el menú de pausa detrás (fondo al 95 %).
+- [ ] Menor: abrir el escritorio solo (F6): "Empezar la noche N" y "Volver al menú" no hacen nada, porque los atiende `GameState`.
+- [ ] Menor: al cerrar el escritorio suelto, el sonido ambiente en bucle queda sonando y Godot avisa de 2 objetos sin liberar.
+- [ ] Planes 10 en adelante según `docs/00_log.md`.
+- [ ] Registrar los `.en.translation` cuando la columna `en` tenga textos (también el de `phone.csv`).
+- [ ] Plan 10: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Plan 10: reemplazar los sonidos provisionales de `audio/sfx/` y `audio/clues/` (ver `sonidos_pendiente.md`) y, si hace falta, separar más canales que `Ambience` y `Effects`.
+- [ ] Cuando llegue el arte: el menú y el logo, las pantallas de victoria y derrota, el mixer, el celular, las barras de señal y de HUD, y los screamers.
+- [ ] Si en las pruebas con personas los videos y las interferencias se juntan con las olas de solicitudes: el director no los mueve hoy (`docs/14`, "Fuera de este plan").
+- [ ] Menor: que los segundos de una entrada en alerta no toquen el ícono ⚠ del arte.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si al probar se siente seco o lento: una demora de "escribiendo…" en las respuestas del amigo, y marcar en el chat qué categorías ya se preguntaron.
+- [ ] Borrar `~/godot-games/spook-dial` y las copias `C:\dev\plan8`, `C:\dev\plan8_check`, `C:\dev\plan9` y `C:\dev\plan9_check` cuando Benja lo pida.
+- [ ] Menor: `tools/__pycache__/` quedó en git; agregarlo a `.gitignore` y quitarlo del repositorio cuando Benja apruebe.
+
+### Pendientes Externos
+
+- [ ] **Probar Snapgram** (`docs/04`, P, unos 10 minutos) y decir si las fotos perturbadoras se alcanzan a ver bajo la viñeta.
+- [ ] **Confirmar de dónde salió cada foto** de `art/phone/source/` y que su licencia permita usarla en un juego publicado. Si alguna no sirve, reemplázala: las perturbadoras son las que más preocupan.
+- [ ] **Si cambias de idea con el nombre:** Snapgram está en `PHONE_APP_NAME` (`data/text/phone.csv`).
+- [ ] **Si quieres:** dibujar el marco del celular, el logo y los íconos (`arte_pendiente.md`).
+- [ ] **Probar las correcciones** (`docs/04`, O, unos 10 minutos), sobre todo cómo suenan las voces, y corregir `MIXER_ROUNDS` (`ui.csv`).
+- [ ] **Si dibujas el mixer ampliado:** incluye las 2 luces de ronda junto a la fila de 8.
+- [ ] **Escuchar los 15 audios** (`audio/clues/`) y poner los reales (`sonidos_pendiente.md`), porque hay que distinguirlos de oído. Después, los de la criatura (`scare_creature_*.wav`) y el resto de `audio/sfx/`.
+- [ ] **Corregir las reglas de las 7 entidades** (están en `data/entities/`, en el Inspector, con sus textos en `messages.csv` y `notebook.csv`) y los textos nuevos del Plan 9: `RULE_*`, `OBS_*`, `INCIDENT_*`, `HUD_*`, `TUTORIAL_*`, `CHAT_AUDIO`, `CHAT_INCIDENT_HINT`, `OPTIONS_AUDIO_CAPTIONS` y `PHONE_NO_BATTERY`. Antes del congelamiento del contenido (25 de noviembre).
+- [ ] **Revisar los supuestos del Plan 9** (`docs/18`, al inicio), sobre todo que la criatura no se oiga con la cortina cerrada y que un accidente nunca mate.
+- [ ] **Probar el feedback** (`docs/04`, M, unos 15 minutos) y decir cómo se sienten las noches 1 y 2, Trust y la criatura. Los valores son de partida: `data/balance.tres` y `data/nights/night_N.tres`.
+- [ ] **Corregir los textos del Plan 8.1** (en `ui.csv`): `MIXER_ROUND` y `MIXER_FAIL_RESTART`. `TUTORIAL_DIALS` ya se reescribió en el Plan 9 para hablar de las barras.
+- [ ] **Probar el juego de punta a punta** (`docs/04`, L, unos 25 minutos): la noche 0, el menú, el guardado, la pausa y las opciones.
+- [ ] **Corregir los textos nuevos del Plan 8** (en `ui.csv`): el aviso del tutorial (`TUTORIAL_*`), el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el resumen y la victoria (`END_*`); y los 7 señuelos nuevos (`DECOY_*`, en `messages.csv`).
+- [ ] **Probar los screamers y el director** (`docs/04`, K), **la identificación por preguntas** (G), **el mantenimiento** (J), **la noche** (I) y **el chat y el cuaderno** (G y H).
+- [ ] **Corregir los textos que escribió Claude en los planes anteriores** (la lista completa está en la Sesión 17).
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara, y **probar el escalado a pantalla completa** (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] **Arte: la lista completa está en `arte_pendiente.md`.** El menú principal y el logo, las pantallas de victoria y derrota, y, si quieres animarlas, las cortinas y la criatura de la ventana.
+- [ ] Al probar con personas (semana 5): fijarse si notan que hay que preguntar, si la noche de práctica es muy larga o muy corta, y si entienden las barras, Audio Sync, los audios, las cortinas, la batería y los accidentes.
+
+---
+
 ## Sesión 21 y su continuación — 7 al 9 de noviembre de 2026 — Plan 9 ejecutado: dinamismo; correcciones de Benja y prompts del lore y la red social
 
 S21 se adelantó al mismo 7 de noviembre (fecha objetivo: 10 a 17 de noviembre), justo después de S20, y se ejecutó inline con `superpowers:executing-plans` en Sonnet 5.5 · high, como proponía el registro. Benja autorizó los 11 commits en `main` al empezar. El plan se aplicó tal como está escrito: un script leyó los bloques de `docs/18` y los aplicó paso a paso, y en cada tarea los conteos de pruebas dieron los que el plan anticipa (461 → 521).

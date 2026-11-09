@@ -8,20 +8,33 @@ const PhoneView := preload("res://scripts/ui/phone_view.gd")
 var _state: NightState
 
 
-## Celular con el estado de la noche 1 del catálogo de prueba y 3 publicaciones.
+var _posts: Array[PhonePostData] = []
+var _disturbing: Array[PhonePostData] = []
+
+
+func _make_posts(count: int) -> Array[PhonePostData]:
+	var posts: Array[PhonePostData] = []
+	for _index in count:
+		posts.append(PhonePostData.new())
+	return posts
+
+
+## Celular con el estado de la noche 1 del catálogo de prueba, 3 publicaciones y 2 perturbadoras.
 func _make_phone() -> Control:
 	var catalog := Fixtures.make_catalog()
 	_state = NightState.new(catalog.nights[0], catalog.balance, 3, RandomNumberGenerator.new())
-	var posts: Array[PhonePostData] = []
-	for index in 3:
-		var post := PhonePostData.new()
-		post.author_key = "K_AUTHOR_%d" % index
-		post.text_key = "K_TEXT_%d" % index
-		posts.append(post)
+	_posts = _make_posts(3)
+	_disturbing = _make_posts(2)
 	var phone := PHONE.instantiate()
 	(Engine.get_main_loop() as SceneTree).root.add_child(phone)
-	phone.setup(_state, posts)
+	phone.setup(_state, _posts, _disturbing)
 	return phone
+
+
+## Lleva el feed hasta que el lugar `slot` quede arriba.
+func _scroll_to_slot(phone: Control, slot: int) -> void:
+	phone.scroll_by(slot * PhoneView.POST_HEIGHT - phone.scroll)
+	phone._process(1.0)
 
 
 func _mouse(button: MouseButton) -> InputEventMouseButton:
@@ -91,6 +104,56 @@ func test_sus_textos_existen() -> bool:
 	TranslationServer.set_locale("es")
 	check(String(TranslationServer.translate(PhoneView.APP_NAME_KEY)) != PhoneView.APP_NAME_KEY, "falta PHONE_APP_NAME en phone.csv")
 	TranslationServer.set_locale(previous)
+	return true
+
+
+## Bajo Sanity 15 es perturbadora una de cada 3: la del lugar 2, entre otras. Una foto a la vista nunca cambia.
+func test_una_foto_a_la_vista_no_cambia() -> bool:
+	var phone := _make_phone()
+	phone.open()
+	_scroll_to_slot(phone, 2)
+	check_eq(phone.post_in_slot(2), _posts[2], "con Sanity alta es un gatito")
+	_state.sanity = 10.0
+	phone._process(1.0)
+	check_eq(phone.post_in_slot(2), _posts[2], "baja Sanity y sigue el mismo gatito")
+	phone.free()
+	return true
+
+
+func test_al_salir_de_la_pantalla_se_vuelve_a_decidir() -> bool:
+	var phone := _make_phone()
+	phone.open()
+	_scroll_to_slot(phone, 2)
+	_state.sanity = 10.0
+	phone._process(1.0)
+	_scroll_to_slot(phone, 7)
+	check(phone.post_in_slot(2) == null, "el lugar 2 ya no está a la vista")
+	_scroll_to_slot(phone, 2)
+	check(_disturbing.has(phone.post_in_slot(2)), "al volver es perturbadora")
+	phone.free()
+	return true
+
+
+func test_al_cerrar_y_abrir_se_vuelve_a_decidir() -> bool:
+	var phone := _make_phone()
+	phone.open()
+	_scroll_to_slot(phone, 2)
+	_state.sanity = 10.0
+	phone.close()
+	phone.open()
+	phone._process(1.0)
+	check(_disturbing.has(phone.post_in_slot(2)), "cerrado no se ve el cambio, así que puede cambiar")
+	phone.free()
+	return true
+
+
+## Las fotos se muestran sin escalar, a todo el ancho, y cabe una publicación entera.
+func test_la_foto_cabe_sin_escalar() -> bool:
+	var phone := _make_phone()
+	var feed := phone.get_node("Feed") as Control
+	check_eq(feed.size.x, float(PhoneView.PHOTO_SIZE), "la foto va a todo el ancho")
+	check(PhoneView.POST_HEIGHT <= feed.size.y, "cabe una publicación entera")
+	phone.free()
 	return true
 
 

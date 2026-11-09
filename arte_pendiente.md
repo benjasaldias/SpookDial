@@ -1,6 +1,6 @@
 # Arte pendiente
 
-Todo el arte que falta para la v1, en un solo lugar. Actualizado el 2 de noviembre de 2026 (sesión 14).
+Todo el arte que falta para la v1, en un solo lugar. Actualizado el 9 de noviembre de 2026 (sesión S21c).
 
 - **Cómo usar esta lista:** dibuja en el orden que prefieras y avísale a Claude cuando una pieza esté lista. La integración se hace en una sesión aparte.
 - **Mientras tanto:** todo lo marcado "provisional" ya funciona en el juego con un reemplazo hecho en Godot, así que nada bloquea la programación.
@@ -21,7 +21,7 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 2 de noviemb
 | Pieza | Tamaño | Qué incluye | Qué hay hoy |
 | --- | --- | --- | --- |
 | **Mixer visto desde arriba** (Audio Sync, Plan 6) | 440×430, o 220×215 a ×2 | El cuerpo visto desde arriba; **dos VU-metros azules** (el de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo), con su aguja aparte o en frames por nivel; la perilla de un fader (Godot la usa en los 3 canales y la sube o baja según la señal); un LED por canal; una fila de luces para el ritmo (8 o 16, encendida y apagada). Las perillas y los botones de adorno, como en tu mixer del escritorio. | Dibujo provisional en Godot (`scenes/ui/mixer_view.tscn`). Ver `C:\dev\capturas\plan6_mixer.png`. |
-| **Celular ampliado** (redes sociales, Plan 6) | 260×520, o 130×260 a ×2 | El celular de frente, con la pantalla. Decide si el feed es: (a) **12 publicaciones** sueltas (imagen de unos 212×140 cada una; Godot pone el autor, el texto y los "me gusta"), o (b) **una animación del scroll**, que avanza con la rueda del mouse. | Feed provisional en Godot (`scenes/ui/phone_view.tscn`), con paisajes de color. Ver `C:\dev\capturas\plan6_phone.png`. |
+| **Marco del celular ampliado** (Snapgram) | 260×520, o 130×260 a ×2 | Solo el celular de frente, con la pantalla vacía: el agujero de la pantalla va de (14, 18) a (246, 496). Godot dibuja encima la hora, el feed y las fotos. Las fotos ya están (`art/phone/`). | Marco dibujado con rectángulos en Godot (`scripts/ui/phone_view.gd`). Ver `C:\dev\capturas\snapgram_feed.png`. |
 | **Barras de señal** de las entradas del PC | Unos 19×12 | 6 estados: de 0 a 5 barras. Que se distingan llenas de vacías sin depender del color. | Rectángulos dibujados por Godot. |
 | **Diales rediseñados** | Como `dial_sprite` (112×113) | Cara de manómetro con un ícono para cada uno (Connection, Sanity y Trust) y un LED de alerta. La aguja sigue siendo `arrow_sprite`. | `dial_sprite` con cara de reloj. |
 | **Celular del escritorio sin la hora** y **dígitos LCD** | Como `phone_sprite` (86×55); los dígitos, una tira "0123456789:" | El celular sin el "00:00" pintado. Los dígitos, del alto que tiene la hora dibujada hoy. | Un parche azul tapa la hora pintada y Godot escribe encima. |
@@ -50,7 +50,7 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 2 de noviemb
 | Las barras de Connection, Sanity y Trust | Plan 9 | Opcional. 300×54 px, arriba al centro. Hoy las dibuja Godot con rectángulos (`scripts/ui/stat_bars.gd`). |
 | La batería del celular del escritorio | Plan 9 | Opcional. Hoy es una barrita verde bajo la hora (`DeskPlane/Phone/BatteryBar`). |
 | Luces del PC y del escritorio | Plan 7 | Las de la sección 2. Mientras tanto, el apagón oscurece todo el cuarto por igual. |
-| Publicaciones perturbadoras del celular | Después del Plan 7 | 3 de las 12, para cuando Sanity está baja. Depende de lo que elijas en el celular ampliado. El Plan 7 no las incluye. |
+| Logo e íconos de Snapgram | S21c | Opcional. El logo hoy es "Snapgram" en Departure Mono a 22 px. Los íconos miden 11×11 (me gusta, comentar, enviar, guardar, inicio, buscar, publicar, videos y perfil), y hoy están hechos píxel por píxel en `scripts/ui/phone_icons.gd`. |
 | **Menú principal y logo** | Plan 8 | El logo "Spook Dial" y la escena del escritorio con otra iluminación. |
 | Pantalla entre noches | Plan 8 | La página del canal, con el contenido de la noche. |
 

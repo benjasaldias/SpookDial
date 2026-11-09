@@ -42,17 +42,6 @@ func test_caracteristica_sin_una_frase_entre_asteriscos() -> bool:
 	return true
 
 
-func test_publicacion_sin_texto() -> bool:
-	var catalog := Fixtures.make_catalog()
-	var post := PhonePostData.new()
-	post.author_key = "K_POST_AUTHOR"
-	post.text_key = "K_POST_TEXT"
-	catalog.phone_posts.append(post)
-	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_POST_TEXT"]))
-	check_contains(errors, "Publicación 1 del celular, texto: la clave 'K_POST_TEXT' no está en ningún CSV")
-	return true
-
-
 func test_lineas_del_chat_guionado() -> bool:
 	var catalog := Fixtures.make_catalog()
 	var line := ChatLineData.new()

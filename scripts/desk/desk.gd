@@ -90,7 +90,7 @@ func _ready() -> void:
 	_chat_panel.setup(_requests, friends, notebook_memory)
 	_notebook_panel.setup(notebook_memory, _requests.catalog.known_entities(_requests.night_number), friends)
 	_mixer.setup(_requests, friends)
-	_phone.setup(_requests.state, _requests.catalog.phone_posts)
+	_phone.setup(_requests.state, _requests.catalog.phone_posts, _requests.catalog.phone_disturbing_posts)
 	_screamers.setup(_requests, _night)
 	_warned.resize(friends.size())
 	_warned.fill(false)
