@@ -53,6 +53,7 @@ const DOWNLOAD_MARK := "▼"
 const OFFLINE_KEY := "CHAT_OFFLINE"
 ## Sobre las opciones de un accidente (ui.csv).
 const INCIDENT_HINT_KEY := "CHAT_INCIDENT_HINT"
+const ChatVoice := preload("res://scripts/core/chat_voice.gd")
 ## El botón que abre el mixer en el canal del amigo (ui.csv).
 const SYNC_KEY := "CHAT_SYNC"
 ## Dónde termina la conversación: sobre la barra de identificación o, si hay un video, sobre su descarga.
@@ -72,6 +73,9 @@ var _scrolls: Array[ScrollContainer] = []
 var _lists: Array[VBoxContainer] = []
 var _unread: Array[bool] = []
 var _answer_buttons: Array[Button] = []
+## La voz de cada amigo y el sonido que usa, en orden.
+var _voices: Array[ChatVoice] = []
+var _voice_streams: Array[AudioStream] = []
 ## Matías mantiene presionada la barra de descarga.
 var _holding_download := false
 
@@ -90,6 +94,7 @@ var _holding_download := false
 @onready var _answers: GridContainer = $Panel/Answers
 @onready var _script_reply: Button = $Panel/ScriptReply
 @onready var _audio_clip: AudioStreamPlayer = $AudioClip
+@onready var _voice: AudioStreamPlayer = $Voice
 
 
 func _ready() -> void:
@@ -131,6 +136,8 @@ func setup(manager: RequestManager, friends: Array[FriendData], memory: Notebook
 		_friend_names.append(tr(friends[index].name_key))
 		_friend_colors.append(friends[index].color)
 		_unread.append(false)
+		_voices.append(ChatVoice.new(friends[index]))
+		_voice_streams.append(friends[index].voice)
 		var tab := Button.new()
 		tab.theme_type_variation = &"ChatTab"
 		tab.add_theme_color_override(&"font_pressed_color", friends[index].color)
@@ -332,9 +339,21 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 	var view := ChatMessageView.new(message, speaker, color, audio_captions)
 	view.clue_clicked.connect(_on_clue_clicked)
 	view.audio_clicked.connect(_on_audio_clicked)
+	if message.sender == ChatMessage.Sender.FRIEND:
+		view.letter_typed.connect(_on_letter_typed.bind(friend_index))
 	_lists[friend_index].add_child(view)
 	if message.sender != ChatMessage.Sender.PLAYER and not (visible and friend_index == selected_friend):
 		_unread[friend_index] = true
+
+
+## Suena la voz del amigo que está escribiendo, si se está viendo su chat. No tapa un audio, que hay que oír.
+func _on_letter_typed(letter: String, friend_index: int) -> void:
+	var pitch := _voices[friend_index].next_pitch(letter)
+	if pitch <= 0.0 or not visible or friend_index != selected_friend or _audio_clip.playing:
+		return
+	_voice.stream = _voice_streams[friend_index]
+	_voice.pitch_scale = pitch
+	_voice.play()
 
 
 func _on_audio_clicked(view: ChatMessageView) -> void:

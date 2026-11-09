@@ -409,3 +409,65 @@ func test_nada_mientras_suena_un_audio() -> bool:
 	check(not _screamers(desk).is_warning(), "no se anuncia nada")
 	desk.free()
 	return true
+
+
+func _desk_surface(desk: Node2D) -> AnimatedSprite2D:
+	return desk.get_node("DeskPlane/DeskSurface") as AnimatedSprite2D
+
+
+## La sombra sobre el escritorio solo está cuando algo se asoma por la ventana (decisión de Benja, 8 de noviembre).
+func test_sin_nadie_en_la_ventana_no_hay_sombra() -> bool:
+	var desk := _make_desk()
+	check_eq(_desk_surface(desk).animation, &"NoEnemy", "el escritorio empieza limpio")
+	desk.free()
+	return true
+
+
+func test_la_criatura_hace_sombra_hasta_que_se_va() -> bool:
+	var desk := _make_desk()
+	_screamers(desk).play(ScareKind.Kind.JUMPSCARE)
+	check_eq(_desk_surface(desk).animation, &"Enemy", "se asoma: hay sombra")
+	desk._process(25.0)
+	check_eq(_desk_surface(desk).animation, &"NoEnemy", "se fue: ya no")
+	desk.free()
+	return true
+
+
+## Con la cortina cerrada no hay sombra: si no, delataría a la criatura y no haría falta abrir para revisar.
+func test_la_cortina_cerrada_tapa_la_sombra() -> bool:
+	var desk := _make_desk()
+	var curtains := desk.get_node("WallPlane/Curtains") as AnimatedSprite2D
+	_screamers(desk).play(ScareKind.Kind.JUMPSCARE)
+	curtains.clicked.emit()
+	check_eq(_desk_surface(desk).animation, &"NoEnemy", "cerrada, no se nota")
+	curtains.clicked.emit()
+	check_eq(_desk_surface(desk).animation, &"Enemy", "al abrirla, se ve otra vez")
+	desk.free()
+	return true
+
+
+## Detrás de un panel la criatura todavía no se ve: la sombra aparece junto con ella.
+func test_detras_de_un_panel_la_sombra_espera() -> bool:
+	var desk := _make_desk()
+	var chat := desk.get_node("UI/ChatPanel") as Control
+	chat.show()
+	desk._process(0.0)
+	_screamers(desk).play(ScareKind.Kind.JUMPSCARE)
+	check_eq(_desk_surface(desk).animation, &"NoEnemy", "tapada, sin sombra")
+	chat.hide()
+	desk._process(0.1)
+	check_eq(_desk_surface(desk).animation, &"Enemy", "al cerrar el chat, con sombra")
+	desk.free()
+	return true
+
+
+## El screamer de la ventana usa la misma figura, así que también hace sombra mientras se ve.
+func test_el_screamer_de_la_ventana_hace_sombra() -> bool:
+	var desk := _make_desk()
+	var screamers := _screamers(desk)
+	screamers.play(ScareKind.Kind.WINDOW)
+	check_eq(_desk_surface(desk).animation, &"Enemy", "aparece con sombra")
+	screamers._figure_tween.custom_step(10.0)
+	check_eq(_desk_surface(desk).animation, &"NoEnemy", "se desvanece sin sombra")
+	desk.free()
+	return true

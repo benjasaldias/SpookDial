@@ -482,3 +482,58 @@ func test_un_accidente_se_responde_desde_el_chat() -> bool:
 	check_eq(_manager.incidents[0], null, "al elegir, termina")
 	_free(panel)
 	return true
+
+
+## Agrega al chat del amigo `friend_index` un mensaje suyo y devuelve su vista.
+func _friend_view(panel: Control, friend_index: int, sender := ChatMessage.Sender.FRIEND) -> ChatMessageView:
+	var message := ChatMessage.new(sender, null)
+	message.add_fragment("Hola")
+	_manager.message_added.emit(friend_index, message)
+	return panel.message_views(friend_index)[-1]
+
+
+## Los amigos suenan mientras escriben, cada uno con su voz (decisión de Benja, 8 de noviembre).
+func test_el_amigo_suena_al_escribir() -> bool:
+	var panel := _make_panel()
+	var voice := panel.get_node("Voice") as AudioStreamPlayer
+	panel.open_for(1)
+	_friend_view(panel, 1).letter_typed.emit("H")
+	check(voice.playing, "suena")
+	check_eq(voice.stream, _manager.catalog.friends[1].voice, "con la voz de ese amigo")
+	_free(panel)
+	return true
+
+
+func test_solo_suena_el_chat_que_se_esta_viendo() -> bool:
+	var panel := _make_panel()
+	var voice := panel.get_node("Voice") as AudioStreamPlayer
+	var other := _friend_view(panel, 1)
+	other.letter_typed.emit("H")
+	check(not voice.playing, "con el chat cerrado, no")
+	panel.open_for(0)
+	other.letter_typed.emit("H")
+	check(not voice.playing, "con otra pestaña abierta, no")
+	_free(panel)
+	return true
+
+
+func test_matias_y_los_avisos_no_suenan() -> bool:
+	var panel := _make_panel()
+	var voice := panel.get_node("Voice") as AudioStreamPlayer
+	panel.open_for(0)
+	_friend_view(panel, 0, ChatMessage.Sender.PLAYER).letter_typed.emit("H")
+	check(not voice.playing, "Matías no tiene voz")
+	_free(panel)
+	return true
+
+
+## La voz no tapa un audio: el jugador tiene que oír qué se oye.
+func test_mientras_suena_un_audio_el_amigo_no_suena() -> bool:
+	var panel := _make_panel()
+	var voice := panel.get_node("Voice") as AudioStreamPlayer
+	_send_audio(panel)
+	panel.message_views(0)[-1]._on_meta_clicked(ChatMessageView.AUDIO_META)
+	_friend_view(panel, 0).letter_typed.emit("H")
+	check(not voice.playing, "no se oye encima del audio")
+	_free(panel)
+	return true

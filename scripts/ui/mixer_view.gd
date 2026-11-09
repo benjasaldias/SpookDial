@@ -26,6 +26,8 @@ const NO_SYNC_KEY := "MIXER_NO_SYNC"
 ## MIXER_ROUND lleva {round} y {total}.
 const ROUND_KEY := "MIXER_ROUND"
 const FAIL_RESTART_KEY := "MIXER_FAIL_RESTART"
+## Lo que dice junto a las luces de ronda (ui.csv).
+const ROUNDS_KEY := "MIXER_ROUNDS"
 ## Aplausos de cada ronda. Una noche de 8 aplausos son 2 rondas de 4 seguidas (decisión de Benja, 4 de noviembre).
 const ROUND_BEATS := 4
 
@@ -52,6 +54,10 @@ const METER_FRIEND := Rect2(228, 36, 112, 72)
 const STEP_TOP := 140.0
 const STEP_SIZE := 10.0
 const STEP_GAP := 4.0
+## Dónde van las luces de ronda, en la línea de la fila de corcheas.
+const ROUNDS_LABEL_LEFT := 288.0
+const ROUND_LIGHTS_LEFT := 334.0
+const ROUND_LIGHT_GAP := 14.0
 const CHANNEL_TOP := 168.0
 const CHANNEL_LEFT := 92.0
 const CHANNEL_SIZE := Vector2(76, 192)
@@ -67,6 +73,8 @@ var selected_friend := 0
 var sync_round: AudioSyncRound
 ## Cuál de las rondas va, desde 0.
 var round_index := 0
+## Cuántas rondas seguidas lleva pasadas. Al fallar vuelve a 0, porque se vuelve a la primera.
+var _rounds_passed := 0
 ## La aguja de cada VU-metro, de 0 a 1: la de Matías, a la izquierda, y la del amigo, a la derecha.
 var player_level := 0.0
 var friend_level := 0.0
@@ -121,9 +129,31 @@ func rounds_total() -> int:
 	return ceili(beats() / float(ROUND_BEATS))
 
 
+## Cuántas luces tiene la fila: las corcheas de una ronda, aunque la noche tenga varias (decisión de Benja, 8 de
+## noviembre).
+func step_count() -> int:
+	return mini(beats(), ROUND_BEATS) * 2
+
+
+## Las luces de ronda se ven desde que se abre el mixer, si la noche tiene varias rondas (decisión de Benja, 9 de
+## noviembre).
+func shows_round_lights() -> bool:
+	return rounds_total() > 1
+
+
+## El color de la luz de la ronda `index`: verde si se pasó, azul si está en curso y apagada si falta.
+func round_light(index: int) -> Color:
+	if index < _rounds_passed:
+		return HIT_LIGHT
+	if is_playing() and index == round_index:
+		return CLAP_LIGHT
+	return LIGHT_OFF
+
+
 ## Se abre en el canal del amigo con menos señal, sin ronda: Matías la empieza cuando quiere.
 func open() -> void:
 	sync_round = null
+	_rounds_passed = 0
 	_lights.clear()
 	_playhead = -1
 	selected_friend = _weakest_friend()
@@ -158,6 +188,7 @@ func start_round(friend_index: int) -> void:
 		return
 	selected_friend = friend_index
 	round_index = 0
+	_rounds_passed = 0
 	_begin_round()
 
 
@@ -302,6 +333,7 @@ func _finish_round() -> void:
 	for call_step: int in sync_round.pattern:
 		_lights[call_step] = HIT_LIGHT if sync_round.hits().has(call_step) else MISS_LIGHT
 	if sync_round.succeeded:
+		_rounds_passed = round_index + 1
 		_success.play()
 		if round_index + 1 < rounds_total():
 			# Acertó una ronda de varias: sigue la siguiente. La señal vuelve al terminar la última.
@@ -310,6 +342,7 @@ func _finish_round() -> void:
 		else:
 			_manager.restore_signal(selected_friend)
 	else:
+		_rounds_passed = 0
 		_fail.play()
 
 
@@ -339,6 +372,7 @@ func _draw() -> void:
 	_draw_text_centered(_friend_names[selected_friend].to_upper(), METER_FRIEND.get_center().x, 128,
 			_friend_colors[selected_friend])
 	_draw_steps()
+	_draw_round_lights()
 	for index in _faders.size():
 		_draw_channel(index)
 	_draw_decor()
@@ -364,7 +398,7 @@ func _draw_meter(rect: Rect2, level: float) -> void:
 ## Una luz por corchea de la parte del amigo: se encienden con sus aplausos y, en la parte de Matías, con sus
 ## golpes. La que suena ahora se ve más clara, y cada golpe de la base tiene una marca debajo.
 func _draw_steps() -> void:
-	var count := beats() * 2
+	var count := step_count()
 	if count <= 0:
 		return
 	var left := (SIZE.x - count * STEP_SIZE - (count - 1) * STEP_GAP) / 2.0
@@ -377,6 +411,15 @@ func _draw_steps() -> void:
 		draw_rect(rect, color)
 		if index % 2 == 0:
 			draw_rect(Rect2(rect.position + Vector2(4, 14), Vector2(2, 2)), DIM_COLOR)
+
+
+## Una luz por ronda, junto a la fila: dice cuántas hay y cuáles se pasaron.
+func _draw_round_lights() -> void:
+	if not shows_round_lights():
+		return
+	_draw_text(tr(ROUNDS_KEY).to_upper(), Vector2(ROUNDS_LABEL_LEFT, STEP_TOP + 9.0), DIM_COLOR)
+	for index in rounds_total():
+		_draw_led(Vector2(ROUND_LIGHTS_LEFT + index * ROUND_LIGHT_GAP, STEP_TOP + 1.0), round_light(index), 1.0)
 
 
 ## El canal de un amigo: su nombre, un LED, el fader a la altura de su señal y el número. El canal elegido

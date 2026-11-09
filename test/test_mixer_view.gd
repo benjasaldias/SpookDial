@@ -285,3 +285,58 @@ func test_la_base_es_la_de_la_noche_y_la_segunda_ronda_va_mas_rapida() -> bool:
 	check(is_equal_approx(mixer.sync_round.step_seconds, 0.25 / 1.15), "la segunda, un 15 % más rápida")
 	_free(mixer)
 	return true
+
+
+## La fila de luces muestra una ronda, no el total de aplausos: 16 luces hacían pensar en una secuencia de 16
+## tiempos (decisión de Benja, 8 de noviembre).
+func test_la_fila_de_luces_es_la_de_una_ronda() -> bool:
+	var mixer := _make_mixer()
+	check_eq(mixer.step_count(), 8, "4 aplausos: 8 luces")
+	_manager.catalog.nights[1].audio_sync_beats = 8
+	check_eq(mixer.rounds_total(), 2, "8 aplausos son 2 rondas")
+	check_eq(mixer.step_count(), 8, "y siguen siendo 8 luces")
+	_manager.catalog.nights[1].audio_sync_beats = 0
+	check_eq(mixer.step_count(), 0, "sin Audio Sync, ninguna")
+	_free(mixer)
+	return true
+
+
+## Una luz por ronda dice cuántas hay y cuáles se pasaron, antes de empezar (decisión de Benja, 9 de noviembre).
+func test_las_luces_de_ronda_dicen_cuantas_hay_y_cuales_pasaron() -> bool:
+	var mixer := _make_two_round_mixer()
+	mixer.open()
+	check_eq(mixer.round_light(0), mixer.LIGHT_OFF, "sin empezar, apagada")
+	check_eq(mixer.round_light(1), mixer.LIGHT_OFF, "las 2")
+	check(mixer.shows_round_lights(), "se ven antes de empezar")
+	mixer.start_round(0)
+	check_eq(mixer.round_light(0), mixer.CLAP_LIGHT, "la ronda en curso, azul")
+	check_eq(mixer.round_light(1), mixer.LIGHT_OFF, "la que falta, apagada")
+	_tap_pattern(mixer)
+	check_eq(mixer.round_light(0), mixer.HIT_LIGHT, "la pasada, verde")
+	check_eq(mixer.round_light(1), mixer.CLAP_LIGHT, "la siguiente, azul")
+	_tap_pattern(mixer)
+	check_eq(mixer.round_light(0), mixer.HIT_LIGHT, "al terminar, verde")
+	check_eq(mixer.round_light(1), mixer.HIT_LIGHT, "las 2")
+	_free(mixer)
+	return true
+
+
+## Al fallar la segunda se apagan: enseña que se vuelve a la primera.
+func test_al_fallar_la_segunda_las_luces_de_ronda_se_apagan() -> bool:
+	var mixer := _make_two_round_mixer()
+	mixer.open()
+	mixer.start_round(0)
+	_tap_pattern(mixer)
+	_advance_to(mixer, mixer.sync_round.response_start() + 1.0)
+	check(mixer.sync_round.failed, "no golpeó: sale mal")
+	check_eq(mixer.round_light(0), mixer.LIGHT_OFF, "la primera se apaga")
+	check_eq(mixer.round_light(1), mixer.LIGHT_OFF, "y la segunda también")
+	_free(mixer)
+	return true
+
+
+func test_con_una_sola_ronda_no_hay_luces_de_ronda() -> bool:
+	var mixer := _make_mixer()
+	check(not mixer.shows_round_lights(), "no hay nada que contar")
+	_free(mixer)
+	return true

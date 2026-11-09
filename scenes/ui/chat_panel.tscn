@@ -161,3 +161,7 @@ mouse_filter = 2
 
 [node name="AudioClip" type="AudioStreamPlayer" parent="."]
 bus = &"Effects"
+
+[node name="Voice" type="AudioStreamPlayer" parent="."]
+volume_db = -8.0
+bus = &"Effects"

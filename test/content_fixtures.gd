@@ -74,6 +74,7 @@ static func make_catalog() -> ContentCatalog:
 		var friend := FriendData.new()
 		friend.id = friend_id
 		friend.name_key = "K_FRIEND_%s" % friend_id
+		friend.voice = make_audio(0.05)
 		catalog.friends.append(friend)
 	for number in range(1, 6):
 		var night := NightData.new()

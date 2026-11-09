@@ -16,6 +16,21 @@ func _load_catalog() -> ContentCatalog:
 	return catalog
 
 
+## Los 3 amigos se distinguen de oído: cada uno tiene su sonido, su altura y su ritmo (decisión de Benja, 8 de
+## noviembre).
+func test_cada_amigo_tiene_su_voz() -> bool:
+	var catalog := _load_catalog()
+	var streams := {}
+	var cadences := {}
+	for friend: FriendData in catalog.friends:
+		check(friend.voice is AudioStreamWAV, "%s tiene voz" % friend.id)
+		streams[friend.voice] = true
+		cadences[friend.voice_every] = true
+	check_eq(streams.size(), catalog.friends.size(), "un sonido por amigo")
+	check_eq(cadences.size(), catalog.friends.size(), "un ritmo por amigo")
+	return true
+
+
 func test_el_catalogo_es_valido() -> bool:
 	var catalog := _load_catalog()
 	if catalog == null:

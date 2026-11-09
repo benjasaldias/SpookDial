@@ -23,6 +23,9 @@ const SOUNDS := {
 	"hallucination_steps": 2.0,
 	"hallucination_whisper": 2.0,
 	"hallucination_scratch": 1.5,
+	"voice_leon": 0.06,
+	"voice_gonzalo": 0.09,
+	"voice_agustin": 0.045,
 }
 
 ## Los audios que mandan los amigos, en audio/clues/ (decisión de Benja, 7 de noviembre). Duran 3 s.

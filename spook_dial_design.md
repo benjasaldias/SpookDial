@@ -279,6 +279,7 @@ Decisión de Benja, 7 de noviembre.
 - Se empieza cuando el jugador quiere, con un clic en el mixer, que se abre visto desde arriba. Se elige el canal del amigo en su fader, o con el botón «Sincronizar» del chat de ese amigo, que abre el mixer en su canal y empieza la ronda enseguida.
 - Una base marca el tiempo, y el amigo marca un ritmo de **4 aplausos**. El mixer parpadea con el ritmo y suena (decisión de Benja, sesión 14). Las noches de 8 aplausos son **2 rondas de 4 seguidas**, cada una con su cuenta y su patrón: si se falla la segunda, se vuelve a la primera (decisión de Benja, 4 de noviembre). La señal solo vuelve a 100 al terminar todas.
 - Después, el jugador lo imita con **clics en el mixer o con la barra espaciadora**.
+- El mixer muestra una fila de **8 luces**, las de una ronda, aunque la noche tenga 2 (decisión de Benja, 8 de noviembre). Junto a la fila, si hay varias rondas, una luz por ronda, visible desde que se abre el mixer: azul la que está en curso y verde las pasadas; al fallar se apagan (decisión de Benja, 9 de noviembre).
 - Los dos VU-metros azules del mixer muestran los dos ritmos: el de la izquierda, el del jugador, y el de la derecha, el del amigo.
 - Se puede reintentar las veces que se quiera, y se puede salir para atender otra cosa.
 
@@ -289,6 +290,7 @@ Decisión de Benja, 7 de noviembre.
   - ambientales: la cortina se abre o se cierra sola (decisión de Benja, 7 de noviembre), aparece la figura en la ventana, el celular vibra, las luces parpadean. La figura de la ventana está escondida y solo aparece al asustar (decisión de Benja, sesión 16);
   - sobre el cuaderno: se cierra de golpe, o una mancha de tinta tapa las reglas durante 5 segundos;
   - **la criatura en la ventana** (antes, un jumpscare de pantalla completa; decisión de Benja, 4 de noviembre): desde la noche 2 (1, 2, 2 y 3 veces por noche). Se asoma por la ventana con respiración pesada y golpes en el vidrio. Se arma solo cuando el chat o el mixer tapan la ventana, y al cerrarlos ya está ahí. No tapa la pantalla ni pausa la noche. **Se queda 25 s desde que llega** (decisión de Benja, 7 de noviembre): si la cortina estaba cerrada, la abre; mientras esté afuera con la cortina abierta, Sanity baja rápido. Cerrar la cortina no la espanta, y con la cortina cerrada no se oye, así que hay que abrirla para revisar si sigue ahí y volver a cerrarla si sigue.
+- **La sombra:** lo que se asoma por la ventana (la criatura y la figura) hace sombra sobre el escritorio. Con la cortina cerrada no hay sombra, para no delatar a la criatura (decisión de Benja, 8 de noviembre).
 - **Señal previa breve:** un parpadeo de luz y una caída del sonido ambiente.
 - **Reglas de justicia:**
   - los que tapan la pantalla **pausan los temporizadores**;
@@ -363,7 +365,7 @@ El guion de las cinemáticas lo escribe Benja.
 ## 17. Sonido
 
 - Es clave para la tensión: estática, ruidos del entorno de los amigos y silencios.
-- Un sonido breve por mensaje.
+- Los amigos suenan mientras escriben, como en Undertale: un sonido de consola muy corto cada tantas letras, con una voz distinta para cada uno (sonido, altura y ritmo). Solo suena el chat que se está viendo, y no suena encima de un audio. Matías y los avisos del juego no tienen voz (decisión de Benja, 8 de noviembre).
 - Un sonido propio para cada entidad.
 - Screamers auditivos cuando Sanity baja.
 

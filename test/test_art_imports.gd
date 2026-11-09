@@ -33,3 +33,11 @@ func test_las_cortinas_tienen_sus_2_estados() -> bool:
 	check(frames.has_animation(&"Open"), "abiertas")
 	check(frames.has_animation(&"Closed"), "cerradas")
 	return true
+
+
+## Benja dibujó el escritorio con la sombra de lo que se asoma por la ventana y sin ella.
+func test_el_escritorio_tiene_sus_2_estados() -> bool:
+	var frames: SpriteFrames = load(SPRITES + "desk_sprite.aseprite")
+	check(frames.has_animation(&"Enemy"), "con sombra")
+	check(frames.has_animation(&"NoEnemy"), "sin sombra")
+	return true

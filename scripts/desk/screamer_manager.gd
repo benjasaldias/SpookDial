@@ -26,6 +26,9 @@ const Screamer := preload("res://scripts/core/screamer.gd")
 ## Las animaciones de las cortinas (tags del arte de Benja).
 const CURTAINS_OPEN := &"Open"
 const CURTAINS_CLOSED := &"Closed"
+## Las animaciones del escritorio (tags del arte de Benja): con la sombra de lo que se asoma por la ventana, o sin ella.
+const DESK_SHADOW := &"Enemy"
+const DESK_CLEAN := &"NoEnemy"
 ## Cuánto se oscurece el cuarto con las cortinas cerradas.
 const CLOSED_SHADE := 0.35
 ## Volumen del sonido ambiente durante la señal previa y el screamer, en decibeles.
@@ -63,6 +66,9 @@ enum Creature { AWAY, HIDDEN, SEEN }
 ## La figura de la ventana: escondida. Aparece en el screamer de la ventana y es la criatura que se asoma
 ## (decisión de Benja).
 @export var figure: CanvasItem
+## El escritorio, donde cae la sombra de la figura. Con la cortina cerrada no hay sombra: delataría a la criatura
+## (decisión de Benja, 8 de noviembre).
+@export var desk_surface: AnimatedSprite2D
 ## El celular del escritorio.
 @export var phone: Node2D
 ## Oscurece el cuarto cuando las luces parpadean.
@@ -92,6 +98,8 @@ var _creature_left := 0.0
 var _window_visible := true
 ## El desvanecimiento de la figura de la ventana, que comparten el screamer de la ventana y la criatura.
 var _figure_tween: Tween
+## Hay algo en la ventana que hace sombra, si la cortina lo deja.
+var _casts_shadow := false
 
 @onready var _hallucination: AudioStreamPlayer2D = $Hallucination
 @onready var _breathing: AudioStreamPlayer = $CreatureBreathing
@@ -206,14 +214,17 @@ func _set_curtains(closed: bool) -> void:
 	_requests.state.curtains_closed = closed
 	curtains.animation = CURTAINS_CLOSED if closed else CURTAINS_OPEN
 	curtain_shade.modulate.a = CLOSED_SHADE if closed else 0.0
+	_refresh_desk_shadow()
 
 
 ## La figura aparece en la ventana y se desvanece.
 func _show_figure() -> void:
 	figure.modulate.a = 1.0
 	figure.show()
+	_set_shadow(true)
 	var tween := _new_figure_tween()
 	tween.tween_interval(EFFECT_SECONDS * 0.6)
+	tween.tween_callback(_set_shadow.bind(false))
 	tween.tween_property(figure, ^"modulate:a", 0.0, EFFECT_SECONDS * 0.4)
 	tween.tween_callback(figure.hide)
 
@@ -258,6 +269,7 @@ func _show_creature() -> void:
 		_figure_tween.kill()
 	figure.modulate.a = 1.0
 	figure.show()
+	_set_shadow(true)
 
 
 ## La criatura detrás de un panel se ve apenas la ventana queda a la vista, y se va a los creature_seconds de
@@ -295,9 +307,21 @@ func _creature_leaves() -> void:
 	_requests.state.creature_outside = false
 	_breathing.stop()
 	_knocks.stop()
+	_set_shadow(false)
 	var tween := _new_figure_tween()
 	tween.tween_property(figure, ^"modulate:a", 0.0, LEAVE_SECONDS)
 	tween.tween_callback(figure.hide)
+
+
+func _set_shadow(casts: bool) -> void:
+	_casts_shadow = casts
+	_refresh_desk_shadow()
+
+
+## La sombra cae sobre el escritorio si hay algo en la ventana y la cortina está abierta.
+func _refresh_desk_shadow() -> void:
+	var shadow := _casts_shadow and not _requests.state.curtains_closed
+	desk_surface.animation = DESK_SHADOW if shadow else DESK_CLEAN
 
 
 ## Un tween nuevo para la figura de la ventana, que corta el anterior.

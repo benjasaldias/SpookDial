@@ -116,6 +116,7 @@ needle_color = &"yellow"
 [node name="DeskSurface" type="AnimatedSprite2D" parent="DeskPlane"]
 position = Vector2(0, 505)
 sprite_frames = ExtResource("desk_surface")
+animation = &"NoEnemy"
 centered = false
 
 [node name="Notebook" type="AnimatedSprite2D" parent="DeskPlane"]
@@ -243,10 +244,11 @@ volume_db = -12.0
 autoplay = true
 bus = &"Ambience"
 
-[node name="Screamers" type="Node" parent="." node_paths=PackedStringArray("curtains", "figure", "phone", "darkness", "curtain_shade", "notebook", "ambient")]
+[node name="Screamers" type="Node" parent="." node_paths=PackedStringArray("curtains", "figure", "desk_surface", "phone", "darkness", "curtain_shade", "notebook", "ambient")]
 script = ExtResource("screamers_script")
 curtains = NodePath("../WallPlane/Curtains")
 figure = NodePath("../WallPlane/Enemy")
+desk_surface = NodePath("../DeskPlane/DeskSurface")
 phone = NodePath("../DeskPlane/Phone")
 darkness = NodePath("../Darkness")
 curtain_shade = NodePath("../CurtainShade")

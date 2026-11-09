@@ -35,6 +35,8 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 | `docs/16_plan_feedback_1.md` | Plan 8.1: el feedback de la primera prueba (la criatura en la ventana, las noches 1 y 2, Audio Sync en rondas, Trust y los diales). |
 | `docs/17_ideas_dinamismo.md` | Las notas de la prueba del 7-nov, ordenadas y con sus decisiones: de aquí sale el Plan 9. |
 | `docs/18_plan_dinamismo.md` | Plan 9, paso a paso: las barras, la dificultad, los audios, la batería, las cortinas y los accidentes. |
+| `docs/19_prompt_lore.md` | Prompt de la sesión que planifica el lore por noche. |
+| `docs/20_prompt_red_social.md` | Prompt de la sesión que rediseña la red social del celular. |
 | `art/positions.md` | Posición de cada objeto recortado en la escena. |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1. Es **histórico**: su encabezado dice qué se aceptó y qué no. |
 | `spook_dial_design_v1.md` | Diseño original (histórico). |
@@ -106,6 +108,10 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 07-11-2026 | **El screamer de la cortina** ya no la mece: la cortina se abre o se cierra sola. |
 | 07-11-2026 | **Accidentes:** un amigo se tropieza o se corta sin que nadie tenga la culpa (1, 1, 2, 2 y 3 por noche). Se responde en el chat con sentido común, sin cuaderno, en 15 s. Una mala respuesta o no contestar le quita 1 de vida y lo aturde, sin bajar Trust. Nunca matan a un amigo. |
 | 07-11-2026 | **La historia con decisiones y editar los videos quedan para después** de hacer divertidas las mecánicas (`docs/05`, puntos 21 y 22). |
+| 08-11-2026 | **Sombra sobre el escritorio:** lo que se asoma por la ventana (la criatura y el screamer de la ventana) hace sombra (`desk_sprite`, tags `Enemy` y `NoEnemy`). Con la cortina cerrada no hay sombra, para no delatar a la criatura. |
+| 08-11-2026 | **Audio Sync muestra una fila de 8 luces**, las de una ronda, aunque la noche tenga 2 rondas. |
+| 09-11-2026 | **Luces de ronda en Audio Sync:** junto a la fila, una luz por ronda (solo si la noche tiene varias), visible desde que se abre el mixer: azul la ronda en curso, verde las pasadas. Al fallar se apagan, porque se vuelve a la primera. |
+| 08-11-2026 | **Los amigos suenan mientras escriben,** como en Undertale, cada uno con su voz (sonido, altura y ritmo, en `data/friends/*.tres`). Solo suena el chat que se está viendo, no suena sobre un audio, y Matías y los avisos no tienen voz. |
 | 02-11-2026 | **Noche 0 (tutorial):** una noche nueva antes de la 1. El susto guionado y su chat son datos de una noche y van al final de la noche 0. |
 | 04-11-2026 | **La noche 0 es guiada y no se pierde:** unos 3 o 4 minutos, con 3 solicitudes fijas (una de cada amigo, con El Tue Tué y La Calchona). Un aviso arriba de la pantalla dice qué hacer en cada paso. El tiempo para responder no corre solo (solo las preguntas le quitan tiempo), nadie sale herido y Trust no baja. Enseña también a descargar un video (sus plazos esperan). Termina con el susto guionado, el chat de Gonzalo y el celular. "Nueva partida" empieza en la noche 0, y el aviso tiene un botón "Saltar tutorial". |
 | 04-11-2026 | **Las 7 entidades son un borrador de Claude:** las 3 de `docs/09` y 4 nuevas, como `.tres` y CSV. Benja las corrige antes del congelamiento del contenido (25-nov). |

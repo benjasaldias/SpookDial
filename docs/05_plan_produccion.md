@@ -27,6 +27,13 @@ El juego se construye en este orden. La **v1** es lo mínimo para entregar. Lo q
 
 Tras probar el juego, Benja notó que es poco dinámico. El detalle y las decisiones están en `docs/17_ideas_dinamismo.md`, y el plan paso a paso, en `docs/18_plan_dinamismo.md` (Plan 9 de `docs/06`): barras de HUD, ajustes de dificultad y audios en «¿Qué oyes?» que cambian la acción correcta, batería del celular y cortinas (la criatura que se queda y hay que revisar), e incidentes con respuesta de sentido común. Entra en la semana 4–5, antes de probar con 3 a 5 personas. Editar los videos recibidos y la historia con decisiones quedan fuera, en la lista de después.
 
+### 10ter — pedido por Benja el 8-nov, sin planificar todavía
+
+| Qué | Dónde se decide |
+| --- | --- |
+| Lore por noche (el grupo se separa, alguien cae inconsciente, alguien actúa raro y relleno de vlog). Toca los puntos 20 y 22, y la regla 9. Su alcance real se decide en esa sesión. | `docs/19_prompt_lore.md` |
+| La red social del celular imita a una real, como Instagram. | `docs/20_prompt_red_social.md` |
+
 ### Prioridad 2 — antes del 10 de diciembre, si alcanza el tiempo
 
 | # | Qué |

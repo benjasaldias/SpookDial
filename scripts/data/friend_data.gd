@@ -8,3 +8,13 @@ extends Resource
 @export var avatar: Texture2D
 ## Color de su nombre y de su pestaña en el chat.
 @export var color := Color.WHITE
+
+@export_group("Voice")
+## El sonido corto que hace mientras escribe, como en Undertale (decisión de Benja, 8 de noviembre).
+@export var voice: AudioStream
+## Qué tan aguda es su voz: 1 es la altura del sonido, 2 una octava más arriba.
+@export var voice_pitch := 1.0
+## Cuánto cambia la altura de una letra a otra: 0,08 es hasta un 8 % hacia arriba o hacia abajo.
+@export var voice_spread := 0.08
+## Suena una de cada tantas letras: mientras menos, más rápido habla.
+@export_range(1, 8) var voice_every := 3

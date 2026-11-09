@@ -223,3 +223,23 @@ func test_el_subtitulo_del_audio() -> bool:
 	check(_label(view).get_parsed_text().contains("Gritó tres veces."), "con la opción, se lee")
 	view.free()
 	return true
+
+
+## El mensaje avisa cada letra que aparece, para la voz del amigo (decisión de Benja, 8 de noviembre). El nombre
+## se ve de una vez, así que no cuenta.
+func test_avisa_cada_letra_que_se_escribe() -> bool:
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	message.add_fragment("Hola")
+	var view := ChatMessageView.new(message, "LEÓN", Color.WHITE)
+	(Engine.get_main_loop() as SceneTree).root.add_child(view)
+	var letters: Array = []
+	view.letter_typed.connect(func(letter: String) -> void: letters.append(letter))
+	view._type_to(float(len("LEÓN: ") + 2))
+	check_eq(letters, ["H", "o"], "las 2 primeras, sin el nombre")
+	check_eq(_label(view).visible_characters, len("LEÓN: ") + 2, "y se ven")
+	view._type_to(float(len("LEÓN: ") + 2))
+	check_eq(letters.size(), 2, "una letra suena una sola vez")
+	view._type_to(float(len("LEÓN: ") + 4))
+	check_eq(letters, ["H", "o", "l", "a"], "todas, aunque aparezcan juntas")
+	view.free()
+	return true

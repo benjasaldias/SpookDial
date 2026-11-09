@@ -5,10 +5,13 @@ extends MarginContainer
 ## Características y señuelos se ven iguales hasta que se clickean: la característica queda marcada
 ## y el señuelo vibra y queda rojo. Los avisos del juego, como el de daño, van centrados y en rojo.
 ## Un audio es otro enlace: se escucha con un clic (decisión de Benja, 7 de noviembre).
+## Cada letra que aparece se avisa, para la voz del amigo (decisión de Benja, 8 de noviembre).
 
 signal clue_clicked(view: Node, clue_id: StringName)
 ## Clic en el audio del mensaje.
 signal audio_clicked(view: Node)
+## Apareció una letra del mensaje.
+signal letter_typed(letter: String)
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
@@ -39,6 +42,8 @@ var show_caption := false
 
 var _label: RichTextLabel
 var _typing: Tween
+## Cuántas letras se ven ya, con el nombre.
+var _typed := 0
 var _shaking_clue := &""
 
 
@@ -89,8 +94,19 @@ func _ready() -> void:
 	var start := _speaker_prefix_length()
 	var total := _label.get_total_character_count()
 	_label.visible_characters = start
+	_typed = start
 	_typing = create_tween()
-	_typing.tween_property(_label, ^"visible_characters", total, (total - start) / CHARS_PER_SECOND)
+	_typing.tween_method(_type_to, float(start), float(total), (total - start) / CHARS_PER_SECOND)
+
+
+## Deja ver hasta la letra `count` y avisa cada letra nueva.
+func _type_to(count: float) -> void:
+	var target := int(count)
+	var text := _label.get_parsed_text()
+	for index in range(_typed, mini(target, text.length())):
+		letter_typed.emit(text[index])
+	_typed = maxi(_typed, target)
+	_label.visible_characters = target
 
 
 ## Muestra el mensaje completo de una vez.

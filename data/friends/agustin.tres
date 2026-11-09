@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="FriendData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/friend_data.gd" id="1_friend"]
+[ext_resource type="AudioStream" path="res://audio/sfx/voice_agustin.wav" id="2_voice"]
 
 [resource]
 script = ExtResource("1_friend")
 id = &"agustin"
 name_key = "FRIEND_AGUSTIN_NAME"
 color = Color(0.8, 0.63, 1, 1)
+voice = ExtResource("2_voice")
+voice_spread = 0.14
+voice_every = 2

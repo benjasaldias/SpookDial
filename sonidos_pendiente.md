@@ -30,6 +30,20 @@ Están en `audio/clues/` y duran 3 s, con el lugar de fondo. **Son parte del jue
 | `imbunche_called_name_yes.wav` | Gruñidos roncos y, entre ellos, una voz que dice "Matías" |
 | `imbunche_called_name_no.wav` | Solo gruñidos roncos |
 
+## Las voces de los amigos (8 de noviembre)
+
+Suenan mientras el amigo escribe, una vez cada tantas letras, como en Undertale. La altura cambia un poco con cada letra. Si cambias un archivo, que siga durando muy poco (menos de 0,1 s): se repite muchas veces por segundo.
+
+| Archivo | Quién | Cómo suena hoy | Ritmo |
+| --- | --- | --- | --- |
+| `voice_leon.wav` | León | Onda cuadrada, tono medio (0,06 s) | 1 de cada 3 letras |
+| `voice_gonzalo.wav` | Gonzalo | Onda triangular, grave y suave (0,09 s) | 1 de cada 4 letras |
+| `voice_agustin.wav` | Agustín | Pulso angosto, agudo y nasal (0,045 s) | 1 de cada 2 letras |
+
+Sin cambiar los archivos, se ajustan en `data/friends/*.tres`, en el Inspector, grupo **Voice**: `Voice Pitch` (la altura), `Voice Spread` (cuánto varía de una letra a otra) y `Voice Every` (cada cuántas letras suena). Su volumen es `Volume Db` del nodo `Voice` en `scenes/ui/chat_panel.tscn` (−8).
+
+---
+
 ## La criatura en la ventana (4 de noviembre)
 
 Reemplazan al grito del jumpscare. La criatura se asoma por la ventana cuando el chat o el mixer la tapan, y se ve al cerrarlos. Se queda 25 s desde que llega; con la cortina cerrada no se oye.
@@ -84,4 +98,4 @@ Son del Plan 10 (sonido y pulido):
 - Los clics del menú, de los botones y del chat.
 - La música o el ambiente del menú principal.
 - La pantalla final: ganar una noche, perderla y la victoria.
-- Los pasos o la voz de los amigos, si los quieres.
+- Los pasos de los amigos, si los quieres.

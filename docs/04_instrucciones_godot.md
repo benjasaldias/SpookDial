@@ -18,7 +18,8 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **E.** Cómo mover un objeto de la escena | Referencia |
 | **F.** Revisar una entidad en el Inspector (Plan 2) | ⬜ Pendiente (unos 5 minutos) |
 | **G.** Probar las solicitudes y el chat (Plan 3) | ⬜ Pendiente (unos 10 minutos) |
-| **N.** Probar el dinamismo (Plan 9) | ⬜ Pendiente (unos 20 minutos) |
+| **N.** Probar el dinamismo (Plan 9) | ✅ Benja lo probó el 8-nov y anotó las correcciones |
+| **O.** Probar las correcciones del 8-nov | ⬜ Pendiente (unos 10 minutos) |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
 | **J.** Probar el mantenimiento (Plan 6) | ⬜ Pendiente (unos 20 minutos) |
@@ -400,3 +401,23 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 - **Las reglas y los audios de cada entidad:** `data/entities/`, en el Inspector.
 
 Si cambias un valor de `data/balance.tres` o de una noche a propósito, avísale a Claude: `test_balance.gd` lo compara con `docs/02`.
+
+## O. Probar las correcciones del 8 de noviembre
+
+Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
+
+1. **Las voces:** empieza una noche y abre el chat de León cuando escriba. Se oye un sonido corto mientras aparecen las letras. Haz lo mismo con Gonzalo (más grave y pausado) y con Agustín (más agudo y rápido).
+2. **Dónde no suenan:** con el chat cerrado no se oye nada. Con la pestaña de otro amigo abierta, tampoco. Tus mensajes (MATÍAS) no suenan. Si haces clic en **▶ Escuchar audio** mientras el amigo escribe, solo se oye el audio.
+3. **La sombra:** en la noche 2 o más, cuando la criatura se asome, cae una franja de sombra sobre el escritorio, bajo la ventana. Cierra la cortina: desaparece. Ábrela: si la criatura sigue ahí, vuelve. Cuando se va, desaparece.
+4. **Audio Sync:** en la noche 4 o 5, la fila de luces del mixer tiene 8, no 16, y a su lado dice RONDAS con 2 luces. La de la ronda en curso se pone azul, y al pasarla, verde. Si fallas la segunda, se apagan las 2. En las noches 1 a 3, esas luces no están.
+
+**Verifica:** los pasos 1 a 4 se cumplen. Di si las voces cansan o si se confunden con la tensión de la noche.
+
+### Para ajustar las voces
+
+1. En el panel **FileSystem** de Godot (abajo a la izquierda), abre `data/friends/` y haz doble clic en `leon.tres`, `gonzalo.tres` o `agustin.tres`.
+2. En el panel **Inspector** (a la derecha), abre el grupo **Voice**.
+3. Cambia `Voice Pitch` (1 es normal, 1,2 es más agudo y 0,8 más grave), `Voice Spread` (0,05 es parejo y 0,15 es muy variado) o `Voice Every` (2 habla rápido y 4 pausado).
+4. Guarda con `Ctrl+S` y prueba con **F5**.
+
+Para el volumen de todas las voces: abre `scenes/ui/chat_panel.tscn`, selecciona el nodo `Voice` en el panel **Scene** y cambia `Volume Db` en el Inspector (hoy −8; −14 es bastante más bajo).

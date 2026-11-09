@@ -4,7 +4,7 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
-## Sesión 21 — 7 de noviembre de 2026 — Plan 9 ejecutado: dinamismo
+## Sesión 21 y su continuación — 7 al 9 de noviembre de 2026 — Plan 9 ejecutado: dinamismo; correcciones de Benja y prompts del lore y la red social
 
 S21 se adelantó al mismo 7 de noviembre (fecha objetivo: 10 a 17 de noviembre), justo después de S20, y se ejecutó inline con `superpowers:executing-plans` en Sonnet 5.5 · high, como proponía el registro. Benja autorizó los 11 commits en `main` al empezar. El plan se aplicó tal como está escrito: un script leyó los bloques de `docs/18` y los aplicó paso a paso, y en cada tarea los conteos de pruebas dieron los que el plan anticipa (461 → 521).
 
@@ -25,19 +25,33 @@ S21 se adelantó al mismo 7 de noviembre (fecha objetivo: 10 a 17 de noviembre),
 - **Commits (11, directo en `main`, sin push):** `91b1925`, `aaa56e3`, `f500807`, `e5dfc6f`, `a967a9a`, `54e1927`, `142bc7b`, `0c360b4`, `34c2368`, `ba34ce3` y el de cierre, "Plan 9 terminado: dinamismo".
 - **El pendiente de las ayudas para los diales** ya se cumplió con las barras.
 
+**Continuación (8 y 9 de noviembre, Opus 5.5).** Benja jugó el Plan 9, le gustó ("mucho mejor") y pidió 5 cosas. Las 3 de código quedaron hechas, de 521 a 542 pruebas, y Benja autorizó el commit y el push:
+
+- **La sombra sobre el escritorio:** Benja dibujó `desk_sprite` con los tags `Enemy` y `NoEnemy`. La criatura y el screamer de la ventana hacen sombra; con la cortina cerrada no hay, para no delatar a la criatura (la propuso Claude y Benja la confirmó).
+- **Audio Sync:** la fila tiene 8 luces, las de una ronda (`MixerView.step_count()`), aunque la noche tenga 2 rondas. Claude le planteó 4 formas de indicar las rondas y Benja eligió **las luces de ronda**: junto a la fila, una por ronda, solo si hay varias y desde que se abre el mixer; azul la que está en curso, verde las pasadas, y al fallar se apagan. Se dibujan con rectángulos hasta el arte del mixer.
+- **Las voces de los amigos** (`scripts/core/chat_voice.gd`, nuevo): un sonido corto cada tantas letras, como en Undertale. León, onda cuadrada media, 1 de cada 3 letras; Gonzalo, triangular grave, 1 de cada 4; Agustín, pulso agudo, 1 de cada 2. Sonidos en `audio/sfx/voice_*.wav` y ajustes en `data/friends/*.tres`, grupo Voice. Solo suena el chat que se está viendo, no suena sobre un audio y Matías no tiene voz. Con la escritura en tiempo real, en la misma frase suenan unas 26, 20 y 37 veces.
+- **Nuevo `docs/19_prompt_lore.md` y `docs/20_prompt_red_social.md`:** prompts para las 2 sesiones aparte que pidió Benja.
+- **Documentos:** `CLAUDE.md`, el diseño v2 (§10.6, §11 y §17), `docs/04` (nueva sección O), `docs/05` (10ter), `sonidos_pendiente.md` y `docs/00_log.md`.
+- **Capturas revisadas** (`C:\dev\capturas\fb2_*.png`): la sombra con la criatura, sin ella y con la cortina cerrada, y el mixer de la noche 4 con 8 luces y "Ronda 1 de 2".
+
 ### Errores encontrados
 
 - **Un detalle de formato del plan, en unos 15 bloques:** los bloques "reemplazar" cuyo texto está al final del archivo terminan con una línea en blanco que el archivo no tiene (casi siempre, el final de un archivo de pruebas; también `docs/04` y `chat_panel.tscn`). El aplicador los reconoce, los aplica sin esa línea y exige que estén al final del archivo; el resultado es el que el plan describe y los conteos coinciden.
 - **Un mensaje de commit distinto al del plan** en la Tarea 4: Claude escribió uno propio, y se corrigió con `amend` (el commit era local) antes de seguir.
 - **Aviso al cerrar el escritorio suelto** (`--quit-after`): `ambient_room.wav` sigue sonando cuando se cierra el juego y Godot avisa de 2 objetos sin liberar. No es un error de script ni viene de este plan; el menú principal arranca sin ninguna línea de error.
 - **Lo que no se probó:** cómo se sienten los valores, si los 15 audios provisionales se distinguen de oído y jugar una noche de punta a punta. Las pruebas y las capturas no dicen si es más entretenido: eso solo lo dice jugarlo (`docs/04`, N).
+- **Continuación, las 16 luces:** eran un error del Plan 8.1, que contaba el total de aplausos en vez de los de una ronda. Las últimas 8 luces nunca se usaban.
+- **Continuación, las voces no se oyeron:** Claude revisó que suenen, cuántas veces y con qué archivo y altura, pero no puede oírlas. Si son agradables o cansan, solo lo dice Benja (`docs/04`, O).
+- **Continuación, aviso de la primera importación:** al importar por primera vez, `data/friends/*.tres` avisa "Failed loading resource" de las voces, porque se leen antes de que Godot importe los `.wav`. En la segunda pasada no aparece.
 
 ### Pendientes Código
 
+- [ ] **Planificar el lore** (`docs/19_prompt_lore.md`) y **rediseñar la red social** (`docs/20_prompt_red_social.md`).
 - [ ] **S22: correcciones tras las pruebas con personas** (`docs/00_log.md`), con el contenido congelado el 25 de noviembre. Todos los valores del Plan 9 son de partida y se ajustan ahí: tiempos, señuelos, batería (38 s), cortinas, la criatura (25 s) y los accidentes.
 - [ ] Si en las pruebas con personas no entienden Audio Sync o los accidentes: enseñarlos en la noche 0.
 - [ ] Si la velocidad de Audio Sync se queda corta: bajar `audio_sync_tolerance` por noche.
 - [ ] Si Benja dibuja la animación de las cortinas o de la criatura: va en `curtains_sprite`.
+- [ ] Si las voces cansan: subir `CHARS_PER_SECOND` no ayuda; bajar la frecuencia con `voice_every`, o hacer sonar solo el comienzo de cada mensaje.
 - [ ] Menor: el panel de opciones deja ver tenue el menú de pausa detrás (fondo al 95 %).
 - [ ] Menor: abrir el escritorio solo (F6): "Empezar la noche N" y "Volver al menú" no hacen nada, porque los atiende `GameState`.
 - [ ] Menor: al cerrar el escritorio suelto, el sonido ambiente en bucle queda sonando y Godot avisa de 2 objetos sin liberar.
@@ -56,7 +70,9 @@ S21 se adelantó al mismo 7 de noviembre (fecha objetivo: 10 a 17 de noviembre),
 
 ### Pendientes Externos
 
-- [ ] **Probar el dinamismo** (`docs/04`, N, unos 20 minutos) y decir cómo se sienten la dificultad, las cortinas, la batería y los accidentes.
+- [ ] **Probar las correcciones** (`docs/04`, O, unos 10 minutos), sobre todo cómo suenan las voces, y corregir `MIXER_ROUNDS` (`ui.csv`).
+- [ ] **Si dibujas el mixer ampliado:** incluye las 2 luces de ronda junto a la fila de 8.
+- [x] **Probar el dinamismo** (`docs/04`, N): Benja lo jugó el 8-nov y anotó sus correcciones.
 - [ ] **Escuchar los 15 audios** (`audio/clues/`) y poner los reales (`sonidos_pendiente.md`), porque hay que distinguirlos de oído. Después, los de la criatura (`scare_creature_*.wav`) y el resto de `audio/sfx/`.
 - [ ] **Corregir las reglas de las 7 entidades** (están en `data/entities/`, en el Inspector, con sus textos en `messages.csv` y `notebook.csv`) y los textos nuevos del Plan 9: `RULE_*`, `OBS_*`, `INCIDENT_*`, `HUD_*`, `TUTORIAL_*`, `CHAT_AUDIO`, `CHAT_INCIDENT_HINT`, `OPTIONS_AUDIO_CAPTIONS` y `PHONE_NO_BATTERY`. Antes del congelamiento del contenido (25 de noviembre).
 - [ ] **Revisar los supuestos del Plan 9** (`docs/18`, al inicio), sobre todo que la criatura no se oiga con la cortina cerrada y que un accidente nunca mate.

@@ -5,7 +5,8 @@ Son de relleno, hasta que Benja elija los definitivos (Plan 10):
   que anuncia una interferencia;
 - Plan 7: el sonido ambiente del cuarto, uno por screamer y los cuatro de las alucinaciones;
 - 4 de noviembre: la respiración y los golpes de la criatura de la ventana, que reemplazan al grito del jumpscare;
-- Plan 9: los audios que mandan los amigos, en audio/clues/ (3 s cada uno, con el lugar de fondo).
+- Plan 9: los audios que mandan los amigos, en audio/clues/ (3 s cada uno, con el lugar de fondo);
+- 8 de noviembre: la voz de cada amigo mientras escribe, un sonido de consola muy corto, como en Undertale.
 Siempre generan los mismos archivos.
 
 Uso, desde la carpeta del proyecto: python3 -I tools/make_placeholder_sounds.py
@@ -124,6 +125,28 @@ def notes(frequencies, seconds, decay, volume):
             wave_value = sum(math.sin(2 * math.pi * frequency * harmonic * t) / harmonic for harmonic in (1, 3, 5))
             samples.append(volume * wave_value * math.exp(-t * decay))
     return samples
+
+
+def voice(frequency, seconds, shape, volume):
+    """Un sonido de consola muy corto para la voz de un amigo. `shape` es la onda: da su timbre."""
+    samples = []
+    count = int(seconds * RATE)
+    for i in range(count):
+        t = i / RATE
+        attack = min(i / (0.002 * RATE), 1.0)
+        release = (1.0 - i / count) ** 1.5
+        samples.append(volume * shape((t * frequency) % 1.0) * attack * release)
+    return samples
+
+
+def pulse(duty):
+    """Onda de pulso, como los canales de una consola: mientras más angosto el pulso, más nasal suena."""
+    return lambda phase: 1.0 if phase < duty else -1.0
+
+
+def triangle(phase):
+    """Onda triangular: suave y grave."""
+    return 4.0 * abs(phase - 0.5) - 1.0
 
 
 def static():
@@ -471,6 +494,9 @@ if __name__ == "__main__":
     write("hallucination_steps", steps())
     write("hallucination_whisper", whisper())
     write("hallucination_scratch", scratch())
+    write("voice_leon", voice(311.13, 0.06, pulse(0.5), 0.3))
+    write("voice_gonzalo", voice(155.56, 0.09, triangle, 0.5))
+    write("voice_agustin", voice(587.33, 0.045, pulse(0.125), 0.3))
     for clue_name, clue_samples in clue_sounds().items():
         write(clue_name, clue_samples, CLUES)
     print("Sonidos provisionales en", OUT, "y", CLUES)
