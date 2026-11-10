@@ -11,6 +11,8 @@ const NightState := preload("res://scripts/core/night_state.gd")
 const PhoneFeed := preload("res://scripts/core/phone_feed.gd")
 const PhoneIcons := preload("res://scripts/ui/phone_icons.gd")
 const FONT := preload("res://fonts/departure_mono/DepartureMono-Regular.otf")
+## El marco del celular: la carcasa azul, los botones y el vidrio negro alrededor de la pantalla.
+const FRAME := preload("res://art/ui/phone_frame.png")
 
 ## El nombre de la red social (phone.csv).
 const APP_NAME_KEY := "PHONE_APP_NAME"
@@ -35,8 +37,6 @@ const PAN_STEP := 30.0
 ## Qué tan rápido sigue el feed a la rueda.
 const SCROLL_SPEED := 10.0
 ## Colores provisionales: el celular de noche, en modo oscuro.
-const BODY_COLOR := Color(0.07, 0.08, 0.12)
-const EDGE_COLOR := Color(0.24, 0.26, 0.34)
 const GLASS_COLOR := Color(0.01, 0.01, 0.03)
 const FEED_COLOR := Color(0.07, 0.08, 0.11)
 const TEXT_COLOR := Color(0.86, 0.88, 0.94)
@@ -154,15 +154,10 @@ func _gui_input(event: InputEvent) -> void:
 			close()
 
 
-## El celular: el cuerpo con las esquinas en escalón, la barra con la hora y la barra de inicio. Con batería, además,
-## las barras de Snapgram. El feed se dibuja aparte, recortado a su pantalla.
+## El celular: el marco (pixel art de Claude, art/ui/phone_frame.png), la barra con la hora y la barra de inicio.
+## Con batería, además, las barras de Snapgram. El feed se dibuja aparte, recortado a su pantalla.
 func _draw() -> void:
-	draw_rect(Rect2(4, 0, SIZE.x - 8, SIZE.y), BODY_COLOR)
-	draw_rect(Rect2(0, 4, SIZE.x, SIZE.y - 8), BODY_COLOR)
-	draw_rect(Rect2(2, 2, SIZE.x - 4, SIZE.y - 4), BODY_COLOR)
-	draw_rect(Rect2(2, 2, SIZE.x - 4, SIZE.y - 4), EDGE_COLOR, false)
-	draw_rect(Rect2(10, 14, 240, 492), GLASS_COLOR)
-	draw_rect(Rect2(110, 6, 40, 3), EDGE_COLOR)
+	draw_texture(FRAME, Vector2.ZERO)
 	var has_battery := _state.has_battery()
 	draw_rect(Rect2(14, 18, 232, 478), FEED_COLOR if has_battery else GLASS_COLOR)
 	_draw_text(self, _state.clock_text(), Vector2(22, 31), TEXT_COLOR)

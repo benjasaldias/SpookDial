@@ -15,11 +15,12 @@ const ACTIONS_KEY := "NOTEBOOK_ACTIONS"
 const CLUE_LINE_KEY := "NOTEBOOK_CLUE_LINE"
 ## Las acciones de una regla. Lleva {correct} y {risky} (notebook.csv).
 const RULE_ACTIONS_KEY := "NOTEBOOK_RULE_ACTIONS"
-## Colores provisionales para papel claro, hasta el arte del cuaderno. La acción de mayor riesgo
-## también se nombra en el texto: el color no es la única pista (diseño §19).
-const HEADING_COLOR := "6b3a1f"
-const CORRECT_COLOR := "1f5c2e"
-const RISKY_COLOR := "9b2a1c"
+## Colores de lápiz pasta sobre la hoja cuadriculada (art/ui/notebook_page.png): azul para los encabezados, verde
+## para la acción correcta y rojo para la de mayor riesgo. La acción de mayor riesgo también se nombra en el texto:
+## el color no es la única pista (diseño §19).
+const HEADING_COLOR := "234a8c"
+const CORRECT_COLOR := "1d5a2c"
+const RISKY_COLOR := "a32222"
 
 
 ## La página de `entity`, sin el nombre: el panel lo muestra como título.

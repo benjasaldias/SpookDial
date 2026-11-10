@@ -1,6 +1,7 @@
 extends Control
-## El mixer visto desde arriba, para hacer Audio Sync (diseño §10.6). Es provisional hasta el arte de Benja:
-## se dibuja con rectángulos, con los colores del mixer del escritorio.
+## El mixer visto desde arriba, para hacer Audio Sync (diseño §10.6). El cuerpo es pixel art de Claude
+## (art/ui/mixer_body.png, de tools/make_ui_art.py), con la paleta del mixer del escritorio; encima, Godot dibuja
+## lo que se mueve: las agujas, las luces, las perillas de los faders y los textos.
 ##
 ## Cada fader es el canal de un amigo, y su altura es la señal. Al elegir un canal empieza una ronda: la base
 ## marca el tiempo, el amigo aplaude un ritmo y Matías lo repite con la barra espaciadora o con clics en el
@@ -11,6 +12,8 @@ extends Control
 const AudioSyncRound := preload("res://scripts/core/audio_sync_round.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const FONT := preload("res://fonts/departure_mono/DepartureMono-Regular.otf")
+const BODY_TEXTURE := preload("res://art/ui/mixer_body.png")
+const FADER_CAP := preload("res://art/ui/mixer_fader_cap.png")
 
 ## Textos del mixer (ui.csv). MIXER_LISTEN y MIXER_SUCCESS llevan {friend}.
 const TITLE_KEY := "MIXER_TITLE"
@@ -33,14 +36,12 @@ const ROUND_BEATS := 4
 
 const SIZE := Vector2(440, 430)
 const FONT_SIZE := 11
-## Colores provisionales, tomados de mixer_sprite.
-const BODY_COLOR := Color(0.11, 0.12, 0.22)
-const PANEL_COLOR := Color(0.15, 0.16, 0.29)
-const EDGE_COLOR := Color(0.62, 0.64, 0.7)
-const SHADOW_COLOR := Color(0.04, 0.04, 0.09)
-const SCREEN_COLOR := Color(0.13, 0.22, 0.58)
-const NEEDLE_COLOR := Color(0.55, 0.93, 0.95)
+## Colores de lo que se mueve, de la paleta de mixer_sprite.
+const SHADOW_COLOR := Color("090a17")
+const NEEDLE_COLOR := Color(0.85, 0.97, 1.0)
 const TEXT_COLOR := Color(0.79, 0.84, 0.95)
+## El texto de la pantalla del estado, abajo.
+const DISPLAY_COLOR := Color("5fc6d9")
 const DIM_COLOR := Color(0.45, 0.5, 0.62)
 const LIGHT_OFF := Color(0.2, 0.22, 0.34)
 const CLAP_LIGHT := Color(0.38, 0.62, 1.0)
@@ -357,17 +358,11 @@ func _weakest_friend() -> int:
 
 
 func _draw() -> void:
-	var body := Rect2(Vector2.ZERO, SIZE)
-	draw_rect(body, SHADOW_COLOR)
-	draw_rect(body.grow(-2), EDGE_COLOR)
-	draw_rect(body.grow(-4), BODY_COLOR)
-	draw_rect(body.grow(-10), PANEL_COLOR, false)
+	draw_texture(BODY_TEXTURE, Vector2.ZERO)
 	_draw_text(tr(TITLE_KEY).to_upper(), Vector2(18, 26), DIM_COLOR)
 	_draw_led(Vector2(410, 16), LED_RED, _led if is_playing() else 0.0)
-	_draw_knob(Vector2(52, 72))
-	_draw_knob(Vector2(388, 72))
-	_draw_meter(METER_PLAYER, player_level)
-	_draw_meter(METER_FRIEND, friend_level)
+	_draw_needle(METER_PLAYER, player_level)
+	_draw_needle(METER_FRIEND, friend_level)
 	_draw_text_centered(tr(YOU_KEY).to_upper(), METER_PLAYER.get_center().x, 128, TEXT_COLOR)
 	_draw_text_centered(_friend_names[selected_friend].to_upper(), METER_FRIEND.get_center().x, 128,
 			_friend_colors[selected_friend])
@@ -375,24 +370,17 @@ func _draw() -> void:
 	_draw_round_lights()
 	for index in _faders.size():
 		_draw_channel(index)
-	_draw_decor()
-	_draw_text_centered(status_text().to_upper(), SIZE.x / 2.0, 394, TEXT_COLOR)
+	_draw_text_centered(status_text().to_upper(), SIZE.x / 2.0, 394, DISPLAY_COLOR)
 	_draw_text_centered(tr(HINT_KEY).to_upper(), SIZE.x / 2.0, 414, DIM_COLOR)
 
 
-## Un VU-metro azul: la aguja se levanta con cada golpe y vuelve a caer.
-func _draw_meter(rect: Rect2, level: float) -> void:
-	draw_rect(rect, SHADOW_COLOR)
-	draw_rect(rect.grow(-2), SCREEN_COLOR)
+## La aguja de un VU-metro: se levanta con cada golpe y vuelve a caer. Sale de debajo de la tapa negra, que es
+## parte del cuerpo, igual que la escala.
+func _draw_needle(rect: Rect2, level: float) -> void:
 	var pivot := Vector2(rect.get_center().x, rect.end.y - 8)
-	for index in 9:
-		var angle := deg_to_rad(-50.0 + index * 12.5)
-		var direction := Vector2(sin(angle), -cos(angle))
-		var mark_length := 6.0 if index % 2 == 0 else 3.0
-		draw_line(pivot + direction * 48.0, pivot + direction * (48.0 + mark_length), NEEDLE_COLOR.darkened(0.35))
-	var needle := deg_to_rad(lerpf(-50.0, 50.0, level))
-	draw_line(pivot, pivot + Vector2(sin(needle), -cos(needle)) * 50.0, NEEDLE_COLOR, 2.0)
-	draw_rect(Rect2(pivot - Vector2(3, 3), Vector2(6, 6)), EDGE_COLOR)
+	var angle := deg_to_rad(lerpf(-50.0, 50.0, level))
+	var direction := Vector2(sin(angle), -cos(angle))
+	draw_line(pivot + direction * 9.0, pivot + direction * 45.0, NEEDLE_COLOR, 2.0)
 
 
 ## Una luz por corchea de la parte del amigo: se encienden con sus aplausos y, en la parte de Matías, con sus
@@ -422,13 +410,13 @@ func _draw_round_lights() -> void:
 		_draw_led(Vector2(ROUND_LIGHTS_LEFT + index * ROUND_LIGHT_GAP, STEP_TOP + 1.0), round_light(index), 1.0)
 
 
-## El canal de un amigo: su nombre, un LED, el fader a la altura de su señal y el número. El canal elegido
-## lleva un borde de su color.
+## El canal de un amigo: su nombre, un LED, la perilla del fader a la altura de su señal y el número. El panel y
+## el riel son parte del cuerpo. El canal elegido lleva un borde de su color.
 func _draw_channel(index: int) -> void:
 	var rect := channel_rect(index)
 	var friend := _manager.state.friends[index]
-	draw_rect(rect, _friend_colors[index] if index == selected_friend else SHADOW_COLOR)
-	draw_rect(rect.grow(-2), PANEL_COLOR)
+	if index == selected_friend:
+		_draw_frame(rect, _friend_colors[index], 2)
 	var center_x := rect.get_center().x
 	_draw_text_centered(_friend_names[index].to_upper(), center_x, rect.position.y + 18, _friend_colors[index])
 	# El LED: rojo fijo sin señal, rojo parpadeando si viene una interferencia y verde si está bien.
@@ -441,45 +429,24 @@ func _draw_channel(index: int) -> void:
 		led_color = LED_RED
 		lit = warning_led()
 	_draw_led(Vector2(center_x - 4, rect.position.y + 28), led_color, lit)
-	var track := Rect2(center_x - 2, rect.position.y + FADER_TOP, 4, FADER_HEIGHT)
-	draw_rect(track, SHADOW_COLOR)
-	for mark in 6:
-		var y := track.position.y + mark * FADER_HEIGHT / 5.0
-		draw_rect(Rect2(center_x - 14, y, 6, 1), DIM_COLOR)
-		draw_rect(Rect2(center_x + 8, y, 6, 1), DIM_COLOR)
-	var knob_y := roundf(track.end.y - _faders[index] * FADER_HEIGHT)
-	draw_rect(Rect2(center_x - 15, knob_y - 6, 30, 12), SHADOW_COLOR)
-	draw_rect(Rect2(center_x - 14, knob_y - 5, 28, 10), EDGE_COLOR)
-	draw_rect(Rect2(center_x - 14, knob_y - 1, 28, 2), SHADOW_COLOR)
+	var bottom := rect.position.y + FADER_TOP + FADER_HEIGHT
+	var knob_y := roundf(bottom - _faders[index] * FADER_HEIGHT)
+	draw_texture(FADER_CAP, Vector2(center_x - 15, knob_y - 6))
 	var value_color := TEXT_COLOR if friend.is_online() else LED_RED
 	_draw_text_centered("%d" % roundi(friend.signal_level), center_x, rect.end.y - 12, value_color)
+
+
+## Un borde de `width` píxeles por dentro de `rect`, con píxeles enteros.
+func _draw_frame(rect: Rect2, color: Color, width: int) -> void:
+	draw_rect(Rect2(rect.position, Vector2(rect.size.x, width)), color)
+	draw_rect(Rect2(rect.position.x, rect.end.y - width, rect.size.x, width), color)
+	draw_rect(Rect2(rect.position, Vector2(width, rect.size.y)), color)
+	draw_rect(Rect2(rect.end.x - width, rect.position.y, width, rect.size.y), color)
 
 
 func _draw_led(top_left: Vector2, color: Color, lit: float) -> void:
 	draw_rect(Rect2(top_left - Vector2.ONE, Vector2(10, 10)), SHADOW_COLOR)
 	draw_rect(Rect2(top_left, Vector2(8, 8)), color.darkened(0.75).lerp(color, lit))
-
-
-## Una perilla de adorno, como las del mixer del escritorio.
-func _draw_knob(center: Vector2) -> void:
-	draw_circle(center, 24.0, SHADOW_COLOR)
-	draw_circle(center, 22.0, EDGE_COLOR.darkened(0.25))
-	draw_circle(center, 16.0, EDGE_COLOR)
-	draw_line(center, center + Vector2(9, -12), SHADOW_COLOR, 2.0)
-
-
-## Botones y barras de colores de adorno, como los del mixer del escritorio.
-func _draw_decor() -> void:
-	var button_colors := [Color(0.85, 0.25, 0.25), Color(0.93, 0.83, 0.3), Color(0.35, 0.75, 0.35)]
-	for row in 3:
-		for column in 3:
-			var top_left := Vector2(26 + column * 18, 196 + row * 22)
-			draw_rect(Rect2(top_left - Vector2.ONE, Vector2(14, 14)), SHADOW_COLOR)
-			draw_rect(Rect2(top_left, Vector2(12, 12)), EDGE_COLOR)
-			draw_rect(Rect2(top_left + Vector2(3, 3), Vector2(6, 6)), button_colors[column])
-	var bar_colors := [Color(0.35, 0.75, 0.35), Color(0.93, 0.83, 0.3), Color(0.3, 0.5, 0.95), Color(0.85, 0.45, 0.2)]
-	for row in bar_colors.size():
-		draw_rect(Rect2(366, 200 + row * 12, 48, 6), bar_colors[row])
 
 
 func _draw_text(text: String, baseline_left: Vector2, color: Color) -> void:

@@ -1,5 +1,7 @@
 [gd_scene format=3]
 
+[ext_resource type="Theme" path="res://scenes/ui/menu_theme.tres" id="menu_theme"]
+[ext_resource type="Script" path="res://scripts/ui/framed_box.gd" id="framed_box"]
 [ext_resource type="Script" path="res://scripts/ui/end_screen.gd" id="screen_script"]
 [ext_resource type="FontFile" path="res://fonts/departure_mono/DepartureMono-Regular.otf" id="pixel_font"]
 
@@ -9,6 +11,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("screen_script")
+theme = ExtResource("menu_theme")
 
 [node name="Shade" type="ColorRect" parent="."]
 layout_mode = 1
@@ -26,6 +29,7 @@ anchor_bottom = 1.0
 [node name="Box" type="VBoxContainer" parent="Center"]
 custom_minimum_size = Vector2(640, 0)
 layout_mode = 2
+script = ExtResource("framed_box")
 theme_override_constants/separation = 18
 
 [node name="Title" type="Label" parent="Center/Box"]

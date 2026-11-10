@@ -23,7 +23,9 @@ const HEALTH_PIP_SIZE := Vector2(6, 10)
 const HEALTH_COLOR := Color(0.85, 0.9, 0.95)
 ## Las barras de señal también son provisionales (docs/06 §3): 5 barras que crecen de a 2 px.
 const SIGNAL_BARS := 5
-const SIGNAL_BAR_WIDTH := 3
+## Los 6 cuadros de las barras de señal, de 0 a 5 barras llenas.
+const SIGNAL_SHEET := preload("res://art/ui/signal_bars.png")
+const SIGNAL_FRAME := Vector2(19, 12)
 ## Lo que dice el temporizador cuando el amigo mandó un video (lleva {seconds}) y cuando está sin señal (ui.csv).
 const VIDEO_KEY := "ENTRY_VIDEO"
 const OFFLINE_KEY := "ENTRY_OFFLINE"
@@ -118,23 +120,23 @@ func set_interference_warning(active: bool) -> void:
 		modulate.a = 1.0
 
 
-## Una barra por cada 20 de señal: llenas hasta su nivel y vacías (solo el borde) arriba de él, para que no
-## dependa del color. Solo se rehacen si cambió cuántas van llenas.
+## Una barra por cada 20 de señal: llenas hasta su nivel y vacías (solo el borde) arriba de él, y sin señal una x,
+## para que no dependa del color. Es un cuadro de art/ui/signal_bars.png (pixel art de Claude), uno por cada
+## cantidad de barras llenas.
 func set_signal(level: float) -> void:
 	var bars := ceili(clampf(level, 0.0, 100.0) / (100.0 / SIGNAL_BARS))
 	if bars == signal_bars:
 		return
 	signal_bars = bars
-	for bar: Node in _signal_box.get_children():
-		_signal_box.remove_child(bar)
-		bar.queue_free()
-	for index in SIGNAL_BARS:
-		var bar := Panel.new()
-		bar.custom_minimum_size = Vector2(SIGNAL_BAR_WIDTH, 4 + index * 2)
-		bar.size_flags_vertical = Control.SIZE_SHRINK_END
-		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		bar.add_theme_stylebox_override(&"panel", _pip_style(index < bars))
-		_signal_box.add_child(bar)
+	if _signal_box.get_child_count() == 0:
+		var picture := TextureRect.new()
+		picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		picture.size_flags_vertical = Control.SIZE_SHRINK_END
+		picture.texture = AtlasTexture.new()
+		(picture.texture as AtlasTexture).atlas = SIGNAL_SHEET
+		_signal_box.add_child(picture)
+	var atlas := (_signal_box.get_child(0) as TextureRect).texture as AtlasTexture
+	atlas.region = Rect2(bars * SIGNAL_FRAME.x, 0, SIGNAL_FRAME.x, SIGNAL_FRAME.y)
 
 
 ## Una marca por punto de vida: llena si lo tiene y vacía (solo el borde) si lo perdió, para que no

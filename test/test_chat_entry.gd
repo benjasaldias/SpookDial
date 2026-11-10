@@ -74,21 +74,21 @@ func test_aturdido() -> bool:
 	return true
 
 
-## Las barras llenas de la señal, de la más baja a la más alta.
-func _filled_bars(entry: Node2D) -> Array:
-	return entry.get_node("Signal").get_children().map(func(bar: Panel) -> bool:
-		return (bar.get_theme_stylebox(&"panel") as StyleBoxFlat).draw_center)
+## Cuántas barras llenas muestra el cuadro de art/ui/signal_bars.png que se ve.
+func _filled_bars(entry: Node2D) -> int:
+	var picture := entry.get_node("Signal").get_child(0) as TextureRect
+	return roundi((picture.texture as AtlasTexture).region.position.x / entry.SIGNAL_FRAME.x)
 
 
 func test_barras_de_senal() -> bool:
 	var entry := _make_entry()
 	entry.set_signal(100.0)
-	check_eq(_filled_bars(entry), [true, true, true, true, true], "señal llena: 5 barras")
+	check_eq(_filled_bars(entry), 5, "señal llena: 5 barras")
 	entry.set_signal(45.0)
-	check_eq(_filled_bars(entry), [true, true, true, false, false], "una barra por cada 20: 3 llenas y 2 vacías")
+	check_eq(_filled_bars(entry), 3, "una barra por cada 20: 3 llenas y 2 vacías")
 	entry.set_signal(0.0)
-	check_eq(_filled_bars(entry), [false, false, false, false, false], "sin señal, todas vacías")
-	check_eq(entry.get_node("Signal").get_child_count(), 5, "se rehacen, no se acumulan")
+	check_eq(_filled_bars(entry), 0, "sin señal, todas vacías")
+	check_eq(entry.get_node("Signal").get_child_count(), 1, "un solo dibujo, que no se acumula")
 	entry.free()
 	return true
 

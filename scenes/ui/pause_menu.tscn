@@ -1,7 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="pause_script"]
-[ext_resource type="Theme" path="res://scenes/ui/chat_theme.tres" id="chat_theme"]
+[ext_resource type="Theme" path="res://scenes/ui/menu_theme.tres" id="menu_theme"]
+[ext_resource type="Script" path="res://scripts/ui/framed_box.gd" id="framed_box"]
 [ext_resource type="PackedScene" path="res://scenes/ui/options_panel.tscn" id="options_panel"]
 
 [node name="PauseMenu" type="Control"]
@@ -10,7 +11,7 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource("chat_theme")
+theme = ExtResource("menu_theme")
 script = ExtResource("pause_script")
 
 [node name="Shade" type="ColorRect" parent="."]
@@ -29,6 +30,7 @@ anchor_bottom = 1.0
 [node name="Box" type="VBoxContainer" parent="Center"]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
+script = ExtResource("framed_box")
 theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="Center/Box"]

@@ -1,7 +1,14 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="menu_script"]
-[ext_resource type="Theme" path="res://scenes/ui/chat_theme.tres" id="chat_theme"]
+[ext_resource type="Theme" path="res://scenes/ui/menu_theme.tres" id="menu_theme"]
+[ext_resource type="Script" path="res://scripts/ui/framed_box.gd" id="framed_box"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/background_sprite.aseprite" id="background"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/window_sprite.aseprite" id="window"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/exterior_sprite.aseprite" id="exterior"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/glasspane_sprite.aseprite" id="glasspane"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/curtains_sprite.aseprite" id="curtains"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/desk_sprite.aseprite" id="desk_surface"]
 [ext_resource type="PackedScene" path="res://scenes/ui/options_panel.tscn" id="options_panel"]
 
 [node name="MainMenu" type="Control"]
@@ -9,7 +16,7 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource("chat_theme")
+theme = ExtResource("menu_theme")
 script = ExtResource("menu_script")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -19,15 +26,66 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.012, 0.024, 0.043, 1)
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Room" type="Node2D" parent="."]
+
+[node name="Background" type="AnimatedSprite2D" parent="Room"]
+sprite_frames = ExtResource("background")
+centered = false
+
+[node name="Window" type="AnimatedSprite2D" parent="Room"]
+position = Vector2(266, 114)
+sprite_frames = ExtResource("window")
+centered = false
+
+[node name="ExteriorClip" type="Control" parent="Room"]
+clip_contents = true
+layout_mode = 3
+offset_left = 273.0
+offset_top = 121.0
+offset_right = 524.0
+offset_bottom = 418.0
+mouse_filter = 2
+
+[node name="Exterior" type="AnimatedSprite2D" parent="Room/ExteriorClip"]
+sprite_frames = ExtResource("exterior")
+centered = false
+
+[node name="GlassPane" type="AnimatedSprite2D" parent="Room"]
+position = Vector2(273, 121)
+sprite_frames = ExtResource("glasspane")
+centered = false
+
+[node name="Curtains" type="AnimatedSprite2D" parent="Room"]
+position = Vector2(219, 92)
+sprite_frames = ExtResource("curtains")
+animation = &"Open"
+centered = false
+
+[node name="DeskSurface" type="AnimatedSprite2D" parent="Room"]
+position = Vector2(0, 505)
+sprite_frames = ExtResource("desk_surface")
+animation = &"NoEnemy"
+centered = false
+
+[node name="Dim" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.01, 0.02, 0.06, 0.55)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
 anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="Box" type="VBoxContainer" parent="Center"]
 custom_minimum_size = Vector2(440, 0)
 layout_mode = 2
+script = ExtResource("framed_box")
 theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="Center/Box"]
