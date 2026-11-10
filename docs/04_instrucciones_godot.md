@@ -21,6 +21,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **N.** Probar el dinamismo (Plan 9) | ✅ Benja lo probó el 8-nov y anotó las correcciones |
 | **O.** Probar las correcciones del 8-nov | ⬜ Pendiente (unos 10 minutos) |
 | **P.** Probar Snapgram | ⬜ Pendiente (unos 10 minutos) |
+| **Q.** Escuchar los sonidos nuevos y revisar el arte de Claude | ⬜ Pendiente (unos 20 minutos) |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
 | **J.** Probar el mantenimiento (Plan 6) | ⬜ Pendiente (unos 20 minutos) |
@@ -452,3 +453,45 @@ Exporta un PNG de exactamente **232×232** con el mismo nombre en `art/phone/` (
 ### Para ajustar cuándo aparecen
 
 En `data/balance.tres`, grupo **Sanity**: `Disturbing Post Sanity` y `Disturbing Post Every` (hoy, bajo 30, una de cada 6), y `Disturbing Post Worse Sanity` y `Disturbing Post Worse Every` (hoy, bajo 15, una de cada 3).
+
+## Q. Escuchar los sonidos nuevos y revisar el arte de Claude
+
+Del 10 de noviembre (sesión S21d). Claude no puede escuchar: revisó cada sonido con su espectrograma y su sonoridad, pero **lo que importa es cómo suenan**. Usa audífonos.
+
+### Los audios de los amigos (lo más importante)
+
+1. En el Explorador de Windows, abre `C:\Users\benja\OneDrive\Documents\spook-dial\audio\clues\`.
+2. Haz doble clic en cada archivo para escucharlo. Escucha **los de una misma entidad uno tras otro**: tienen que distinguirse sin mirar el nombre.
+3. **Verifica:**
+   - el Tue Tué grita 1 vez, 3 veces o ninguna, y no hay duda de cuántas;
+   - el balido de La Calchona suena a llanto y el bufido, a enojo;
+   - el silbido del Cuero se oye sobre el agua;
+   - los tacos de La Viuda son claramente lentos o rápidos;
+   - el barro del Trauco chapotea y la tierra seca cruje;
+   - el gallo del Basilisco canta 1 o 2 veces, y no se confunde con 4;
+   - el llanto de guagua del Imbunche se oye entre los gruñidos.
+
+### Los demás sonidos
+
+1. Abre `audio\sfx\` y escucha cada uno. La lista de cómo debería sonar está en `sonidos_pendiente.md`.
+2. Después, en el juego (**F5**):
+   - juega una noche con Audio Sync: el bombo, el platillo, el aplauso del amigo y tu golpe se tienen que distinguir;
+   - escucha las voces de los amigos mientras escriben (ahora murmuran);
+   - fíjate si el ambiente se nota cuando se repite (dura 24 s).
+3. **Verifica:** nada suena demasiado fuerte o demasiado bajo comparado con lo demás. Anota cuáles cambiarías y cómo, y díselo a Claude: ajusta la receta en `tools/make_sounds.py`.
+
+### El arte
+
+En el juego (**F5**), mira:
+
+- **el mixer:** abre Audio Sync;
+- **el cuaderno:** ábrelo en una página;
+- **la mancha de tinta:** si no sale sola, la muestra `test/capture_screamers.gd`; la captura está en `C:\dev\capturas\arte_ink.png`;
+- **el celular** y **las barras de arriba**;
+- **las barras de señal** del PC;
+- **el menú, la pausa (`Esc`) y el resumen** al terminar una noche.
+
+Las capturas de Claude están en `C:\dev\capturas\arte_*.png`.
+
+**Verifica:** el estilo combina con tu arte y el cuaderno se lee rápido. Si quieres redibujar una pieza, la lista con los tamaños está en `arte_pendiente.md`.
+

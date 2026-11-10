@@ -19,7 +19,7 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 | **Tu parte** | Decidir qué es el lore y corregir los borradores de texto. |
 | **Está terminada cuando** | `docs/21_lore_por_noche.md` tiene las 6 noches, las decisiones están en `CLAUDE.md` y en el diseño, y `docs/05` tiene el nuevo orden. |
 
-**Después:** S22, las correcciones tras las pruebas con personas. La implementación del lore se agenda al cerrar S21b. S21c (la red social) ya se hizo.
+**Después:** S22, las correcciones tras las pruebas con personas. La implementación del lore se agenda al cerrar S21b. S21c (la red social) y S21d (el arte y los sonidos pulidos) ya se hicieron.
 
 ---
 
@@ -87,8 +87,9 @@ Hay dos tipos de sesión, que se alternan:
 | S21 | 7 nov | Ejecutar el Plan 9 → el juego es más dinámico | Ejecución | Sonnet 5.5 · high (se adelantó) | Autorizar commits; probar (`docs/04`, N) | ✅ |
 | **S21b** | Antes del 25 nov | **Planificar el lore por noche** (`docs/19`) | Plan | **Opus 5.5 · high** | Decisiones del lore; corregir borradores | ▶ |
 | S21c | 9 nov | Red social que imita a una real (`docs/20`) | Diseño y ejecución | Opus 5.5 · high (se adelantó a S21b) | Probar (`docs/04`, P); confirmar de dónde son las fotos | ✅ |
+| S21d | 10 nov | Pulir el arte y los sonidos de Claude (pedido de Benja, sin plan aparte) | Diseño y ejecución | Opus 5.5 | Escuchar los sonidos y revisar el arte (`docs/04`, Q); corregir los textos del Imbunche | ✅ |
 | S22 | 23–29 nov | Correcciones tras las pruebas con personas (contenido congelado el 25) | Corrección | Opus 5.5 · high | Pruebas con 3 a 5 personas | ⏳ |
-| S23 | 30 nov | Escribir el Plan 10: sonido, pulido y versión | Plan | Opus 5.5 · high | Sonidos elegidos | ⏳ |
+| S23 | 30 nov | Escribir el Plan 10: sonido, pulido y versión | Plan | Opus 5.5 · high | Los sonidos que faltan (`sonidos_pendiente.md`); los de S21d ya no son de relleno | ⏳ |
 | S24 | 1–5 dic | Ejecutar el Plan 10 → versión candidata | Ejecución | Sonnet 5.5 · high | — | ⏳ |
 | S25 | 6–10 dic | Correcciones finales y entrega | Corrección | Opus 5.5 · high | — | ⏳ |
 
@@ -100,6 +101,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 10-nov | ✏️ **S21d, nueva y fuera de la secuencia:** Benja pidió pulir todo el arte y los sonidos que había generado Claude, con las skills nuevas de `disciplines`. Se adelanta una parte del Plan 10: los sonidos ya no son de relleno, y el mixer, el cuaderno, la tinta, el celular, las barras y los menús son pixel art en `art/ui/`. El Plan 10 conserva los sonidos que **faltan**. S21b sigue siendo la siguiente. Detalle en `resumen.md`, Sesión 21d. |
 | 9-nov | ✏️ S21c se hizo antes que S21b, como permitía el registro, porque es independiente del lore. Se diseñó con Benja y se programó en la misma sesión, sin un plan aparte. Creció más allá de la vista: las fotos perturbadoras, que el prompt dejaba como pregunta, entraron ahora con su regla en `balance.tres` (detalle en `resumen.md`, Sesión 21c). S21b sigue siendo la siguiente. |
 | 9-nov | ✏️ Benja probó el Plan 9 el 8-nov y pidió 5 cosas. S21 siguió con 3 correcciones (la sombra sobre el escritorio, 8 luces y luces de ronda en Audio Sync, y las voces de los amigos: 542 pruebas OK) y 2 prompts para sesiones nuevas: **S21b, planificar el lore** (`docs/19`) y **S21c, la red social** (`docs/20`). Entran antes de S22; la implementación del lore se agenda al cerrar S21b. Detalle en `resumen.md`, Sesión 21 y su continuación. |
 | 7-nov | ✏️ S21 se adelantó al mismo 7 de noviembre (fecha objetivo: 10 a 17 de noviembre), justo después de S20, y se ejecutó inline con `superpowers:executing-plans` en Sonnet 5.5 · high, como proponía el registro. Benja autorizó los 11 commits al empezar, directo en `main`. El plan se aplicó tal como está escrito (521 pruebas OK, las 5 capturas revisadas); solo se corrigió un detalle de formato de los bloques que terminan al final de un archivo (detalle en `resumen.md`, Sesión 21). S22 depende ahora de que Benja pruebe el juego (`docs/04`, N). |
@@ -154,4 +156,5 @@ Hay dos tipos de sesión, que se alternan:
 | S20 | 7-nov | Notas de prueba ordenadas (`docs/17`) y Plan 9 escrito (`docs/18`): 11 tareas, de 461 a 521 pruebas. Las barras, la dificultad, Audio Sync más rápido, los audios que cambian la acción, la batería, las cortinas, la criatura que se queda y los accidentes (decisiones de Benja). Código probado en una copia aparte y plan validado sobre una copia limpia | `resumen.md`, Sesión 20 |
 | S21 | 7-nov | Plan 9 ejecutado: 521 pruebas OK, en 11 commits. Las barras de Connection, Sanity y Trust, menos tiempo y sin pista desde la noche 3, Audio Sync más rápido, los audios de las 7 entidades que cambian la acción, la batería del celular, las cortinas, la criatura que se queda 25 s y los accidentes que se responden con sentido común. Capturas revisadas y arranque sin errores. `docs/04`, N. **El juego es más dinámico.** Continuación: la sombra sobre el escritorio, 8 luces y luces de ronda en Audio Sync, las voces de los amigos (542 pruebas OK) y los prompts `docs/19` y `docs/20`. `docs/04`, O | `resumen.md`, Sesión 21 y su continuación |
 | S21c | 9-nov | Snapgram: la red social imita a una real, con 12 fotos reales de gatitos, cuentas sin nombre y barras grises, y 4 fotos perturbadoras con poca Sanity. 555 pruebas OK y capturas revisadas. `docs/04`, P | `resumen.md`, Sesión 21c |
+| S21d | 10-nov | Arte y sonidos pulidos: 38 sonidos realistas sin palabras (síntesis y 5 grabaciones de dominio público o CC0), el Imbunche que llora como guagua, las voces que murmuran, y 17 PNG de pixel art (el mixer, el cuaderno universitario, la tinta, el celular, las barras, las barras de señal y los menús, con los sprites del cuarto en el menú). 556 pruebas OK y capturas revisadas. `docs/04`, Q | `resumen.md`, Sesión 21d |
 | S15 | 2-nov | Plan 6 ejecutado: 326 pruebas OK. La señal de cada amigo con interferencias, las reglas de un amigo sin señal, los avisos de videos y señal en el chat, la descarga en el chat, Audio Sync en el mixer (también con «Sincronizar»), el celular con su feed y 7 sonidos provisionales. Capturas del mixer, de la descarga y del celular revisadas. `docs/04`, J | `resumen.md`, Sesión 15 |

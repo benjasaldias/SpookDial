@@ -4,6 +4,107 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 21d — 10 de noviembre de 2026 — Arte y sonidos pulidos
+
+Sesión pedida por Benja, fuera de la secuencia y antes de S21b, en Opus 5.5. Se usaron las skills nuevas `disciplines:create-game-assets` y `disciplines:audio-design` (Benja instaló el plugin `disciplines` de awesome-gamedev-agent-skills; se verificó que el plugin `godot` del mismo marketplace estaba bien instalado). El arte de Benja no se tocó.
+
+### Realizado
+
+- **Decisiones de Benja:**
+  - sonidos mixtos: síntesis más grabaciones de dominio público o CC0, con créditos;
+  - **ningún sonido dice palabras**, así que el Imbunche llora como guagua en vez de decir "Matías";
+  - las voces de los amigos murmuran por radio;
+  - el cuaderno es universitario, con Departure Mono;
+  - además del mixer, el cuaderno y la tinta, pasan a pixel art el marco del celular, las barras de arriba, las barras de señal, y el menú y las pantallas finales.
+- **Sonidos (38):** `tools/make_sounds.py` y `tools/sound_lib.py` reemplazan a `make_placeholder_sounds.py`.
+  - **La biblioteca** tiene ruido, filtros, resonancias, golpes por modos, fricción, burbujas, reverberación por sala, el filtro del celular y el de la radio, y sonoridad BS.1770 con limitador.
+  - **Cada sonido** tiene su sonoridad objetivo, y los audios de una misma entidad comparten fondo y ganancia. El detalle está en `sonidos_pendiente.md`, reescrito.
+  - **Ambiente y respiración:** el ambiente pasa de 8 a 24 s, en estéreo, y él y la respiración van en bucle desde su importación (`edit/loop_mode=2`).
+- **Grabaciones:** 5, de Wikimedia Commons, en `audio/source/` (Godot las ignora), cada una con su ficha `.json` y todas en `audio/source/creditos.md`. Son el gallo, la oveja, el llanto de guagua y dos de gruñidos.
+- **El Imbunche:** la observación `called_name` pasa a `baby_cry` en `data/entities/imbunche.tres`, con los textos `OBS_IMBUNCHE_BABY_CRY_*` y `RULE_IMBUNCHE_1` y una frase nueva en `ENTITY_IMBUNCHE_LORE` (borradores). Sus archivos de audio cambian de nombre.
+- **Arte (`art/ui/`, 17 PNG):** lo genera `tools/make_ui_art.py` con la paleta de `mixer_sprite`, `notebook_sprite` y `phone_sprite`.
+  - El cuerpo del mixer y la perilla de los faders: el código dibuja solo lo que se mueve.
+  - La hoja del cuaderno y 3 pestañas como notas adhesivas, en el tema nuevo `notebook_theme.tres`, con colores de lápiz pasta en `notebook_page.gd`.
+  - La mancha de tinta: 3 cuadros que salpican y chorreones que bajan (`ink_blot.gd`).
+  - El marco del celular, la placa de las barras de arriba (con barras de LED en segmentos), las barras de señal (un sprite con una x sin señal) y el marco y 3 botones de los menús.
+- **El menú, la pausa y el resumen** usan `scenes/ui/menu_theme.tres` y `scripts/ui/framed_box.gd`, que dibuja el marco detrás de cada columna sin mover sus nodos. El menú muestra los sprites de Benja del cuarto, oscurecidos, con la columna a la derecha.
+- **Pruebas:** 556 OK (eran 555).
+  - `test_placeholder_sounds.gd` pasa a llamarse `test_sounds.gd`, con las duraciones nuevas y una prueba del bucle.
+  - `test_chat_entry.gd` revisa el cuadro de las barras de señal.
+- **Capturas revisadas:** `C:\dev\capturas\arte_*.png` (el mixer, el cuaderno, la tinta, Snapgram, el menú, el resumen y la pausa). La importación sale sin errores en la segunda pasada.
+- **Documentos:** `sonidos_pendiente.md`, `arte_pendiente.md`, `docs/04` (sección Q nueva), `CLAUDE.md`, el diseño v2 (§12, §13 y §17) y `docs/00_log.md`.
+- **Commits (3, sin push, aprobados por Benja):** los sonidos y el Imbunche (con `__pycache__/` fuera de git), el arte de interfaz y los documentos.
+
+### Errores encontrados
+
+- **Claude no puede escuchar.** Cada sonido se revisó con su espectrograma, su sonoridad y sus picos, y se corrigió lo que se veía mal:
+  - los bufidos que el viento tapaba;
+  - los dos cantos del gallo, que iban pegados y se podían oír como 4;
+  - el retumbo de la cueva, que tapaba los gruñidos;
+  - un eco largo en los tacos;
+  - el chillido de la ventana, que era muy corto.
+
+  Falta escucharlos (`docs/04`, Q).
+- **El volumen general cambia:** los sonidos de relleno iban de -5 a -27 LUFS sin criterio, y ahora siguen objetivos por tipo. Los volúmenes de los nodos no se tocaron, así que el balance hay que oírlo jugando.
+- **La grabación del gallo viene algo saturada.** Se nota poco, porque suena apagado, como bajo el piso.
+- **Los rasguños** (`hallucination_scratch`) conservan algo de tono, como de uñas que chirrían.
+- **Commons limita las descargas** (error 429): hay que bajar las grabaciones de a pocas y con pausas.
+- **La primera importación** avisa "Failed loading resource" y "Parse Error" por los archivos nuevos (igual que con las voces y las fotos). En la segunda pasada no aparece.
+- **El primer intento de la mancha** se fundía en un óvalo gigante: la suma de gotas crecía sin límite. Se cambió por gotas que se apagan a 1,6 radios.
+- **Departure Mono es más ancha** que la letra anterior del cuaderno. La página de La Calchona cabe, pero las más largas se deslizan más.
+
+### Pendientes Código
+
+- [ ] **Planificar el lore** (`docs/19_prompt_lore.md`).
+- [ ] Ajustar las recetas de `tools/make_sounds.py` según lo que diga Benja al escuchar (`docs/04`, Q).
+- [ ] Si las fotos perturbadoras no se alcanzan a ver bajo la viñeta: dejar el celular por encima de ella, en su propia capa. Hay que cambiar `UI/PhoneView` en `desk.gd` y en los 5 archivos de pruebas y capturas que lo usan.
+- [ ] Plan 10: los créditos de las fotos de Snapgram, si sus licencias los piden, y los de las 5 grabaciones (`audio/source/creditos.md`; no son obligatorios, pero conviene ponerlos).
+- [ ] Al probar el escalado a 1080p (`docs/04`, D): mirar cómo se ven las fotos y el arte de `art/ui/` a ×1,5 con el filtro Nearest.
+- [ ] Lore (S21b): decidir si el canal de los amigos aparece en Snapgram. Con cuentas sin nombre, habría que ver cómo se reconoce.
+- [ ] **S22: correcciones tras las pruebas con personas** (`docs/00_log.md`), con el contenido congelado el 25 de noviembre. Todos los valores del Plan 9 son de partida y se ajustan ahí: tiempos, señuelos, batería (38 s), cortinas, la criatura (25 s) y los accidentes.
+- [ ] Si en las pruebas con personas no entienden Audio Sync o los accidentes: enseñarlos en la noche 0.
+- [ ] Si la velocidad de Audio Sync se queda corta: bajar `audio_sync_tolerance` por noche.
+- [ ] Si Benja dibuja la animación de las cortinas o de la criatura: va en `curtains_sprite`.
+- [ ] Si las voces cansan: subir `CHARS_PER_SECOND` no ayuda; bajar la frecuencia con `voice_every`, o hacer sonar solo el comienzo de cada mensaje.
+- [ ] Menor: el panel de opciones deja ver tenue el menú de pausa detrás (fondo al 95 %). Las opciones siguen con el tema del chat, no con el de los menús.
+- [ ] Menor: abrir el escritorio solo (F6): "Empezar la noche N" y "Volver al menú" no hacen nada, porque los atiende `GameState`.
+- [ ] Menor: al cerrar el escritorio suelto, el sonido ambiente en bucle queda sonando y Godot avisa de 2 objetos sin liberar.
+- [ ] Planes 10 en adelante según `docs/00_log.md`.
+- [ ] Registrar los `.en.translation` cuando la columna `en` tenga textos (también el de `phone.csv`).
+- [ ] Plan 10: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [x] ~~Plan 10: reemplazar los sonidos provisionales~~: hecho en esta sesión. Quedan los que **faltan** (al llegar y recibir un video, los clics, la música del menú y las pantallas finales: `sonidos_pendiente.md`) y, si hace falta, separar más canales que `Ambience` y `Effects`.
+- [ ] Cuando llegue el arte de Benja: el logo, los bocetos de las 7 entidades, los diales rediseñados, los íconos de Snapgram, y las manos o el rostro de los screamers. Lo de `art/ui/` se reemplaza si Benja lo redibuja.
+- [ ] Si en las pruebas con personas los videos y las interferencias se juntan con las olas de solicitudes: el director no los mueve hoy (`docs/14`, "Fuera de este plan").
+- [ ] Menor: que los segundos de una entrada en alerta no toquen el ícono ⚠ del arte.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si al probar se siente seco o lento: una demora de "escribiendo…" en las respuestas del amigo, y marcar en el chat qué categorías ya se preguntaron.
+- [ ] Borrar `~/godot-games/spook-dial` y las copias `C:\dev\plan8`, `C:\dev\plan8_check`, `C:\dev\plan9` y `C:\dev\plan9_check` cuando Benja lo pida.
+- [x] Menor: `tools/__pycache__/` quedó en git: Benja aprobó, y ya está en `.gitignore` y fuera del repositorio.
+
+### Pendientes Externos
+
+- [ ] **Escuchar los sonidos nuevos y revisar el arte** (`docs/04`, Q, unos 20 minutos). Lo más importante: que los audios de cada entidad se distingan de oído.
+- [ ] **Corregir los textos nuevos del Imbunche** (borradores de Claude): `OBS_IMBUNCHE_BABY_CRY_YES` y `_NO` en `messages.csv`, y `OBS_IMBUNCHE_BABY_CRY_Q`, `RULE_IMBUNCHE_1` y la frase nueva de `ENTITY_IMBUNCHE_LORE` en `notebook.csv`.
+- [ ] **Probar Snapgram** (`docs/04`, P, unos 10 minutos) y decir si las fotos perturbadoras se alcanzan a ver bajo la viñeta.
+- [ ] **Confirmar de dónde salió cada foto** de `art/phone/source/` y que su licencia permita usarla en un juego publicado. Si alguna no sirve, reemplázala: las perturbadoras son las que más preocupan.
+- [ ] **Si cambias de idea con el nombre:** Snapgram está en `PHONE_APP_NAME` (`data/text/phone.csv`).
+- [ ] **Si quieres:** dibujar el logo, los bocetos de las entidades, los íconos de Snapgram o redibujar cualquier pieza de `art/ui/` (`arte_pendiente.md`).
+- [ ] **Probar las correcciones** (`docs/04`, O, unos 10 minutos) y corregir `MIXER_ROUNDS` (`ui.csv`). Las voces ahora murmuran: escúchalas con la sección Q.
+- [ ] **Corregir las reglas de las 7 entidades** (están en `data/entities/`, en el Inspector, con sus textos en `messages.csv` y `notebook.csv`) y los textos nuevos del Plan 9: `RULE_*`, `OBS_*`, `INCIDENT_*`, `HUD_*`, `TUTORIAL_*`, `CHAT_AUDIO`, `CHAT_INCIDENT_HINT`, `OPTIONS_AUDIO_CAPTIONS` y `PHONE_NO_BATTERY`. Antes del congelamiento del contenido (25 de noviembre).
+- [ ] **Revisar los supuestos del Plan 9** (`docs/18`, al inicio), sobre todo que la criatura no se oiga con la cortina cerrada y que un accidente nunca mate.
+- [ ] **Probar el feedback** (`docs/04`, M, unos 15 minutos) y decir cómo se sienten las noches 1 y 2, Trust y la criatura. Los valores son de partida: `data/balance.tres` y `data/nights/night_N.tres`.
+- [ ] **Corregir los textos del Plan 8.1** (en `ui.csv`): `MIXER_ROUND` y `MIXER_FAIL_RESTART`. `TUTORIAL_DIALS` ya se reescribió en el Plan 9 para hablar de las barras.
+- [ ] **Probar el juego de punta a punta** (`docs/04`, L, unos 25 minutos): la noche 0, el menú, el guardado, la pausa y las opciones.
+- [ ] **Corregir los textos nuevos del Plan 8** (en `ui.csv`): el aviso del tutorial (`TUTORIAL_*`), el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el resumen y la victoria (`END_*`); y los 7 señuelos nuevos (`DECOY_*`, en `messages.csv`).
+- [ ] **Probar los screamers y el director** (`docs/04`, K), **la identificación por preguntas** (G), **el mantenimiento** (J), **la noche** (I) y **el chat y el cuaderno** (G y H).
+- [ ] **Corregir los textos que escribió Claude en los planes anteriores** (la lista completa está en la Sesión 17).
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara, y **probar el escalado a pantalla completa** (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Al probar con personas (semana 5): fijarse si notan que hay que preguntar, si la noche de práctica es muy larga o muy corta, y si entienden las barras, Audio Sync, los audios, las cortinas, la batería y los accidentes.
+
+---
+
 ## Sesión 21c — 9 de noviembre de 2026 — Snapgram: la red social imita a una real
 
 S21c se hizo antes que S21b (el registro lo permitía), en Opus 5.5 · high, con `superpowers:brainstorming` y `superpowers:test-driven-development`. Se diseñó con Benja y se programó en la misma sesión, sin un plan aparte.

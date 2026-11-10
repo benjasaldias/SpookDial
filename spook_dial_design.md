@@ -18,6 +18,7 @@
 - 4 de noviembre (después de probar el Plan 8): la criatura se asoma por la ventana en lugar del jumpscare (se arma detrás del chat o el mixer), las noches 1 y 2 con más sucesos, Audio Sync de 8 aplausos en 2 rondas de 4, Trust que también baja si tardas en contestar y los diales explicados en la noche 0.
 - 7 de noviembre (notas de prueba, `docs/17`): las barras arriba de la pantalla, acertar más difícil, los audios en «¿Qué oyes?», Audio Sync más rápido, la batería del celular, las cortinas, la criatura que se queda y hay que revisar, y los accidentes.
 - 9 de noviembre (S21c): Snapgram, la red social con fotos reales de gatitos y fotos perturbadoras con poca Sanity.
+- 10 de noviembre (S21d): sonidos realistas sin palabras, el Imbunche que llora como guagua, las voces que murmuran, el cuaderno universitario y el arte de interfaz de Claude en pixel art.
 
 ---
 
@@ -310,6 +311,7 @@ Decisión de Benja, 7 de noviembre.
 
 ## 12. El cuaderno
 
+- **Se ve como un cuaderno universitario** (decisión de Benja, 10 de noviembre): hoja cuadriculada con margen rojo y espiral, la tapa verde del cuaderno del escritorio, una mancha de café y garabatos a lápiz. Las pestañas son notas adhesivas. La letra es Departure Mono, la del chat, para que se lea rápido.
 - **Índice:** una pestaña con el nombre de cada entidad conocida.
 - **Página de una entidad:**
   - folclore breve y un boceto;
@@ -334,7 +336,7 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 | El Basilisco | Casas, bajo el piso | 4 |
 | El Imbunche | Cuevas | 4 |
 
-**Cuidado con el folclore (público de 13 años o más):** en la tradición, el Trauco tiene contenido sexual, y el Imbunche implica la mutilación de un niño. Se usan sus otros rasgos (hachazos y mirada; guardián deforme), sin esos elementos. Fuentes sugeridas: Oreste Plath, *Geografía del mito y la leyenda chilenos*, y Memoria Chilena.
+**Cuidado con el folclore (público de 13 años o más):** en la tradición, el Trauco tiene contenido sexual, y el Imbunche implica la mutilación de un niño. Se usan sus otros rasgos (hachazos y mirada; guardián deforme), sin esos elementos. El Imbunche fue un niño robado: en su audio, entre los gruñidos, puede oírse un llanto de guagua, y eso cambia la acción correcta (decisión de Benja, 10 de noviembre). Fuentes sugeridas: Oreste Plath, *Geografía del mito y la leyenda chilenos*, y Memoria Chilena.
 
 ## 14. Progresión de las noches
 
@@ -369,7 +371,9 @@ El guion de las cinemáticas lo escribe Benja.
 ## 17. Sonido
 
 - Es clave para la tensión: estática, ruidos del entorno de los amigos y silencios.
-- Los amigos suenan mientras escriben, como en Undertale: un sonido de consola muy corto cada tantas letras, con una voz distinta para cada uno (sonido, altura y ritmo). Solo suena el chat que se está viendo, y no suena encima de un audio. Matías y los avisos del juego no tienen voz (decisión de Benja, 8 de noviembre).
+- Los amigos suenan mientras escriben, como en Undertale: un sonido muy corto cada tantas letras, con una voz distinta para cada uno (sonido, altura y ritmo). Solo suena el chat que se está viendo, y no suena encima de un audio. Matías y los avisos del juego no tienen voz (decisión de Benja, 8 de noviembre). Desde el 10 de noviembre, cada sonido es **una sílaba murmurada que llega por un micrófono barato**, no un pitido de consola (decisión de Benja).
+- **Sonidos realistas y de terror** (decisión de Benja, 10 de noviembre): casi todos se sintetizan (`tools/make_sounds.py`), y lo que la síntesis no logra (animales, llanto, gruñidos) sale de grabaciones de dominio público o CC0, con sus créditos en `audio/source/creditos.md`.
+- **Ningún sonido dice palabras** (decisión de Benja, 10 de noviembre): las voces de las criaturas son gritos, quejidos o gruñidos.
 - Un sonido propio para cada entidad.
 - Screamers auditivos cuando Sanity baja.
 

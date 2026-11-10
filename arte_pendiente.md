@@ -1,9 +1,10 @@
 # Arte pendiente
 
-Todo el arte que falta para la v1, en un solo lugar. Actualizado el 9 de noviembre de 2026 (sesión S21c).
+Todo el arte que falta para la v1, en un solo lugar. Actualizado el 10 de noviembre de 2026 (sesión S21d).
 
 - **Cómo usar esta lista:** dibuja en el orden que prefieras y avísale a Claude cuando una pieza esté lista. La integración se hace en una sesión aparte.
 - **Mientras tanto:** todo lo marcado "provisional" ya funciona en el juego con un reemplazo hecho en Godot, así que nada bloquea la programación.
+- **Lo que dibujó Claude** (10 de noviembre) está en `art/ui/` y lo genera `tools/make_ui_art.py`, con la paleta de tus sprites. Ya no es provisional, pero lo puedes redibujar: deja tu PNG con el mismo nombre en `art/ui/` y no vuelvas a correr el script, porque lo pisaría.
 - **El arte se congela el 25 de noviembre** (`docs/05`).
 - **Detalle técnico** (separar en Aseprite, tags y carpetas): `docs/03_plan_arte.md`. Estado de los archivos actuales: `docs/06_plan_v1.md` §3.
 
@@ -20,13 +21,13 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 9 de noviemb
 
 | Pieza | Tamaño | Qué incluye | Qué hay hoy |
 | --- | --- | --- | --- |
-| **Mixer visto desde arriba** (Audio Sync, Plan 6) | 440×430, o 220×215 a ×2 | El cuerpo visto desde arriba; **dos VU-metros azules** (el de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo), con su aguja aparte o en frames por nivel; la perilla de un fader (Godot la usa en los 3 canales y la sube o baja según la señal); un LED por canal; una fila de luces para el ritmo (8 o 16, encendida y apagada). Las perillas y los botones de adorno, como en tu mixer del escritorio. | Dibujo provisional en Godot (`scenes/ui/mixer_view.tscn`). Ver `C:\dev\capturas\plan6_mixer.png`. |
-| **Marco del celular ampliado** (Snapgram) | 260×520, o 130×260 a ×2 | Solo el celular de frente, con la pantalla vacía: el agujero de la pantalla va de (14, 18) a (246, 496). Godot dibuja encima la hora, el feed y las fotos. Las fotos ya están (`art/phone/`). | Marco dibujado con rectángulos en Godot (`scripts/ui/phone_view.gd`). Ver `C:\dev\capturas\snapgram_feed.png`. |
-| **Barras de señal** de las entradas del PC | Unos 19×12 | 6 estados: de 0 a 5 barras. Que se distingan llenas de vacías sin depender del color. | Rectángulos dibujados por Godot. |
+| ~~**Mixer visto desde arriba**~~ ✅ Claude (`art/ui/mixer_body.png` y `mixer_fader_cap.png`). Si lo redibujas: | 440×430, o 220×215 a ×2 | El cuerpo visto desde arriba; **dos VU-metros azules** (el de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo), con su aguja aparte o en frames por nivel; la perilla de un fader (Godot la usa en los 3 canales y la sube o baja según la señal); un LED por canal; una fila de luces para el ritmo (8 o 16, encendida y apagada). Las perillas y los botones de adorno, como en tu mixer del escritorio. | Pixel art de Claude; Godot dibuja encima las agujas, las luces, las perillas de los faders y los textos. Ver `C:\dev\capturas\arte_mixer.png`. |
+| ~~**Marco del celular ampliado**~~ ✅ Claude (`art/ui/phone_frame.png`), en el azul de tu celular del escritorio | 260×520, o 130×260 a ×2 | Solo el celular de frente, con la pantalla vacía: el agujero de la pantalla va de (14, 18) a (246, 496). Godot dibuja encima la hora, el feed y las fotos. Las fotos ya están (`art/phone/`). | Pixel art de Claude. Ver `C:\dev\capturas\arte_snapgram.png`. |
+| ~~**Barras de señal**~~ ✅ Claude (`art/ui/signal_bars.png`; sin señal llevan una x) | 19×12 | 6 estados: de 0 a 5 barras. Que se distingan llenas de vacías sin depender del color. | Pixel art de Claude. |
 | **Diales rediseñados** | Como `dial_sprite` (112×113) | Cara de manómetro con un ícono para cada uno (Connection, Sanity y Trust) y un LED de alerta. La aguja sigue siendo `arrow_sprite`. | `dial_sprite` con cara de reloj. |
 | **Celular del escritorio sin la hora** y **dígitos LCD** | Como `phone_sprite` (86×55); los dígitos, una tira "0123456789:" | El celular sin el "00:00" pintado. Los dígitos, del alto que tiene la hora dibujada hoy. | Un parche azul tapa la hora pintada y Godot escribe encima. |
-| **Interfaz del cuaderno** | La página mide 449×696 (como `screen_sprite`) y va a la derecha | La página (9-slice), las pestañas del índice y **un boceto por entidad**, de unos 96×96 (7 en total). | Tema provisional de papel en Godot (`scenes/ui/notebook_theme.tres`), sin bocetos. |
-| **Pantallas de victoria y derrota** | 1280×720 (o un marco centrado) | Fondo o marco para "Llegaste a las 06:00" y "Perdiste la noche". El texto lo pone Godot. | Un fondo oscuro con texto. |
+| **Bocetos del cuaderno** (la hoja y las pestañas ya están: ✅ Claude) | Unos 96×96 | **Un boceto por entidad** (7 en total), dibujado como a lápiz en la hoja cuadriculada. | La hoja de cuaderno universitario (`art/ui/notebook_page.png`) y las pestañas como notas adhesivas, en Departure Mono. Sin bocetos. Ver `C:\dev\capturas\arte_notebook.png`. |
+| Pantallas de victoria y derrota (opcional) | 1280×720 | Un fondo propio para "Llegaste a las 06:00" y "Perdiste la noche", si quieres más que el marco. | El escritorio oscurecido y un marco de placa (`art/ui/menu_frame.png`, de Claude) con botones de aparato. Ver `C:\dev\capturas\arte_summary.png`. |
 
 ## 2. Media: piezas de las entradas del PC y del escritorio
 
@@ -45,13 +46,13 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 9 de noviemb
 
 | Pieza | Para qué | Notas |
 | --- | --- | --- |
-| **Screamers** | Plan 7 | Manos o un rostro que tapan la pantalla (2 o 3 frames), una criatura que se asome por la ventana, si quieres animarla, y una mancha de tinta que tapa las reglas del cuaderno. Mientras tanto (Plan 7): la figura de la ventana (`enemy_sprite`) aparece como screamer y, desde el 4 de noviembre, es la criatura que se asoma por la ventana (sin animación de entrada: se ve al cerrar el chat o el mixer); la mancha de tinta la dibuja Godot con círculos. |
+| **Screamers** | Plan 7 | Manos o un rostro que tapan la pantalla (2 o 3 frames) y una criatura que se asome por la ventana, si quieres animarla. La figura de la ventana (`enemy_sprite`) aparece como screamer y, desde el 4 de noviembre, es la criatura que se asoma (sin animación de entrada). ~~La mancha de tinta~~ ✅ Claude: 3 cuadros que salpican y chorreones que bajan (`art/ui/ink_*.png`). |
 | Animación de las cortinas al abrirse y cerrarse | Plan 9 | Opcional. Hoy cambian de golpe entre `Open` y `Closed`, los 2 estados que dibujó Benja. |
-| Las barras de Connection, Sanity y Trust | Plan 9 | Opcional. 300×54 px, arriba al centro. Hoy las dibuja Godot con rectángulos (`scripts/ui/stat_bars.gd`). |
+| ~~Las barras de Connection, Sanity y Trust~~ ✅ Claude | Plan 9 | Una placa de instrumento (`art/ui/hud_bars.png`) con barras de LED en segmentos. |
 | La batería del celular del escritorio | Plan 9 | Opcional. Hoy es una barrita verde bajo la hora (`DeskPlane/Phone/BatteryBar`). |
 | Luces del PC y del escritorio | Plan 7 | Las de la sección 2. Mientras tanto, el apagón oscurece todo el cuarto por igual. |
 | Logo e íconos de Snapgram | S21c | Opcional. El logo hoy es "Snapgram" en Departure Mono a 22 px. Los íconos miden 11×11 (me gusta, comentar, enviar, guardar, inicio, buscar, publicar, videos y perfil), y hoy están hechos píxel por píxel en `scripts/ui/phone_icons.gd`. |
-| **Menú principal y logo** | Plan 8 | El logo "Spook Dial" y la escena del escritorio con otra iluminación. |
+| **Logo** (el menú ya está: ✅ Claude) | Plan 8 | El logo "Spook Dial". Hoy es texto en Departure Mono a 66 px. El menú muestra tus sprites del cuarto a la luz de la luna, oscurecidos, y el marco de placa a la derecha (`scenes/menu/main_menu.tscn`). Ver `C:\dev\capturas\arte_menu.png`. |
 | Pantalla entre noches | Plan 8 | La página del canal, con el contenido de la noche. |
 
 ## 4. Opcional (pulido, si sobra tiempo)
