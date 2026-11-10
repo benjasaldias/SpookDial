@@ -4,3 +4,6 @@
 
 # Traducciones generadas por Godot desde data/text/*.csv
 data/text/*.translation
+
+# Lo que genera Python al correr los scripts de tools/
+__pycache__/

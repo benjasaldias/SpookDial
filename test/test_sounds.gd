@@ -1,5 +1,5 @@
 extends "res://test/test_case.gd"
-## Los sonidos provisionales (tools/make_placeholder_sounds.py), hasta los definitivos del Plan 10.
+## Los efectos de sonido y los audios de los amigos (tools/make_sounds.py, sesión del 10 de noviembre).
 
 ## Nombre de cada archivo de audio/sfx/ y cuántos segundos dura.
 const SOUNDS := {
@@ -10,7 +10,7 @@ const SOUNDS := {
 	"sync_success": 0.4,
 	"sync_fail": 0.44,
 	"interference_static": 3.0,
-	"ambient_room": 8.0,
+	"ambient_room": 24.0,
 	"scare_curtains": 1.2,
 	"scare_window": 1.5,
 	"scare_phone": 1.2,
@@ -23,10 +23,13 @@ const SOUNDS := {
 	"hallucination_steps": 2.0,
 	"hallucination_whisper": 2.0,
 	"hallucination_scratch": 1.5,
-	"voice_leon": 0.06,
-	"voice_gonzalo": 0.09,
-	"voice_agustin": 0.045,
+	"voice_leon": 0.05,
+	"voice_gonzalo": 0.066,
+	"voice_agustin": 0.034,
 }
+
+## Los sonidos que se repiten sin pausa: su importación los deja en bucle (edit/loop_mode).
+const LOOPING_SOUNDS: Array[String] = ["ambient_room", "scare_creature_breathing"]
 
 ## Los audios que mandan los amigos, en audio/clues/ (decisión de Benja, 7 de noviembre). Duran 3 s.
 const CLUE_SOUNDS: Array[String] = [
@@ -36,7 +39,7 @@ const CLUE_SOUNDS: Array[String] = [
 	"viuda_heels_slow", "viuda_heels_fast",
 	"trauco_ground_muddy", "trauco_ground_dry",
 	"basilisco_crows_once", "basilisco_crows_twice",
-	"imbunche_called_name_yes", "imbunche_called_name_no",
+	"imbunche_baby_cry_yes", "imbunche_baby_cry_no",
 ]
 const CLUE_SECONDS := 3.0
 
@@ -57,4 +60,11 @@ func test_los_sonidos_se_cargan() -> bool:
 		if stream != null:
 			check(absf(stream.get_length() - SOUNDS[sound_name]) < 0.01, "%s dura %s s: %s" % [sound_name,
 					SOUNDS[sound_name], stream.get_length()])
+	return true
+
+
+func test_el_ambiente_y_la_respiracion_van_en_bucle() -> bool:
+	for sound_name: String in LOOPING_SOUNDS:
+		var stream: AudioStreamWAV = load("res://audio/sfx/%s.wav" % sound_name)
+		check(stream != null and stream.loop_mode == AudioStreamWAV.LOOP_FORWARD, sound_name + " va en bucle")
 	return true

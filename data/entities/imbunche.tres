@@ -5,8 +5,8 @@
 [ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
 [ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
 [ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
-[ext_resource type="AudioStream" path="res://audio/clues/imbunche_called_name_yes.wav" id="audio_yes"]
-[ext_resource type="AudioStream" path="res://audio/clues/imbunche_called_name_no.wav" id="audio_no"]
+[ext_resource type="AudioStream" path="res://audio/clues/imbunche_baby_cry_yes.wav" id="audio_yes"]
+[ext_resource type="AudioStream" path="res://audio/clues/imbunche_baby_cry_no.wav" id="audio_no"]
 
 [sub_resource type="Resource" id="Trait_one_leg_hop"]
 script = ExtResource("2_trait")
@@ -51,14 +51,14 @@ script = ExtResource("3_action")
 id = &"go_deeper"
 label_key = "ACTION_IMBUNCHE_GO_DEEPER"
 
-[sub_resource type="Resource" id="Observation_called_name"]
+[sub_resource type="Resource" id="Observation_baby_cry"]
 script = ExtResource("4_observation")
-id = &"called_name"
+id = &"baby_cry"
 category = 1
-question_key = "OBS_IMBUNCHE_CALLED_NAME_Q"
+question_key = "OBS_IMBUNCHE_BABY_CRY_Q"
 values = Dictionary[StringName, String]({
-&"yes": "OBS_IMBUNCHE_CALLED_NAME_YES",
-&"no": "OBS_IMBUNCHE_CALLED_NAME_NO"
+&"yes": "OBS_IMBUNCHE_BABY_CRY_YES",
+&"no": "OBS_IMBUNCHE_BABY_CRY_NO"
 })
 audio_values = Dictionary[StringName, AudioStream]({
 &"yes": ExtResource("audio_yes"),
@@ -87,7 +87,7 @@ values = Dictionary[StringName, String]({
 [sub_resource type="Resource" id="Rule_1"]
 script = ExtResource("5_rule")
 conditions = Dictionary[StringName, StringName]({
-&"called_name": &"yes"
+&"baby_cry": &"yes"
 })
 correct_action_id = &"back_out"
 risky_action_id = &"go_deeper"
@@ -125,5 +125,5 @@ lore_key = "ENTITY_IMBUNCHE_LORE"
 place_keys = Array[String](["PLACE_CAVE", "PLACE_CLIFF"])
 traits = Array[ExtResource("2_trait")]([SubResource("Trait_one_leg_hop"), SubResource("Trait_hoarse_grunts"), SubResource("Trait_stale_air"), SubResource("Trait_shed_skin")])
 actions = Array[ExtResource("3_action")]([SubResource("Action_back_out"), SubResource("Action_stay_outside"), SubResource("Action_offer_bread"), SubResource("Action_go_deeper")])
-observations = Array[ExtResource("4_observation")]([SubResource("Observation_called_name"), SubResource("Observation_torches"), SubResource("Observation_entrance")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_baby_cry"), SubResource("Observation_torches"), SubResource("Observation_entrance")])
 rules = Array[ExtResource("5_rule")]([SubResource("Rule_1"), SubResource("Rule_2"), SubResource("Rule_3"), SubResource("Rule_otherwise")])
