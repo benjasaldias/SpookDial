@@ -7,3 +7,4 @@ data/text/*.translation
 
 # Lo que genera Python al correr los scripts de tools/
 __pycache__/
+*.avi
