@@ -393,6 +393,48 @@ def hallucination_scratch():
     return master(fade(reverb(lowpass(out, 5500), CABIN, 0.15), 0, 0.1), -21)
 
 
+# --- La Mano y el flash (Plan 9.1) ---------------------------------------------------------------------------------
+
+def hand_creak():
+    """La Mano da un tirón (idea de Benja, 11 de noviembre): algo que se retuerce. Un crujido grave de tendones que se
+    estiran, dos chasquidos de nudillos y un roce húmedo de pelo y carne. Es sutil: se oye detrás del cuaderno, pero
+    no tapa nada."""
+    seconds = 0.45
+    out = silence(seconds)
+    # Los tendones: fricción lenta que se pega y se suelta, por un cuerpo blando y grave.
+    rate = 18 + 55 * hump(0.4, 0.55, 1.2)
+    clicks = friction(0.4, rate, 301, 0.45)
+    body = modes(0.05, [(170, 0.02, 1.0), (310, 0.014, 0.7), (640, 0.008, 0.35)], 302, 0.08)
+    tendons = np.convolve(clicks, body)[:samples(0.4)]
+    place(out, lowpass(tendons / (np.abs(tendons).max() + 1e-9), 1800) * hump(0.4, 0.4, 0.8), 0.0)
+    # Los nudillos: dos chasquidos secos y cortos.
+    for index, at in enumerate((0.11, 0.27)):
+        knuckle = strike(0.06, [(1450, 0.006, 1.0), (2600, 0.004, 0.6), (4100, 0.002, 0.35)], 0.0008,
+                         seed=303 + index, brightness=0.6)
+        place(out, knuckle, at, 0.55 - 0.15 * index)
+    # Lo húmedo: un roce de ruido que va y viene.
+    wet = bandpass(white(0.4, 305), 280, 1300) * smooth_random(0.4, 306, 22, 0.1, 1.0) * hump(0.4, 0.5, 1.0)
+    place(out, wet, 0.02, 0.35)
+    return master(fade(reverb(out, CABIN, 0.12), 0.005, 0.08), -26)
+
+
+def phone_flash():
+    """El flash del celular (Plan 9.1): el clic doble del obturador, el zumbido agudo del flash que se carga y
+    dispara, y un golpe de aire."""
+    seconds = 0.5
+    out = silence(seconds)
+    for index, at in enumerate((0.0, 0.05)):
+        shutter = strike(0.04, [(3100, 0.004, 1.0), (5200, 0.003, 0.7), (7400, 0.002, 0.4)], 0.0005,
+                         seed=311 + index, brightness=0.8)
+        place(out, shutter, at, 0.9 - 0.3 * index)
+    t = timeline(0.38)
+    pitch = 2200 + 4800 * (t / 0.38) ** 0.6
+    whine = np.sin(2 * np.pi * np.cumsum(pitch) / RATE) * attack_decay(0.38, 0.03, 0.16) * 0.22
+    place(out, fade(whine, 0.0, 0.08), 0.04)
+    place(out, lowpass(pink(0.12, 313), 900) * attack_decay(0.12, 0.004, 0.035) * 0.6, 0.06)
+    return master(fade(reverb(out, CABIN, 0.1), 0.0, 0.06), -17)
+
+
 # --- Voces de los amigos --------------------------------------------------------------------------------------------
 
 def murmur(seconds, f0, vowel, nasal, seed):
@@ -690,6 +732,8 @@ SFX_SOUNDS = {
     "hallucination_steps": hallucination_steps,
     "hallucination_whisper": hallucination_whisper,
     "hallucination_scratch": hallucination_scratch,
+    "hand_creak": hand_creak,
+    "phone_flash": phone_flash,
     # León: tono medio; Gonzalo: grave y redondo; Agustín: agudo y nasal.
     "voice_leon": lambda: murmur(0.05, 135, VOWELS["a"], 0.3, 1),
     "voice_gonzalo": lambda: murmur(0.066, 100, VOWELS["o"], 0.35, 2),

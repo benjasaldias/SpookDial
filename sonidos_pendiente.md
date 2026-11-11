@@ -76,6 +76,15 @@ Sin cambiar los archivos, se ajustan en `data/friends/*.tres`, en el Inspector, 
 | `scare_creature_breathing.wav` | 8 s, en bucle | Tres respiros pesados al otro lado del vidrio, con un gruñido ronco al exhalar |
 | `scare_creature_knocks.wav` | 7 s | Golpes en el vidrio en tres tandas, cada vez más fuertes, en los mismos segundos de siempre (0,6, 1,1, 2,9, 3,35, 3,8, 5,4, 5,8, 6,2 y 6,5). Entre la segunda y la tercera tanda, las garras raspan el vidrio. |
 
+## La Mano y el flash (Plan 9.1)
+
+| Archivo | Dura | Cómo suena |
+| --- | --- | --- |
+| `hand_creak.wav` | 0,45 s | Algo que se retuerce: un crujido grave de tendones, dos chasquidos de nudillos y un roce húmedo. Suena en cada tirón de la Mano, sutil (−26 LUFS) y a la derecha, con o sin el cuaderno: tú pediste que se pudiera notar aunque el cuaderno la tape. |
+| `phone_flash.wav` | 0,5 s | El clic doble del obturador de un celular, el zumbido agudo del flash que sube y un golpe de aire |
+
+El volumen del crujido se ajusta en `Volume Db` del nodo `Hands/CreakSound` de `scenes/desk/desk.tscn`, y el del flash, en `Hands/FlashSound`.
+
 ## Screamers del escritorio
 
 | Archivo | Dura | Cómo suena |

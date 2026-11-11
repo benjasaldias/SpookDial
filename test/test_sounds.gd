@@ -23,6 +23,8 @@ const SOUNDS := {
 	"hallucination_steps": 2.0,
 	"hallucination_whisper": 2.0,
 	"hallucination_scratch": 1.5,
+	"hand_creak": 0.45,
+	"phone_flash": 0.5,
 	"voice_leon": 0.05,
 	"voice_gonzalo": 0.066,
 	"voice_agustin": 0.034,
