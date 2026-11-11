@@ -14,8 +14,9 @@ extends Node2D
 ## del escritorio, con el cuaderno y con la criatura de la ventana. En un chat guionado, la entrada del amigo avisa mientras
 ## espera la respuesta de Matías, y si el guion lo pide, el celular parpadea hasta que Matías lo abre.
 ## En la noche 0 (el tutorial), desde el Plan 9.2, León enseña en su chat (RequestManager y TutorialChat), con la página
-## de Gonzalo, la única del cuaderno esa noche. Cuando se despide, el juego pasa a la noche 1. "Saltar tutorial" está en
-## la pausa (decisiones de Benja, 11 de noviembre).
+## de Gonzalo, la única del cuaderno esa noche. Cuando se despide, unas tarjetas con videos enseñan los medidores, el
+## celular, la ventana y la Mano, y después el juego pasa a la noche 1. "Saltar tutorial" está en la pausa (decisiones
+## de Benja, 11 de noviembre).
 ## Con Esc y sin nada abierto, la noche se pausa y aparece el menú de pausa (decisión de Benja, sesión 18).
 ## Desde el Plan 9, unas barras arriba de la pantalla muestran lo mismo que los diales, que se quedan (decisión de
 ## Benja). Las cortinas se abren y se cierran con un clic (ScreamerManager), y la batería del celular se ve en su
@@ -78,6 +79,7 @@ var notebook_memory: NotebookMemory
 @onready var _hands: HandManager = $Hands
 @onready var _phone_sprite: AnimatedSprite2D = $DeskPlane/Phone
 @onready var _pause_menu: Control = $Overlay/PauseMenu
+@onready var _tutorial_cards: Control = $Overlay/TutorialCards
 
 ## Las opciones del jugador que se aplicaron; el menú de pausa las cambia.
 var _settings := GameSettings.new()
@@ -125,6 +127,7 @@ func _ready() -> void:
 	if _requests.night().is_tutorial():
 		notebook_memory.page_changed.connect(_on_tutorial_page_changed)
 		_requests.tutorial_finished.connect(_on_tutorial_finished)
+		_tutorial_cards.finished.connect(next_night_requested.emit)
 	_pause_menu.allow_skip_tutorial(_requests.night().is_tutorial())
 	_pause_menu.skip_tutorial_pressed.connect(tutorial_skipped.emit)
 	_pause_menu.resumed.connect(func() -> void: get_tree().paused = false)
@@ -345,11 +348,15 @@ func _on_tutorial_page_changed(friend_index: int, entity: EntityData) -> void:
 		_requests.tutorial_page_opened()
 
 
-## León se despidió: termina el tutorial.
+## León se despidió: aparecen las tarjetas con videos (pedido de Benja, 11 de noviembre) y, al terminarlas, la noche 1.
 func _on_tutorial_finished() -> void:
 	close_panels()
 	close_modes()
-	next_night_requested.emit()
+	var cards := _requests.night().tutorial_cards
+	if cards.is_empty():
+		next_night_requested.emit()
+	else:
+		_tutorial_cards.open(cards)
 
 
 func _on_pause_settings_changed(settings: GameSettings) -> void:

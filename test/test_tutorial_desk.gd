@@ -114,9 +114,13 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	check(not manager.state.friends[0].is_online(), "se le cortó la señal")
 	check(next.is_empty(), "todavía no termina")
 	manager.restore_signal(0)
-	_play_until(desk, func() -> bool: return not next.is_empty())
+	var cards := desk.get_node("Overlay/TutorialCards") as Control
+	_play_until(desk, func() -> bool: return cards.visible)
 	check(_said(desk, TutorialChat.READY_KEY), "se despide")
-	check_eq(next.size(), 1, "y el juego sigue a la noche 1")
+	check(cards.visible, "aparecen las tarjetas con videos")
+	check(next.is_empty(), "la noche 1 espera las tarjetas")
+	(cards.get_node("Center/Box/Row/Side/Buttons/Skip") as Button).pressed.emit()
+	check_eq(next.size(), 1, "y después, la noche 1")
 	check_eq(manager.state.friends[0].health, 3, "nadie salió herido")
 	desk.free()
 	return true

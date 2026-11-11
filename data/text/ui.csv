@@ -124,3 +124,21 @@ TUTORIAL_LEON_BACK,¡Volví! Así se arregla.,
 TUTORIAL_LEON_READY,"Ya estás listo, Mati. Nos vemos en la noche.",
 TUTORIAL_LEON_WAIT,"Espera, primero adivina a quién te describo.",
 PAUSE_SKIP_TUTORIAL,Saltar tutorial,
+TUTORIAL_CARD_METERS_TITLE,Los medidores,
+TUTORIAL_CARD_METERS_TEXT,"Connection baja con el tiempo y con las interferencias: sincroniza a tus amigos.
+Sanity baja con el tiempo y con los sustos.
+Trust baja si respondes mal, tardas o pierdes un video, y no se recupera.
+Si uno llega a 0, pierdes la noche.",
+TUTORIAL_CARD_PHONE_TITLE,El celular,
+TUTORIAL_CARD_PHONE_TEXT,"Scrollear sube Sanity.
+La batería no se recarga en toda la noche.",
+TUTORIAL_CARD_WINDOW_TITLE,La ventana,
+TUTORIAL_CARD_WINDOW_TEXT,"Si cae una sombra en el escritorio, hay algo en la ventana y Sanity baja rápido: cierra la cortina.
+Cerrada no se oye nada, así que ábrela de vez en cuando para ver si sigue ahí.",
+TUTORIAL_CARD_HAND_TITLE,La Mano,
+TUTORIAL_CARD_HAND_TEXT,"Si una mano va hacia un dial, abre el celular y toca el rayo: el flash la espanta.
+Cada flash gasta batería.",
+TUTORIAL_CARDS_NEXT,Siguiente,
+TUTORIAL_CARDS_START,Empezar la noche 1,
+TUTORIAL_CARDS_SKIP,Saltar,
+TUTORIAL_CARDS_PAGE,{page} de {total},

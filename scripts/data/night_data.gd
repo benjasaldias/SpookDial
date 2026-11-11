@@ -69,8 +69,10 @@ extends Resource
 @export var scripted_chat: ChatScriptData
 
 @export_group("Tutorial")
-## Solo en la noche 0: las solicitudes fijas, en orden. Llegan de a una, cuando termina la anterior.
+## Solo en la noche 0: las solicitudes fijas, en orden. León usa la primera para enseñar en su chat.
 @export var tutorial_requests: Array[TutorialRequestData] = []
+## Solo en la noche 0: las tarjetas con videos que aparecen cuando León se despide (pedido de Benja, 11 de noviembre).
+@export var tutorial_cards: Array[TutorialCardData] = []
 
 
 func is_tutorial() -> bool:

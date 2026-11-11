@@ -1,0 +1,77 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/tutorial_cards.gd" id="cards_script"]
+[ext_resource type="Theme" path="res://scenes/ui/menu_theme.tres" id="menu_theme"]
+[ext_resource type="Script" path="res://scripts/ui/framed_box.gd" id="framed_box"]
+
+[node name="TutorialCards" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("menu_theme")
+script = ExtResource("cards_script")
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.012, 0.024, 0.043, 0.9)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Box" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+script = ExtResource("framed_box")
+
+[node name="Row" type="HBoxContainer" parent="Center/Box"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="VideoBox" type="CenterContainer" parent="Center/Box/Row"]
+custom_minimum_size = Vector2(640, 512)
+layout_mode = 2
+
+[node name="Video" type="VideoStreamPlayer" parent="Center/Box/Row/VideoBox"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Side" type="VBoxContainer" parent="Center/Box/Row"]
+custom_minimum_size = Vector2(330, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Center/Box/Row/Side"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 33
+
+[node name="Text" type="Label" parent="Center/Box/Row/Side"]
+custom_minimum_size = Vector2(330, 0)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Center/Box/Row/Side"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Page" type="Label" parent="Center/Box/Row/Side"]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Box/Row/Side"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 2
+
+[node name="Skip" type="Button" parent="Center/Box/Row/Side/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Next" type="Button" parent="Center/Box/Row/Side/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22

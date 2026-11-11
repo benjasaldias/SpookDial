@@ -6,6 +6,11 @@
 [ext_resource type="Script" path="res://scripts/data/decoy_data.gd" id="4_decoy"]
 [ext_resource type="Resource" path="res://data/friends/leon.tres" id="5_leon"]
 [ext_resource type="Resource" path="res://data/tutorial/gonzalo.tres" id="6_gonzalo"]
+[ext_resource type="Script" path="res://scripts/data/tutorial_card_data.gd" id="7_card"]
+[ext_resource type="VideoStream" path="res://video/tutorial/meters.ogv" id="8_meters"]
+[ext_resource type="VideoStream" path="res://video/tutorial/phone.ogv" id="9_phone"]
+[ext_resource type="VideoStream" path="res://video/tutorial/window.ogv" id="10_window"]
+[ext_resource type="VideoStream" path="res://video/tutorial/hand.ogv" id="11_hand"]
 
 [sub_resource type="Resource" id="Decoy_red_hoodie"]
 script = ExtResource("4_decoy")
@@ -23,6 +28,30 @@ situation = Dictionary[StringName, StringName]({
 })
 with_hint = false
 decoys = Array[ExtResource("4_decoy")]([SubResource("Decoy_red_hoodie")])
+
+[sub_resource type="Resource" id="Card_meters"]
+script = ExtResource("7_card")
+title_key = "TUTORIAL_CARD_METERS_TITLE"
+text_key = "TUTORIAL_CARD_METERS_TEXT"
+video = ExtResource("8_meters")
+
+[sub_resource type="Resource" id="Card_phone"]
+script = ExtResource("7_card")
+title_key = "TUTORIAL_CARD_PHONE_TITLE"
+text_key = "TUTORIAL_CARD_PHONE_TEXT"
+video = ExtResource("9_phone")
+
+[sub_resource type="Resource" id="Card_window"]
+script = ExtResource("7_card")
+title_key = "TUTORIAL_CARD_WINDOW_TITLE"
+text_key = "TUTORIAL_CARD_WINDOW_TEXT"
+video = ExtResource("10_window")
+
+[sub_resource type="Resource" id="Card_hand"]
+script = ExtResource("7_card")
+title_key = "TUTORIAL_CARD_HAND_TITLE"
+text_key = "TUTORIAL_CARD_HAND_TEXT"
+video = ExtResource("11_hand")
 
 [resource]
 script = ExtResource("1_night")
@@ -44,3 +73,4 @@ content_quota = 1
 scare_count = 0
 creature_visits = 0
 tutorial_requests = Array[ExtResource("3_tutorial")]([SubResource("Tutorial_leon")])
+tutorial_cards = Array[ExtResource("7_card")]([SubResource("Card_meters"), SubResource("Card_phone"), SubResource("Card_window"), SubResource("Card_hand")])
