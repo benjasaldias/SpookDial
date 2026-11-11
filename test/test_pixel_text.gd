@@ -17,7 +17,10 @@ func test_tamanos_nitidos() -> bool:
 		for base: int in expected[scale]:
 			check_eq(PixelText.crisp_size(base, scale), expected[scale][base], "a %s×, la letra de %d" % [scale, base])
 	check_eq(PixelText.crisp_size(11, 0.5), 11, "una ventana más chica que 1280×720 cuenta como 1×")
-	for scale: float in [1.0, 1.5, 2.0, 3.0]:
+	# Una ventana maximizada a 1080p, sin la barra de tareas: 1920×1009, escala 1,401.
+	check_eq(PixelText.crisp_size(11, 1009.0 / 720.0), 16, "maximizada a 1080p, la letra también queda en 22 px reales")
+	check_eq(int(PixelText.crisp_size(22, 1009.0 / 720.0) * 1009.0 / 720.0) % 11, 0, "y los títulos, nítidos")
+	for scale: float in [1.0, 1.5, 2.0, 3.0, 1009.0 / 720.0, 1.25, 768.0 / 720.0]:
 		for base: int in [11, 22, 33, 66]:
 			var real := int(PixelText.crisp_size(base, scale) * scale)
 			check_eq(real % 11, 0, "a %s×, %d px queda en %d px reales" % [scale, base, real])

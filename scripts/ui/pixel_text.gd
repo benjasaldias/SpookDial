@@ -15,8 +15,8 @@ const GRID := 11
 const BASE_SIZE := Vector2(1280, 720)
 ## Cuánto puede crecer la letra común cuando eso la deja nítida: un poco más grande se lee mejor (pedido de Benja).
 const BODY_ZOOM := 4.0 / 3.0
-## Entre qué fracciones de su tamaño base se busca un tamaño nítido.
-const SIZE_RANGE := Vector2(0.7, 1.4)
+## Entre qué fracciones de su tamaño base se busca un tamaño nítido: más allá, el texto ya no cabe donde va.
+const SIZE_RANGE := Vector2(0.7, 1.46)
 ## Los tamaños de letra que puede tener un Control propio (los de Label, Button y RichTextLabel).
 const FONT_SIZE_NAMES: Array[StringName] = [&"font_size", &"normal_font_size", &"bold_font_size",
 		&"italics_font_size", &"bold_italics_font_size", &"mono_font_size"]
@@ -36,23 +36,25 @@ var scale := 1.0
 var _bases := {}
 
 
-## El tamaño nítido más parecido a `base` para la escala `scale`. De los tamaños entre base × 0,7 y base × 1,4, son
-## nítidos los que quedan en un múltiplo de 11 píxeles reales; se elige el más cercano a base × 4/3 para la letra común
-## (11) y a base para las más grandes, y en un empate el mayor. Si ninguno es nítido, base.
+## El tamaño nítido para la letra de `base` a la escala `scale`. Primero elige cuántos píxeles reales debe medir: el
+## múltiplo de 11 más cercano a base × escala (× 4/3 para la letra común, que puede crecer un poco). Después busca el
+## tamaño que da justo esos píxeles reales, sin pasar de base × 1,46 ni bajar de base × 0,7, para que todo siga cabiendo;
+## si ese no existe, prueba con los múltiplos vecinos. Si ninguno funciona, base.
 static func crisp_size(base: int, scale: float) -> int:
 	scale = maxf(scale, 1.0)
-	var target := base * BODY_ZOOM if base <= GRID else float(base)
-	var best := base
-	var best_distance := INF
-	for size in range(ceili(base * SIZE_RANGE.x), floori(base * SIZE_RANGE.y) + 1):
-		var real := int(size * scale + 0.001)
-		if real <= 0 or real % GRID != 0:
+	var zoom := BODY_ZOOM if base <= GRID else 1.0
+	var ideal := base * scale * zoom / GRID
+	var candidates := [roundi(ideal), floori(ideal), ceili(ideal), floori(ideal) - 1]
+	for grid_steps: int in candidates:
+		if grid_steps < 1:
 			continue
-		var distance := absf(size - target)
-		if distance < best_distance or (is_equal_approx(distance, best_distance) and size > best):
-			best = size
-			best_distance = distance
-	return best
+		var real := grid_steps * GRID
+		for size in [ceili(real / scale - 0.001), floori(real / scale)]:
+			if size < base * SIZE_RANGE.x or size > base * SIZE_RANGE.y:
+				continue
+			if int(size * scale + 0.001) == real:
+				return size
+	return base
 
 
 ## La escala del juego en una ventana de `window_size`: el lado que más limita.

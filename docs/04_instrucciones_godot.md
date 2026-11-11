@@ -22,7 +22,8 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **O.** Probar las correcciones del 8-nov | ⬜ Pendiente (unos 10 minutos) |
 | **P.** Probar Snapgram | ⬜ Pendiente (unos 10 minutos) |
 | **Q.** Escuchar los sonidos nuevos y revisar el arte de Claude | ⬜ Pendiente (unos 20 minutos) |
-| **R.** Probar los ajustes de mecánicas y la Mano (Plan 9.1) | ⬜ Pendiente (unos 20 minutos) |
+| **R.** Probar los ajustes de mecánicas y la Mano (Plan 9.1) | ⬜ Pendiente (unos 15 minutos) |
+| **S.** Probar la letra en pantalla completa, el cuaderno y la noche 0 con León (Plan 9.2) | ⬜ Pendiente (unos 15 minutos) |
 | Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
@@ -330,12 +331,8 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez.
 
 1. Abre Godot y el proyecto, y presiona **F5**. Ahora el juego empieza en el **menú principal**: "SPOOK DIAL", **Nueva partida**, **Opciones** y **Salir**. La primera vez no está **Continuar**, porque no hay una partida guardada.
-2. **La noche 0, la noche de práctica:** presiona **Nueva partida**. Arriba, entre el chat y los diales, un aviso dice qué hacer en cada paso. En esta noche el tiempo para responder no corre solo (solo lo gastan las preguntas) y nadie sale herido. Síguelo:
-   - León te escribe: abre su chat con su entrada del PC, pregunta, marca las 2 características, haz clic en el nombre de la criatura y responde con la acción de la primera regla que se cumple.
-   - Agustín: lo mismo. Al terminar te manda un video: abre su chat y mantén presionada la barra hasta que se descargue. La siguiente solicitud espera el video.
-   - Gonzalo: su mensaje no trae pista. Prueba a responder con una acción equivocada: el aviso dice que, en una noche de verdad, habría salido herido.
-   - Unos segundos después, con la ventana a la vista, la criatura se asoma por la ventana, con respiración y golpes en el vidrio, y Gonzalo te escribe. Respóndele con el botón. Después, el borde del celular parpadea: ábrelo, scrollea con la rueda y ciérralo con clic derecho. Ahí termina la práctica.
-3. **El final de la práctica:** la pantalla dice "Práctica terminada". Presiona **Empezar la noche 1**.
+2. **La noche 0, la noche de práctica:** desde el 11 de noviembre la enseña León en su chat. Los pasos están en la sección S.
+3. **El final de la práctica:** después de las tarjetas con videos, **Empezar la noche 1**.
 4. **La noche 1 y el resumen:** aparecen El Tue Tué y La Calchona. Si pierdes, **Reintentar** vuelve a empezar la noche. Si llegas a las 06:00 con la cuota, el resumen dice cuántos videos conseguiste y qué páginas suma el cuaderno la noche siguiente (después de la noche 1: El Cuero y La Viuda), con **Empezar la noche 2** y **Volver al menú**.
 5. **La pausa y el guardado:** en una noche, sin ningún panel abierto, presiona **Esc**: la noche se detiene y aparece el menú de pausa (**Continuar**, **Opciones** y **Volver al menú**). Con un panel abierto, **Esc** solo cierra los paneles, como antes. Presiona **Volver al menú**: ahora el menú tiene **Continuar: noche 1**, que empieza la noche desde su comienzo. Cierra el juego, presiona **F5** otra vez: **Continuar** sigue ahí.
 6. **Nueva partida con una partida guardada:** el menú pregunta si quieres borrarla. **Cancelar** no hace nada.
@@ -345,7 +342,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
    - **Cámara fija:** la escena deja de moverse con el mouse;
    - **Temporizadores ×1,5:** las solicitudes nuevas dan 1,5 veces más tiempo para responder (los plazos de los videos no cambian).
    - Cierra y vuelve a abrir el juego: las opciones se mantienen.
-8. **Saltar la práctica:** con **Nueva partida**, el botón **Saltar tutorial** del aviso pasa directo a la noche 1.
+8. **Saltar la práctica:** en la noche 0, **Esc** y **Saltar tutorial** pasan directo a la noche 1.
 
 **Verifica:** los pasos 1 a 8 se cumplen. Si algo falla, anota cuál y qué pasó.
 
@@ -353,7 +350,7 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 
 ### Para ajustar
 
-- **La noche 0** está en `data/nights/night_0.tres`. En el grupo **Tutorial**, **Tutorial Requests** tiene las 3 solicitudes fijas, en orden: quién la pide (**Friend**), qué entidad es (**Entity**), qué observa el amigo (**Situation**: el id de cada observación y su valor; lo que falte sale al azar), si el mensaje inicial trae una pista (**With Hint**) y si al terminar el amigo manda un video (**Sends Video**). El susto y su chat están en el grupo **Guion**, como antes: en la noche 0, el susto llega cuando ya no queda nada pendiente.
+- **La noche 0** está en `data/nights/night_0.tres`. En el grupo **Tutorial**, **Tutorial Requests** tiene la solicitud de León (Gonzalo enojado y con hambre, con su señuelo), y **Tutorial Cards**, las 4 tarjetas, cada una con su video. La página de Gonzalo está en `data/tutorial/gonzalo.tres`.
 - **Los textos nuevos** están en `data/text/ui.csv`: el aviso de la práctica (`TUTORIAL_*`), el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el final y el resumen (`END_*`).
 - **Las 7 entidades** están en `data/entities/`, un `.tres` cada una, y sus textos en `data/text/messages.csv` y `data/text/notebook.csv`. Son un borrador de Claude: corrígelas en el **Inspector** (como en la sección F) y en los CSV. Las pruebas avisan si algo no cumple la plantilla.
 - **La partida y las opciones** se guardan en `%APPDATA%\Godot\app_userdata\Spook Dial\` (`save.cfg` y `settings.cfg`). Para empezar de cero, borra `save.cfg`.
@@ -503,16 +500,9 @@ Las capturas de Claude están en `C:\dev\capturas\arte_*.png`.
 
 Del 11 de noviembre (sesión S21f). Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez. Son unos 20 minutos.
 
-### La noche 0 y la Mano (unos 5 minutos)
+### La noche 0
 
-1. Abre Godot y el proyecto, y presiona **F5**. En el menú, haz clic en **Nueva partida**: empieza la noche 0.
-2. Juega el tutorial hasta el celular (la criatura, las cortinas y el chat de Gonzalo). Abre el celular y scrollea.
-3. **Verifica:**
-   - unos 5 segundos después de abrir el celular, una mano negra asoma por la derecha de la pantalla y avanza a tirones hacia el dial del medio (Sanity), con un crujido suave en cada tirón;
-   - el aviso de arriba dice que la espantes con el flash. Arriba del celular, entre la hora y el porcentaje de batería, hay un **rayo**;
-   - al hacer clic en el rayo, la pantalla destella, suena el flash, la Mano desaparece y la batería baja 10 %;
-   - el aviso dice que guardes batería y que cierres el celular. Al cerrarlo con clic derecho, termina el tutorial.
-4. **Dime:** desde qué momento ves la Mano. En el lado derecho del cuarto, que es casi negro, Claude no la ve hasta los últimos 3 o 4 segundos del camino.
+Desde el Plan 9.2, la noche 0 ya no enseña la Mano con el celular: la enseña una tarjeta con video al final (sección S).
 
 ### Una noche normal (unos 15 minutos)
 
@@ -552,3 +542,47 @@ Todos los valores están en el **Inspector**:
 - `data/nights/night_N.tres`: `Place Chance`, `Finale Size`, `Hand Visits` y `Requests Total`.
 
 Si cambias algo, avísale a Claude: `test_balance.gd` comprueba que todas las noches se sigan pudiendo ganar.
+
+---
+
+## S. Probar la letra, el cuaderno y la noche 0 con León (Plan 9.2)
+
+Del 11 de noviembre (sesión S21f, continuación). Avísale a Claude antes de abrir Godot. Son unos 15 minutos.
+
+### La letra en pantalla completa
+
+1. Abre Godot y el proyecto, y presiona **F5**. Agranda la ventana del juego como lo hiciste cuando viste la letra fea: maximizada o en pantalla completa. El juego no tiene todavía una opción de pantalla completa.
+2. **Verifica:** el texto del menú, del chat y del cuaderno se ve nítido, sin trazos más gruesos que otros, y un poco más grande que en la ventana chica. Si tu monitor no es de 1920×1080, dime cuál es: en algunas resoluciones (como 1600×900) la letra nítida queda un poco más chica.
+
+### El cuaderno
+
+1. Juega la noche 1 (o abre `scenes/desk/desk.tscn` con **Night Number** en 1 y presiona **F6**) y abre una página del cuaderno.
+2. **Verifica:**
+   - las características van sin las preguntas entre paréntesis, y no hay lista de observaciones;
+   - las reglas son una tabla, **Condición | 1 | 2 | 3 | 4**: ✓ verde la correcta, calavera roja la de mayor riesgo, ✗ las otras, con la leyenda de la calavera abajo;
+   - las acciones van numeradas como las columnas;
+   - la cuadrícula se ve más suave.
+
+### La noche 0 con León
+
+1. En el menú, **Nueva partida**. No hay aviso arriba: León te escribe, y su entrada del PC parpadea.
+2. Sigue lo que dice León:
+   - pregúntale qué ve y marca lo que sirve (prueba a marcar el polerón rojo: León bromea, y te cuesta un segundo);
+   - pregúntale por el ambiente y marca la que falta. Cuando aparece **Gonzalo**, haz clic en su nombre: el cuaderno tiene solo su página;
+   - elige una acción que no sea la del ✓: León te dice que lo intentes de nuevo. Después, la del ✓, y luego la de la calavera;
+   - descarga el video que te manda;
+   - se le corta la señal: aprieta **Sincronizar** en su chat y repite los aplausos.
+3. León se despide. Salen 4 tarjetas con videos: los medidores, el celular, la ventana y la Mano. **Siguiente** pasa de una a otra, y la última, **Empezar la noche 1**.
+4. **Saltar:** vuelve a **Nueva partida**, presiona **Esc** y elige **Saltar tutorial**: pasa a la noche 1.
+
+**Verifica:** León suena natural, los chistes funcionan y las tarjetas se entienden sin leer de más. Dime qué líneas cambiarías.
+
+### Los textos nuevos para corregir (antes del 25 de noviembre)
+
+- `data/text/ui.csv`: lo que dice León (`TUTORIAL_LEON_*`), las tarjetas (`TUTORIAL_CARD_*` y `TUTORIAL_CARDS_*`), `PAUSE_SKIP_TUTORIAL`, y los cambios en `IDENTIFY_PROGRESS` y `MIXER_HINT`, que se acortaron para caber con la letra más grande.
+- `data/text/messages.csv`: lo que cuenta León de Gonzalo (`TUTORIAL_TRAIT_*`, `TUTORIAL_DECOY_HOODIE` y `TUTORIAL_OBS_*`).
+- `data/text/notebook.csv`: la página de Gonzalo (`TUTORIAL_PAGE_*`, `TUTORIAL_TRAIT_*_LABEL`, `TUTORIAL_ACTION_*` y `TUTORIAL_RULE_*`), `NOTEBOOK_RULES`, `NOTEBOOK_CONDITION` y `NOTEBOOK_RISK_LEGEND`.
+
+### Si cambias el arte
+
+Los videos de las tarjetas son grabaciones del juego. Si cambias algo que se ve en ellos (las barras, los diales, la ventana, el celular o la Mano), avísale a Claude: los vuelve a grabar con `tools/make_tutorial_videos.sh`.

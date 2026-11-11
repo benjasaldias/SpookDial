@@ -87,7 +87,7 @@ Preguntar es la forma de averiguar casi todo (decisión de Benja, 3-nov). Hay un
 | ¿Hay rastros? | Los de Rastro |
 
 - La respuesta trae las características y los señuelos de esa categoría (también la pista del mensaje inicial, si es de esa categoría) y **todas** las observaciones de esa categoría.
-- Qué preguntar es la decisión del jugador. Antes de identificar a la entidad, la pregunta correcta es la categoría donde puede estar una característica; después, la categoría de la observación que pide la regla. La página del cuaderno dice en qué categoría está cada característica y cada observación.
+- Qué preguntar es la decisión del jugador. Antes de identificar a la entidad, la pregunta correcta es la categoría donde puede estar una característica; después, la categoría de la observación que pide la regla. Desde el 11 de noviembre, la página del cuaderno ya no dice qué pregunta trae cada característica ni lista las observaciones: la condición de cada fila de la tabla dice qué hay que averiguar, y elegir la pregunta es parte de pensar (decisión de Benja).
 - Cada pregunta descuenta **5 segundos** del temporizador (`question_cost` en `BalanceData`) y se puede repetir. Con 5 s o menos ya no se puede preguntar: los botones se desactivan.
 - Si no hay nada en esa categoría, el amigo responde "nada", que también es información.
 - Las respuestas pasan por la misma estática que los mensajes, y repetir la pregunta tira la estática de nuevo.
@@ -286,6 +286,8 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
 - **Cada característica tiene un nombre fijo en el cuaderno** (`TRAIT_*_LABEL`, en `notebook.csv`), y de 2 a 4 formas más de decirse (`TRAIT_*_2` a `TRAIT_*_5`, en `messages.csv`), cada una con su frase entre asteriscos (decisión de Benja, 11 de noviembre). Antes, el nombre era la frase entre asteriscos de su texto (Plan 4). Las pruebas avisan si una forma no tiene exactamente una frase marcada.
 - **Lo que le pasa al amigo** (`PREDICAMENT_*`, en `messages.csv`) va después del saludo.
 - Los **señuelos** también van en `messages.csv`, con su frase clickeable entre asteriscos.
+- **La página del cuaderno** (Plan 9.2, `notebook.csv`): el folclore, los nombres de las características, las reglas en una tabla (`NOTEBOOK_RULES`, `NOTEBOOK_CONDITION`, la condición de cada regla y una marca por acción: ✓, calavera o ✗), la leyenda de la calavera (`NOTEBOOK_RISK_LEGEND`) y las acciones numeradas. Las marcas son íconos (`art/ui/mark_*.png`), porque la fuente no tiene esos símbolos.
+- **La noche 0** (Plan 9.2): las líneas de León van en `ui.csv` (`TUTORIAL_LEON_*`), lo que cuenta de Gonzalo en `messages.csv` (`TUTORIAL_TRAIT_*`, `TUTORIAL_DECOY_HOODIE` y `TUTORIAL_OBS_*`), su página en `notebook.csv` (`TUTORIAL_PAGE_*`, `TUTORIAL_ACTION_*` y `TUTORIAL_RULE_*`) y las tarjetas en `ui.csv` (`TUTORIAL_CARD_*` y `TUTORIAL_CARDS_*`).
 - **Cada fragmento es una oración completa, con su puntuación.** El mensaje los une con un espacio. El inicial va en este orden: el saludo, lo que le pasa, el lugar (si lo dice) y la pista. Cada respuesta va en este orden: las características y los señuelos de esa categoría, mezclados, y sus observaciones.
 - **Una coma dentro de un texto lleva comillas** (`"¡Mati, ayuda!!"`): sin ellas, el CSV parte el texto y se pierde lo que sigue. Una prueba (`test_text_csv.gd`) avisa.
 - Los textos con datos usan marcadores con nombre: `{action}` (la acción que eligió el amigo) y `{marked}` y `{total}` (la barra de identificación).
@@ -318,9 +320,10 @@ NightData        number, place_key, new_entities[], requests_total, max_simultan
                  audio_sync_beats, sanity_drain_interval, content_quota,
                  scare_count, creature_visits, incident_count, audio_sync_bpm,
                  scripted_scare_time, scripted_scare (ScareKind), scripted_chat (ChatScriptData),
-                 tutorial_requests[] (solo la noche 0)
-TutorialRequestData  una solicitud fija de la noche 0: friend, entity, situation {observación → valor},
-                 with_hint, sends_video
+                 tutorial_requests[] y tutorial_cards[] (solo la noche 0)
+TutorialRequestData  la solicitud fija de la noche 0: friend, entity, situation {observación → valor},
+                 with_hint, decoys[] (fijos; desde el Plan 9.2, León describe a Gonzalo)
+TutorialCardData una tarjeta del final de la noche 0: title_key, text_key, video (VideoStream, video/tutorial/*.ogv)
 ChatScriptData   friend, lines[] (ChatLineData: speaker FRIEND/PLAYER, text_key), highlight_phone
 BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust, también el video perdido), vignette_start, el scroll del celular, las fotos perturbadoras (`disturbing_post_*`), la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`) y de un señuelo (`decoy_cost`), el director (silencio, olas y calmas), los screamers (señal previa, justicia, Sanity, la criatura y la tinta), la Mano y el flash, y las alucinaciones
 PhonePostData    picture (la foto, de 232×232; las cuentas no tienen nombre ni texto)
@@ -331,7 +334,7 @@ ContentCatalog   friends[3], nights[5], tutorial (la noche 0), decoys[], greetin
 
 - Una entidad es **un solo `.tres`** en `data/entities/`, con todas sus partes dentro.
 - Las reglas nombran las acciones por su id. Responder desde la página equivocada es incorrecto aunque la otra entidad tenga una acción con el mismo id.
-- Las entidades conocidas en una noche son las `new_entities` de esa noche y de las anteriores (ya no existe `intro_night`). La noche 0 (el tutorial) usa las de la noche 1.
+- Las entidades conocidas en una noche son las `new_entities` de esa noche y de las anteriores (ya no existe `intro_night`). La noche 0 (el tutorial) tiene sus propias páginas (desde el Plan 9.2, solo la de Gonzalo, `data/tutorial/gonzalo.tres`) y, si no tiene, usa las de la noche 1.
 - Dos entidades comparten una característica si usan el mismo id, y entonces se dice igual: mismo texto, mismo nombre y mismas formas. Ninguna entidad puede tener todas sus características dentro de las de otra: así siempre hay un par que la distingue.
 - Al correr las pruebas, un validador revisa el contenido real y avisa en español: cantidades de la plantilla (§7), ids que no existen, reglas que nunca se aplican, características compartidas por más de 2 entidades y claves de texto que faltan.
 - Los tipos de screamer son `ScareKind`: la cortina, la ventana, el celular, las luces, el golpe del cuaderno, la tinta y `JUMPSCARE`, que desde el 4 de noviembre es la criatura que se asoma por la ventana.

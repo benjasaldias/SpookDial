@@ -19,6 +19,7 @@
 - 7 de noviembre (notas de prueba, `docs/17`): las barras arriba de la pantalla, acertar más difícil, los audios en «¿Qué oyes?», Audio Sync más rápido, la batería del celular, las cortinas, la criatura que se queda y hay que revisar, y los accidentes.
 - 9 de noviembre (S21c): Snapgram, la red social con fotos reales de gatitos y fotos perturbadoras con poca Sanity.
 - 10 de noviembre (S21d): sonidos realistas sin palabras, el Imbunche que llora como guagua, las voces que murmuran, el cuaderno universitario y el arte de interfaz de Claude en pixel art.
+- 11 de noviembre, después del Plan 9.1 (`docs/25`): la letra nítida en pantalla completa, el cuaderno con las reglas en una tabla, y la noche 0 en el chat con León, con la página de Gonzalo y unas tarjetas con videos.
 - 11 de noviembre (S21e y S21f, `docs/22` a `docs/24`): el mensaje inicial dice qué le pasa al amigo y el lugar solo a veces, los señuelos cuestan 1 s, las características se dicen con otras palabras, olas de verdad con una ola final, el aviso de videos, la criatura se queda un tiempo al azar, la Mano, Trust sin recuperación y más batería.
 
 ---
@@ -64,12 +65,15 @@ Durante cinco noches tiene que hacer cuatro cosas:
 ## 5. Estructura de una partida
 
 - **Menú principal:** Continuar (solo si hay una partida en curso), Nueva partida, Opciones y Salir.
-- **Noche 0 (tutorial)** antes de la noche 1 (decisión de Benja, sesión 16), **guiada y sin perder** (sesión 18). Dura unos 3 o 4 minutos:
-  - tres solicitudes fijas, una de cada amigo, con El Tue Tué y La Calchona;
-  - un aviso arriba de la pantalla dice qué hacer en cada paso: abrir el chat, preguntar, marcar las características, abrir la página de la entidad, responder y descargar el video que manda Agustín;
-  - el tiempo para responder no corre solo (solo las preguntas le quitan tiempo), los plazos del video esperan, nadie sale herido y Trust no baja: una respuesta equivocada solo avisa qué habría pasado;
-  - termina con el susto guionado, el chat de Gonzalo y el celular (§11). Con el celular abierto llega la Mano, y el aviso enseña a espantarla con el flash (decisión de Benja, 11 de noviembre); la noche termina al cerrar el celular después del flash;
-  - "Nueva partida" siempre empieza en la noche 0, y el aviso tiene un botón para saltarla.
+- **Noche 0 (tutorial)** antes de la noche 1 (decisión de Benja, sesión 16), **sin perder** (sesión 18). Desde el 11 de noviembre no es un onboarding con un aviso arriba: **León enseña en su chat**, de forma natural, con chistes y sin entidades reales:
+  - **describe a Gonzalo** ("usa lentes", "huele mal"), y el cuaderno tiene una sola página, la suya, con su tabla de decisiones;
+  - hay que preguntarle qué ve, marcar lo que sirve (un señuelo, "un polerón rojo", no sirve), preguntar por el ambiente y abrir la página de Gonzalo cuando aparece su nombre;
+  - León cuenta que Gonzalo está enojado y con hambre, y pide **la mejor decisión** (la del ✓) y después **la peor** (la de la calavera). Si se elige otra, dice que se intente de nuevo;
+  - la peor le cuesta un combo, pero manda un video, que hay que descargar;
+  - **se le corta la señal** y hay que sincronizarlo con Audio Sync. Al volver, dice que ya estás listo y se despide;
+  - después aparecen **4 tarjetas, cada una con un video del juego**: los medidores y cómo baja cada uno, el celular y Sanity, la sombra en la ventana y la cortina, y la Mano con el flash. "Siguiente" pasa de una a otra, y la última empieza la noche 1;
+  - el tiempo para responder no corre solo, el plazo del video espera, nadie sale herido y Trust no baja;
+  - "Nueva partida" siempre empieza en la noche 0, y "Saltar tutorial" está en la pausa (`Esc`); las tarjetas tienen su propio "Saltar".
 - **5 noches.** Cada una va de las **00:00 a las 06:00** (formato de 24 horas) en unos **7 minutos reales**.
 - **Ritmo de la noche: olas de verdad** (decisiones de Benja, sesión 16 y 11 de noviembre):
   - **el primer minuto es de silencio;**
@@ -117,6 +121,7 @@ Cada objeto cumple una función:
 - **El celular (redes sociales) y el mixer (Audio Sync) son modos exclusivos:** se usan sin ningún otro panel ni objeto abierto. Ese es el costo de oportunidad.
 - **Mensajes:** aparecen escritos progresivamente, con un sonido breve por mensaje.
 - **El chat se ve como una terminal:** cada mensaje lleva el nombre de quien escribe ("LEÓN:", "MATÍAS:") en su color, y los avisos del juego, como el de daño, van en rojo y centrados.
+- **La letra se ve nítida en cualquier pantalla** (pedido de Benja, 11 de noviembre): Departure Mono solo es nítida si su tamaño real es múltiplo de 11 px. En pantalla completa a 1080p, la letra común pasa de 11 a 15 px (22 reales), un poco más grande; a 1280×720, 1440p y 4K queda igual.
 - **Alarma:** cuando un amigo espera respuesta, su entrada parpadea y suena una alarma.
 
 ## 8. Mecánica central: solicitudes y reglas
@@ -313,7 +318,7 @@ Decisión de Benja, 7 de noviembre.
   - **Dónde se ve:** en la pared, detrás de los paneles: el chat, el mixer y el cuaderno la tapan, y entonces solo la delata el crujido.
   - **Qué hace:** si agarra el dial, lo baja 6 puntos por segundo hasta 15, nunca hasta 0, y se queda hasta que la espantan. En Connection baja las 3 señales parejo, así que también sube la estática.
   - **Cómo se espanta:** con el **flash del celular**, el rayo de la barra superior del celular abierto, que la hace desaparecer al instante. Cada flash gasta 10 % de la batería, haya o no una Mano.
-  - **Cuándo llega:** en las olas, 1, 1, 2, 2 y 3 veces en las noches 1 a 5. No coincide con la criatura: espera a que se vaya, y la criatura no se arma mientras la Mano está en la pared. La noche 0 la enseña.
+  - **Cuándo llega:** en las olas, 1, 1, 2, 2 y 3 veces en las noches 1 a 5. No coincide con la criatura: espera a que se vaya, y la criatura no se arma mientras la Mano está en la pared. La enseña una tarjeta con video al final de la noche 0.
 - **La sombra:** lo que se asoma por la ventana (la criatura y la figura) hace sombra sobre el escritorio. Con la cortina cerrada no hay sombra, para no delatar a la criatura (decisión de Benja, 8 de noviembre).
 - **Señal previa breve:** un parpadeo de luz y una caída del sonido ambiente.
 - **Reglas de justicia:**
@@ -321,7 +326,7 @@ Decisión de Benja, 7 de noviembre.
   - nunca ocurren en los últimos 5 segundos de una decisión;
   - no empiezan mientras suena un audio de un amigo, para que no se confundan con él.
 - Cada uno resta una cantidad fija de Sanity. No dañan a Matías.
-- **El susto guionado** (decisión de Benja, sesión 16) enseña Sanity y el celular. Va al final de la noche 0. Después del susto:
+- **El susto guionado** (decisión de Benja, sesión 16). Desde el 11 de noviembre ya no está en la noche 0, que enseña con el chat de León y las tarjetas; queda guardado (`data/scripts/scare_chat.tres`) para la progresión guionada de la historia. Después del susto:
   1. un amigo escribe: "Todo bien hermano?? Se te quedó el micro prendido y te escuché gritar";
   2. Matías responde con un botón: "Creo que me estoy volviendo loco, no sé si puedo seguir";
   3. el amigo contesta: "Mati wn relájate, tú puedes. Usa tu celu pa despejarte un rato, te va a calmar";
@@ -335,10 +340,10 @@ Decisión de Benja, 7 de noviembre.
 - **Índice:** una pestaña con el nombre de cada entidad conocida.
 - **Página de una entidad:**
   - folclore breve y un boceto;
-  - sus características, para quien quiera aprenderlas de memoria, cada una con un nombre fijo, aunque el amigo la diga con otras palabras (decisión de Benja, 11 de noviembre);
-  - las observaciones y a qué pregunta pertenece cada una;
-  - las reglas ordenadas, cada una con su acción correcta y su acción de mayor riesgo;
-  - las 4 acciones.
+  - sus características, para quien quiera aprenderlas de memoria, cada una con un nombre fijo, aunque el amigo la diga con otras palabras, y sin decir qué pregunta la trae (decisiones de Benja, 11 de noviembre);
+  - **las reglas en una tabla**, en orden (vale la primera fila que se cumpla): **Condición | 1 | 2 | 3 | 4**, con una marca por acción: ✓ verde la correcta, una **calavera** roja la de mayor riesgo, que da un video extra, y ✗ las otras (decisión de Benja, 11 de noviembre). Las observaciones ya no tienen una lista aparte: la condición de cada fila dice qué hay que averiguar;
+  - las 4 acciones, numeradas como las columnas.
+- **La hoja**, con la cuadrícula más suave (pedido de Benja, 11 de noviembre).
 - **Memoria por amigo:** el cuaderno recuerda la página abierta de cada amigo y salta a ella al cambiar de chat. Cuando a un amigo le llega una solicitud nueva, su cuaderno vuelve al índice.
 - **Está deliberadamente limitado:** no tiene todas las páginas desde el principio; las nuevas llegan entre noches.
 
@@ -362,7 +367,7 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 
 | Noche | Dónde están los amigos | Entidades nuevas | Qué se agrega |
 | --- | --- | --- | --- |
-| 0 (tutorial) | Alrededores de la cabaña | (usa las páginas de la noche 1) | Guiada y sin perder (§5): preguntar, identificar, escuchar un audio, responder desde el cuaderno y descargar un video. Al final, el susto guionado y su chat enseñan las cortinas, Sanity y el celular, y con el celular abierto llega la Mano, que enseña el flash (§11). |
+| 0 (tutorial) | La cabaña | Gonzalo, su página propia | Sin perder (§5). León enseña en su chat: preguntar, marcar, abrir la página, la mejor y la peor decisión, descargar el video y sincronizar. Después, 4 tarjetas con videos: los medidores, el celular, la ventana y la Mano. |
 | 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust, ya sin ayuda. La señal baja un poco, con 1 interferencia y Audio Sync de 4 aplausos, y hay 2 screamers ambientales, 1 accidente y 1 visita de la Mano. El mensaje inicial siempre trae una pista. |
 | 2 | Camino y lago | El Cuero, La Viuda | Señal por amigo, interferencias, Audio Sync de 4 tiempos, estática y screamers regulares. |
 | 3 | Bosque | El Trauco | Sin pista en el mensaje inicial: preguntar es necesario. El Trauco comparte 2 características con La Calchona. |

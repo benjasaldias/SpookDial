@@ -31,6 +31,31 @@
 
 **Punto de partida:** 613 pruebas OK.
 
+**Resultado (11-nov, S21f, continuación):** ejecutado completo, en 6 commits (las Tareas 3, 4 y 5 van juntas). **625 pruebas OK.** Las capturas están revisadas a 1920×1080, 1920×1009 (ventana maximizada) y 1280×720, en `C:\dev\capturas\plan92_*.png`.
+
+| Tarea | Commit | Pruebas |
+| --- | --- | --- |
+| 1. La letra nítida | `61270b3` | 616 |
+| 2. El cuaderno con tabla | `d4375b5` | 617 |
+| 3, 4 y 5. La noche 0 con León | `ec01e50` | 619 |
+| 6. Los videos | `a078230` | 619 |
+| 7. Las tarjetas | `75f16c1` | 624 |
+| 8. Revisión a 1080p | `23f1ecb` | 625 |
+
+**Lo que cambió al ejecutar:**
+
+- **La regla de la letra apunta al tamaño real:** primero elige cuántos píxeles reales debe medir la letra (el múltiplo de 11 más cercano) y después el tamaño que da justo eso. Así también queda nítida en una ventana maximizada (escala 1,4, sin la barra de tareas), donde la primera regla la dejaba chica. A 1080p el resultado es el mismo.
+- **La tabla:** `[cell=6 border=…]` ignora el borde y el relleno en Godot 4.7; hace falta `[cell expand=6 padding=…]`, y el borde de todas las celdas sale del color `table_border` del tema del cuaderno.
+- **El video de la ventana es vertical** (420×512): la criatura y su sombra en el escritorio no caben juntas en 640×360. Por eso las tarjetas llevan el video a la izquierda y el texto a la derecha.
+- **El contenido de las tarjetas es dato** (`TutorialCardData`, en la noche 0), por la regla 7.
+- **Con la letra más grande a 1080p**, la revisión corrigió:
+  - la placa de las barras, que pasa a 320 px;
+  - el porcentaje de la batería del celular;
+  - el alto de "Videos" en el PC;
+  - dos textos más cortos (`IDENTIFY_PROGRESS` y `MIXER_HINT`);
+  - y en la noche 0 ya no se avisa que faltan videos.
+- **El tutorial viejo se borró:** `TutorialGuide`, `TutorialHint` y 22 textos `TUTORIAL_*` de `ui.csv`.
+
 ---
 
 ## Decisiones de Benja (11 de noviembre, después del Plan 9.1)
@@ -74,11 +99,11 @@
   - aplica lo mismo a cada nodo que entra al árbol.
 - Los textos dibujados por código pasan de `FONT_SIZE` a `PixelText.size(FONT_SIZE)`.
 
-- [ ] **Paso 1:** pruebas en `test_pixel_text.gd`: `test_tamanos_nitidos` (a 1×, 1,5×, 2× y 3×, con 11, 22, 33 y 66), `test_escala_de_la_ventana` y `test_aplica_a_temas_y_nodos` (con `apply(1.5)` y de vuelta a `apply(1.0)`).
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar y registrar el autoload.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La letra en pixel art, nítida en cualquier pantalla".
+- [x] **Paso 1:** pruebas en `test_pixel_text.gd`: `test_tamanos_nitidos` (a 1×, 1,5×, 2× y 3×, con 11, 22, 33 y 66), `test_escala_de_la_ventana` y `test_aplica_a_temas_y_nodos` (con `apply(1.5)` y de vuelta a `apply(1.0)`).
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar y registrar el autoload.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La letra en pixel art, nítida en cualquier pantalla".
 
 ### Tarea 2: El cuaderno con tabla
 
@@ -89,11 +114,11 @@
 - **La cuadrícula:** `GRID` se mezcla más con el papel.
 - **Textos:** `NOTEBOOK_RULES` ("Reglas: vale la primera fila que se cumpla"), `NOTEBOOK_CONDITION` ("Condición") y `NOTEBOOK_RISK_LEGEND` ("mayor riesgo: da un video extra"). Se quitan `NOTEBOOK_OBSERVATIONS`, `NOTEBOOK_CLUE_LINE` y `NOTEBOOK_RULE_ACTIONS`.
 
-- [ ] **Paso 1:** pruebas en `test_notebook_page.gd`: `test_pagina_completa` (reescrita), `test_la_tabla_marca_cada_accion`, `test_sin_preguntas_ni_observaciones` y `test_acciones_numeradas`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar, generar el arte (`/usr/bin/python3 tools/make_ui_art.py`) e importar.
-- [ ] **Paso 4:** correr todas las pruebas: OK. Revisar una captura del cuaderno.
-- [ ] **Paso 5:** commit "El cuaderno: las reglas en una tabla, sin pistas de preguntas".
+- [x] **Paso 1:** pruebas en `test_notebook_page.gd`: `test_pagina_completa` (reescrita), `test_la_tabla_marca_cada_accion`, `test_sin_preguntas_ni_observaciones` y `test_acciones_numeradas`.
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar, generar el arte (`/usr/bin/python3 tools/make_ui_art.py`) e importar.
+- [x] **Paso 4:** correr todas las pruebas: OK. Revisar una captura del cuaderno.
+- [x] **Paso 5:** commit "El cuaderno: las reglas en una tabla, sin pistas de preguntas".
 
 ### Tarea 3: La página de Gonzalo y la noche 0 nueva (datos)
 
@@ -113,14 +138,14 @@
 - **`ContentCatalog.known_entities(0)`:** las páginas de la noche 0, si tiene; si no, las de la noche 1.
 - **El validador** revisa las páginas de la noche 0 como cualquier entidad.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_catalog.gd`: `test_la_noche_0_solo_tiene_la_pagina_de_gonzalo`;
   - `test_night_and_catalog.gd`: las páginas conocidas en la noche 0;
   - `test_balance.gd`: que la noche 0 no tenga susto y tenga Audio Sync.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar y escribir los textos.
-- [ ] **Paso 4:** correr todas las pruebas. Las del tutorial viejo fallan hasta la Tarea 5.
-- [ ] **Paso 5:** sin commit: va con la Tarea 5.
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar y escribir los textos.
+- [x] **Paso 4:** correr todas las pruebas. Las del tutorial viejo fallan hasta la Tarea 5.
+- [x] **Paso 5:** sin commit: va con la Tarea 5.
 
 ### Tarea 4: La conversación de León (`TutorialChat`, lógica pura)
 
@@ -141,7 +166,7 @@
   - **la señal:** después del video, León avisa y pide `cut_signal`;
   - **el final:** al volver la señal, se despide y pide `finished`.
 
-- [ ] **Paso 1:** pruebas en `test_tutorial_chat.gd`:
+- [x] **Paso 1:** pruebas en `test_tutorial_chat.gd`:
   - `test_saluda_y_pide_preguntar`;
   - `test_la_pregunta_correcta_avanza`;
   - `test_falta_una_caracteristica`;
@@ -151,10 +176,10 @@
   - `test_la_peor_manda_el_video`;
   - `test_despues_del_video_se_corta_la_senal`;
   - `test_al_volver_la_senal_se_despide`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr `test_tutorial_chat.gd`: OK.
-- [ ] **Paso 5:** sin commit: va con la Tarea 5.
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr `test_tutorial_chat.gd`: OK.
+- [x] **Paso 5:** sin commit: va con la Tarea 5.
 
 ### Tarea 5: El tutorial en el escritorio
 
@@ -170,13 +195,13 @@
 - **La pausa:** en la noche 0, "Saltar tutorial" (`PAUSE_SKIP_TUTORIAL`).
 - **Textos:** las líneas de León (`TUTORIAL_LEON_*`). Se quitan los `TUTORIAL_*` viejos que ya no se usan.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_tutorial_desk.gd` (reescrita): `test_el_tutorial_de_punta_a_punta` (con el chat de León: preguntar, marcar, abrir la página, equivocarse, la mejor, la peor, el video, la señal y el final), `test_sin_aviso_arriba`, y que el cuaderno solo tenga a Gonzalo;
   - `test_pause_menu.gd`: `test_saltar_tutorial_solo_en_la_noche_0`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar y borrar lo viejo.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La noche 0 en el chat con León, con la página de Gonzalo" (Tareas 3, 4 y 5).
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar y borrar lo viejo.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La noche 0 en el chat con León, con la página de Gonzalo" (Tareas 3, 4 y 5).
 
 ### Tarea 6: Los videos de las tarjetas
 
@@ -189,10 +214,10 @@
   - **`hand`:** la Mano que avanza hacia un dial, el celular que se abre y el flash.
 - **`make_tutorial_videos.sh`** graba cada clip y lo recorta a 640×360, a 1:1, sin escalar el pixel art. Lo convierte a Theora (`-q:v 8`, sin audio) en `video/tutorial/`.
 
-- [ ] **Paso 1:** escribir los dos scripts.
-- [ ] **Paso 2:** grabar y convertir los 4 videos; revisar un cuadro de cada uno.
-- [ ] **Paso 3:** importar y comprobar que Godot los carga (`VideoStreamTheora`).
-- [ ] **Paso 4:** commit "Los videos de las tarjetas del tutorial".
+- [x] **Paso 1:** escribir los dos scripts.
+- [x] **Paso 2:** grabar y convertir los 4 videos; revisar un cuadro de cada uno.
+- [x] **Paso 3:** importar y comprobar que Godot los carga (`VideoStreamTheora`).
+- [x] **Paso 4:** commit "Los videos de las tarjetas del tutorial".
 
 ### Tarea 7: Las tarjetas
 
@@ -203,11 +228,11 @@
 - **Al terminar o saltar:** `next_night_requested`, que lleva a la noche 1.
 - **Textos:** `TUTORIAL_CARD_*_TITLE`, `TUTORIAL_CARD_*_TEXT`, `TUTORIAL_CARDS_NEXT`, `TUTORIAL_CARDS_START`, `TUTORIAL_CARDS_SKIP` y `TUTORIAL_CARDS_PAGE`.
 
-- [ ] **Paso 1:** pruebas en `test_tutorial_cards.gd`: `test_empieza_en_la_primera`, `test_siguiente_hasta_la_ultima`, `test_saltar_termina`, `test_cada_tarjeta_tiene_su_video` y `test_sus_textos_existen`. En `test_tutorial_desk.gd`: al terminar el chat aparecen las tarjetas.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Las tarjetas con videos al final de la noche 0".
+- [x] **Paso 1:** pruebas en `test_tutorial_cards.gd`: `test_empieza_en_la_primera`, `test_siguiente_hasta_la_ultima`, `test_saltar_termina`, `test_cada_tarjeta_tiene_su_video` y `test_sus_textos_existen`. En `test_tutorial_desk.gd`: al terminar el chat aparecen las tarjetas.
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Las tarjetas con videos al final de la noche 0".
 
 ### Tarea 8: Revisión a 1080p
 
@@ -221,17 +246,17 @@
   - el menú, la pausa, las opciones y la pantalla final.
 - Corregir lo que no quepa con la letra más grande.
 
-- [ ] **Paso 1:** escribir el script y capturar.
-- [ ] **Paso 2:** revisar cada captura y corregir.
-- [ ] **Paso 3:** correr todas las pruebas: OK.
-- [ ] **Paso 4:** commit "Revisión a 1080p".
+- [x] **Paso 1:** escribir el script y capturar.
+- [x] **Paso 2:** revisar cada captura y corregir.
+- [x] **Paso 3:** correr todas las pruebas: OK.
+- [x] **Paso 4:** commit "Revisión a 1080p".
 
 ### Tarea 9: Documentos
 
 `CLAUDE.md`, el diseño v2 (§5, §7, §12, §14 y §19), `docs/02` (§3, §6 y §9), `docs/04` (las secciones L y R, y una nueva para probar esto), `arte_pendiente.md`, `resumen.md` y `docs/00_log.md`.
 
-- [ ] **Paso 1:** actualizar los documentos.
-- [ ] **Paso 2:** commit "Documentos del Plan 9.2".
+- [x] **Paso 1:** actualizar los documentos.
+- [x] **Paso 2:** commit "Documentos del Plan 9.2".
 
 ---
 
