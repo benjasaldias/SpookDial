@@ -74,6 +74,8 @@ var _tabs: Array[Button] = []
 var _scrolls: Array[ScrollContainer] = []
 var _lists: Array[VBoxContainer] = []
 var _unread: Array[bool] = []
+## El último mensaje de cada conversación que se escribe de a poco: el siguiente espera a que termine.
+var _last_typed: Array[Node] = []
 var _answer_buttons: Array[Button] = []
 ## La voz de cada amigo y el sonido que usa, en orden.
 var _voices: Array[ChatVoice] = []
@@ -138,6 +140,7 @@ func setup(manager: RequestManager, friends: Array[FriendData], memory: Notebook
 		_friend_names.append(tr(friends[index].name_key))
 		_friend_colors.append(friends[index].color)
 		_unread.append(false)
+		_last_typed.append(null)
 		_voices.append(ChatVoice.new(friends[index]))
 		_voice_streams.append(friends[index].voice)
 		var tab := Button.new()
@@ -343,6 +346,10 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 	view.audio_clicked.connect(_on_audio_clicked)
 	if message.sender == ChatMessage.Sender.FRIEND:
 		view.letter_typed.connect(_on_letter_typed.bind(friend_index))
+	# Los mensajes se escriben de a uno, en orden: si llegan juntos, el segundo espera al primero.
+	if message.sender != ChatMessage.Sender.SYSTEM:
+		view.wait_for = _last_typed[friend_index]
+		_last_typed[friend_index] = view
 	_lists[friend_index].add_child(view)
 	if message.sender != ChatMessage.Sender.PLAYER and not (visible and friend_index == selected_friend):
 		_unread[friend_index] = true

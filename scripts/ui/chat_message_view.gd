@@ -12,6 +12,8 @@ signal clue_clicked(view: Node, clue_id: StringName)
 signal audio_clicked(view: Node)
 ## Apareció una letra del mensaje.
 signal letter_typed(letter: String)
+## Terminó de escribirse (o se mostró completo de una vez).
+signal typing_finished
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
@@ -42,6 +44,11 @@ var show_caption := false
 
 var _label: RichTextLabel
 var _typing: Tween
+## El mensaje anterior de la conversación: este empieza a escribirse cuando ese termina, como una cola (pedido de
+## Benja, 11 de noviembre). Lo pone el panel antes de agregarlo.
+var wait_for: Node
+## Ya terminó de escribirse.
+var _done := false
 ## Cuántas letras se ven ya, con el nombre.
 var _typed := 0
 var _shaking_clue := &""
@@ -83,6 +90,7 @@ func _init(chat_message: ChatMessage, speaker_name := "", color := Color.WHITE, 
 
 func _ready() -> void:
 	if message.sender == ChatMessage.Sender.SYSTEM:
+		_done = true
 		return
 	if message.sender == ChatMessage.Sender.FRIEND and not speaker.is_empty():
 		# La barra de la izquierda, del color del amigo. Si la burbuja llega a ser una textura (el arte del
@@ -97,8 +105,31 @@ func _ready() -> void:
 	var total := _label.get_total_character_count()
 	_label.visible_characters = start
 	_typed = start
+	if wait_for != null and is_instance_valid(wait_for) and not wait_for.is_done():
+		wait_for.typing_finished.connect(_start_typing, CONNECT_ONE_SHOT)
+	else:
+		_start_typing()
+
+
+## Ya terminó de escribirse.
+func is_done() -> bool:
+	return _done
+
+
+func _start_typing() -> void:
+	if _done or not is_inside_tree():
+		return
+	var total := _label.get_total_character_count()
 	_typing = create_tween()
-	_typing.tween_method(_type_to, float(start), float(total), (total - start) / CHARS_PER_SECOND)
+	_typing.tween_method(_type_to, float(_typed), float(total), (total - _typed) / CHARS_PER_SECOND)
+	_typing.finished.connect(_mark_done)
+
+
+func _mark_done() -> void:
+	if _done:
+		return
+	_done = true
+	typing_finished.emit()
 
 
 ## Deja ver hasta la letra `count` y avisa cada letra nueva.
@@ -116,6 +147,7 @@ func finish_typing() -> void:
 	if _typing != null:
 		_typing.kill()
 	_label.visible_ratio = 1.0
+	_mark_done()
 
 
 ## Vuelve a armar el texto. Se llama cuando cambia el estado de una frase o termina la solicitud.

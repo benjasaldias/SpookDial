@@ -77,7 +77,7 @@
 | Supuesto | Por qué |
 | --- | --- |
 | **Los tamaños nítidos:** la letra de 11 pasa a 15 a 1080p (22 px reales, el doble exacto), la de 33 pasa a 37 (55 px reales) y la de 22 y la de 66 se quedan, porque ya salen nítidas. En una ventana de 1280×720, en 1440p y en 4K, la letra queda igual. | Con 11 px, la letra no puede quedar nítida a 1080p: 11 × 1,5 = 16,5 píxeles reales, que no es múltiplo de su grilla de 11. Lo midió una prueba: con 15, todos los trazos miden 2, 4, 6… píxeles. |
-| **La página de Gonzalo** tiene 4 acciones: ofrecerle desodorante, contarle un chiste, esconderle los lentes y pedirle una pizza. La tabla tiene 3 reglas: si está enojado, si tiene hambre y en cualquier otro caso. León cuenta que está enojado: perdió en la Play. | Una tabla chica, con chistes, donde la ✓ y la calavera se distinguen enseguida. |
+| **La página de Gonzalo** tiene 4 acciones: ofrecerle desodorante, contarle un chiste, esconderle los lentes y pedirle una pizza. La tabla tiene 3 reglas: si está enojado, si tiene hambre y en cualquier otro caso. León cuenta que está enojado, como siempre. | Una tabla chica, con chistes, donde la ✓ y la calavera se distinguen enseguida. |
 | **Un señuelo en el tutorial** ("anda con un polerón rojo"), y León bromea si se clickea. | Enseña los señuelos sin decirlos. |
 | **Las tarjetas son 4**, cada una con un video de 6 a 8 s en bucle, recortado del juego a 640×360. | Un video por tema, sin escalar el pixel art. |
 | **Al terminar las tarjetas se pasa directo a la noche 1**, sin la pantalla de "Práctica terminada". | Las tarjetas ya cierran el tutorial. |

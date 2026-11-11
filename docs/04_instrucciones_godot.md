@@ -571,7 +571,7 @@ Del 11 de noviembre (sesión S21f, continuación). Avísale a Claude antes de ab
    - pregúntale por el ambiente y marca la que falta. Cuando aparece **Gonzalo**, haz clic en su nombre: el cuaderno tiene solo su página;
    - elige una acción que no sea la del ✓: León te dice que lo intentes de nuevo. Después, la del ✓, y luego la de la calavera;
    - descarga el video que te manda;
-   - se le corta la señal: aprieta **Sincronizar** en su chat y repite los aplausos.
+   - se le corta la señal: aprieta **Sincronizar** en su chat y copia sus aplausos.
 3. León se despide. Salen 4 tarjetas con videos: los medidores, el celular, la ventana y la Mano. **Siguiente** pasa de una a otra, y la última, **Empezar la noche 1**.
 4. **Saltar:** vuelve a **Nueva partida**, presiona **Esc** y elige **Saltar tutorial**: pasa a la noche 1.
 

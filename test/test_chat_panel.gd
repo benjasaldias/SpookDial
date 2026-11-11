@@ -557,3 +557,24 @@ func test_mientras_suena_un_audio_el_amigo_no_suena() -> bool:
 	check(not voice.playing, "no se oye encima del audio")
 	_free(panel)
 	return true
+
+
+## Si llegan dos mensajes juntos, se escriben en cola: el segundo empieza cuando termina el primero (pedido de Benja,
+## 11 de noviembre).
+func test_los_mensajes_se_escriben_en_cola() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	var first := _friend_view(panel, 0)
+	var second := _friend_view(panel, 0)
+	var other := _friend_view(panel, 1)
+	check(not first.is_done() and not second.is_done(), "ninguno terminó")
+	check_eq(second.wait_for, first, "el segundo espera al primero")
+	check(other.wait_for == null, "otra conversación no espera")
+	var label := second.get_node("Bubble/Text") as RichTextLabel
+	var shown := label.visible_characters
+	first.finish_typing()
+	check(first.is_done(), "terminó el primero")
+	check(second._typing != null, "y el segundo empezó a escribirse")
+	check_eq(label.visible_characters, shown, "desde donde estaba: el nombre")
+	_free(panel)
+	return true
