@@ -134,7 +134,8 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	curtains.clicked.emit()
 	desk._process(0.0)
 	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_CURTAINS_KEY), "revisar")
-	_play(desk, 25)
+	# Se queda un tiempo al azar (decisión de Benja, 11 de noviembre).
+	_play(desk, ceili(desk.get_node("Screamers").creature_stay))
 	curtains.clicked.emit()
 	desk._process(0.0)
 	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_CHAT_KEY, "FRIEND_GONZALO_NAME"), "Gonzalo escribió")

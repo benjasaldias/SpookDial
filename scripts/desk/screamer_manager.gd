@@ -3,7 +3,7 @@ extends Node
 ## aquí se elige cuál (Screamer), se anuncia con su señal previa (las luces parpadean y baja el sonido
 ## ambiente) y se muestra con su sonido. Cada uno resta Sanity. El antiguo jumpscare es ahora la criatura que se
 ## asoma por la ventana, con respiración pesada y golpes (decisión de Benja, 4 de noviembre): se arma cuando el
-## chat o el mixer tapan la ventana, y está ahí al cerrarlos. Se queda un tiempo fijo: si las cortinas estaban
+## chat o el mixer tapan la ventana, y está ahí al cerrarlos. Se queda un tiempo al azar: si las cortinas estaban
 ## cerradas las abre, y cerrarlas no la espanta, pero baja menos Sanity y no se oye, así que hay que abrirlas para
 ## revisar si sigue ahí (decisión de Benja, 7 de noviembre). Después del susto guionado empieza su chat guionado
 ## (decisión de Benja).
@@ -92,6 +92,8 @@ var _warning_left := 0.0
 var _ambient_db := 0.0
 var _phone_rest := Vector2.ZERO
 var _creature := Creature.AWAY
+## Segundos que se queda la visita de la criatura que está afuera, o la última (decisión de Benja, 11 de noviembre).
+var creature_stay := 0.0
 ## Segundos que la criatura se queda todavía afuera.
 var _creature_left := 0.0
 ## La ventana está a la vista (ni un panel ni el celular la tapan), según el último avance.
@@ -250,7 +252,9 @@ func _flicker_lights() -> void:
 func _creature_arrives() -> void:
 	var state := _requests.state
 	state.creature_outside = true
-	_creature_left = _requests.catalog.balance.creature_seconds
+	var stay := _requests.catalog.balance.creature_stay
+	creature_stay = _requests.rng.randf_range(stay.x, stay.y)
+	_creature_left = creature_stay
 	if state.curtains_closed:
 		_set_curtains(false)
 		($CurtainsSound as AudioStreamPlayer).play()
@@ -272,7 +276,7 @@ func _show_creature() -> void:
 	_set_shadow(true)
 
 
-## La criatura detrás de un panel se ve apenas la ventana queda a la vista, y se va a los creature_seconds de
+## La criatura detrás de un panel se ve apenas la ventana queda a la vista, y se va a los creature_stay segundos de
 ## llegar, con las cortinas abiertas o cerradas.
 func _advance_creature(delta: float) -> void:
 	if _creature == Creature.AWAY:

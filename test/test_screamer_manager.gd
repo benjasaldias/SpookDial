@@ -93,10 +93,10 @@ func test_la_criatura_se_arma_detras_de_un_panel() -> bool:
 	desk._process(0.0)
 	check(figure.visible, "al cerrar el chat, ya está ahí")
 	check_eq(figure.modulate.a, 1.0, "sin animación de entrada")
-	desk._process(24.9)
-	check(figure.visible, "a los 24,9 s de llegar, todavía")
+	desk._process(screamers.creature_stay - 0.1)
+	check(figure.visible, "0,1 s antes de su hora, todavía")
 	desk._process(0.2)
-	check(not screamers.is_creature_near(), "a los 25 s, se va")
+	check(not screamers.is_creature_near(), "a su hora, se va")
 	check(not (screamers.get_node("CreatureBreathing") as AudioStreamPlayer).playing, "y se calla")
 	desk.free()
 	return true
@@ -118,7 +118,7 @@ func test_la_criatura_afuera_baja_sanity() -> bool:
 	var desk := _make_desk()
 	_creature_at_window(desk)
 	check(_state(desk).creature_outside, "la noche sabe que está afuera")
-	desk._process(25.0)
+	desk._process(_screamers(desk).creature_stay)
 	check(not _state(desk).creature_outside, "cuando se va, ya no")
 	desk.free()
 	return true
@@ -155,7 +155,7 @@ func test_cerrar_la_cortina_no_la_espanta() -> bool:
 	check((desk.get_node("WallPlane/Enemy") as CanvasItem).visible, "al abrir la cortina, se ve")
 	check(breathing.playing, "y se oye")
 	curtains.clicked.emit()
-	desk._process(24.6)
+	desk._process(screamers.creature_stay - 0.4)
 	check(not screamers.is_creature_near(), "se fue sola, a su hora")
 	check(not _state(desk).creature_outside, "y al abrir la cortina ya no baja Sanity rápido")
 	desk.free()
@@ -427,7 +427,7 @@ func test_la_criatura_hace_sombra_hasta_que_se_va() -> bool:
 	var desk := _make_desk()
 	_screamers(desk).play(ScareKind.Kind.JUMPSCARE)
 	check_eq(_desk_surface(desk).animation, &"Enemy", "se asoma: hay sombra")
-	desk._process(25.0)
+	desk._process(_screamers(desk).creature_stay)
 	check_eq(_desk_surface(desk).animation, &"NoEnemy", "se fue: ya no")
 	desk.free()
 	return true
@@ -469,5 +469,23 @@ func test_el_screamer_de_la_ventana_hace_sombra() -> bool:
 	check_eq(_desk_surface(desk).animation, &"Enemy", "aparece con sombra")
 	screamers._figure_tween.custom_step(10.0)
 	check_eq(_desk_surface(desk).animation, &"NoEnemy", "se desvanece sin sombra")
+	desk.free()
+	return true
+
+
+## Se queda un tiempo al azar, entre 15 y 40 s (decisión de Benja, 11 de noviembre): revisar la ventana vuelve a
+## importar.
+func test_la_criatura_se_queda_un_tiempo_al_azar() -> bool:
+	var desk := _make_desk()
+	var screamers := _screamers(desk)
+	var stays := {}
+	for _visit in 8:
+		screamers.play(ScareKind.Kind.JUMPSCARE)
+		var stay: float = screamers.creature_stay
+		check(stay >= 15.0 and stay <= 40.0, "entre 15 y 40 s: %s" % stay)
+		stays[snappedf(stay, 0.1)] = true
+		desk._process(stay + 0.1)
+		check(not screamers.is_creature_near(), "se fue a su hora")
+	check(stays.size() > 1, "no siempre lo mismo")
 	desk.free()
 	return true
