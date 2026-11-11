@@ -1,6 +1,7 @@
 extends Node
 ## El juego de punta a punta (diseño §5), como autoload: el menú, las noches en orden desde la 0 (el tutorial),
-## el guardado al comienzo de cada noche, el paso a la siguiente, reintentar una noche y volver al menú.
+## el guardado (al comienzo de cada noche, al ganarla y al terminar el tutorial), el paso a la siguiente, reintentar una
+## noche y volver al menú.
 ## También tiene las opciones del jugador (diseño §19), que se leen al empezar y se guardan al cambiarlas.
 
 const GameSettings := preload("res://scripts/core/game_settings.gd")
@@ -82,13 +83,26 @@ func prepare_night(number: int) -> Node:
 	desk.menu_requested.connect(go_to_menu)
 	desk.settings_changed.connect(func(_changed: GameSettings) -> void: save_settings())
 	desk.get_node("NightManager").night_ended.connect(_on_night_ended)
+	if number == 0:
+		desk.get_node("RequestManager").tutorial_finished.connect(_on_tutorial_finished)
 	return desk
 
 
-## Al ganar la última noche, el juego terminó: la partida se borra.
+## Al ganar una noche se guarda la siguiente, para que "Continuar" no repita la noche ganada si el jugador vuelve al menú
+## (observación 11 del primer testeo). Al ganar la última, el juego terminó: la partida se borra.
 func _on_night_ended(ending: NightState.Ending, _fatal_request: RefCounted) -> void:
-	if ending == NightState.Ending.WON and night_number >= LAST_NIGHT:
+	if ending != NightState.Ending.WON:
+		return
+	var next := next_night_number(night_number)
+	if next < 0:
 		save.clear()
+	else:
+		save.store(next)
+
+
+## León se despidió en la noche 0: el tutorial terminó, y salir en las tarjetas ya no obliga a repetirlo.
+func _on_tutorial_finished() -> void:
+	save.store(next_night_number(0))
 
 
 func _show(scene: Node) -> void:

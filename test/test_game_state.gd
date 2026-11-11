@@ -52,13 +52,40 @@ func test_al_ganar_la_ultima_noche_se_borra_la_partida() -> bool:
 	var game := _make_game()
 	var desk: Node = game.prepare_night(4)
 	game._on_night_ended(NightState.Ending.WON, null)
-	check_eq(game.save.stored_night(), 4, "la noche 4 no es la última")
+	check_eq(game.save.stored_night(), 5, "la noche 4 no es la última: queda guardada la 5")
 	desk.free()
 	desk = game.prepare_night(5)
 	game._on_night_ended(NightState.Ending.SANITY, null)
 	check(game.save.has_game(), "perder la noche 5 no la borra")
 	game._on_night_ended(NightState.Ending.WON, null)
 	check(not game.save.has_game(), "ganarla, sí")
+	desk.free()
+	_free(game)
+	return true
+
+
+## Al ganar una noche se guarda la siguiente: si el jugador vuelve al menú, "Continuar" no repite la noche ganada
+## (observación 11 del primer testeo). Perderla no cambia lo guardado.
+func test_ganar_una_noche_guarda_la_siguiente() -> bool:
+	var game := _make_game()
+	var desk: Node = game.prepare_night(2)
+	game._on_night_ended(NightState.Ending.TRUST, null)
+	check_eq(game.save.stored_night(), 2, "perderla no cambia nada")
+	game._on_night_ended(NightState.Ending.WON, null)
+	check_eq(game.save.stored_night(), 3, "ganarla guarda la noche 3")
+	desk.free()
+	_free(game)
+	return true
+
+
+## Cuando León se despide en la noche 0, el tutorial terminó: se guarda la noche 1, para que salir en las tarjetas no
+## obligue a repetirlo.
+func test_al_despedirse_leon_se_guarda_la_noche_1() -> bool:
+	var game := _make_game()
+	var desk: Node = game.prepare_night(0)
+	check_eq(game.save.stored_night(), 0, "el tutorial, al empezar")
+	desk.get_node("RequestManager").tutorial_finished.emit()
+	check_eq(game.save.stored_night(), 1, "la noche 1, al despedirse León")
 	desk.free()
 	_free(game)
 	return true

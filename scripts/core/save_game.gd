@@ -1,7 +1,7 @@
 extends RefCounted
 ## La partida guardada (diseño §5): la noche en la que va el jugador, de 0 (el tutorial) a 5. Se guarda al
-## comienzo de cada noche, así que "Continuar" vuelve a empezar esa noche. Al ganar la noche 5 se borra:
-## el juego terminó.
+## comienzo de cada noche, así que "Continuar" vuelve a empezar esa noche, y también al ganarla (la siguiente) y al
+## terminar el tutorial (la 1). Al ganar la noche 5 se borra: el juego terminó.
 
 const SECTION := "game"
 const LAST_NIGHT := 5
