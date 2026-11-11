@@ -35,11 +35,15 @@ static func make_entity(entity_id: StringName = &"beast") -> EntityData:
 	return entity
 
 
+## Una característica con su nombre en el cuaderno ("K_LABEL_<id>") y 2 formas más de decirla
+## ("K_TRAIT_<id>_2" y "K_TRAIT_<id>_3").
 static func make_trait(trait_id: StringName, category := ClueCategory.Kind.SIGHT) -> TraitData:
 	var trait_data := TraitData.new()
 	trait_data.id = trait_id
 	trait_data.category = category
 	trait_data.text_key = "K_TRAIT_%s" % trait_id
+	trait_data.label_key = "K_LABEL_%s" % trait_id
+	trait_data.variant_keys.assign(["K_TRAIT_%s_2" % trait_id, "K_TRAIT_%s_3" % trait_id])
 	return trait_data
 
 

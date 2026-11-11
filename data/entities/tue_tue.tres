@@ -13,18 +13,24 @@
 script = ExtResource("2_trait")
 id = &"bird_with_face"
 text_key = "TRAIT_BIRD_WITH_FACE"
+label_key = "TRAIT_BIRD_WITH_FACE_LABEL"
+variant_keys = Array[String](["TRAIT_BIRD_WITH_FACE_2", "TRAIT_BIRD_WITH_FACE_3", "TRAIT_BIRD_WITH_FACE_4"])
 
 [sub_resource type="Resource" id="Trait_two_note_cry"]
 script = ExtResource("2_trait")
 id = &"two_note_cry"
 category = 1
 text_key = "TRAIT_TWO_NOTE_CRY"
+label_key = "TRAIT_TWO_NOTE_CRY_LABEL"
+variant_keys = Array[String](["TRAIT_TWO_NOTE_CRY_2", "TRAIT_TWO_NOTE_CRY_3", "TRAIT_TWO_NOTE_CRY_4"])
 
 [sub_resource type="Resource" id="Trait_ointment_smell"]
 script = ExtResource("2_trait")
 id = &"ointment_smell"
 category = 2
 text_key = "TRAIT_OINTMENT_SMELL"
+label_key = "TRAIT_OINTMENT_SMELL_LABEL"
+variant_keys = Array[String](["TRAIT_OINTMENT_SMELL_2", "TRAIT_OINTMENT_SMELL_3", "TRAIT_OINTMENT_SMELL_4"])
 
 [sub_resource type="Resource" id="Action_cross_scissors"]
 script = ExtResource("3_action")

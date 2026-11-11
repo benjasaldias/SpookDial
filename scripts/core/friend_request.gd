@@ -26,6 +26,8 @@ var says_place := true
 var situation: Dictionary = {}
 ## Las 2 características que la distinguen. Para identificar la entidad hay que marcar las dos.
 var traits: Array[TraitData] = []
+## Con qué forma dice el amigo cada característica: id → clave de messages.csv (decisión de Benja, 11 de noviembre).
+var trait_forms: Dictionary = {}
 var decoys: Array[DecoyData] = []
 ## Las características y los señuelos, en el orden en que el amigo los cuenta. Salen al preguntar su
 ## categoría; cada pregunta repite los de esa categoría.
@@ -60,6 +62,12 @@ var outcome := RuleEvaluator.Outcome.WRONG
 var consequence: Consequence
 
 var _clue_states := {}  # id de una frase clickeable → ClueState
+
+
+## La clave del texto con que el amigo cuenta `clue`: la forma elegida para una característica o, para un señuelo, su
+## texto de siempre.
+func text_key_for(clue: TraitData) -> String:
+	return trait_forms.get(clue.id, clue.text_key)
 
 
 func clue_state(clue_id: StringName) -> ClueState:

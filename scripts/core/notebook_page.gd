@@ -41,9 +41,12 @@ static func bbcode(entity: EntityData, translate: Callable) -> String:
 	return "\n".join(lines)
 
 
-## El nombre de una característica en el cuaderno: la frase entre asteriscos de su texto, la misma
-## que se clickea en los mensajes. Si el texto no tiene asteriscos, el texto completo.
+## El nombre de una característica en el cuaderno: su label_key, siempre el mismo aunque el amigo la diga con otras
+## palabras (decisión de Benja, 11 de noviembre). Sin él, la frase entre asteriscos de su texto, y si el texto no tiene
+## asteriscos, el texto completo.
 static func trait_label(trait_data: TraitData, translate: Callable) -> String:
+	if not trait_data.label_key.is_empty():
+		return _text(translate, trait_data.label_key)
 	var text := _text(translate, trait_data.text_key)
 	var start := text.find("*")
 	var end := text.find("*", start + 1)

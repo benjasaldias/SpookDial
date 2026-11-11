@@ -150,3 +150,13 @@ func test_publicaciones_del_celular_sin_foto() -> bool:
 	catalog.phone_disturbing_posts[0] = null
 	check_contains(ContentValidator.validate_catalog(catalog), "Publicación perturbadora 1 del celular: está vacía")
 	return true
+
+
+## Una característica compartida se dice igual en sus 2 entidades: mismo nombre y mismas formas.
+func test_las_compartidas_tienen_las_mismas_variantes() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var shared := Fixtures.make_trait(&"beast_trait_1")
+	shared.variant_keys.assign(["K_OTHER_2", "K_OTHER_3"])
+	catalog.nights[1].new_entities[0].traits[0] = shared
+	check_contains(ContentValidator.validate_catalog(catalog), "'beast_trait_1': tiene otro nombre o se dice distinto en 'ghost'")
+	return true

@@ -12,24 +12,32 @@
 script = ExtResource("2_trait")
 id = &"one_leg_hop"
 text_key = "TRAIT_ONE_LEG_HOP"
+label_key = "TRAIT_ONE_LEG_HOP_LABEL"
+variant_keys = Array[String](["TRAIT_ONE_LEG_HOP_2", "TRAIT_ONE_LEG_HOP_3", "TRAIT_ONE_LEG_HOP_4"])
 
 [sub_resource type="Resource" id="Trait_hoarse_grunts"]
 script = ExtResource("2_trait")
 id = &"hoarse_grunts"
 category = 1
 text_key = "TRAIT_HOARSE_GRUNTS"
+label_key = "TRAIT_HOARSE_GRUNTS_LABEL"
+variant_keys = Array[String](["TRAIT_HOARSE_GRUNTS_2", "TRAIT_HOARSE_GRUNTS_3", "TRAIT_HOARSE_GRUNTS_4"])
 
 [sub_resource type="Resource" id="Trait_stale_air"]
 script = ExtResource("2_trait")
 id = &"stale_air"
 category = 2
 text_key = "TRAIT_STALE_AIR"
+label_key = "TRAIT_STALE_AIR_LABEL"
+variant_keys = Array[String](["TRAIT_STALE_AIR_2", "TRAIT_STALE_AIR_3", "TRAIT_STALE_AIR_4"])
 
 [sub_resource type="Resource" id="Trait_shed_skin"]
 script = ExtResource("2_trait")
 id = &"shed_skin"
 category = 3
 text_key = "TRAIT_SHED_SKIN"
+label_key = "TRAIT_SHED_SKIN_LABEL"
+variant_keys = Array[String](["TRAIT_SHED_SKIN_2", "TRAIT_SHED_SKIN_3"])
 
 [sub_resource type="Resource" id="Action_back_out"]
 script = ExtResource("3_action")

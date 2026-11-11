@@ -12,18 +12,24 @@
 script = ExtResource("2_trait")
 id = &"floating_hide"
 text_key = "TRAIT_FLOATING_HIDE"
+label_key = "TRAIT_FLOATING_HIDE_LABEL"
+variant_keys = Array[String](["TRAIT_FLOATING_HIDE_2", "TRAIT_FLOATING_HIDE_3", "TRAIT_FLOATING_HIDE_4"])
 
 [sub_resource type="Resource" id="Trait_icy_mist"]
 script = ExtResource("2_trait")
 id = &"icy_mist"
 category = 2
 text_key = "TRAIT_ICY_MIST"
+label_key = "TRAIT_ICY_MIST_LABEL"
+variant_keys = Array[String](["TRAIT_ICY_MIST_2", "TRAIT_ICY_MIST_3", "TRAIT_ICY_MIST_4"])
 
 [sub_resource type="Resource" id="Trait_drag_marks"]
 script = ExtResource("2_trait")
 id = &"drag_marks"
 category = 3
 text_key = "TRAIT_DRAG_MARKS"
+label_key = "TRAIT_DRAG_MARKS_LABEL"
+variant_keys = Array[String](["TRAIT_DRAG_MARKS_2", "TRAIT_DRAG_MARKS_3"])
 
 [sub_resource type="Resource" id="Action_throw_thorns"]
 script = ExtResource("3_action")

@@ -212,3 +212,28 @@ func test_en_el_tutorial_siempre_dice_el_lugar() -> bool:
 				catalog.tutorial.tutorial_requests[0], _rng(seed_value))
 		check(request.says_place, "semilla %d" % seed_value)
 	return true
+
+
+## Cada característica se dice con una de sus formas, al azar (decisión de Benja, 11 de noviembre).
+func test_cada_caracteristica_con_una_de_sus_formas() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var seen := {}
+	for seed_value in 40:
+		var request := RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(seed_value))
+		for trait_data: TraitData in request.traits:
+			var key := request.text_key_for(trait_data)
+			check(trait_data.text_keys().has(key), "semilla %d: %s es una forma de %s" % [seed_value, key, trait_data.id])
+			seen[key] = true
+		for decoy: DecoyData in request.decoys:
+			check_eq(request.text_key_for(decoy), decoy.text_key, "un señuelo se dice siempre igual")
+	check_eq(seen.size(), 6, "con varias semillas salen las 3 formas de las 2 características")
+	return true
+
+
+## La pista del mensaje inicial usa la misma forma que después cuenta el amigo.
+func test_la_pista_usa_la_misma_forma() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.nights[0].first_hint_chance = 1.0
+	var request := RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(3))
+	check(request.trait_forms.has(request.hint.id), "la pista tiene su forma")
+	return true

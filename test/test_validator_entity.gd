@@ -102,3 +102,17 @@ func test_los_audios_de_una_observacion() -> bool:
 	observation.category = ClueCategory.Kind.SIGHT
 	check_contains(ContentValidator.validate_entity(entity), "los audios van en '¿Qué oyes?'")
 	return true
+
+
+## Cada característica tiene su nombre en el cuaderno y entre 2 y 4 formas más de decirse (decisión de Benja,
+## 11 de noviembre).
+func test_variantes_de_las_caracteristicas() -> bool:
+	var entity := Fixtures.make_entity()
+	entity.traits[0].label_key = ""
+	entity.traits[1].variant_keys.assign(["K_ONLY_ONE"])
+	var errors := ContentValidator.validate_entity(entity)
+	check_contains(errors, "característica 'beast_trait_1': le falta su nombre en el cuaderno (label_key)")
+	check_contains(errors, "característica 'beast_trait_2': tiene 1 formas más de decirse y deben ser entre 2 y 4")
+	entity.traits[1].variant_keys.assign(["K_A", "K_B", "K_C", "K_D", "K_E"])
+	check_contains(ContentValidator.validate_entity(entity), "tiene 5 formas más de decirse")
+	return true

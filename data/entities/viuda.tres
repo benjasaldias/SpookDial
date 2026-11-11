@@ -12,18 +12,24 @@
 script = ExtResource("2_trait")
 id = &"black_veil"
 text_key = "TRAIT_BLACK_VEIL"
+label_key = "TRAIT_BLACK_VEIL_LABEL"
+variant_keys = Array[String](["TRAIT_BLACK_VEIL_2", "TRAIT_BLACK_VEIL_3", "TRAIT_BLACK_VEIL_4"])
 
 [sub_resource type="Resource" id="Trait_heel_steps"]
 script = ExtResource("2_trait")
 id = &"heel_steps"
 category = 1
 text_key = "TRAIT_HEEL_STEPS"
+label_key = "TRAIT_HEEL_STEPS_LABEL"
+variant_keys = Array[String](["TRAIT_HEEL_STEPS_2", "TRAIT_HEEL_STEPS_3", "TRAIT_HEEL_STEPS_4"])
 
 [sub_resource type="Resource" id="Trait_icy_mist"]
 script = ExtResource("2_trait")
 id = &"icy_mist"
 category = 2
 text_key = "TRAIT_ICY_MIST"
+label_key = "TRAIT_ICY_MIST_LABEL"
+variant_keys = Array[String](["TRAIT_ICY_MIST_2", "TRAIT_ICY_MIST_3", "TRAIT_ICY_MIST_4"])
 
 [sub_resource type="Resource" id="Action_pray"]
 script = ExtResource("3_action")

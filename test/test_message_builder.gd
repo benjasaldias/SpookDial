@@ -230,3 +230,17 @@ func test_las_otras_categorias_no_traen_audio() -> bool:
 	request.entity.observations[1].audio_values = {&"yes": Fixtures.make_audio(), &"no": Fixtures.make_audio()}
 	check_eq(MessageBuilder.answer(request, ClueCategory.Kind.SIGHT, _translate).audio, null, "¿Qué ves?, sin audio")
 	return true
+
+
+## La característica llega con la forma que eligió la solicitud, en la pista y al preguntar, y se sigue clickeando
+## igual.
+func test_la_respuesta_usa_la_forma_de_la_solicitud() -> bool:
+	var request := _make_request()
+	request.trait_forms[&"beast_trait_1"] = "K_TRAIT_beast_trait_1_2"
+	var answer := MessageBuilder.answer(request, ClueCategory.Kind.SIGHT, _translate)
+	check(answer.plain_text().contains("K_TRAIT_beast_trait_1_2"), "con la otra forma: " + answer.plain_text())
+	check_eq(_clue_ids(answer), [&"beast_trait_1", &"decoy_sight"], "se clickea igual")
+	request.hint = request.traits[0]
+	check(MessageBuilder.first_message(request, _translate).plain_text().contains("K_TRAIT_beast_trait_1_2"),
+			"la pista también")
+	return true

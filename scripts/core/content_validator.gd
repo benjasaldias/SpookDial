@@ -13,6 +13,8 @@ const RULE_COUNT := Vector2i(2, 4)
 const MIN_VALUES := 2
 const FRIEND_COUNT := Vector2i(3, 3)
 const NIGHT_COUNT := Vector2i(5, 5)
+## Formas de decir una característica, además de text_key (decisión de Benja, 11 de noviembre).
+const VARIANT_COUNT := Vector2i(2, 4)
 ## Una característica se comparte con otra entidad como máximo: lo que identifica es la combinación.
 const MAX_ENTITIES_PER_TRAIT := 2
 ## Marca de la frase clickeable de una característica: "vio un *hombrecito*".
@@ -38,6 +40,8 @@ static func validate_entity(entity: EntityData) -> Array[String]:
 	_check_unique_ids(errors, who, "características", entity.traits)
 	_check_unique_ids(errors, who, "acciones", entity.actions)
 	_check_unique_ids(errors, who, "observaciones", entity.observations)
+	for trait_data: TraitData in entity.traits:
+		_check_variants(errors, who, trait_data)
 	for observation: ObservationData in entity.observations:
 		if observation.values.size() < MIN_VALUES:
 			errors.append("%s: la observación '%s' necesita al menos %d valores" % [who, observation.id, MIN_VALUES])
@@ -131,6 +135,9 @@ static func validate_texts(catalog: ContentCatalog, translate: Callable) -> Arra
 	for entity: EntityData in catalog.all_entities():
 		for trait_data: TraitData in entity.traits:
 			_check_highlight(errors, "Característica '%s'" % trait_data.id, trait_data.text_key, translate)
+			for variant_key: String in trait_data.variant_keys:
+				_check_highlight(errors, "Característica '%s', forma '%s'" % [trait_data.id, variant_key], variant_key,
+						translate)
 	for decoy: DecoyData in catalog.decoys:
 		_check_highlight(errors, "Señuelo '%s'" % decoy.id, decoy.text_key, translate)
 	return errors
@@ -165,7 +172,11 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 		for place_key: String in entity.place_keys:
 			keys.append([who + ", lugar", place_key])
 		for trait_data: TraitData in entity.traits:
-			keys.append(["%s, característica '%s'" % [who, trait_data.id], trait_data.text_key])
+			var trait_who := "%s, característica '%s'" % [who, trait_data.id]
+			keys.append([trait_who, trait_data.text_key])
+			keys.append([trait_who + ", nombre", trait_data.label_key])
+			for variant_key: String in trait_data.variant_keys:
+				keys.append([trait_who + ", otra forma", variant_key])
 		for action: ActionData in entity.actions:
 			keys.append(["%s, acción '%s'" % [who, action.id], action.label_key])
 		for observation: ObservationData in entity.observations:
@@ -252,6 +263,17 @@ static func _check_unique_ids(errors: Array[String], who: String, what: String, 
 		seen[item_id] = true
 
 
+## Una característica tiene su nombre en el cuaderno y entre 2 y 4 formas más de decirse.
+static func _check_variants(errors: Array[String], who: String, trait_data: TraitData) -> void:
+	var where := "%s, característica '%s'" % [who, trait_data.id]
+	if trait_data.label_key.is_empty():
+		errors.append("%s: le falta su nombre en el cuaderno (label_key)" % where)
+	var count := trait_data.variant_keys.size()
+	if count < VARIANT_COUNT.x or count > VARIANT_COUNT.y:
+		errors.append("%s: tiene %d formas más de decirse y deben ser entre %d y %d"
+				% [where, count, VARIANT_COUNT.x, VARIANT_COUNT.y])
+
+
 ## Una observación con audios los tiene en "¿Qué oyes?" y tiene uno por cada valor, ni más ni menos.
 static func _check_audio(errors: Array[String], who: String, observation: ObservationData) -> void:
 	if observation.audio_values.is_empty():
@@ -323,6 +345,8 @@ static func _check_shared_traits(errors: Array[String], entities: Array[EntityDa
 			var first: TraitData = first_seen[trait_data.id]
 			if first.category != trait_data.category or first.text_key != trait_data.text_key:
 				errors.append("Característica '%s': tiene otra categoría o texto en '%s'" % [trait_data.id, entity.id])
+			elif first.label_key != trait_data.label_key or first.variant_keys != trait_data.variant_keys:
+				errors.append("Característica '%s': tiene otro nombre o se dice distinto en '%s'" % [trait_data.id, entity.id])
 		trait_ids.append(ids)
 	for trait_id: StringName in users:
 		if users[trait_id].size() > MAX_ENTITIES_PER_TRAIT:

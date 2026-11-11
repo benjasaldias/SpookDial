@@ -24,8 +24,17 @@ func _plain(bbcode: String) -> String:
 	return RegEx.create_from_string("\\[(?!lb\\])[^\\]]*\\]").sub(bbcode, "", true).replace("[lb]", "[")
 
 
+## El cuaderno muestra un nombre fijo, aunque el amigo la diga con otras palabras (decisión de Benja, 11 de noviembre).
+func test_el_nombre_de_la_caracteristica_es_su_etiqueta() -> bool:
+	var trait_data := Fixtures.make_trait(&"little_man")
+	check_eq(NotebookPage.trait_label(trait_data, _translate), "K_LABEL_little_man", "su nombre en notebook.csv")
+	return true
+
+
+## Sin nombre propio, la frase entre asteriscos de su texto, como antes.
 func test_nombre_de_una_caracteristica() -> bool:
 	var trait_data := Fixtures.make_trait(&"little_man")
+	trait_data.label_key = ""
 	check_eq(NotebookPage.trait_label(trait_data, _translate), "little_man", "la frase entre asteriscos")
 	var without_mark := func(_key: String) -> String: return "Un olor raro"
 	check_eq(NotebookPage.trait_label(trait_data, without_mark), "Un olor raro", "sin asteriscos, el texto completo")
@@ -39,8 +48,8 @@ func test_pagina_completa() -> bool:
 		"K_beast_LORE",
 		"",
 		"NOTEBOOK_TRAITS",
-		"• beast_trait_1 (QUESTION_SIGHT)",
-		"• beast_trait_2 (QUESTION_SIGHT)",
+		"• K_LABEL_beast_trait_1 (QUESTION_SIGHT)",
+		"• K_LABEL_beast_trait_2 (QUESTION_SIGHT)",
 		"",
 		"NOTEBOOK_OBSERVATIONS",
 		"• K_beast_O1_Q (QUESTION_SIGHT)",

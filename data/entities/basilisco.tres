@@ -13,18 +13,24 @@ script = ExtResource("2_trait")
 id = &"crow_underfloor"
 category = 1
 text_key = "TRAIT_CROW_UNDERFLOOR"
+label_key = "TRAIT_CROW_UNDERFLOOR_LABEL"
+variant_keys = Array[String](["TRAIT_CROW_UNDERFLOOR_2", "TRAIT_CROW_UNDERFLOOR_3", "TRAIT_CROW_UNDERFLOOR_4"])
 
 [sub_resource type="Resource" id="Trait_shed_skin"]
 script = ExtResource("2_trait")
 id = &"shed_skin"
 category = 3
 text_key = "TRAIT_SHED_SKIN"
+label_key = "TRAIT_SHED_SKIN_LABEL"
+variant_keys = Array[String](["TRAIT_SHED_SKIN_2", "TRAIT_SHED_SKIN_3"])
 
 [sub_resource type="Resource" id="Trait_stale_air"]
 script = ExtResource("2_trait")
 id = &"stale_air"
 category = 2
 text_key = "TRAIT_STALE_AIR"
+label_key = "TRAIT_STALE_AIR_LABEL"
+variant_keys = Array[String](["TRAIT_STALE_AIR_2", "TRAIT_STALE_AIR_3", "TRAIT_STALE_AIR_4"])
 
 [sub_resource type="Resource" id="Action_burn_egg"]
 script = ExtResource("3_action")

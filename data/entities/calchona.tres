@@ -13,23 +13,31 @@ script = ExtResource("2_trait")
 id = &"lone_bleat"
 category = 1
 text_key = "TRAIT_LONE_BLEAT"
+label_key = "TRAIT_LONE_BLEAT_LABEL"
+variant_keys = Array[String](["TRAIT_LONE_BLEAT_2", "TRAIT_LONE_BLEAT_3", "TRAIT_LONE_BLEAT_4"])
 
 [sub_resource type="Resource" id="Trait_long_tangled_hair"]
 script = ExtResource("2_trait")
 id = &"long_tangled_hair"
 text_key = "TRAIT_LONG_TANGLED_HAIR"
+label_key = "TRAIT_LONG_TANGLED_HAIR_LABEL"
+variant_keys = Array[String](["TRAIT_LONG_TANGLED_HAIR_2", "TRAIT_LONG_TANGLED_HAIR_3", "TRAIT_LONG_TANGLED_HAIR_4"])
 
 [sub_resource type="Resource" id="Trait_ointment_smell"]
 script = ExtResource("2_trait")
 id = &"ointment_smell"
 category = 2
 text_key = "TRAIT_OINTMENT_SMELL"
+label_key = "TRAIT_OINTMENT_SMELL_LABEL"
+variant_keys = Array[String](["TRAIT_OINTMENT_SMELL_2", "TRAIT_OINTMENT_SMELL_3", "TRAIT_OINTMENT_SMELL_4"])
 
 [sub_resource type="Resource" id="Trait_snagged_threads"]
 script = ExtResource("2_trait")
 id = &"snagged_threads"
 category = 3
 text_key = "TRAIT_SNAGGED_THREADS"
+label_key = "TRAIT_SNAGGED_THREADS_LABEL"
+variant_keys = Array[String](["TRAIT_SNAGGED_THREADS_2", "TRAIT_SNAGGED_THREADS_3"])
 
 [sub_resource type="Resource" id="Action_leave_food"]
 script = ExtResource("3_action")

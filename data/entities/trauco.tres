@@ -12,23 +12,31 @@
 script = ExtResource("2_trait")
 id = &"little_man"
 text_key = "TRAIT_LITTLE_MAN"
+label_key = "TRAIT_LITTLE_MAN_LABEL"
+variant_keys = Array[String](["TRAIT_LITTLE_MAN_2", "TRAIT_LITTLE_MAN_3", "TRAIT_LITTLE_MAN_4"])
 
 [sub_resource type="Resource" id="Trait_three_blows"]
 script = ExtResource("2_trait")
 id = &"three_blows"
 category = 1
 text_key = "TRAIT_THREE_BLOWS"
+label_key = "TRAIT_THREE_BLOWS_LABEL"
+variant_keys = Array[String](["TRAIT_THREE_BLOWS_2", "TRAIT_THREE_BLOWS_3", "TRAIT_THREE_BLOWS_4"])
 
 [sub_resource type="Resource" id="Trait_snagged_threads"]
 script = ExtResource("2_trait")
 id = &"snagged_threads"
 category = 3
 text_key = "TRAIT_SNAGGED_THREADS"
+label_key = "TRAIT_SNAGGED_THREADS_LABEL"
+variant_keys = Array[String](["TRAIT_SNAGGED_THREADS_2", "TRAIT_SNAGGED_THREADS_3"])
 
 [sub_resource type="Resource" id="Trait_long_tangled_hair"]
 script = ExtResource("2_trait")
 id = &"long_tangled_hair"
 text_key = "TRAIT_LONG_TANGLED_HAIR"
+label_key = "TRAIT_LONG_TANGLED_HAIR_LABEL"
+variant_keys = Array[String](["TRAIT_LONG_TANGLED_HAIR_2", "TRAIT_LONG_TANGLED_HAIR_3", "TRAIT_LONG_TANGLED_HAIR_4"])
 
 [sub_resource type="Resource" id="Action_look_down"]
 script = ExtResource("3_action")

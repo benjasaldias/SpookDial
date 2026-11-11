@@ -64,7 +64,7 @@ static func first_message(request: FriendRequest, translate: Callable) -> ChatMe
 	if request.says_place:
 		message.add_fragment(_text(translate, request.place_key))
 	if request.hint != null:
-		message.add_fragment(_text(translate, request.hint.text_key), request.hint.id)
+		message.add_fragment(_text(translate, request.text_key_for(request.hint)), request.hint.id)
 	return message
 
 
@@ -75,7 +75,7 @@ static func answer(request: FriendRequest, category: ClueCategory.Kind, translat
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
 	for clue: TraitData in request.clues:
 		if clue.category == category:
-			message.add_fragment(_text(translate, clue.text_key), clue.id)
+			message.add_fragment(_text(translate, request.text_key_for(clue)), clue.id)
 	for observation: ObservationData in request.entity.observations:
 		if observation.category != category:
 			continue

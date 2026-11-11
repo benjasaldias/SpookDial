@@ -49,6 +49,10 @@ static func build(catalog: ContentCatalog, night: NightData, friend_index: int, 
 		# Solo pasa si el contenido tiene errores; test_catalog.gd los avisa.
 		pairs.append(entity.traits.slice(0, 2))
 	request.traits.assign(pairs[rng.randi_range(0, pairs.size() - 1)])
+	# Cada característica se dice con una de sus formas, al azar (decisión de Benja, 11 de noviembre).
+	for trait_data: TraitData in request.traits:
+		var forms := trait_data.text_keys()
+		request.trait_forms[trait_data.id] = forms[rng.randi_range(0, forms.size() - 1)]
 	var decoys := shuffled(catalog.decoys_for_place(request.place_key), rng)
 	request.decoys.assign(decoys.slice(0, night.decoys_per_request))
 	request.clues.assign(shuffled(request.traits + request.decoys, rng))

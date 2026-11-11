@@ -67,3 +67,14 @@ func test_frases_de_lo_que_le_pasa() -> bool:
 	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_LOST"]))
 	check_contains(errors, "Lo que le pasa 1: la clave 'K_LOST' no está en ningún CSV")
 	return true
+
+
+## Cada forma de decir una característica tiene una sola frase clickeable, y su nombre en el cuaderno existe.
+func test_cada_variante_con_una_frase_marcada() -> bool:
+	var texts := {"K_TRAIT_beast_trait_1_3": "un enano sin marca"}
+	var translate := func(key: String) -> String: return texts.get(key, "Texto de *%s*" % key)
+	var errors := ContentValidator.validate_texts(Fixtures.make_catalog(), translate)
+	check_contains(errors, "Característica 'beast_trait_1', forma 'K_TRAIT_beast_trait_1_3': su texto debe tener una sola frase entre asteriscos")
+	errors = ContentValidator.validate_texts(Fixtures.make_catalog(), _translate_except(["K_LABEL_beast_trait_2"]))
+	check_contains(errors, "Entidad 'beast', característica 'beast_trait_2', nombre: la clave 'K_LABEL_beast_trait_2' no está en ningún CSV")
+	return true
