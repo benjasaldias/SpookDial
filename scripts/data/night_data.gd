@@ -17,6 +17,9 @@ extends Resource
 ## Probabilidad de que el mensaje inicial traiga una pista: una de las 2 características, que se puede
 ## clickear. Todo lo demás (características, señuelos y observaciones) sale al preguntar (decisión de Benja, 3-nov).
 @export_range(0.0, 1.0) var first_hint_chance := 1.0
+## Probabilidad de que el mensaje inicial diga dónde está el amigo (decisión de Benja, 11 de noviembre). Si no lo dice,
+## solo saluda y cuenta qué le pasa: identificar rápido a la criatura es parte de la habilidad del jugador.
+@export_range(0.0, 1.0) var place_chance := 1.0
 ## Señuelos de la solicitud: frases clickeables que camuflan sus 2 características cuando el amigo las cuenta.
 @export var decoys_per_request := 1
 ## Solicitudes por ola: llegan seguidas y, después de cada ola, hay un respiro (decisión de Benja).

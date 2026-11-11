@@ -1,6 +1,7 @@
 extends RefCounted
 ## Una solicitud de un amigo (docs/02 §2): la entidad, la situación y lo que el jugador va descubriendo.
-## El mensaje inicial solo saluda, dice el lugar y, a veces, trae una pista; lo demás se pregunta (docs/02 §3).
+## El mensaje inicial saluda, dice qué le pasa al amigo y, a veces, dónde está y una pista; lo demás se pregunta
+## (docs/02 §3; decisión de Benja, 11 de noviembre).
 ## Lógica pura: RequestManager la avanza en el tiempo y el chat la muestra.
 
 const Consequence := preload("res://scripts/core/consequence.gd")
@@ -19,6 +20,8 @@ const THINKING_TIME := 3.0
 var friend_index := 0
 var entity: EntityData
 var place_key := ""
+## El mensaje inicial dice dónde está (decisión de Benja, 11 de noviembre). Los señuelos son del lugar igual.
+var says_place := true
 ## id de observación → valor en esta solicitud.
 var situation: Dictionary = {}
 ## Las 2 características que la distinguen. Para identificar la entidad hay que marcar las dos.
@@ -31,6 +34,8 @@ var clues: Array[TraitData] = []
 var hint: TraitData
 ## Con qué saludo pide ayuda (clave de messages.csv); vacío si el catálogo no tiene saludos.
 var greeting_key := ""
+## Lo que le pasa ("Me perdí."; clave de messages.csv); vacío si el catálogo no tiene frases.
+var predicament_key := ""
 ## Segundos que cuesta una pregunta.
 var question_cost := QUESTION_COST
 ## Segundos que quedan para responder.

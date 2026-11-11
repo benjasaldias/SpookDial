@@ -64,7 +64,7 @@ static func make_decoy(decoy_id: StringName, category := ClueCategory.Kind.SIGHT
 
 
 ## Catálogo válido: 3 amigos, 5 noches, 2 señuelos que sirven en cualquier lugar ("decoy_sight" y
-## "decoy_sound"), un saludo ("K_CALL_1") y los valores de equilibrio por defecto; "beast" aparece la noche 1 y "ghost" la noche 2.
+## "decoy_sound"), un saludo ("K_CALL_1"), una frase de lo que le pasa ("K_LOST") y los valores de equilibrio por defecto; "beast" aparece la noche 1 y "ghost" la noche 2.
 ## La noche 0 (el tutorial) tiene 2 solicitudes de "beast": la de León (o1 = yes, con pista y con un video al
 ## terminar) y la de Gonzalo (o1 = no y o2 = yes, sin pista).
 static func make_catalog() -> ContentCatalog:
@@ -86,6 +86,7 @@ static func make_catalog() -> ContentCatalog:
 	catalog.decoys.append(make_decoy(&"decoy_sight"))
 	catalog.decoys.append(make_decoy(&"decoy_sound", ClueCategory.Kind.SOUND))
 	catalog.greeting_keys.assign(["K_CALL_1"])
+	catalog.predicament_keys.assign(["K_LOST"])
 	catalog.tutorial = make_tutorial(catalog)
 	return catalog
 

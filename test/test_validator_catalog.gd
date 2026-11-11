@@ -90,6 +90,13 @@ func test_sin_saludos() -> bool:
 	return true
 
 
+func test_sin_frases_de_lo_que_le_pasa() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.predicament_keys.clear()
+	check_contains(ContentValidator.validate_catalog(catalog), "Catálogo: no tiene frases de lo que le pasa al amigo")
+	return true
+
+
 func test_tutorial() -> bool:
 	var catalog := Fixtures.make_catalog()
 	catalog.tutorial.number = 1

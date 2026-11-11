@@ -1,7 +1,8 @@
 extends RefCounted
 ## Arma una solicitud nueva (docs/02 §2): la entidad, el lugar, la situación, las 2 características
-## que la distinguen de las demás entidades conocidas, los señuelos que las camuflan, el saludo y, a veces,
-## una pista para el mensaje inicial. Las observaciones no se eligen aquí: salen al preguntar su categoría.
+## que la distinguen de las demás entidades conocidas, los señuelos que las camuflan, el saludo, lo que le pasa al
+## amigo, si dice el lugar y, a veces, una pista para el mensaje inicial. Las observaciones no se eligen aquí: salen
+## al preguntar su categoría.
 
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 
@@ -24,6 +25,8 @@ static func generate_tutorial(catalog: ContentCatalog, night: NightData, data: T
 	for observation_id: StringName in data.situation:
 		request.situation[observation_id] = data.situation[observation_id]
 	request.hint = request.traits[0] if data.with_hint else null
+	# La noche 0 enseña: el lugar se dice siempre.
+	request.says_place = true
 	request.timer_paused = true
 	return request
 
@@ -54,6 +57,9 @@ static func build(catalog: ContentCatalog, night: NightData, friend_index: int, 
 	var hint_index := rng.randi_range(0, request.traits.size() - 1)
 	if hint_roll < night.first_hint_chance:
 		request.hint = request.traits[hint_index]
+	request.says_place = rng.randf() < night.place_chance
+	if not catalog.predicament_keys.is_empty():
+		request.predicament_key = catalog.predicament_keys[rng.randi_range(0, catalog.predicament_keys.size() - 1)]
 	request.question_cost = catalog.balance.question_cost
 	request.time_left = decision_time(night, trust)
 	return request

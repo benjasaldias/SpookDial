@@ -52,13 +52,17 @@ const SIGNAL_LOST_KEY := "CHAT_SIGNAL_LOST"
 const SIGNAL_BACK_KEY := "CHAT_SIGNAL_BACK"
 
 
-## Mensaje inicial (decisión de Benja, 3-nov): el saludo ("¡Mati, ayuda!!"), dónde está y, a veces, una pista
-## (una de las 2 características, clickeable). Todo lo demás se pregunta.
+## Mensaje inicial (decisiones de Benja, 3 y 11 de noviembre): el saludo ("¡Mati, ayuda!!"), qué le pasa ("Me
+## perdí."), a veces dónde está y, a veces, una pista (una de las 2 características, clickeable). Todo lo demás se
+## pregunta.
 static func first_message(request: FriendRequest, translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
 	if not request.greeting_key.is_empty():
 		message.add_fragment(_text(translate, request.greeting_key))
-	message.add_fragment(_text(translate, request.place_key))
+	if not request.predicament_key.is_empty():
+		message.add_fragment(_text(translate, request.predicament_key))
+	if request.says_place:
+		message.add_fragment(_text(translate, request.place_key))
 	if request.hint != null:
 		message.add_fragment(_text(translate, request.hint.text_key), request.hint.id)
 	return message

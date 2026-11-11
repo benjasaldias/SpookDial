@@ -62,6 +62,8 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 	_check_count(errors, who, "noches", catalog.nights.size(), NIGHT_COUNT)
 	if catalog.greeting_keys.is_empty():
 		errors.append("%s: no tiene saludos para el mensaje inicial" % who)
+	if catalog.predicament_keys.is_empty():
+		errors.append("%s: no tiene frases de lo que le pasa al amigo" % who)
 	var entities: Array[EntityData] = []
 	for index in catalog.nights.size():
 		var night: NightData = catalog.nights[index]
@@ -176,6 +178,8 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 		keys.append(["Señuelo '%s'" % decoy.id, decoy.text_key])
 	for index in catalog.greeting_keys.size():
 		keys.append(["Saludo %d" % (index + 1), catalog.greeting_keys[index]])
+	for index in catalog.predicament_keys.size():
+		keys.append(["Lo que le pasa %d" % (index + 1), catalog.predicament_keys[index]])
 	for incident: IncidentData in catalog.incidents:
 		var where := "Accidente '%s'" % incident.id
 		keys.append([where + ", mensaje", incident.message_key])

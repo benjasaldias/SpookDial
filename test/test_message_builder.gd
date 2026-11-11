@@ -64,6 +64,24 @@ func test_mensaje_inicial_con_pista() -> bool:
 	return true
 
 
+## Saludo, lo que le pasa, el lugar si lo dice y la pista (decisión de Benja, 11 de noviembre).
+func test_el_mensaje_inicial_dice_lo_que_le_pasa() -> bool:
+	var request := _make_request()
+	request.predicament_key = "K_LOST"
+	request.hint = request.traits[0]
+	check_eq(MessageBuilder.first_message(request, _translate).plain_text(),
+			"K_CALL. K_LOST. K_PLACE. Hay K_TRAIT_beast_trait_1.", "en este orden")
+	return true
+
+
+func test_el_mensaje_inicial_sin_lugar() -> bool:
+	var request := _make_request()
+	request.predicament_key = "K_LOST"
+	request.says_place = false
+	check_eq(MessageBuilder.first_message(request, _translate).plain_text(), "K_CALL. K_LOST.", "sin el lugar")
+	return true
+
+
 func test_respuesta_a_una_pregunta() -> bool:
 	var request := _make_request()
 	var sight := MessageBuilder.answer(request, ClueCategory.Kind.SIGHT, _translate)

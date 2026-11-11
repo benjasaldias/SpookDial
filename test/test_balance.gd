@@ -168,3 +168,15 @@ func test_trust_por_tardar() -> bool:
 	check_eq(balance.slow_answer_grace, 30.0, "30 s de espera sin que Trust baje")
 	check_eq(balance.slow_answer_trust, 0.25, "después, Trust baja 0,25 por segundo por solicitud")
 	return true
+
+
+## El mensaje inicial dice el lugar solo a veces (decisión de Benja, 11 de noviembre), y cada vez menos. La noche 0
+## lo dice siempre, porque enseña.
+func test_el_lugar_solo_a_veces() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var chances := [0.6, 0.55, 0.5, 0.45, 0.4]
+	for index in catalog.nights.size():
+		check_eq(catalog.nights[index].place_chance, chances[index], "noche %d" % (index + 1))
+	check_eq(catalog.tutorial.place_chance, 1.0, "noche 0")
+	check(catalog.predicament_keys.size() >= 6, "varias frases de lo que le pasa: %d" % catalog.predicament_keys.size())
+	return true

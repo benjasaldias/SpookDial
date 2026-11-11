@@ -14,6 +14,7 @@ requests_total = 8
 max_simultaneous = 3
 base_decision_time = 45.0
 first_hint_chance = 0.0
+place_chance = 0.45
 decoys_per_request = 3
 wave_size = 4
 incident_count = 2

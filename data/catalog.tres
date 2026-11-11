@@ -223,6 +223,7 @@ decoys = Array[ExtResource("12_decoy")]([SubResource("Decoy_cold_breath"), SubRe
 tutorial = ExtResource("15_night_0")
 incidents = Array[ExtResource("16_incident")]([SubResource("Incident_cut"), SubResource("Incident_ankle"), SubResource("Incident_soaked"), SubResource("Incident_bump"), SubResource("Incident_thorn")])
 greeting_keys = Array[String](["FIRST_CALL_1", "FIRST_CALL_2", "FIRST_CALL_3", "FIRST_CALL_4", "FIRST_CALL_5", "FIRST_CALL_6"])
+predicament_keys = Array[String](["PREDICAMENT_1", "PREDICAMENT_2", "PREDICAMENT_3", "PREDICAMENT_4", "PREDICAMENT_5", "PREDICAMENT_6", "PREDICAMENT_7", "PREDICAMENT_8"])
 balance = ExtResource("13_balance")
 phone_posts = Array[ExtResource("14_post")]([SubResource("PhonePost_01"), SubResource("PhonePost_02"), SubResource("PhonePost_03"), SubResource("PhonePost_04"), SubResource("PhonePost_05"), SubResource("PhonePost_06"), SubResource("PhonePost_07"), SubResource("PhonePost_08"), SubResource("PhonePost_09"), SubResource("PhonePost_10"), SubResource("PhonePost_11"), SubResource("PhonePost_12")])
 phone_disturbing_posts = Array[ExtResource("14_post")]([SubResource("PhoneDisturbing_1"), SubResource("PhoneDisturbing_2"), SubResource("PhoneDisturbing_3"), SubResource("PhoneDisturbing_4")])

@@ -167,3 +167,48 @@ func test_las_solicitudes_del_tutorial_son_fijas() -> bool:
 	check_eq(second.situation, {&"o1": &"no", &"o2": &"yes"}, "situación fija")
 	check(second.hint == null, "sin pista")
 	return true
+
+
+## El mensaje inicial dice el lugar solo a veces (decisión de Benja, 11 de noviembre): según la noche.
+func test_el_lugar_segun_la_probabilidad_de_la_noche() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var night: NightData = catalog.nights[0]
+	night.place_chance = 1.0
+	for seed_value in 20:
+		check(RequestGenerator.generate(catalog, night, 0, _rng(seed_value)).says_place, "con 100 %%, siempre: %d" % seed_value)
+	night.place_chance = 0.0
+	for seed_value in 20:
+		check(not RequestGenerator.generate(catalog, night, 0, _rng(seed_value)).says_place, "con 0 %%, nunca: %d" % seed_value)
+	night.place_chance = 0.5
+	var with_place := 0
+	for seed_value in 200:
+		if RequestGenerator.generate(catalog, night, 0, _rng(seed_value)).says_place:
+			with_place += 1
+	check(with_place > 60 and with_place < 140, "con 50 %%, más o menos la mitad: %d de 200" % with_place)
+	return true
+
+
+## Lo que le pasa al amigo sale del catálogo, y lo dice siempre (decisión de Benja, 11 de noviembre).
+func test_siempre_dice_lo_que_le_pasa() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.predicament_keys.assign(["K_LOST", "K_FOLLOWED", "K_HEARD"])
+	var seen := {}
+	for seed_value in 40:
+		var request := RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(seed_value))
+		check(catalog.predicament_keys.has(request.predicament_key), "es del catálogo: %s" % request.predicament_key)
+		seen[request.predicament_key] = true
+	check_eq(seen.size(), 3, "con varias semillas salen las 3")
+	catalog.predicament_keys.clear()
+	check_eq(RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(1)).predicament_key, "", "sin frases, nada")
+	return true
+
+
+## La noche 0 enseña: el lugar se dice siempre.
+func test_en_el_tutorial_siempre_dice_el_lugar() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.tutorial.place_chance = 0.0
+	for seed_value in 10:
+		var request := RequestGenerator.generate_tutorial(catalog, catalog.tutorial,
+				catalog.tutorial.tutorial_requests[0], _rng(seed_value))
+		check(request.says_place, "semilla %d" % seed_value)
+	return true

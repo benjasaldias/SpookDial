@@ -60,3 +60,10 @@ func test_saludos_del_mensaje_inicial() -> bool:
 	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_CALL_1"]))
 	check_contains(errors, "Saludo 1: la clave 'K_CALL_1' no está en ningún CSV")
 	return true
+
+
+func test_frases_de_lo_que_le_pasa() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_LOST"]))
+	check_contains(errors, "Lo que le pasa 1: la clave 'K_LOST' no está en ningún CSV")
+	return true

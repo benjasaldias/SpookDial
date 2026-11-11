@@ -161,9 +161,11 @@ func test_las_solicitudes_llegan_solas() -> bool:
 	check_eq(manager.active_count(), 0, "a los 4,9 s todavía no")
 	manager.advance(0.2)
 	check_eq(manager.active_count(), 1, "a los 5,1 s llega la primera")
-	# La segunda llega cuando dice el director, más de 45 s después: la primera ya se acabó.
+	# La segunda llega cuando dice el director, más de 45 s después: la primera ya se acabó (si el amigo salió
+	# herido, el director ya la atrasó).
+	manager.advance(46.0)
 	var second: float = manager.director.request_times[0]
-	manager.advance(second - 5.1 - 0.1)
+	manager.advance(second - 51.1 - 0.1)
 	check_eq(manager.active_count(), 0, "la segunda todavía no llega")
 	manager.advance(0.2)
 	check_eq(manager.active_count(), 1, "la segunda llega a su hora")
@@ -428,8 +430,8 @@ func test_la_entidad_se_identifica_preguntando() -> bool:
 	_record(manager, events)
 	var request := manager.start_request(0)
 	var first: ChatMessage = _messages(events)[0]
-	check_eq(first.plain_text(), "%s %s" % [TranslationServer.translate("K_CALL_1"), TranslationServer.translate(request.place_key)],
-			"solo el saludo y el lugar")
+	check_eq(first.plain_text(), "%s %s %s" % [TranslationServer.translate("K_CALL_1"), TranslationServer.translate("K_LOST"),
+			TranslationServer.translate(request.place_key)], "solo el saludo, lo que le pasa y el lugar")
 	events.clear()
 	for category: ClueCategory.Kind in [ClueCategory.Kind.SIGHT, ClueCategory.Kind.SOUND]:
 		check(manager.ask(0, category), "se puede preguntar %s" % category)
