@@ -19,6 +19,8 @@ extends Node2D
 ## Desde el Plan 9, unas barras arriba de la pantalla muestran lo mismo que los diales, que se quedan (decisión de
 ## Benja). Las cortinas se abren y se cierran con un clic (ScreamerManager), y la batería del celular se ve en su
 ## barra.
+## Desde el Plan 9.1, la Mano (HandManager) asoma por la derecha hacia un dial, y la linterna del celular la espanta
+## (decisión de Benja, 11 de noviembre). En la noche 0 llega unos segundos después de abrir el celular.
 
 ## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
 signal tutorial_skipped
@@ -40,6 +42,7 @@ const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const Screamer := preload("res://scripts/core/screamer.gd")
 const ScreamerManager := preload("res://scripts/desk/screamer_manager.gd")
+const HandManager := preload("res://scripts/desk/hand_manager.gd")
 const TutorialGuide := preload("res://scripts/core/tutorial_guide.gd")
 
 ## Videos recibidos, en el PC (ui.csv). Lleva {received} y {quota}. Si ya no alcanzan la cuota, el otro texto, en
@@ -50,6 +53,8 @@ const VIDEOS_SHORT_COLOR := Color(1.0, 0.3, 0.37)
 
 ## El largo de la barra de batería del celular del escritorio, llena.
 const BATTERY_BAR_WIDTH := 44.0
+## En la noche 0, segundos con el celular abierto antes de que llegue la Mano: primero se enseña el scroll.
+const TUTORIAL_HAND_DELAY := 5.0
 
 ## Qué página del cuaderno tiene abierta cada amigo. La usan el cuaderno y los botones de respuesta del chat.
 var notebook_memory: NotebookMemory
@@ -72,6 +77,7 @@ var notebook_memory: NotebookMemory
 @onready var _phone: Control = $UI/PhoneView
 @onready var _interference_sound: AudioStreamPlayer = $InterferenceSound
 @onready var _screamers: ScreamerManager = $Screamers
+@onready var _hands: HandManager = $Hands
 @onready var _phone_sprite: AnimatedSprite2D = $DeskPlane/Phone
 @onready var _tutorial_hint: Control = $Overlay/TutorialHint
 @onready var _pause_menu: Control = $Overlay/PauseMenu
@@ -81,6 +87,8 @@ var _settings := GameSettings.new()
 
 ## El guía del tutorial en la noche 0, o null en las demás.
 var _guide: TutorialGuide
+## En la noche 0, segundos desde que el guía pide la Mano.
+var _tutorial_hand_wait := 0.0
 
 ## Qué amigos tenían anunciada una interferencia en el frame anterior: la estática suena al empezar el aviso.
 var _warned: Array[bool] = []
@@ -99,6 +107,9 @@ func _ready() -> void:
 	_mixer.setup(_requests, friends)
 	_phone.setup(_requests.state, _requests.catalog.phone_posts, _requests.catalog.phone_disturbing_posts)
 	_screamers.setup(_requests, _night)
+	_hands.setup(_requests, _night, _screamers)
+	_screamers.hands = _hands
+	_phone.flash_pressed.connect(_hands.flash)
 	_warned.resize(friends.size())
 	_warned.fill(false)
 	for index in _entries.size():
@@ -126,6 +137,7 @@ func _ready() -> void:
 		_tutorial_hint.skip_pressed.connect(tutorial_skipped.emit)
 		_guide.explain_dials = true
 		_tutorial_hint.ok_pressed.connect(_guide.dials_understood)
+		_hands.hand_scared.connect(_guide.hand_scared)
 	_tutorial_hint.visible = _guide != null
 	_pause_menu.resumed.connect(func() -> void: get_tree().paused = false)
 	_pause_menu.menu_pressed.connect(menu_requested.emit)
@@ -136,7 +148,9 @@ func _process(delta: float) -> void:
 	_refresh_entries()
 	_refresh_meters()
 	_screamers.advance(delta, _scare_view(), _mixer.is_playing() or _chat_panel.is_audio_playing())
+	_hands.advance(delta)
 	if _guide != null:
+		_maybe_start_tutorial_hand(delta)
 		_refresh_tutorial()
 
 
@@ -159,6 +173,7 @@ func apply_settings(settings: GameSettings) -> void:
 		entry.reduce_flashes = settings.reduce_flashes
 	_mixer.reduce_flashes = settings.reduce_flashes
 	_screamers.reduce_flashes = settings.reduce_flashes
+	_hands.reduce_flashes = settings.reduce_flashes
 	_stat_bars.reduce_flashes = settings.reduce_flashes
 	$LookCamera.set_look(not settings.still_camera)
 	_requests.timer_scale = settings.timer_scale()
@@ -374,6 +389,18 @@ func _tutorial_view() -> TutorialGuide.View:
 	if not state.videos.offers.is_empty():
 		view.video_friend = state.videos.offers[0].friend_index
 	return view
+
+
+## En la noche 0, la Mano llega unos segundos después de abrir el celular, si la criatura ya se fue: el guía enseña el
+## flash (decisión de Benja, 11 de noviembre). Va hacia Sanity, la barra que el tutorial acaba de enseñar.
+func _maybe_start_tutorial_hand(delta: float) -> void:
+	if not _guide.wants_hand() or _screamers.is_creature_near() or _hands.is_present():
+		return
+	_tutorial_hand_wait += delta
+	if _tutorial_hand_wait < TUTORIAL_HAND_DELAY:
+		return
+	_hands.start_visit(NightState.Dial.SANITY)
+	_guide.hand_started()
 
 
 func _on_phone_visibility_changed() -> void:

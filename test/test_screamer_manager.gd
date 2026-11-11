@@ -489,3 +489,19 @@ func test_la_criatura_se_queda_un_tiempo_al_azar() -> bool:
 	check(stays.size() > 1, "no siempre lo mismo")
 	desk.free()
 	return true
+
+
+## La Mano y la criatura no coinciden (decisión de Benja, 11 de noviembre): con la Mano en la pared, la criatura espera.
+func test_con_la_mano_no_llega_la_criatura() -> bool:
+	var desk := _make_desk()
+	var screamers := _screamers(desk)
+	desk.get_node("Hands").start_visit(NightState.Dial.SANITY)
+	_scare_now(desk, true)
+	(desk.get_node("UI/ChatPanel") as Control).show()
+	desk._process(0.0)
+	check(not screamers.is_warning(), "la criatura espera")
+	desk.get_node("Hands").flash()
+	desk._process(0.0)
+	check(screamers.is_warning(), "sin la Mano, se anuncia")
+	desk.free()
+	return true

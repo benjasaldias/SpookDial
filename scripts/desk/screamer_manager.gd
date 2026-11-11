@@ -81,6 +81,9 @@ enum Creature { AWAY, HIDDEN, SEEN }
 @export var hallucination_sounds: Array[AudioStream] = []
 ## La opción "Reducir destellos" (diseño §19).
 var reduce_flashes := false
+## La Mano (HandManager), o null: mientras está en la pared, la criatura no se arma (decisión de Benja, 11 de
+## noviembre).
+var hands: Node
 
 var _requests: RequestManager
 var _night: NightManager
@@ -154,6 +157,8 @@ func advance(delta: float, view: Screamer.View, busy: bool) -> void:
 		_announce(_requests.night().scripted_scare, true)
 		return
 	if not director.scare_due(now):
+		return
+	if director.next_is_jumpscare() and hands != null and hands.is_present():
 		return
 	var time_lefts := []
 	for pending: Array in [_requests.requests, _requests.incidents]:

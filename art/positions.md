@@ -13,6 +13,7 @@ Coordenadas en píxeles del lienzo de 1280×720, medidas desde la esquina superi
 | `glasspane_sprite` | 273, 121 | 251×297 | Pared | |
 | `curtains_sprite` | 219, 92 | 374×352 | Pared | |
 | `dial_sprite` (×3) | 840, 89 · 840, 219 · 840, 348 | 112×113 | Pared | Arriba Connection, al medio Sanity, abajo Trust |
+| `hand_sprite` | Se mueve: asoma desde x = 1280 y agarra en 836, 95 · 836, 225 · 836, 354 (el dial más −4, +6) | 319×81, 3 cuadros | Pared, delante de los diales y detrás de los paneles | La Mano (Plan 9.1). En la maqueta (capa `Hand`, cuadro 2) se ve recortada en 864, 105, de 249×63: el resto del brazo se pierde en la oscuridad |
 | `arrow_sprite` (×3) | Eje en 896, 145 · 896, 274 · 896, 403 | 15×48 | Pared | Eje de giro en el píxel (7, 43) del archivo; dentro del dial queda en (56, 56) |
 | `desk_sprite` | 0, 505 | 1280×215 | Escritorio | |
 | `notebook_sprite` | 1017, 562 | 146×78 | Escritorio | Clickeable |

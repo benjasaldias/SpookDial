@@ -6,6 +6,11 @@ extends Control
 ## Las publicaciones se repiten sin fin. Se cierra con clic derecho; Esc y un clic fuera lo cierran desde
 ## el escritorio. La batería alcanza para un rato por noche y, sin ella, no hay nada que mirar (decisión de Benja,
 ## 7 de noviembre).
+## En la barra superior, el rayo de la linterna pide el flash, que espanta a la Mano y gasta batería; sin batería no
+## prende (decisión de Benja, 11 de noviembre).
+
+## Clic en la linterna, con batería: el escritorio prende el flash.
+signal flash_pressed
 
 const NightState := preload("res://scripts/core/night_state.gd")
 const PhoneFeed := preload("res://scripts/core/phone_feed.gd")
@@ -18,6 +23,11 @@ const FRAME := preload("res://art/ui/phone_frame.png")
 const APP_NAME_KEY := "PHONE_APP_NAME"
 ## Lo que se ve sin batería (phone.csv).
 const NO_BATTERY_KEY := "PHONE_NO_BATTERY"
+## El nombre de la linterna, al pasar el mouse (phone.csv).
+const FLASH_KEY := "PHONE_FLASH"
+## Dónde se clickea la linterna, en la barra superior, y dónde se dibuja su rayo.
+const FLASH_RECT := Rect2(112, 16, 24, 18)
+const FLASH_ICON := Vector2(118, 19)
 ## Bajo este porcentaje, la batería se ve en rojo.
 const LOW_BATTERY := 20.0
 const SIZE := Vector2(260, 520)
@@ -134,7 +144,13 @@ func _update_slots() -> void:
 			_slots[slot] = PhoneFeed.post_for_slot(slot, _state.sanity, _posts, _disturbing_posts, _state.balance)
 
 
-## La rueda del mouse y el touchpad scrollean. El clic derecho cierra el celular.
+## Lo que dice el mouse sobre la linterna.
+func _get_tooltip(at_position: Vector2) -> String:
+	return tr(FLASH_KEY) if FLASH_RECT.has_point(at_position) else ""
+
+
+## La rueda del mouse y el touchpad scrollean. El clic izquierdo en la linterna pide el flash. El clic derecho cierra
+## el celular.
 func _gui_input(event: InputEvent) -> void:
 	var pan := event as InputEventPanGesture
 	if pan != null:
@@ -150,6 +166,9 @@ func _gui_input(event: InputEvent) -> void:
 			scroll_by(WHEEL_STEP)
 		MOUSE_BUTTON_WHEEL_UP:
 			scroll_by(-WHEEL_STEP)
+		MOUSE_BUTTON_LEFT:
+			if FLASH_RECT.has_point(mouse.position) and _state.has_battery():
+				flash_pressed.emit()
 		MOUSE_BUTTON_RIGHT:
 			close()
 
@@ -163,6 +182,7 @@ func _draw() -> void:
 	_draw_text(self, _state.clock_text(), Vector2(22, 31), TEXT_COLOR)
 	for bar in 4:
 		draw_rect(Rect2(196 + bar * 4, 28 - bar * 2, 3, 3 + bar * 2), TEXT_COLOR)
+	PhoneIcons.draw_icon(self, PhoneIcons.FLASHLIGHT, FLASH_ICON, TEXT_COLOR if has_battery else DIM_COLOR)
 	_draw_battery()
 	if has_battery:
 		_draw_app_bars()

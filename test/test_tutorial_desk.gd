@@ -148,6 +148,14 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	desk.get_node("DeskPlane/Phone").clicked.emit()
 	desk._process(0.0)
 	check_eq(_hint_text(desk), _expected(TutorialGuide.SCROLL_KEY), "scrollear")
+	# Con el celular abierto llega la Mano, y el aviso enseña el flash (decisión de Benja, 11 de noviembre).
+	_play(desk, 6)
+	check(desk.get_node("Hands").is_present(), "llegó la Mano")
+	check_eq(_hint_text(desk), _expected(TutorialGuide.HAND_KEY), "espantarla con el flash")
+	(desk.get_node("UI/PhoneView") as Control).flash_pressed.emit()
+	desk._process(0.0)
+	check(not desk.get_node("Hands").is_present(), "el flash la espantó")
+	check_eq(_hint_text(desk), _expected(TutorialGuide.HAND_DONE_KEY), "guardar batería y cerrar el celular")
 	var endings := []
 	desk.get_node("NightManager").night_ended.connect(func(ending: NightState.Ending, _request: FriendRequest) -> void:
 		endings.append(ending))

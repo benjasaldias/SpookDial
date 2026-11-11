@@ -46,6 +46,10 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/hallucination_steps.wav" id="steps_sound"]
 [ext_resource type="AudioStream" path="res://audio/sfx/hallucination_whisper.wav" id="whisper_sound"]
 [ext_resource type="AudioStream" path="res://audio/sfx/hallucination_scratch.wav" id="scratch_sound"]
+[ext_resource type="SpriteFrames" path="res://art/sprites/hand_sprite.aseprite" id="hand"]
+[ext_resource type="Script" path="res://scripts/desk/hand_manager.gd" id="hands_script"]
+[ext_resource type="AudioStream" path="res://audio/sfx/hand_creak.wav" id="creak_sound"]
+[ext_resource type="AudioStream" path="res://audio/sfx/phone_flash.wav" id="flash_sound"]
 
 [sub_resource type="ShaderMaterial" id="vignette_material"]
 shader = ExtResource("vignette_shader")
@@ -110,6 +114,12 @@ needle_color = &"red"
 [node name="DialTrust" parent="WallPlane" instance=ExtResource("dial")]
 position = Vector2(840, 348)
 needle_color = &"yellow"
+
+[node name="Hand" type="AnimatedSprite2D" parent="WallPlane"]
+visible = false
+position = Vector2(1280, 95)
+sprite_frames = ExtResource("hand")
+centered = false
 
 [node name="DeskPlane" type="Node2D" parent="."]
 
@@ -291,6 +301,21 @@ bus = &"Effects"
 [node name="Hallucination" type="AudioStreamPlayer2D" parent="Screamers"]
 bus = &"Effects"
 
+[node name="Hands" type="Node" parent="." node_paths=PackedStringArray("sprite", "flash_overlay", "dials")]
+script = ExtResource("hands_script")
+sprite = NodePath("../WallPlane/Hand")
+flash_overlay = NodePath("../Overlay/Flash")
+dials = [NodePath("../WallPlane/DialConnection"), NodePath("../WallPlane/DialSanity"), NodePath("../WallPlane/DialTrust")]
+
+[node name="CreakSound" type="AudioStreamPlayer2D" parent="Hands"]
+position = Vector2(1200, 300)
+stream = ExtResource("creak_sound")
+bus = &"Effects"
+
+[node name="FlashSound" type="AudioStreamPlayer" parent="Hands"]
+stream = ExtResource("flash_sound")
+bus = &"Effects"
+
 [node name="Overlay" type="CanvasLayer" parent="."]
 layer = 2
 
@@ -310,6 +335,14 @@ offset_right = 790.0
 offset_bottom = 62.0
 mouse_filter = 2
 script = ExtResource("stat_bars_script")
+
+[node name="Flash" type="ColorRect" parent="Overlay"]
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 0.98, 0.92, 1)
 
 [node name="TutorialHint" parent="Overlay" instance=ExtResource("tutorial_hint")]
 visible = false

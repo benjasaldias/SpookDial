@@ -98,9 +98,42 @@ func test_el_chat_guionado_y_el_celular() -> bool:
 	guide.phone_opened()
 	_check_hint(guide, _view(), TutorialGuide.SCROLL_KEY)
 	check(not guide.is_done(), "mientras lo usa, sigue")
+	guide.hand_started()
+	guide.hand_scared()
 	guide.phone_closed()
-	check(guide.is_done(), "al cerrarlo, termina")
+	check(guide.is_done(), "después de la Mano, al cerrarlo termina")
 	check_eq(guide.hint(_view()).key, "", "sin aviso")
+	return true
+
+
+## Con el celular abierto llega la Mano, y el aviso enseña el flash (decisión de Benja, 11 de noviembre).
+func test_la_mano_despues_del_celular() -> bool:
+	var guide := TutorialGuide.new()
+	check(not guide.wants_hand(), "todavía no")
+	guide.phone_highlighted()
+	guide.phone_opened()
+	check(guide.wants_hand(), "con el celular abierto, toca la Mano")
+	guide.hand_started()
+	check(not guide.wants_hand(), "una sola vez")
+	_check_hint(guide, _view(), TutorialGuide.HAND_KEY)
+	guide.hand_scared()
+	_check_hint(guide, _view(), TutorialGuide.HAND_DONE_KEY)
+	return true
+
+
+func test_cerrar_el_celular_antes_del_flash_no_termina() -> bool:
+	var guide := TutorialGuide.new()
+	guide.phone_highlighted()
+	guide.phone_opened()
+	guide.phone_closed()
+	check(not guide.is_done(), "antes de la Mano, no")
+	guide.hand_started()
+	guide.phone_closed()
+	check(not guide.is_done(), "con la Mano en la pared, tampoco")
+	_check_hint(guide, _view(), TutorialGuide.HAND_KEY)
+	guide.hand_scared()
+	guide.phone_closed()
+	check(guide.is_done(), "después del flash, sí")
 	return true
 
 
@@ -123,7 +156,7 @@ func test_sus_textos_existen() -> bool:
 			TutorialGuide.OPEN_CHAT_KEY, TutorialGuide.ASK_KEY, TutorialGuide.MARK_KEY, TutorialGuide.OPEN_PAGE_KEY,
 			TutorialGuide.ANSWER_KEY, TutorialGuide.CORRECT_KEY, TutorialGuide.RISKY_KEY, TutorialGuide.WRONG_KEY,
 			TutorialGuide.VIDEO_KEY, TutorialGuide.HOLD_KEY, TutorialGuide.REPLY_KEY, TutorialGuide.PHONE_KEY,
-			TutorialGuide.SCROLL_KEY]:
+			TutorialGuide.SCROLL_KEY, TutorialGuide.HAND_KEY, TutorialGuide.HAND_DONE_KEY]:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en ui.csv" % key)
 	return true
 

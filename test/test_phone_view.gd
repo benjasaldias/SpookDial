@@ -166,3 +166,33 @@ func test_sin_bateria_el_feed_no_avanza() -> bool:
 	check_eq(phone.scroll, 0.0, "el feed no se mueve")
 	phone.free()
 	return true
+
+
+## Un clic izquierdo en la linterna de la barra superior pide el flash (decisión de Benja, 11 de noviembre).
+func test_la_linterna_avisa() -> bool:
+	var phone := _make_phone()
+	var flashes := []
+	phone.flash_pressed.connect(func() -> void: flashes.append(true))
+	var click := _mouse(MOUSE_BUTTON_LEFT)
+	click.position = PhoneView.FLASH_RECT.get_center()
+	phone._gui_input(click)
+	check_eq(flashes.size(), 1, "pidió el flash")
+	click.position = Vector2(130, 300)
+	phone._gui_input(click)
+	check_eq(flashes.size(), 1, "un clic en el feed no")
+	check(String(phone._get_tooltip(PhoneView.FLASH_RECT.get_center())) != "", "tiene su nombre al pasar el mouse")
+	phone.free()
+	return true
+
+
+func test_sin_bateria_la_linterna_no_prende() -> bool:
+	var phone := _make_phone()
+	_state.battery = 0.0
+	var flashes := []
+	phone.flash_pressed.connect(func() -> void: flashes.append(true))
+	var click := _mouse(MOUSE_BUTTON_LEFT)
+	click.position = PhoneView.FLASH_RECT.get_center()
+	phone._gui_input(click)
+	check(flashes.is_empty(), "sin batería no pide nada")
+	phone.free()
+	return true

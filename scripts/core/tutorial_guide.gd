@@ -2,8 +2,9 @@ extends RefCounted
 ## El guía de la noche 0, el tutorial (decisión de Benja): mira cómo va la noche y dice qué hacer ahora, en un
 ## aviso arriba de la pantalla. Enseña a abrir el chat, preguntar, marcar las características, abrir la página
 ## de la entidad, responder desde el cuaderno y descargar un video. Después del susto guionado, a cerrar las
-## cortinas y revisar si la criatura sigue ahí, a responderle al amigo y a usar el celular. El tutorial termina
-## cuando Matías cierra el celular.
+## cortinas y revisar si la criatura sigue ahí, a responderle al amigo y a usar el celular. Con el celular abierto
+## llega la Mano, y el aviso enseña a espantarla con el flash (decisión de Benja, 11 de noviembre). El tutorial termina
+## cuando Matías cierra el celular después del flash.
 ## Lógica pura: el escritorio le cuenta lo que se ve (View) y muestra el aviso (Hint).
 
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
@@ -30,6 +31,8 @@ const DIALS_KEY := "TUTORIAL_DIALS"
 const DIALS_OK_KEY := "TUTORIAL_DIALS_OK"
 const CLOSE_CURTAINS_KEY := "TUTORIAL_CLOSE_CURTAINS"
 const OPEN_CURTAINS_KEY := "TUTORIAL_OPEN_CURTAINS"
+const HAND_KEY := "TUTORIAL_HAND"
+const HAND_DONE_KEY := "TUTORIAL_HAND_DONE"
 ## Cómo le fue al amigo con la última respuesta.
 const OUTCOME_KEYS := {
 	RuleEvaluator.Outcome.CORRECT: CORRECT_KEY,
@@ -67,8 +70,8 @@ class Hint:
 		needs_ok = with_ok
 
 
-## La lección del celular, después del chat guionado.
-enum Phone { WAITING, HIGHLIGHTED, OPEN, DONE }
+## La lección del celular, después del chat guionado: el scroll, la Mano y el flash.
+enum Phone { WAITING, HIGHLIGHTED, OPEN, HAND, AFTER_HAND, DONE }
 
 ## Lo primero que dice el tutorial son los diales (decisión de Benja, 4 de noviembre). Lo enciende el escritorio.
 var explain_dials := false
@@ -91,9 +94,27 @@ func phone_opened() -> void:
 		_phone = Phone.OPEN
 
 
+## Cerrar el celular termina el tutorial solo después de espantar a la Mano.
 func phone_closed() -> void:
-	if _phone == Phone.OPEN:
+	if _phone == Phone.AFTER_HAND:
 		_phone = Phone.DONE
+
+
+## Toca la Mano: el celular ya se abrió. El escritorio la larga y llama a hand_started().
+func wants_hand() -> bool:
+	return _phone == Phone.OPEN
+
+
+## La Mano asomó: el aviso enseña el flash.
+func hand_started() -> void:
+	if _phone == Phone.OPEN:
+		_phone = Phone.HAND
+
+
+## El flash espantó a la Mano.
+func hand_scared() -> void:
+	if _phone == Phone.HAND:
+		_phone = Phone.AFTER_HAND
 
 
 ## Matías usó el celular: el tutorial terminó.
@@ -120,6 +141,10 @@ func hint(view: View) -> Hint:
 			return Hint.new(PHONE_KEY)
 		Phone.OPEN:
 			return Hint.new(SCROLL_KEY)
+		Phone.HAND:
+			return Hint.new(HAND_KEY)
+		Phone.AFTER_HAND:
+			return Hint.new(HAND_DONE_KEY)
 		Phone.DONE:
 			return Hint.new("")
 	if view.script_friend >= 0:
