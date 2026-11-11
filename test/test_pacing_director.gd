@@ -1,14 +1,26 @@
 extends "res://test/test_case.gd"
+## El director de olas (decisión de Benja, 11 de noviembre): un minuto de silencio, olas que llegan juntas, una calma
+## de verdad cuando se resuelven y una ola final grande, lo más tarde posible.
 
 const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 
+const NIGHT_SECONDS := 420.0
 
-## Una noche como la 3 (docs/02 §6): 12 solicitudes en olas de 3, con 35 s para responder.
+
+## Una noche de prueba: 7 solicitudes (2 olas de 2 y la final de 3), 60 s para responder, 3 interferencias,
+## 2 accidentes, 2 visitas de la Mano, 4 screamers (2 de ellos la criatura) y 2 videos de cuota.
 func _night() -> NightData:
 	var night := NightData.new()
-	night.requests_total = 12
-	night.wave_size = 3
-	night.base_decision_time = 35.0
+	night.requests_total = 7
+	night.wave_size = 2
+	night.finale_size = 3
+	night.base_decision_time = 60.0
+	night.interference_count = 3
+	night.incident_count = 2
+	night.hand_visits = 2
+	night.scare_count = 4
+	night.creature_visits = 2
+	night.content_quota = 2
 	return night
 
 
@@ -18,139 +30,221 @@ func _director(night: NightData, seed_value := 1) -> PacingDirector:
 	return PacingDirector.new(night, BalanceData.new(), rng)
 
 
-## Los espacios entre las horas de `times`.
-func _gaps(times: Array[float]) -> Array[float]:
-	var gaps: Array[float] = []
-	for index in times.size() - 1:
-		gaps.append(times[index + 1] - times[index])
-	return gaps
+## Corre la noche de a 0,5 s con un jugador que resuelve cada solicitud `answer_after` segundos después de que llega
+## (con amigos de sobra). Devuelve "arrivals" (las horas de llegada), "waves" ([hora, índice, es la final]), "calms"
+## (las horas en que empezó cada calma), "interferences" y "videos" (las horas que trajo cada una).
+func _run(director: PacingDirector, night: NightData, answer_after: float) -> Dictionary:
+	var result := {"arrivals": [], "waves": [], "calms": [], "interferences": [], "videos": []}
+	var open: Array[float] = []
+	var time := 0.0
+	while time < NIGHT_SECONDS:
+		open = open.filter(func(end: float) -> bool: return end > time)
+		var beat := director.advance(time, open.size())
+		if beat.wave_started >= 0:
+			result["waves"].append([time, beat.wave_started, beat.finale_started])
+		if beat.calm_started:
+			result["calms"].append(time)
+		result["interferences"].append_array(beat.interferences)
+		result["videos"].append_array(beat.videos)
+		while director.request_due(time, night.base_decision_time):
+			director.request_started(time)
+			result["arrivals"].append(time)
+			open.append(time + answer_after)
+		time += 0.5
+	return result
 
 
-func test_planifica_todas_las_solicitudes_de_la_noche() -> bool:
-	for seed_value in range(1, 21):
-		var times := _director(_night(), seed_value).request_times
-		check_eq(times.size(), 12, "12 solicitudes")
-		check_eq(times[0], 5.0, "la primera a los 5 s")
-		check(is_equal_approx(times[-1], 385.0), "la última alcanza a terminar a las 06:00: %s" % times[-1])
-		for gap: float in _gaps(times):
-			check(gap > 0.0, "en orden")
-	return true
-
-
-func test_despues_de_cada_ola_hay_un_respiro() -> bool:
-	for seed_value in range(1, 21):
-		var gaps := _gaps(_director(_night(), seed_value).request_times)
-		for index in gaps.size():
-			if (index + 1) % 3 == 0:
-				check(gaps[index] >= 25.0, "el respiro dura al menos 25 s: %s" % gaps[index])
-				check(gaps[index] > gaps[index - 1], "el respiro es más largo que el espacio de la ola: %s" % [gaps])
-	return true
-
-
-func test_las_olas_se_aprietan_hacia_las_06() -> bool:
-	for seed_value in range(1, 21):
-		var gaps := _gaps(_director(_night(), seed_value).request_times)
-		# Dentro de la primera ola y de la última: los espacios 0-1 y 9-10.
-		var first := gaps[0] + gaps[1]
-		var last := gaps[9] + gaps[10]
-		check(last < first, "al final llegan más seguidas: %s" % [gaps])
-	return true
-
-
-func test_llega_a_su_hora_y_no_antes() -> bool:
-	var director := _director(_night())
-	check(not director.request_due(4.9, 35.0), "a los 4,9 s todavía no")
-	check(director.request_due(5.0, 35.0), "a los 5 s, sí")
-	director.request_started(5.0)
-	var second := director.request_times[0]
-	check(not director.request_due(second - 0.1, 35.0), "la segunda, todavía no")
-	check(director.request_due(second, 35.0), "la segunda, a su hora")
-	return true
-
-
-func test_si_una_llega_tarde_las_demas_se_atrasan() -> bool:
-	var director := _director(_night())
-	director.request_started(5.0)
-	var planned := director.request_times.duplicate()
-	director.request_started(planned[0] + 7.0)
-	check_eq(director.request_times.size(), planned.size() - 1, "quedan las demás")
-	for index in director.request_times.size():
-		check(is_equal_approx(director.request_times[index], planned[index + 1] + 7.0), "atrasada 7 s")
-	return true
-
-
-func test_al_menos_6_s_entre_dos_solicitudes() -> bool:
-	var director := _director(_night())
-	director.request_times.assign([10.0, 11.0, 30.0])
-	director.request_started(10.0)
-	check(not director.request_due(11.0, 35.0), "a 1 s de la anterior, no")
-	check(director.request_due(16.0, 35.0), "a 6 s, sí")
-	return true
-
-
-func test_un_amigo_herido_atrasa_las_que_faltan() -> bool:
-	var director := _director(_night())
-	var planned := director.request_times.duplicate()
-	director.friend_hurt()
-	for index in planned.size():
-		check(is_equal_approx(director.request_times[index], planned[index] + 10.0), "atrasada 10 s")
-	return true
-
-
-func test_no_empieza_una_que_no_alcanza_a_terminar() -> bool:
-	var director := _director(_night())
-	director.request_times.assign([400.0, 410.0])
-	check(not director.request_due(400.0, 30.0), "a las 05:43 ya no alcanza a responder en 30 s")
-	check(director.request_times.is_empty(), "no llegan más")
-	return true
-
-
-## Una noche con `count` screamers, de los que `visits` son la criatura de la ventana.
-func _scary_night(count: int, visits: int) -> NightData:
+func test_el_primer_minuto_es_de_silencio() -> bool:
 	var night := _night()
-	night.scare_count = count
-	night.creature_visits = visits
-	return night
-
-
-func test_reparte_los_screamers_en_la_noche() -> bool:
-	for seed_value in range(1, 21):
-		var times := _director(_scary_night(6, 1), seed_value).scare_times
-		check_eq(times.size(), 6, "6 screamers")
-		check(times[0] >= 30.0, "ninguno en los primeros 30 s: %s" % times[0])
-		check(times[-1] <= 420.0, "todos antes de las 06:00")
-		for gap: float in _gaps(times):
-			check(gap >= 25.0, "al menos 25 s entre dos: %s" % [times])
+	var director := _director(night)
+	for second in 120:
+		director.advance(second * 0.5, 0)
+		check(not director.request_due(second * 0.5, 60.0), "a los %s s, nada" % (second * 0.5))
+	director.advance(60.0, 0)
+	check(director.request_due(60.0, 60.0), "a los 60 s llega la primera ola")
 	return true
 
 
-func test_la_criatura_llega_las_veces_que_pide_la_noche() -> bool:
-	for visits: int in [0, 1, 3]:
-		for seed_value in range(1, 11):
-			var director := _director(_scary_night(4, visits), seed_value)
-			var found := 0
-			while not director.scare_times.is_empty():
-				if director.next_is_jumpscare():
-					found += 1
-				director.scare_started(director.scare_times[0])
-			check_eq(found, visits, "visitas de la criatura")
+func test_las_solicitudes_de_una_ola_llegan_juntas() -> bool:
+	for seed_value in 10:
+		var result := _run(_director(_night(), seed_value), _night(), 30.0)
+		var arrivals: Array = result["arrivals"]
+		var gap: float = arrivals[1] - arrivals[0]
+		check(gap >= 4.0 and gap <= 8.5, "semilla %d: la segunda llega entre 4 y 8 s después: %s" % [seed_value, gap])
 	return true
 
 
-func test_la_criatura_no_llega_mas_veces_que_los_screamers() -> bool:
-	var director := _director(_scary_night(2, 5))
-	check_eq(director.jumpscare_slots.size(), 2, "2 screamers, 2 visitas")
+## La calma se cuenta desde que se resuelve la ola, y dura entre 40 y 60 s (o más, si la ola siguiente estaba
+## planeada para más tarde).
+func test_la_calma_empieza_cuando_se_resuelve_la_ola() -> bool:
+	for seed_value in 10:
+		var result := _run(_director(_night(), seed_value), _night(), 30.0)
+		var arrivals: Array = result["arrivals"]
+		var calms: Array = result["calms"]
+		var resolved: float = arrivals[1] + 30.0
+		check(absf(calms[0] - resolved) <= 0.5, "semilla %d: la calma empieza al resolverse: %s" % [seed_value, calms[0]])
+		var next: float = arrivals[2]
+		check(next - calms[0] >= 40.0, "semilla %d: al menos 40 s de calma: %s" % [seed_value, next - calms[0]])
 	return true
 
 
-func test_un_screamer_llega_a_su_hora_y_espaciado() -> bool:
-	var director := _director(_scary_night(0, 0))
-	director.scare_times.assign([40.0, 50.0])
-	check(not director.scare_due(39.0), "todavía no")
-	check(director.scare_due(40.0), "a su hora")
-	director.scare_started(40.0)
-	check(not director.scare_due(50.0), "a 10 s del anterior, espera")
-	check(director.scare_due(65.0), "a 25 s, sí")
+func test_la_ola_final_es_de_3_y_llega_al_final() -> bool:
+	var night := _night()
+	var finale_at := PacingDirector.finale_time(night, BalanceData.new())
+	check_eq(finale_at, NIGHT_SECONDS - 60.0 - 2.0 * 8.0 - 10.0, "la última llega a tiempo, con margen para un herido")
+	for seed_value in 10:
+		var result := _run(_director(night, seed_value), night, 30.0)
+		var arrivals: Array = result["arrivals"]
+		var waves: Array = result["waves"]
+		check_eq(arrivals.size(), 7, "semilla %d: las 7 solicitudes" % seed_value)
+		var last_wave: Array = waves[-1]
+		check(last_wave[2], "semilla %d: la última es la final" % seed_value)
+		check(absf(last_wave[0] - finale_at) <= 0.5, "semilla %d: a su hora: %s" % [seed_value, last_wave[0]])
+		var finale: Array = arrivals.slice(4)
+		check_eq(finale.size(), 3, "semilla %d: 3 en la final" % seed_value)
+		check(finale[-1] - finale[0] <= 17.0, "semilla %d: juntas" % seed_value)
+		check(finale[-1] + 60.0 <= NIGHT_SECONDS, "semilla %d: la última alcanza a terminar" % seed_value)
+	return true
+
+
+## Si el jugador tarda, la ola que ya no cabe antes de la final se salta. La final llega igual.
+func test_una_ola_que_no_cabe_se_salta() -> bool:
+	var night := _night()
+	night.requests_total = 11
+	var result := _run(_director(night, 3), night, 60.0)
+	var arrivals: Array = result["arrivals"]
+	check(arrivals.size() < 11, "no llegan todas: %d" % arrivals.size())
+	var waves: Array = result["waves"]
+	check(waves[-1][2], "la final llega igual")
+	check_eq(arrivals.size() % 2, 1, "las comunes de a 2 y la final de 3")
+	return true
+
+
+func test_nunca_empieza_una_que_no_alcanza() -> bool:
+	var night := _night()
+	var director := _director(night)
+	director.advance(60.0, 0)
+	check(not director.request_due(60.0, 361.0), "a los 60 s, una de 361 s no alcanza")
+	check(not director.request_due(60.0, 30.0), "la ola se cortó")
+	return true
+
+
+func test_un_amigo_herido_atrasa() -> bool:
+	var director := _director(_night())
+	director.advance(60.0, 0)
+	director.request_started(60.0)
+	var next := director.next_at
+	director.friend_hurt()
+	check_eq(director.next_at, next + 10.0, "la que sigue, 10 s más tarde")
+	return true
+
+
+func test_interferencias_en_las_olas() -> bool:
+	var result := _run(_director(_night(), 2), _night(), 30.0)
+	var interferences: Array = result["interferences"]
+	check_eq(interferences.size(), 3, "las 3 de la noche")
+	var waves: Array = result["waves"]
+	for time: float in interferences:
+		var in_wave := waves.any(func(wave: Array) -> bool: return time >= wave[0] + 3.0 and time <= wave[0] + 15.0)
+		check(in_wave, "%s cae entre 3 y 15 s después de empezar una ola" % time)
+	var finale_start: float = waves[-1][0]
+	check(interferences.any(func(time: float) -> bool: return time >= finale_start), "la final tiene la suya")
+	return true
+
+
+func test_videos_en_las_calmas() -> bool:
+	var result := _run(_director(_night(), 4), _night(), 30.0)
+	var videos: Array = result["videos"]
+	var calms: Array = result["calms"]
+	check_eq(videos.size(), 2, "los 2 de la cuota")
+	check_eq(calms.size(), 2, "2 calmas, una por ola común")
+	for index in videos.size():
+		var delay: float = videos[index] - calms[index]
+		check(delay >= 5.0 and delay <= 15.0, "el video %d llega 5 a 15 s después de empezar su calma: %s" % [index, delay])
+	return true
+
+
+## Si una calma es la última antes de la final, suelta todos los videos que faltan.
+func test_la_ultima_calma_suelta_todos_los_videos() -> bool:
+	var night := _night()
+	night.requests_total = 5
+	night.content_quota = 3
+	var result := _run(_director(night, 5), night, 30.0)
+	check_eq(result["calms"].size(), 1, "una sola calma")
+	check_eq(result["videos"].size(), 3, "con los 3 videos")
+	return true
+
+
+func test_accidentes_en_las_olas_comunes() -> bool:
+	var night := _night()
+	var director := _director(night, 6)
+	var result := _run(director, night, 30.0)
+	check_eq(director.incident_times.size(), 2, "los 2, en la cola")
+	var waves: Array = result["waves"]
+	for time: float in director.incident_times:
+		check(time < waves[-1][0], "%s, antes de la final" % time)
+	check(director.incident_due(director.incident_times[0]), "a su hora")
+	director.incident_started()
+	check_eq(director.incident_times.size(), 1, "queda 1")
+	return true
+
+
+func test_la_mano_en_las_olas_comunes() -> bool:
+	var night := _night()
+	var director := _director(night, 7)
+	var result := _run(director, night, 30.0)
+	check_eq(director.hand_times.size(), 2, "las 2 visitas")
+	var waves: Array = result["waves"]
+	check(director.hand_times[0] >= waves[0][0] + 3.0, "llega con una ola")
+	check(director.hand_times[-1] < waves[-1][0], "ninguna en la final, que es de la criatura")
+	check(not director.hand_due(director.hand_times[0] - 1.0), "todavía no")
+	check(director.hand_due(director.hand_times[0]), "a su hora")
+	director.hand_started()
+	check_eq(director.hand_times.size(), 1, "queda 1")
+	return true
+
+
+func test_screamers_en_las_calmas() -> bool:
+	var night := _night()
+	var director := _director(night, 8)
+	var result := _run(director, night, 30.0)
+	check_eq(director.scare_times.size(), 4, "los 4 screamers")
+	check_eq(director.scare_creature.count(true), 2, "2 son la criatura")
+	var calms: Array = result["calms"]
+	var waves: Array = result["waves"]
+	for index in director.scare_times.size():
+		var time: float = director.scare_times[index]
+		if time >= waves[-1][0]:
+			check(director.scare_creature[index], "en la final solo llega la criatura")
+		else:
+			check(calms.any(func(calm: float) -> bool: return time >= calm + 5.0), "%s, en una calma" % time)
+	return true
+
+
+func test_la_criatura_llega_en_la_ola_final() -> bool:
+	var night := _night()
+	var director := _director(night, 9)
+	var result := _run(director, night, 30.0)
+	var finale_start: float = result["waves"][-1][0]
+	var in_finale := []
+	for index in director.scare_times.size():
+		if director.scare_times[index] >= finale_start:
+			in_finale.append(director.scare_creature[index])
+	check_eq(in_finale, [true], "una visita de la criatura en la final")
+	return true
+
+
+func test_los_screamers_esperan_entre_uno_y_otro() -> bool:
+	var director := _director(_night())
+	director.scare_times.assign([100.0, 110.0])
+	director.scare_creature.assign([false, true])
+	check(not director.scare_due(99.0), "todavía no")
+	check(director.scare_due(100.0), "a su hora")
+	check(not director.next_is_jumpscare(), "el primero no es la criatura")
+	director.scare_started(100.0)
+	check(director.next_is_jumpscare(), "el segundo sí")
+	check(not director.scare_due(110.0), "espera 25 s desde el anterior")
+	check(director.scare_due(125.0), "a los 25 s, sí")
 	return true
 
 
@@ -162,6 +256,7 @@ func test_el_susto_guionado_espera_un_momento_sin_solicitudes() -> bool:
 	check(not director.scripted_scare_due(60.0, 1), "hay una solicitud: espera")
 	check(director.scripted_scare_due(70.0, 0), "sin solicitudes, llega")
 	director.scare_times.assign([75.0])
+	director.scare_creature.assign([false])
 	director.scripted_scare_started(70.0)
 	check(not director.scripted_scare_due(80.0, 0), "llega una sola vez")
 	check(not director.scare_due(80.0), "el siguiente screamer espera 25 s desde el guionado")
@@ -170,14 +265,11 @@ func test_el_susto_guionado_espera_un_momento_sin_solicitudes() -> bool:
 	return true
 
 
-func test_reparte_los_accidentes_en_la_noche() -> bool:
+## La noche 0 no usa las olas: sus solicitudes son fijas.
+func test_sin_solicitudes_no_hay_olas() -> bool:
 	var night := _night()
-	night.incident_count = 3
-	var director := _director(night)
-	check_eq(director.incident_times.size(), 3, "3 accidentes")
-	var first: float = director.incident_times[0]
-	check(not director.incident_due(first - 1.0), "todavía no")
-	check(director.incident_due(first), "a su hora")
-	director.incident_started()
-	check_eq(director.incident_times.size(), 2, "quedan 2")
+	night.requests_total = 0
+	var result := _run(_director(night), night, 30.0)
+	check_eq(result["arrivals"].size(), 0, "ninguna")
+	check_eq(result["waves"].size(), 0, "sin olas")
 	return true

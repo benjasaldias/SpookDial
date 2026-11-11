@@ -1,6 +1,7 @@
 extends RefCounted
 ## Los videos de la noche (diseño §10.4 y §10.5): los envíos programados, que son justo los que pide la cuota,
-## y los videos extra de la acción de mayor riesgo. Cuando a un amigo le toca enviar, el video llega como
+## y los videos extra de la acción de mayor riesgo. Los envíos programados llegan en las calmas entre las olas
+## (decisión de Benja, 11 de noviembre): el director dice cuándo y RequestManager los suelta aquí. Cuando a un amigo le toca enviar, el video llega como
 ## una oferta: hay que empezar a descargarlo a tiempo y terminar la descarga manteniendo presionado
 ## (decisión de Benja). Si el amigo no puede enviar (está aturdido o sin señal), su video llega cuando puede.
 ## Lógica pura: NightState la avanza y el chat muestra la descarga.
@@ -50,6 +51,8 @@ var received := 0
 var lost := 0
 ## Los envíos que todavía no llegan.
 var pending: Array[Delivery] = []
+## Los envíos programados que el director todavía no suelta.
+var unreleased := 0
 ## Los videos que esperan su descarga: como máximo uno por amigo.
 var offers: Array[Offer] = []
 ## En el tutorial, los plazos de los videos no corren: esperan a que Matías los descargue (decisión de Benja).
@@ -58,13 +61,17 @@ var patient := false
 var _balance: BalanceData
 
 
-## Programa `night_quota` envíos repartidos parejo en la noche, cada uno de un amigo al azar.
-func _init(night_quota: int, balance: BalanceData, friend_count: int, rng: RandomNumberGenerator) -> void:
+## La noche tiene `night_quota` envíos programados, que el director va soltando.
+func _init(night_quota: int, balance: BalanceData) -> void:
 	quota = night_quota
+	unreleased = night_quota
 	_balance = balance
-	for index in night_quota:
-		var time := balance.night_seconds * (index + 1) / (night_quota + 1)
-		pending.append(Delivery.new(rng.randi_range(0, friend_count - 1), time))
+
+
+## El director suelta un envío programado: el amigo `friend_index` lo manda a la hora `time`.
+func release(friend_index: int, time: float) -> void:
+	unreleased = maxi(unreleased - 1, 0)
+	pending.append(Delivery.new(friend_index, time))
 
 
 ## La acción de mayor riesgo y el amigo sobrevivió: envía un video extra apenas pueda.
@@ -127,7 +134,7 @@ func is_quota_met() -> bool:
 
 ## Cuántos videos puede tener la noche todavía: los recibidos, los que esperan su descarga y los que faltan llegar.
 func potential() -> int:
-	return received + offers.size() + pending.size()
+	return received + offers.size() + pending.size() + unreleased
 
 
 ## Los videos ya no alcanzan la cuota: alguien tiene que arriesgarse, porque la acción de mayor riesgo da un video extra

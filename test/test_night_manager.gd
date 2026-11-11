@@ -11,8 +11,8 @@ const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 var _requests: RequestManager
 
 
-## Reloj de la noche 1 del catálogo de prueba (2 videos, a los 140 s y a los 280 s), sin solicitudes
-## que lleguen solas.
+## Reloj de la noche 1 del catálogo de prueba (2 videos, a los 140 s y a los 280 s, como si los soltaran 2 calmas),
+## sin solicitudes que lleguen solas.
 func _make_night() -> NightManager:
 	var root := (Engine.get_main_loop() as SceneTree).root
 	_requests = RequestManager.new()
@@ -21,6 +21,8 @@ func _make_night() -> NightManager:
 	_requests.random_seed = 9
 	_requests.requests_arrive = false
 	root.add_child(_requests)
+	_requests.state.videos.release(0, 140.0)
+	_requests.state.videos.release(1, 280.0)
 	var night := NightManager.new()
 	root.add_child(night)
 	night.setup(_requests)

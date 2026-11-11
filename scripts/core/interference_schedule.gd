@@ -1,6 +1,7 @@
 extends RefCounted
 ## Las interferencias de la noche (diseño §10.1): golpes de estática que le quitan señal a un amigo de una
-## vez. Cada una se anuncia unos segundos antes: la entrada del amigo titila y suena estática.
+## vez. Cada una se anuncia unos segundos antes: la entrada del amigo titila y suena estática. Llegan con las olas
+## (decisión de Benja, 11 de noviembre): el director dice cuándo y RequestManager las agrega aquí.
 ## Lógica pura: NightState la avanza y la aplica.
 
 
@@ -19,15 +20,12 @@ class Interference:
 var pending: Array[Interference] = []
 
 
-## Reparte `count` interferencias en la noche: una por tramo igual, a una hora al azar lejos de los bordes
-## del tramo, cada una para un amigo al azar.
-func _init(count: int, night_seconds: float, friend_count: int, rng: RandomNumberGenerator) -> void:
-	if count <= 0:
-		return
-	var span := night_seconds / count
-	for index in count:
-		var time := span * (index + rng.randf_range(0.2, 0.8))
-		pending.append(Interference.new(rng.randi_range(0, friend_count - 1), time))
+## Agrega una interferencia para el amigo `friend_index` a la hora `time`, en orden.
+func add(friend_index: int, time: float) -> void:
+	var index := 0
+	while index < pending.size() and pending[index].time <= time:
+		index += 1
+	pending.insert(index, Interference.new(friend_index, time))
 
 
 ## Al amigo `friend_index` le golpea una interferencia dentro de `warning` segundos o menos.

@@ -355,7 +355,7 @@ func test_los_videos_que_faltan_en_rojo() -> bool:
 	var desk := _make_desk()
 	var label := desk.get_node("DeskPlane/PC/Videos") as Label
 	var normal := label.get_theme_color("font_color")
-	_state(desk).videos.pending.pop_back()
+	_state(desk).videos.unreleased -= 1
 	desk._process(0.0)
 	var expected := String(TranslationServer.translate("PC_VIDEOS_SHORT")).format({"received": 0, "quota": 3})
 	check_eq(label.text, expected, "dice que faltan")

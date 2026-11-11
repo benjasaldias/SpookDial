@@ -65,6 +65,7 @@ func _make_desk(night_number: int) -> Node2D:
 	state.videos.pending.clear()
 	state.interferences.pending.clear()
 	manager.director.scare_times.clear()
+	manager.director.scare_creature.clear()
 	return desk
 
 

@@ -27,7 +27,7 @@ func _state(desk: Node2D) -> NightState:
 func _scare_now(desk: Node2D, jumpscare := false) -> void:
 	var director: RefCounted = desk.get_node("RequestManager").director
 	director.scare_times.assign([_state(desk).elapsed])
-	director.jumpscare_slots.assign([0] if jumpscare else [])
+	director.scare_creature.assign([jumpscare])
 
 
 ## Guarda en `kinds` cada screamer que empieza.

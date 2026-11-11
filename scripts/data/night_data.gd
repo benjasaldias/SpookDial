@@ -22,8 +22,12 @@ extends Resource
 @export_range(0.0, 1.0) var place_chance := 1.0
 ## Señuelos de la solicitud: frases clickeables que camuflan sus 2 características cuando el amigo las cuenta.
 @export var decoys_per_request := 1
-## Solicitudes por ola: llegan seguidas y, después de cada ola, hay un respiro (decisión de Benja).
+## Solicitudes por ola común: llegan juntas, con pocos segundos de diferencia, y cuando se resuelven viene una calma
+## (decisiones de Benja, 2 y 11 de noviembre).
 @export var wave_size := 3
+## Solicitudes de la ola final, la más grande, que llega lo más tarde posible (decisión de Benja, 11 de noviembre).
+## Con 3, los 3 amigos piden ayuda a la vez.
+@export var finale_size := 3
 
 ## Accidentes de la noche: un amigo se tropieza o se corta, y se responde con sentido común (decisión de Benja, 7
 ## de noviembre).
@@ -53,6 +57,8 @@ extends Resource
 ## Cuántos de esos screamers son la criatura que se asoma por la ventana (el antiguo jumpscare): desde la noche 2,
 ## y más seguido hacia el final (decisión de Benja, 7 de noviembre).
 @export var creature_visits := 0
+## Cuántas veces llega la Mano, en las olas comunes (decisión de Benja, 11 de noviembre). La noche 0 la enseña aparte.
+@export var hand_visits := 0
 
 @export_group("Guion")
 ## Segundos desde las 00:00 del susto guionado (0: no hay). Llega en el primer momento sin solicitudes.

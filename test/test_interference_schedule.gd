@@ -3,21 +3,24 @@ extends "res://test/test_case.gd"
 const InterferenceSchedule := preload("res://scripts/core/interference_schedule.gd")
 
 
+## `count` interferencias, a los 100, 200… segundos, para los amigos 0, 1, 2, 0…
 func _schedule(count: int) -> InterferenceSchedule:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 8
-	return InterferenceSchedule.new(count, 420.0, 3, rng)
+	var schedule := InterferenceSchedule.new()
+	for index in count:
+		schedule.add(index % 3, 100.0 * (index + 1))
+	return schedule
 
 
-func test_se_reparten_en_la_noche() -> bool:
-	var schedule := _schedule(3)
-	check_eq(schedule.pending.size(), 3, "3 interferencias")
-	for index in schedule.pending.size():
-		var interference: InterferenceSchedule.Interference = schedule.pending[index]
-		# Una en cada tercio de la noche (140 s), lejos de sus bordes.
-		check(interference.time >= 140.0 * index + 28.0 and interference.time <= 140.0 * index + 112.0,
-				"la %d, en su tramo: %s" % [index + 1, interference.time])
-		check(interference.friend_index >= 0 and interference.friend_index < 3, "de uno de los 3 amigos")
+## Llegan con las olas (decisión de Benja, 11 de noviembre): se agregan a medida que el director las pide, y quedan en
+## orden.
+func test_se_agregan_en_orden() -> bool:
+	var schedule := InterferenceSchedule.new()
+	schedule.add(2, 150.0)
+	schedule.add(0, 90.0)
+	schedule.add(1, 120.0)
+	var times := schedule.pending.map(func(interference: InterferenceSchedule.Interference) -> float: return interference.time)
+	check_eq(times, [90.0, 120.0, 150.0], "en orden")
+	check_eq(schedule.pending[0].friend_index, 0, "cada una con su amigo")
 	return true
 
 

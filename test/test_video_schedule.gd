@@ -7,9 +7,7 @@ const VideoSchedule := preload("res://scripts/core/video_schedule.gd")
 ## Envíos de una noche de 420 s con `quota` videos entre 3 amigos, con los valores de docs/02 §6:
 ## 15 s para empezar la descarga, 20 s para terminarla y 10 s de descarga.
 func _schedule(quota: int) -> VideoSchedule:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 3
-	return VideoSchedule.new(quota, BalanceData.new(), 3, rng)
+	return VideoSchedule.new(quota, BalanceData.new())
 
 
 func _friends() -> Array[FriendState]:
@@ -40,19 +38,25 @@ func _offered_extra(friends: Array[FriendState]) -> VideoSchedule:
 	return schedule
 
 
-func test_los_envios_se_reparten_en_la_noche() -> bool:
+## Los envíos programados llegan en las calmas (decisión de Benja, 11 de noviembre): el director los suelta.
+func test_los_videos_se_sueltan_cuando_toca() -> bool:
 	var schedule := _schedule(3)
 	check_eq(schedule.quota, 3, "cuota")
-	check_eq(schedule.pending.map(func(delivery: VideoSchedule.Delivery) -> float: return delivery.time),
-			[105.0, 210.0, 315.0], "a las 01:30, 03:00 y 04:30")
-	for delivery: VideoSchedule.Delivery in schedule.pending:
-		check(delivery.friend_index >= 0 and delivery.friend_index < 3, "de uno de los 3 amigos")
+	check(schedule.pending.is_empty(), "al empezar, ninguno en camino")
+	check_eq(schedule.unreleased, 3, "los 3 esperan su calma")
+	schedule.release(2, 100.0)
+	check_eq(schedule.pending.size(), 1, "uno en camino")
+	check_eq(schedule.pending[0].friend_index, 2, "lo manda Agustín")
+	check_eq(schedule.pending[0].time, 100.0, "a su hora")
+	check_eq(schedule.unreleased, 2, "faltan 2")
+	check_eq(schedule.potential(), 3, "pueden llegar los 3")
 	return true
 
 
 func test_a_su_hora_llega_como_oferta() -> bool:
 	var schedule := _schedule(3)
 	var friends := _friends()
+	schedule.release(1, 105.0)
 	var first: int = schedule.pending[0].friend_index
 	check_eq(_advance(schedule, friends, 0.0, 104, -1).offered, [], "antes de tiempo, nada")
 	check_eq(_advance(schedule, friends, 104.0, 1, -1).offered, [first], "a los 105 s llega el primero")
@@ -154,7 +158,7 @@ func test_un_video_por_amigo_a_la_vez() -> bool:
 
 func test_sin_cuota_ya_esta_cumplida() -> bool:
 	var schedule := _schedule(0)
-	check(schedule.pending.is_empty(), "sin envíos")
+	check(schedule.pending.is_empty() and schedule.unreleased == 0, "sin envíos")
 	check(schedule.is_quota_met(), "cumplida")
 	return true
 
@@ -183,13 +187,14 @@ func test_cuantos_videos_pueden_llegar() -> bool:
 	var schedule := _schedule(3)
 	check_eq(schedule.potential(), 3, "al empezar, los 3 de la cuota")
 	check(not schedule.is_short(), "alcanzan")
-	schedule.pending.pop_back()
+	schedule.unreleased -= 1
 	schedule.lost += 1
 	check_eq(schedule.potential(), 2, "se perdió uno")
 	check(schedule.is_short(), "ya no alcanzan")
 	schedule.add_extra(1, 100.0)
 	check(not schedule.is_short(), "el video extra de la acción de mayor riesgo vuelve a alcanzar")
 	schedule.pending.clear()
+	schedule.unreleased = 0
 	schedule.offers.append(VideoSchedule.Offer.new(0, 15.0))
 	schedule.received = 2
 	check_eq(schedule.potential(), 3, "2 recibidos y 1 esperando su descarga")

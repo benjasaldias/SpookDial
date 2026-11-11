@@ -60,12 +60,12 @@ func _init(night_data: NightData, balance_data: BalanceData, friend_count: int, 
 			# Cada amigo pierde señal a su propio ritmo (diseño §10.1).
 			friend.signal_decay_interval = rng.randf_range(night.signal_decay_interval.x, night.signal_decay_interval.y)
 		friends.append(friend)
-	videos = VideoSchedule.new(night.content_quota, balance, friend_count, rng)
+	videos = VideoSchedule.new(night.content_quota, balance)
 	if night.is_tutorial():
 		# En el tutorial, el video lo manda el amigo de una solicitud, y espera a que Matías lo descargue.
-		videos.pending.clear()
+		videos.unreleased = 0
 		videos.patient = true
-	interferences = InterferenceSchedule.new(night.interference_count, balance.night_seconds, friend_count, rng)
+	interferences = InterferenceSchedule.new()
 
 
 ## Avanza `delta` segundos: la hora, los amigos y su señal, las interferencias, Sanity, Trust y los videos.

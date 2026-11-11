@@ -113,17 +113,23 @@ extends Resource
 @export var decoy_cost := 1.0
 
 @export_group("Director")
-## Segundos hasta la primera solicitud de la noche.
-@export var first_request_delay := 5.0
-## Segundos de calma sin solicitudes nuevas después de cada ola (decisión de Benja).
-@export var wave_respite := 25.0
-## Cuánto se aprietan las solicitudes hacia las 06:00: el último espacio entre dos es este tanto más corto
-## que el primero (0,5: la mitad).
-@export_range(0.0, 0.9) var wave_tightening := 0.5
-## Segundos mínimos entre dos solicitudes, aunque una llegue atrasada.
-@export var request_min_gap := 6.0
+## Olas de verdad (decisión de Benja, 11 de noviembre): un minuto de silencio, olas que llegan juntas, una calma
+## cuando se resuelven y una ola final grande, lo más tarde posible.
+## Segundos de silencio al empezar la noche: la primera ola llega a esta hora.
+@export var first_wave_at := 60.0
+## Segundos entre dos solicitudes de una misma ola (mínimo y máximo, al azar).
+@export var wave_spacing := Vector2(4, 8)
+## Segundos de calma sin solicitudes nuevas desde que se resuelve una ola (mínimo y máximo, al azar). Si la ola
+## siguiente estaba planeada para más tarde, la calma dura hasta entonces.
+@export var wave_calm := Vector2(40, 60)
+## Cuántos segundos después de empezar una ola llegan sus interferencias, sus accidentes y la Mano.
+@export var wave_event_delay := Vector2(3, 15)
+## Cuántos segundos después de empezar una calma llegan sus videos y sus screamers.
+@export var calm_event_delay := Vector2(5, 15)
 ## Segundos que se atrasan las solicitudes que faltan cuando un amigo queda herido (decisión de Benja).
 @export var hurt_respite := 10.0
+## Segundos hasta la primera solicitud de la noche 0, que no tiene olas.
+@export var first_request_delay := 5.0
 
 @export_group("Screamers")
 ## Segundos de la señal previa: las luces parpadean y baja el sonido ambiente (diseño §11).
@@ -132,8 +138,6 @@ extends Resource
 @export var scare_margin := 5.0
 ## Segundos mínimos entre dos screamers.
 @export var scare_min_gap := 25.0
-## Segundos de calma al empezar la noche, sin screamers.
-@export var first_scare_after := 30.0
 ## Sanity que resta un screamer ambiental o sobre el cuaderno (docs/02 §6).
 @export var scare_sanity := 8.0
 ## Sanity que resta la criatura de la ventana, el antiguo jumpscare (docs/02 §6).

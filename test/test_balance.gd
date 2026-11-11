@@ -72,15 +72,16 @@ func test_valores_del_director_y_los_screamers() -> bool:
 	check(balance != null, "se carga")
 	if balance == null:
 		return true
-	check_eq(balance.first_request_delay, 5.0, "la primera solicitud, a los 5 s")
-	check_eq(balance.wave_respite, 25.0, "respiro de 25 s después de cada ola")
-	check_eq(balance.wave_tightening, 0.5, "al final, las solicitudes llegan al doble de rápido")
-	check_eq(balance.request_min_gap, 6.0, "al menos 6 s entre dos solicitudes")
+	check_eq(balance.first_request_delay, 5.0, "en la noche 0, la primera solicitud a los 5 s")
+	check_eq(balance.first_wave_at, 60.0, "el primer minuto es de silencio (11 de noviembre)")
+	check_eq(balance.wave_spacing, Vector2(4, 8), "en una ola, de 4 a 8 s entre una solicitud y otra")
+	check_eq(balance.wave_calm, Vector2(40, 60), "calma de 40 a 60 s desde que se resuelve la ola")
+	check_eq(balance.wave_event_delay, Vector2(3, 15), "lo de una ola llega de 3 a 15 s después de empezar")
+	check_eq(balance.calm_event_delay, Vector2(5, 15), "lo de una calma llega de 5 a 15 s después de empezar")
 	check_eq(balance.hurt_respite, 10.0, "un amigo herido atrasa las solicitudes 10 s")
 	check_eq(balance.scare_warning, 1.0, "señal previa de 1 s")
 	check_eq(balance.scare_margin, 5.0, "nunca en los últimos 5 s de una decisión")
 	check_eq(balance.scare_min_gap, 25.0, "al menos 25 s entre dos screamers")
-	check_eq(balance.first_scare_after, 30.0, "sin screamers en los primeros 30 s")
 	check_eq(balance.scare_sanity, 8.0, "screamer: Sanity −8")
 	check_eq(balance.jumpscare_sanity, 15.0, "jumpscare: Sanity −15")
 	check_eq(balance.closed_curtains_sanity, 0.3, "con las cortinas cerradas, Sanity −0,3 por segundo")
@@ -93,20 +94,24 @@ func test_valores_del_director_y_los_screamers() -> bool:
 	return true
 
 
-## Las olas y los screamers de cada noche (docs/02 §6).
+## Las olas y los screamers de cada noche (docs/02 §6). Desde el 11 de noviembre, olas de 2 y una ola final de 3, con
+## los 3 amigos a la vez, y la Mano desde la noche 1.
 func test_olas_y_screamers_de_cada_noche() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
-	var wave_sizes := [2, 3, 3, 4, 4]
 	var scare_counts := [2, 4, 4, 5, 6]
 	var creature_visits := [0, 1, 2, 2, 3]
+	var hand_visits := [1, 1, 2, 2, 3]
 	for index in catalog.nights.size():
 		var night: NightData = catalog.nights[index]
 		var who := "noche %d" % night.number
-		check_eq(night.wave_size, wave_sizes[index], who + ": solicitudes por ola")
+		check_eq(night.wave_size, 2, who + ": solicitudes por ola")
+		check_eq(night.finale_size, 3, who + ": la ola final")
+		check_eq(night.hand_visits, hand_visits[index], who + ": visitas de la Mano")
 		check_eq(night.scare_count, scare_counts[index], who + ": screamers")
 		check_eq(night.creature_visits, creature_visits[index], who + ": visitas de la criatura")
 		check_eq(night.scripted_scare_time, 0.0, who + ": el susto guionado va en la noche 0")
 	check_eq(catalog.tutorial.scripted_scare, ScareKind.Kind.JUMPSCARE, "el susto guionado es un jumpscare")
+	check_eq(catalog.tutorial.hand_visits, 0, "la noche 0 enseña la Mano con su guía")
 	return true
 
 
@@ -117,8 +122,8 @@ func test_identificacion_por_preguntas() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	check_eq(catalog.balance.question_cost, 5.0, "preguntar cuesta 5 s")
 	check(catalog.greeting_keys.size() >= 5, "el amigo tiene varios saludos: %d" % catalog.greeting_keys.size())
-	var requests := [5, 7, 7, 8, 10]
-	var times := [80.0, 65.0, 55.0, 45.0, 40.0]
+	var requests := [7, 7, 9, 9, 11]
+	var times := [80.0, 65.0, 55.0, 50.0, 45.0]
 	var hints := [1.0, 0.75, 0.0, 0.0, 0.0]
 	var decoys := [1, 2, 3, 3, 4]
 	for index in catalog.nights.size():
@@ -135,7 +140,7 @@ func test_identificacion_por_preguntas() -> bool:
 ## fáciles): la señal baja y hay Audio Sync desde la noche 1.
 func test_mantenimiento_de_cada_noche() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
-	var simultaneous := [2, 2, 2, 3, 3]
+	var simultaneous := [3, 3, 3, 3, 3]
 	var interferences := [1, 3, 3, 4, 6]
 	var beats := [4, 4, 4, 8, 8]
 	var bpms := [90.0, 100.0, 115.0, 130.0, 145.0]

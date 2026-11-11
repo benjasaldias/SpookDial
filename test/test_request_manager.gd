@@ -154,21 +154,22 @@ func test_responder_desde_otra_pagina_es_incorrecto() -> bool:
 	return true
 
 
+## El primer minuto es de silencio, y después las solicitudes de una ola llegan juntas (decisión de Benja, 11 de
+## noviembre).
 func test_las_solicitudes_llegan_solas() -> bool:
-	var manager := _make_manager()
+	var catalog := Fixtures.make_catalog()
+	catalog.nights[0].max_simultaneous = 3
+	catalog.nights[0].wave_size = 2
+	var manager := _make_manager(catalog)
 	manager.requests_arrive = true
-	manager.advance(4.9)
-	check_eq(manager.active_count(), 0, "a los 4,9 s todavía no")
+	for _step in 599:
+		manager.advance(0.1)
+	check_eq(manager.active_count(), 0, "a los 59,9 s todavía no")
 	manager.advance(0.2)
-	check_eq(manager.active_count(), 1, "a los 5,1 s llega la primera")
-	# La segunda llega cuando dice el director, más de 45 s después: la primera ya se acabó (si el amigo salió
-	# herido, el director ya la atrasó).
-	manager.advance(46.0)
-	var second: float = manager.director.request_times[0]
-	manager.advance(second - 51.1 - 0.1)
-	check_eq(manager.active_count(), 0, "la segunda todavía no llega")
-	manager.advance(0.2)
-	check_eq(manager.active_count(), 1, "la segunda llega a su hora")
+	check_eq(manager.active_count(), 1, "a los 60 s llega la primera")
+	for _step in 85:
+		manager.advance(0.1)
+	check_eq(manager.active_count(), 2, "la segunda de la ola llega a los pocos segundos")
 	manager.free()
 	return true
 
@@ -176,13 +177,14 @@ func test_las_solicitudes_llegan_solas() -> bool:
 func test_no_pasa_de_las_simultaneas() -> bool:
 	var manager := _make_manager()
 	manager.requests_arrive = true
-	manager.advance(5.0)
+	manager.advance(60.0)
 	check_eq(manager.active_count(), 1, "llega la primera")
 	for request: FriendRequest in manager.requests:
 		if request != null:
 			request.time_left = 1000.0
-	manager.advance(manager.director.request_times[0] - 5.0 + 1.0)
-	check_eq(manager.active_count(), 1, "la noche 1 tiene 1 simultánea: la segunda espera")
+	for _step in 20:
+		manager.advance(1.0)
+	check_eq(manager.active_count(), 1, "la noche 1 del catálogo de prueba tiene 1 simultánea: la segunda espera")
 	manager.free()
 	return true
 
@@ -208,12 +210,47 @@ func test_no_pasa_del_total() -> bool:
 func test_un_amigo_herido_atrasa_las_solicitudes() -> bool:
 	var manager := _make_manager()
 	manager.catalog.balance.wrong_hurt_chance = 1.0
-	var planned := manager.director.request_times.duplicate()
+	var planned := manager.director.next_at
 	var request := manager.start_request(0)
 	manager.answer(0, _wrong_action(request))
 	check(request.consequence.is_hurt(), "quedó herido")
-	for index in planned.size():
-		check(is_equal_approx(manager.director.request_times[index], planned[index] + 10.0), "atrasadas 10 s")
+	check_eq(manager.director.next_at, planned + 10.0, "lo que falta, 10 s más tarde")
+	manager.free()
+	return true
+
+
+## Las olas traen interferencias y las calmas, videos (decisión de Benja, 11 de noviembre): el manager se los da a
+## amigos al azar.
+func test_las_olas_traen_interferencias_y_las_calmas_videos() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.nights[0].interference_count = 2
+	catalog.nights[0].content_quota = 1
+	catalog.nights[0].max_simultaneous = 3
+	catalog.nights[0].wave_size = 2
+	# Una ola de 2 y la final: una interferencia en cada una.
+	catalog.nights[0].requests_total = 5
+	var manager := _make_manager(catalog)
+	manager.requests_arrive = true
+	manager.advance(60.5)
+	check_eq(manager.state.interferences.pending.size(), 1, "la primera ola trae su interferencia")
+	if manager.state.interferences.pending.size() == 1:
+		var time: float = manager.state.interferences.pending[0].time
+		check(time >= 63.0 and time <= 76.0, "unos segundos después de empezar la ola: %s" % time)
+	check_eq(manager.state.videos.unreleased, 1, "el video espera la calma")
+	for _step in 120:
+		manager.advance(1.0)
+	check_eq(manager.state.videos.unreleased, 0, "la calma lo soltó")
+	manager.free()
+	return true
+
+
+## Con "Temporizadores ×1,5", una solicitud nunca pasa de las 06:00.
+func test_con_temporizadores_lentos_no_pasa_de_las_06() -> bool:
+	var manager := _make_manager()
+	manager.timer_scale = 1.5
+	manager.advance(400.0)
+	var request := manager.start_request(0)
+	check_eq(request.time_left, 20.0, "le quedan 20 s a la noche")
 	manager.free()
 	return true
 
@@ -285,7 +322,7 @@ func test_un_amigo_aturdido_o_muerto_no_recibe_solicitudes() -> bool:
 	manager.state.friends[1].hurt(3, 15.0)
 	check_eq(manager.start_request(1), null, "Gonzalo está muerto")
 	manager.requests_arrive = true
-	manager.advance(5.1)
+	manager.advance(60.1)
 	check(manager.requests[2] != null, "la solicitud le llega a Agustín")
 	manager.free()
 	return true
@@ -413,7 +450,7 @@ func test_avisa_cuando_los_videos_no_alcanzan() -> bool:
 	manager.report(night_events)
 	check_eq(_messages(events).size(), 1, "si todavía alcanzan, solo el aviso del video perdido")
 	events.clear()
-	manager.state.videos.pending.pop_back()
+	manager.state.videos.unreleased -= 1
 	manager.report(night_events)
 	var messages := _messages(events)
 	check_eq(messages.size(), 2, "el video perdido y que ya no alcanzan")
@@ -684,7 +721,7 @@ func test_sin_senal_no_responde() -> bool:
 func test_llegan_a_su_hora_si_hay_espacio() -> bool:
 	var manager := _make_incident_manager()
 	manager.requests_arrive = true
-	manager.director.request_times.clear()
+	manager.director.waves.clear()
 	manager.director.incident_times.assign([10.0])
 	manager.night().max_simultaneous = 1
 	manager.start_request(0)

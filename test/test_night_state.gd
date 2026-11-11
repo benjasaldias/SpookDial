@@ -6,13 +6,16 @@ const NightState := preload("res://scripts/core/night_state.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
 
-## Estado de la noche 1 del catálogo de prueba: 3 amigos, cuota de 2 videos (a los 140 s y a los 280 s)
-## y Sanity que baja 1 punto cada 6 s.
+## Estado de la noche 1 del catálogo de prueba: 3 amigos, cuota de 2 videos (de León a los 140 s y de Gonzalo a los
+## 280 s, como si los soltaran 2 calmas) y Sanity que baja 1 punto cada 6 s.
 func _make_state() -> NightState:
 	var catalog := Fixtures.make_catalog()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
-	return NightState.new(catalog.nights[0], catalog.balance, catalog.friends.size(), rng)
+	var state := NightState.new(catalog.nights[0], catalog.balance, catalog.friends.size(), rng)
+	state.videos.release(0, 140.0)
+	state.videos.release(1, 280.0)
+	return state
 
 
 ## Una consecuencia con valores fijos, sin tirar dados.
@@ -211,8 +214,8 @@ func test_cada_amigo_pierde_senal_a_su_ritmo() -> bool:
 
 func test_las_interferencias_se_anuncian_y_golpean() -> bool:
 	var catalog := Fixtures.make_catalog()
-	catalog.nights[0].interference_count = 1
 	var state := NightState.new(catalog.nights[0], catalog.balance, 3, RandomNumberGenerator.new())
+	state.interferences.add(1, 100.0)
 	var friend_index: int = state.interferences.pending[0].friend_index
 	var time: float = state.interferences.pending[0].time
 	state.advance(time - 3.5)

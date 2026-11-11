@@ -2,8 +2,9 @@ extends Node
 ## Las solicitudes de la noche (planes 3 a 6): las genera, avanza sus temporizadores, recibe las preguntas,
 ## los clics y las respuestas del chat, arma los mensajes con estática y resuelve las consecuencias.
 ## Desde el Plan 6 también avisa en el chat lo que pasa con los videos y la señal.
-## Desde el Plan 7, el director de ritmo (PacingDirector) decide cuándo llega cada solicitud: en olas, con un
-## respiro después de cada una (decisión de Benja), sin pasar de las simultáneas.
+## Desde el Plan 7, el director de ritmo (PacingDirector) decide cuándo llega cada solicitud, y desde el Plan 9.1 en
+## olas de verdad, con calmas y una ola final (decisión de Benja, 11 de noviembre): las olas traen interferencias y las
+## calmas, videos, que el manager les da a amigos al azar.
 ## Desde el Plan 8, en la noche 0 (el tutorial) llegan las solicitudes fijas de la noche, de a una, y nadie sale
 ## herido (decisión de Benja).
 ## Desde el Plan 9, también los accidentes de los amigos: se responden en el chat, sin cuaderno, y una mala
@@ -138,20 +139,21 @@ func advance(delta: float) -> void:
 	if night().is_tutorial():
 		_maybe_start_tutorial_request()
 	else:
+		_follow_director()
 		_maybe_start_request()
 		_maybe_start_incident()
 
 
 ## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una o un accidente, si no está
 ## disponible (aturdido o muerto) o si no hay entidades. Con Trust bajo, el temporizador es más corto, y con la
-## opción "Temporizadores ×1,5", más largo.
+## opción "Temporizadores ×1,5", más largo, pero nunca pasa de las 06:00.
 func start_request(friend_index: int) -> FriendRequest:
 	if not _is_free(friend_index):
 		return null
 	var request := RequestGenerator.generate(catalog, night(), friend_index, rng, state.trust)
 	if request == null:
 		return null
-	request.time_left *= timer_scale
+	request.time_left = minf(request.time_left * timer_scale, maxf(catalog.balance.night_seconds - _elapsed, 0.0))
 	requests[friend_index] = request
 	request_started.emit(friend_index, request)
 	_add_friend_message(friend_index, MessageBuilder.first_message(request, tr))
@@ -379,10 +381,22 @@ func _finish_chat_script_if_done() -> void:
 	chat_script_finished.emit(finished)
 
 
+## Avanza el director: empiezan las olas y las calmas. Cada interferencia de una ola le toca a un amigo al azar, y cada
+## video de una calma lo manda un amigo al azar.
+func _follow_director() -> void:
+	var beat := director.advance(_elapsed, active_count())
+	var friend_count := catalog.friends.size()
+	for time: float in beat.interferences:
+		state.interferences.add(rng.randi_range(0, friend_count - 1), time)
+	for time: float in beat.videos:
+		state.videos.release(rng.randi_range(0, friend_count - 1), time)
+
+
 ## Cuando el director lo pide, le da una solicitud a un amigo libre al azar, sin pasar de las simultáneas.
-## Si no hay a quién dársela, espera: el director atrasa las que faltan.
+## Si no hay a quién dársela, espera. El director decide si alcanza a terminar antes de las 06:00 con el tiempo sin
+## alargar: con "Temporizadores ×1,5", start_request lo corta a las 06:00.
 func _maybe_start_request() -> void:
-	if not director.request_due(_elapsed, RequestGenerator.decision_time(night(), state.trust) * timer_scale):
+	if not director.request_due(_elapsed, RequestGenerator.decision_time(night(), state.trust)):
 		return
 	if active_count() >= night().max_simultaneous:
 		return
