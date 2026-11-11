@@ -25,6 +25,21 @@ func _play(desk: Node2D, seconds: float) -> void:
 		desk._process(0.5)
 
 
+## Aprieta o suelta el botón izquierdo sobre la barra de descarga, como el jugador: con el mouse encima.
+func _hold_download(desk: Node2D, pressed: bool) -> void:
+	var bar := (desk.get_node("UI/ChatPanel/Panel/Download/Hold") as Control).get_global_rect().get_center()
+	var root := (Engine.get_main_loop() as SceneTree).root
+	var motion := InputEventMouseMotion.new()
+	motion.position = bar
+	root.push_input(motion, true)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = pressed
+	click.position = bar
+	click.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+	root.push_input(click, true)
+
+
 ## Avanza hasta que `done` se cumpla, como mucho `seconds` segundos.
 func _play_until(desk: Node2D, done: Callable, seconds := 40.0) -> void:
 	for _step in roundi(seconds * 2.0):
@@ -105,10 +120,9 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	manager.answer(0, request.entity.find_action(rule.risky_action_id))
 	_play_until(desk, func() -> bool: return manager.state.videos.offer_for(0) != null)
 	check(manager.state.videos.offer_for(0) != null, "mandó el video")
-	var hold := desk.get_node("UI/ChatPanel/Panel/Download/Hold") as Button
-	hold.button_down.emit()
+	_hold_download(desk, true)
 	_play_until(desk, func() -> bool: return manager.state.videos.received == 1, 15.0)
-	hold.button_up.emit()
+	_hold_download(desk, false)
 	check_eq(manager.state.videos.received, 1, "descargado")
 	_play_until(desk, func() -> bool: return not manager.state.friends[0].is_online())
 	check(not manager.state.friends[0].is_online(), "se le cortó la señal")

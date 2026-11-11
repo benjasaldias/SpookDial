@@ -2,8 +2,9 @@ extends Control
 ## Panel del chat (planes 3, 4 y 6): una pestaña por amigo con su tiempo y un aviso de mensajes nuevos,
 ## la conversación, la descarga de su video, la barra de identificación, las preguntas y las respuestas.
 ## Los botones de respuesta son las acciones de la página que el cuaderno tiene abierta para ese amigo
-## (diseño §8.5). Un video se descarga manteniendo presionada su barra (decisión de Benja), y con un amigo
-## sin señal no se puede preguntar ni responder. El botón «Sincronizar» abre el mixer en el canal del amigo
+## (diseño §8.5). Un video se descarga manteniendo presionada su barra (decisión de Benja), aunque el clic haya empezado
+## un instante antes de que apareciera (observación 10 del primer testeo), y con un amigo sin señal no se puede preguntar
+## ni responder. El botón «Sincronizar» abre el mixer en el canal del amigo
 ## (decisión de Benja).
 ## En un chat guionado, Matías responde con un botón que tiene su línea (decisión de Benja, Plan 7).
 ## Se ve como una terminal: cada mensaje lleva el nombre de quien escribe ("LEÓN:") en su color, y las
@@ -78,8 +79,13 @@ var _answer_buttons: Array[Button] = []
 ## La voz de cada amigo y el sonido que usa, en orden.
 var _voices: Array[ChatVoice] = []
 var _voice_streams: Array[AudioStream] = []
-## Matías mantiene presionada la barra de descarga.
-var _holding_download := false
+## El botón izquierdo del mouse está apretado, y dónde está el mouse, en la ventana del juego. Los sigue el panel y no
+## la barra: un clic que empezó un instante antes de que apareciera la barra lo recibe la conversación, y aun así tiene
+## que descargar (observación 10 del primer testeo, docs/27).
+var _mouse_held := false
+var _mouse_position := Vector2(-1, -1)
+## Cómo se ve la barra de descarga: normal, iluminada o apretada.
+var _hold_look := &""
 
 @onready var _panel: TextureRect = $Panel
 @onready var _tab_bar: HBoxContainer = $Panel/Tabs
@@ -87,7 +93,7 @@ var _holding_download := false
 @onready var _download: Control = $Panel/Download
 @onready var _download_bar: ProgressBar = $Panel/Download/Bar
 @onready var _download_text: Label = $Panel/Download/Text
-@onready var _download_hold: Button = $Panel/Download/Hold
+@onready var _download_hold: Panel = $Panel/Download/Hold
 @onready var _progress: Label = $Panel/IdentifyBar/Progress
 @onready var _entity_button: Button = $Panel/IdentifyBar/EntityName
 @onready var _sync_button: Button = $Panel/IdentifyBar/Sync
@@ -121,10 +127,6 @@ func _ready() -> void:
 	_sync_button.pressed.connect(_on_sync_pressed)
 	_script_reply.pressed.connect(_on_script_reply_pressed)
 	_panel.gui_input.connect(_on_panel_gui_input)
-	_download_hold.button_down.connect(_set_holding_download.bind(true))
-	_download_hold.button_up.connect(_set_holding_download.bind(false))
-	# Al cerrar el chat, la descarga se suelta.
-	visibility_changed.connect(_set_holding_download.bind(false))
 	visibility_changed.connect(_audio_clip.stop)
 
 
@@ -185,8 +187,27 @@ func message_views(friend_index: int) -> Array[Node]:
 	return _lists[friend_index].get_children()
 
 
+## Matías mantiene apretada la barra del video del amigo elegido: el botón izquierdo apretado, con el mouse sobre la
+## barra y el chat abierto, sin importar dónde empezó el clic.
+func is_holding_download() -> bool:
+	if not visible or _manager == null or _manager.state.videos.offer_for(selected_friend) == null:
+		return false
+	return _mouse_held and _is_mouse_over(_download_hold)
+
+
 func _process(_delta: float) -> void:
 	_update_status()
+
+
+## Sigue el botón izquierdo y el mouse, empiece donde empiece el clic: _input recibe todo, antes que los controles.
+func _input(event: InputEvent) -> void:
+	var mouse := event as InputEventMouse
+	if mouse == null:
+		return
+	_mouse_position = mouse.position
+	var button := event as InputEventMouseButton
+	if button != null and button.button_index == MOUSE_BUTTON_LEFT:
+		_mouse_held = button.pressed
 
 
 ## Actualiza lo que cambia con el tiempo: las pestañas, la barra de identificación, las preguntas,
@@ -205,7 +226,6 @@ func _update_status() -> void:
 
 
 func _select(friend_index: int) -> void:
-	_holding_download = false
 	selected_friend = friend_index
 	_unread[friend_index] = false
 	for index in _scrolls.size():
@@ -308,10 +328,9 @@ func _update_download() -> void:
 	var offer := state.videos.offer_for(selected_friend)
 	_download.visible = offer != null
 	_conversation_area.offset_bottom = CONVERSATION_BOTTOM_WITH_DOWNLOAD if offer != null else CONVERSATION_BOTTOM
-	if offer == null:
-		_holding_download = false
-	var holding := offer != null and visible and _holding_download
+	var holding := is_holding_download()
 	state.holding_download = selected_friend if holding else -1
+	_paint_hold(holding)
 	if offer == null:
 		return
 	_download_bar.value = offer.progress * 100.0
@@ -325,8 +344,19 @@ func _update_download() -> void:
 	_download_text.text = "%s %s" % [DOWNLOAD_MARK, tr(key).format(values).to_upper()]
 
 
-func _set_holding_download(holding: bool) -> void:
-	_holding_download = holding
+## La barra se ve apretada mientras se descarga, e iluminada con el mouse encima.
+func _paint_hold(holding: bool) -> void:
+	var look := &"pressed" if holding else (&"hover" if _is_mouse_over(_download_hold) else &"panel")
+	if look == _hold_look:
+		return
+	_hold_look = look
+	_download_hold.add_theme_stylebox_override(&"panel", _download_hold.get_theme_stylebox(look, &"DownloadHold"))
+
+
+## El mouse está sobre `control`, que se ve.
+func _is_mouse_over(control: Control) -> bool:
+	var local := control.get_global_transform_with_canvas().affine_inverse() * _mouse_position
+	return control.is_visible_in_tree() and Rect2(Vector2.ZERO, control.size).has_point(local)
 
 
 func _on_message_added(friend_index: int, message: ChatMessage) -> void:

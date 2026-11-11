@@ -325,12 +325,56 @@ func test_la_descarga_aparece_con_el_video() -> bool:
 	return true
 
 
+## Simula el mouse de verdad, en la ventana del juego: lo mueve a `position`.
+func _mouse_motion(position: Vector2) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = position
+	motion.global_position = position
+	(Engine.get_main_loop() as SceneTree).root.push_input(motion, true)
+
+
+## Simula el botón izquierdo en `position`: lo aprieta o lo suelta.
+func _mouse_button(position: Vector2, pressed: bool) -> void:
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = pressed
+	click.position = position
+	click.global_position = position
+	click.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+	(Engine.get_main_loop() as SceneTree).root.push_input(click, true)
+
+
+## El centro de la barra de descarga, en la ventana del juego.
+func _bar_center(panel: Control) -> Vector2:
+	return (panel.get_node("Panel/Download/Hold") as Control).get_global_rect().get_center()
+
+
+## El tester apretó justo cuando aparecía la barra: ese clic lo recibe la conversación, no la barra, y aun así tiene que
+## descargar mientras lo mantenga encima (observación 10 del primer testeo; docs/27, tarea 3).
+func test_apretar_justo_antes_de_que_aparezca_la_barra() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	var bar := _bar_center(panel)
+	_mouse_motion(bar)
+	_mouse_button(bar, true)
+	_offer_video_from_leon()
+	panel._process(0.0)
+	check_eq(_manager.state.holding_download, 0, "descarga el video de León")
+	_mouse_button(bar, false)
+	panel._process(0.0)
+	check_eq(_manager.state.holding_download, -1, "al soltar, se pausa")
+	_free(panel)
+	return true
+
+
 func test_mantener_presionado_descarga() -> bool:
 	var panel := _make_panel()
 	panel.open_for(0)
 	_offer_video_from_leon()
-	var hold := panel.get_node("Panel/Download/Hold") as Button
-	hold.button_down.emit()
+	panel._process(0.0)
+	var bar := _bar_center(panel)
+	_mouse_motion(bar)
+	_mouse_button(bar, true)
 	panel._process(0.0)
 	check_eq(_manager.state.holding_download, 0, "descarga el video de León")
 	_manager.state.advance(1.0)
@@ -338,7 +382,7 @@ func test_mantener_presionado_descarga() -> bool:
 	check_eq(_download_text(panel), "▼ " + tr("DOWNLOAD_ACTIVE").format({"seconds": 19, "percent": 10}).to_upper(),
 			"10 % en 1 s, con 20 s para terminar")
 	check(is_equal_approx((panel.get_node("Panel/Download/Bar") as ProgressBar).value, 10.0), "la barra avanza")
-	hold.button_up.emit()
+	_mouse_button(bar, false)
 	panel._process(0.0)
 	check_eq(_manager.state.holding_download, -1, "al soltar se pausa")
 	check_eq(_download_text(panel), "▼ " + tr("DOWNLOAD_PAUSED").format({"seconds": 19, "percent": 10}).to_upper(),
@@ -347,15 +391,42 @@ func test_mantener_presionado_descarga() -> bool:
 	return true
 
 
+## Lo que cuenta es el botón apretado con el mouse sobre la barra: fuera de ella no descarga, y al salir se pausa.
+func test_fuera_de_la_barra_no_descarga() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_offer_video_from_leon()
+	panel._process(0.0)
+	var bar := _bar_center(panel)
+	var above := bar - Vector2(0, 100)
+	_mouse_motion(above)
+	_mouse_button(above, true)
+	panel._process(0.0)
+	check_eq(_manager.state.holding_download, -1, "apretado en la conversación, no")
+	_mouse_motion(bar)
+	panel._process(0.0)
+	check_eq(_manager.state.holding_download, 0, "al llegar a la barra con el botón apretado, sí")
+	_mouse_motion(above)
+	panel._process(0.0)
+	check_eq(_manager.state.holding_download, -1, "al salir de la barra se pausa")
+	_mouse_button(above, false)
+	_free(panel)
+	return true
+
+
 func test_cerrar_el_chat_suelta_la_descarga() -> bool:
 	var panel := _make_panel()
 	panel.open_for(0)
 	_offer_video_from_leon()
-	(panel.get_node("Panel/Download/Hold") as Button).button_down.emit()
+	panel._process(0.0)
+	var bar := _bar_center(panel)
+	_mouse_motion(bar)
+	_mouse_button(bar, true)
 	panel._process(0.0)
 	panel.hide()
 	panel._process(0.0)
 	check_eq(_manager.state.holding_download, -1, "con el chat cerrado no se descarga")
+	_mouse_button(bar, false)
 	panel.open_for(0)
 	panel._process(0.0)
 	check_eq(_manager.state.holding_download, -1, "al volver hay que presionar de nuevo")

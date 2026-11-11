@@ -111,6 +111,29 @@ func test_clic_en_una_entrada_abre_el_chat() -> bool:
 	return true
 
 
+## Apretar la barra de descarga no cierra el chat: la barra se queda con el clic, aunque la descarga ya no dependa de
+## él (docs/27, tarea 3).
+func test_apretar_la_barra_de_descarga_no_cierra_el_chat() -> bool:
+	var desk := _make_desk()
+	desk.get_node("DeskPlane/Entries/EntryLeon").pressed.emit()
+	var manager := desk.get_node("RequestManager")
+	manager.state.videos.add_extra(0, 0.0)
+	manager.state.advance(0.1)
+	var panel := desk.get_node("UI/ChatPanel") as Control
+	panel._process(0.0)
+	var bar := (panel.get_node("Panel/Download/Hold") as Control).get_global_rect().get_center()
+	for pressed: bool in [true, false]:
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.pressed = pressed
+		click.position = bar
+		click.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+		(Engine.get_main_loop() as SceneTree).root.push_input(click, true)
+	check(panel.visible, "el chat sigue abierto")
+	desk.free()
+	return true
+
+
 func test_el_chat_recibe_los_mensajes_de_las_solicitudes() -> bool:
 	var desk := _make_desk()
 	desk.get_node("RequestManager").start_request(2)

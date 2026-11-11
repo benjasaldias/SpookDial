@@ -37,10 +37,13 @@ func _capture() -> void:
 	state.videos.add_extra(0, state.elapsed)
 	await create_timer(0.2).timeout
 	desk.get_node("DeskPlane/Entries/EntryLeon").pressed.emit()
-	desk.get_node("UI/ChatPanel/Panel/Download/Hold").button_down.emit()
+	await process_frame
+	await process_frame
+	var bar: Vector2 = (desk.get_node("UI/ChatPanel/Panel/Download/Hold") as Control).get_global_rect().get_center()
+	_mouse(bar, true)
 	await create_timer(4.0).timeout
 	await _save(1)
-	desk.get_node("UI/ChatPanel/Panel/Download/Hold").button_up.emit()
+	_mouse(bar, false)
 	desk.open_phone()
 	desk.get_node("UI/PhoneView").scroll_by(400.0)
 	await create_timer(1.0).timeout
@@ -53,3 +56,16 @@ func _save(index: int) -> void:
 	var path: String = OS.get_cmdline_user_args()[index]
 	root.get_texture().get_image().save_png(path)
 	print("Captura guardada en ", path)
+
+
+## Mueve el mouse a `position` y aprieta o suelta el botón izquierdo, como el jugador.
+func _mouse(position: Vector2, pressed: bool) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = position
+	root.push_input(motion, true)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = pressed
+	click.position = position
+	click.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+	root.push_input(click, true)
