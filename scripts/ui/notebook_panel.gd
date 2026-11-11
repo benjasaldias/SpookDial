@@ -8,6 +8,7 @@ extends Control
 
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const NotebookPage := preload("res://scripts/core/notebook_page.gd")
+const PixelText := preload("res://scripts/ui/pixel_text.gd")
 
 ## Textos del panel (ui.csv). NOTEBOOK_FOR_FRIEND lleva {friend}.
 const PICK_ENTITY_KEY := "NOTEBOOK_PICK_ENTITY"
@@ -102,7 +103,9 @@ func _refresh() -> void:
 		return
 	_title.text = tr(entity.name_key)
 	_sketch.texture = entity.sketch
-	_body.text = NotebookPage.bbcode(entity, tr)
+	# Los íconos de la tabla, al tamaño de la letra, para que se vean nítidos.
+	var icon_size := roundi(NotebookPage.MARK_PIXELS * PixelText.size(11) / 11.0)
+	_body.text = NotebookPage.bbcode(entity, tr, icon_size)
 
 
 func _on_tab_pressed(entity: EntityData) -> void:

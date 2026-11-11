@@ -61,7 +61,8 @@ LABEL = rgb("#afcbba")
 PAPER = rgb("#d6cfb8")
 PAPER_SHADE = rgb("#c7bfa5")
 PAPER_EDGE = rgb("#ada388")
-GRID = rgb("#b0bcbe")
+# La cuadrícula, a medio camino entre el gris azulado del lápiz y el papel: más suave (pedido de Benja, 11 de noviembre).
+GRID = rgb("#c3c5bb")
 MARGIN = rgb("#c4545a")
 PENCIL = rgb("#77747a")
 HOLE = rgb("#2b261d")
@@ -668,11 +669,59 @@ def menu_button(state):
 
 # --- Todo junto -----------------------------------------------------------------------------------------------------
 
+# Las marcas de la tabla de reglas del cuaderno (Plan 9.2): ✓ la acción correcta, ✗ las incorrectas y una calavera la de
+# mayor riesgo. 9×9, en el lápiz pasta de la página: verde, gris y rojo.
+MARKS = {
+    "mark_check": ("#1d5a2c", [
+        ".........",
+        "........#",
+        ".......##",
+        "......##.",
+        "#....##..",
+        "##..##...",
+        ".####....",
+        "..##.....",
+        ".........",
+    ]),
+    "mark_cross": ("#5c6470", [
+        ".........",
+        ".#.....#.",
+        ".##...##.",
+        "..##.##..",
+        "...###...",
+        "..##.##..",
+        ".##...##.",
+        ".#.....#.",
+        ".........",
+    ]),
+    "mark_risk": ("#a32222", [
+        "..#####..",
+        ".#######.",
+        "#..###..#",
+        "#..###..#",
+        "####.####",
+        ".#######.",
+        "..#.#.#..",
+        "..#.#.#..",
+        ".........",
+    ]),
+}
+
+
+def mark(color, rows):
+    """Una marca de la tabla del cuaderno, píxel a píxel."""
+    image = Image.new("RGBA", (len(rows[0]), len(rows)), (0, 0, 0, 0))
+    stamp(image, 0, 0, [row.replace("#", "a") for row in rows], {"a": rgb(color)})
+    return image
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     mixer_body().save(OUT / "mixer_body.png")
     mixer_fader_cap().save(OUT / "mixer_fader_cap.png")
     notebook_page().save(OUT / "notebook_page.png")
+    for name, (color, rows) in MARKS.items():
+        mark(color, rows).save(OUT / f"{name}.png")
     postit(POSTIT, POSTIT_LIGHT, POSTIT_SHADE).save(OUT / "notebook_tab.png")
     postit(POSTIT_LIGHT, rgb("#f6e8a6"), POSTIT).save(OUT / "notebook_tab_hover.png")
     postit(POSTIT_PINK, POSTIT_PINK_LIGHT, POSTIT_PINK_SHADE).save(OUT / "notebook_tab_selected.png")
