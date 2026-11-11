@@ -48,6 +48,8 @@ const VIDEO_SENT_KEY := "FRIEND_VIDEO_SENT"
 ## {received} y {quota}.
 const VIDEO_RECEIVED_KEY := "CHAT_VIDEO_RECEIVED"
 const VIDEO_LOST_KEY := "CHAT_VIDEO_LOST"
+## Los videos que quedan ya no alcanzan la cuota (decisión de Benja, 11 de noviembre). Lleva {received} y {quota}.
+const VIDEOS_SHORT_KEY := "CHAT_VIDEOS_SHORT"
 const SIGNAL_LOST_KEY := "CHAT_SIGNAL_LOST"
 const SIGNAL_BACK_KEY := "CHAT_SIGNAL_BACK"
 

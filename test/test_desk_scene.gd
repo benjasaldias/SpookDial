@@ -349,6 +349,25 @@ func test_el_pc_cuenta_los_videos() -> bool:
 	return true
 
 
+## Cuando los videos ya no alcanzan, el PC lo dice en rojo, y vuelve a la normalidad si alcanzan de nuevo (decisión de
+## Benja, 11 de noviembre).
+func test_los_videos_que_faltan_en_rojo() -> bool:
+	var desk := _make_desk()
+	var label := desk.get_node("DeskPlane/PC/Videos") as Label
+	var normal := label.get_theme_color("font_color")
+	_state(desk).videos.pending.pop_back()
+	desk._process(0.0)
+	var expected := String(TranslationServer.translate("PC_VIDEOS_SHORT")).format({"received": 0, "quota": 3})
+	check_eq(label.text, expected, "dice que faltan")
+	check(expected != "PC_VIDEOS_SHORT", "el texto existe")
+	check(label.get_theme_color("font_color") != normal, "en rojo")
+	_state(desk).videos.add_extra(0, 10.0)
+	desk._process(0.0)
+	check_eq(label.get_theme_color("font_color"), normal, "alcanzan de nuevo: color normal")
+	desk.free()
+	return true
+
+
 func test_la_vineta_sigue_a_sanity() -> bool:
 	var desk := _make_desk()
 	var vignette := desk.get_node("Overlay/Vignette") as ColorRect

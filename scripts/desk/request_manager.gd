@@ -255,7 +255,9 @@ func reply_chat_script() -> bool:
 
 
 ## Avisa en el chat lo que pasó en un paso de la noche: el amigo que se quedó sin señal, el video que mandó
-## un amigo y el que se recibió o se perdió. NightManager lo llama después de avanzar el estado de la noche.
+## un amigo y el que se recibió o se perdió. Si al perderse uno los que quedan ya no alcanzan la cuota, lo avisa ahí
+## mismo: alguien tiene que arriesgarse (decisión de Benja, 11 de noviembre). NightManager lo llama después de
+## avanzar el estado de la noche.
 func report(events: NightState.Events) -> void:
 	for friend_index: int in events.disconnected:
 		_add_notice(friend_index, MessageBuilder.SIGNAL_LOST_KEY, ChatMessage.Tone.DANGER)
@@ -265,6 +267,8 @@ func report(events: NightState.Events) -> void:
 		_add_notice(friend_index, MessageBuilder.VIDEO_RECEIVED_KEY, ChatMessage.Tone.GOOD)
 	for friend_index: int in events.videos.lost:
 		_add_notice(friend_index, MessageBuilder.VIDEO_LOST_KEY, ChatMessage.Tone.DANGER)
+		if state.videos.is_short():
+			_add_notice(friend_index, MessageBuilder.VIDEOS_SHORT_KEY, ChatMessage.Tone.DANGER)
 
 
 ## Audio Sync salió bien: la señal del amigo vuelve a 100. Si estaba desconectado, el chat avisa que volvió.

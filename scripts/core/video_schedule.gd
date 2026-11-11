@@ -123,3 +123,14 @@ func advance(now: float, delta: float, friends: Array[FriendState], holding: int
 
 func is_quota_met() -> bool:
 	return received >= quota
+
+
+## Cuántos videos puede tener la noche todavía: los recibidos, los que esperan su descarga y los que faltan llegar.
+func potential() -> int:
+	return received + offers.size() + pending.size()
+
+
+## Los videos ya no alcanzan la cuota: alguien tiene que arriesgarse, porque la acción de mayor riesgo da un video extra
+## (decisión de Benja, 11 de noviembre).
+func is_short() -> bool:
+	return potential() < quota

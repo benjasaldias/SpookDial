@@ -175,3 +175,22 @@ func test_en_el_tutorial_el_video_espera() -> bool:
 	changes = _advance(schedule, friends, 105.0, 5, 1)
 	check_eq(changes.received, [1], "se recibe")
 	return true
+
+
+## Cuántos videos todavía pueden llegar: los recibidos, los que esperan su descarga y los que faltan. Si no alcanzan la
+## cuota, alguien tiene que arriesgarse (decisión de Benja, 11 de noviembre).
+func test_cuantos_videos_pueden_llegar() -> bool:
+	var schedule := _schedule(3)
+	check_eq(schedule.potential(), 3, "al empezar, los 3 de la cuota")
+	check(not schedule.is_short(), "alcanzan")
+	schedule.pending.pop_back()
+	schedule.lost += 1
+	check_eq(schedule.potential(), 2, "se perdió uno")
+	check(schedule.is_short(), "ya no alcanzan")
+	schedule.add_extra(1, 100.0)
+	check(not schedule.is_short(), "el video extra de la acción de mayor riesgo vuelve a alcanzar")
+	schedule.pending.clear()
+	schedule.offers.append(VideoSchedule.Offer.new(0, 15.0))
+	schedule.received = 2
+	check_eq(schedule.potential(), 3, "2 recibidos y 1 esperando su descarga")
+	return true

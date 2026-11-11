@@ -155,7 +155,8 @@ func test_los_avisos_de_la_noche_llegan_al_chat() -> bool:
 	_advance(night, 140)
 	check_eq(senders, [ChatMessage.Sender.FRIEND], "el amigo avisa que mandó el video")
 	_advance(night, 15)
-	check_eq(senders, [ChatMessage.Sender.FRIEND, ChatMessage.Sender.SYSTEM], "sin descargarlo se pierde, y el juego lo avisa")
+	check_eq(senders, [ChatMessage.Sender.FRIEND, ChatMessage.Sender.SYSTEM, ChatMessage.Sender.SYSTEM],
+			"sin descargarlo se pierde, y el juego avisa que se perdió y que ya no alcanzan")
 	_free(night)
 	return true
 

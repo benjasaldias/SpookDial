@@ -42,8 +42,11 @@ const Screamer := preload("res://scripts/core/screamer.gd")
 const ScreamerManager := preload("res://scripts/desk/screamer_manager.gd")
 const TutorialGuide := preload("res://scripts/core/tutorial_guide.gd")
 
-## Videos recibidos, en el PC (ui.csv). Lleva {received} y {quota}.
+## Videos recibidos, en el PC (ui.csv). Lleva {received} y {quota}. Si ya no alcanzan la cuota, el otro texto, en
+## rojo (decisión de Benja, 11 de noviembre).
 const VIDEOS_KEY := "PC_VIDEOS"
+const VIDEOS_SHORT_KEY := "PC_VIDEOS_SHORT"
+const VIDEOS_SHORT_COLOR := Color(1.0, 0.3, 0.37)
 
 ## El largo de la barra de batería del celular del escritorio, llena.
 const BATTERY_BAR_WIDTH := 44.0
@@ -82,9 +85,13 @@ var _guide: TutorialGuide
 ## Qué amigos tenían anunciada una interferencia en el frame anterior: la estática suena al empezar el aviso.
 var _warned: Array[bool] = []
 
+## El color de los videos del PC cuando alcanzan.
+var _videos_color := Color.WHITE
+
 
 func _ready() -> void:
 	var friends := _requests.catalog.friends
+	_videos_color = _videos.get_theme_color(&"font_color")
 	notebook_memory = NotebookMemory.new(friends.size())
 	_night.setup(_requests)
 	_chat_panel.setup(_requests, friends, notebook_memory)
@@ -320,7 +327,7 @@ func _refresh_entries() -> void:
 
 
 ## Los diales y las barras (cada uno con su color fijo, decisión de Benja), la hora del celular, los videos del
-## PC y la viñeta de Sanity.
+## PC (en rojo si ya no alcanzan) y la viñeta de Sanity.
 func _refresh_meters() -> void:
 	var state := _requests.state
 	_dial_connection.value = state.connection() / NightState.METER_MAX
@@ -329,7 +336,10 @@ func _refresh_meters() -> void:
 	_stat_bars.set_values(state.connection(), state.sanity, state.trust)
 	_clock.text = state.clock_text()
 	_battery_bar.size.x = roundf(BATTERY_BAR_WIDTH * state.battery / NightState.METER_MAX)
-	_videos.text = tr(VIDEOS_KEY).format({"received": state.videos.received, "quota": state.videos.quota})
+	var short := state.videos.is_short()
+	_videos.text = tr(VIDEOS_SHORT_KEY if short else VIDEOS_KEY).format({"received": state.videos.received,
+			"quota": state.videos.quota})
+	_videos.add_theme_color_override(&"font_color", VIDEOS_SHORT_COLOR if short else _videos_color)
 	(_vignette.material as ShaderMaterial).set_shader_parameter(&"strength", state.vignette_strength())
 
 

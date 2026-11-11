@@ -401,6 +401,32 @@ func test_avisa_en_el_chat_los_videos_y_la_senal() -> bool:
 	return true
 
 
+## Cuando un video se pierde y los que quedan ya no alcanzan la cuota, el chat avisa que alguien tiene que arriesgarse
+## (decisión de Benja, 11 de noviembre). Una vez por cada video perdido.
+func test_avisa_cuando_los_videos_no_alcanzan() -> bool:
+	var manager := _make_manager()
+	var events := []
+	_record(manager, events)
+	var night_events := NightState.Events.new()
+	night_events.videos = VideoSchedule.Changes.new()
+	night_events.videos.lost.append(1)
+	manager.report(night_events)
+	check_eq(_messages(events).size(), 1, "si todavía alcanzan, solo el aviso del video perdido")
+	events.clear()
+	manager.state.videos.pending.pop_back()
+	manager.report(night_events)
+	var messages := _messages(events)
+	check_eq(messages.size(), 2, "el video perdido y que ya no alcanzan")
+	if messages.size() == 2:
+		check_eq(events[1][1], 1, "en el chat de Gonzalo")
+		check_eq((messages[1] as ChatMessage).plain_text(), _ui("CHAT_VIDEOS_SHORT", {"received": 0, "quota": 2}),
+				"alguien tiene que arriesgarse")
+		check_eq((messages[1] as ChatMessage).tone, ChatMessage.Tone.DANGER, "en rojo")
+	check(tr("CHAT_VIDEOS_SHORT") != "CHAT_VIDEOS_SHORT", "el texto existe")
+	manager.free()
+	return true
+
+
 func test_restaurar_la_senal_avisa_si_estaba_desconectado() -> bool:
 	var manager := _make_manager()
 	var events := []
