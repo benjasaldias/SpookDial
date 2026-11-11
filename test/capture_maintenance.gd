@@ -39,7 +39,7 @@ func _capture() -> void:
 	desk.get_node("DeskPlane/Entries/EntryLeon").pressed.emit()
 	await process_frame
 	await process_frame
-	var bar: Vector2 = (desk.get_node("UI/ChatPanel/Panel/Download/Hold") as Control).get_global_rect().get_center()
+	var bar: Vector2 = (desk.get_node("UI/ChatPanel/%Hold") as Control).get_global_rect().get_center()
 	_mouse(bar, true)
 	await create_timer(4.0).timeout
 	await _save(1)

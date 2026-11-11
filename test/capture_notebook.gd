@@ -25,7 +25,7 @@ func _capture() -> void:
 	for trait_data: TraitData in request.get("traits"):
 		view.clue_clicked.emit(view, trait_data.id)
 	await create_timer(3.5).timeout
-	(panel.get_node("Panel/IdentifyBar/EntityName") as Button).pressed.emit()
+	(panel.get_node("%EntityName") as Button).pressed.emit()
 	await create_timer(0.5).timeout
 	await RenderingServer.frame_post_draw
 	var path: String = OS.get_cmdline_user_args()[0]

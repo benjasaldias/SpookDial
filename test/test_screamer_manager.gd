@@ -316,7 +316,7 @@ func test_el_susto_guionado_ensena_el_celular() -> bool:
 	_play(desk, 4)
 	check_eq(gonzalo.state, ChatEntry.State.WARNING, "Gonzalo escribió y espera la respuesta de Matías")
 	gonzalo.pressed.emit()
-	var reply := desk.get_node("UI/ChatPanel/Panel/ScriptReply") as Button
+	var reply := desk.get_node("UI/ChatPanel/%ScriptReply") as Button
 	check(reply.visible, "el botón con la respuesta de Matías")
 	check_eq(reply.text, String(TranslationServer.translate("SCRIPT_SCARE_REPLY")), "su línea")
 	reply.pressed.emit()

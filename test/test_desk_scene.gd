@@ -121,7 +121,8 @@ func test_apretar_la_barra_de_descarga_no_cierra_el_chat() -> bool:
 	manager.state.advance(0.1)
 	var panel := desk.get_node("UI/ChatPanel") as Control
 	panel._process(0.0)
-	var bar := (panel.get_node("Panel/Download/Hold") as Control).get_global_rect().get_center()
+	(panel.get_node("Panel/Layout") as Container).notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var bar := (panel.get_node("%Hold") as Control).get_global_rect().get_center()
 	for pressed: bool in [true, false]:
 		var click := InputEventMouseButton.new()
 		click.button_index = MOUSE_BUTTON_LEFT
@@ -301,7 +302,7 @@ func test_se_responde_desde_el_cuaderno() -> bool:
 	panel._process(0.0)
 	var rule := RuleEvaluator.applicable_rule(entity, request.get("situation"))
 	var correct := entity.actions.find(entity.find_action(rule.correct_action_id))
-	(panel.get_node("Panel/Answers").get_child(correct) as Button).pressed.emit()
+	(panel.get_node("%Answers").get_child(correct) as Button).pressed.emit()
 	check(request.get("finished"), "la solicitud terminó")
 	check_eq(request.get("outcome"), RuleEvaluator.Outcome.CORRECT, "con la acción correcta")
 	check_eq(manager.requests[0], null, "León queda libre")

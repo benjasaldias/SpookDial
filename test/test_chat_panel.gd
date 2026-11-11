@@ -42,12 +42,22 @@ func _click_at(button: MouseButton, position: Vector2) -> InputEventMouseButton:
 	return click
 
 
+## Un título del chat, como se ve: "RESPONDER · EL TRAUCO".
+func _title(key: String, detail := "") -> String:
+	return (tr(key) if detail.is_empty() else "%s · %s" % [tr(key), detail]).to_upper()
+
+
+## Acomoda el chat como en un cuadro del juego: run_tests.gd no deja pasar cuadros entre pruebas.
+func _layout(panel: Control) -> void:
+	(panel.get_node("Panel/Layout") as Container).notification(Container.NOTIFICATION_SORT_CHILDREN)
+
+
 func _question_buttons(panel: Control) -> Array[Node]:
-	return panel.get_node("Panel/Questions").get_children()
+	return panel.get_node("%Questions").get_children()
 
 
 func _answer_buttons(panel: Control) -> Array[Node]:
-	return panel.get_node("Panel/Answers").get_children()
+	return panel.get_node("%Answers").get_children()
 
 
 ## La única entidad de la noche 1 del catálogo de prueba.
@@ -61,10 +71,10 @@ func test_empieza_oculto_y_se_abre_en_un_amigo() -> bool:
 	panel.open_for(1)
 	check(panel.visible, "visible tras abrir")
 	check_eq(panel.selected_friend, 1, "amigo elegido")
-	var tabs := panel.get_node("Panel/Tabs").get_children()
+	var tabs := panel.get_node("%Tabs").get_children()
 	check_eq(tabs.size(), 3, "una pestaña por amigo")
 	check((tabs[1] as Button).button_pressed and not (tabs[0] as Button).button_pressed, "pestaña de Gonzalo")
-	var conversations := panel.get_node("Panel/Conversations").get_children()
+	var conversations := panel.get_node("%Conversations").get_children()
 	check((conversations[1] as Control).visible and not (conversations[0] as Control).visible, "su conversación")
 	_free(panel)
 	return true
@@ -75,7 +85,7 @@ func test_avisa_al_elegir_un_amigo() -> bool:
 	var selected := []
 	panel.friend_selected.connect(func(friend_index: int) -> void: selected.append(friend_index))
 	panel.open_for(2)
-	(panel.get_node("Panel/Tabs").get_child(1) as Button).pressed.emit()
+	(panel.get_node("%Tabs").get_child(1) as Button).pressed.emit()
 	check_eq(selected, [2, 1], "Agustín y después Gonzalo")
 	_free(panel)
 	return true
@@ -103,7 +113,7 @@ func test_pestana_con_tiempo_y_aviso() -> bool:
 	var panel := _make_panel()
 	_manager.start_request(2)
 	panel._process(0.0)
-	var tab := panel.get_node("Panel/Tabs").get_child(2) as Button
+	var tab := panel.get_node("%Tabs").get_child(2) as Button
 	check(tab.text.contains("45"), "muestra el tiempo: %s" % tab.text)
 	check(tab.text.contains(panel.UNREAD_MARK), "avisa del mensaje nuevo: %s" % tab.text)
 	panel.open_for(2)
@@ -133,8 +143,8 @@ func test_preguntas() -> bool:
 func test_barra_de_identificacion() -> bool:
 	var panel := _make_panel()
 	panel.open_for(0)
-	var progress := panel.get_node("Panel/IdentifyBar/Progress") as Label
-	var entity_button := panel.get_node("Panel/IdentifyBar/EntityName") as Button
+	var progress := panel.get_node("%Progress") as Label
+	var entity_button := panel.get_node("%EntityName") as Button
 	check(not progress.visible and not entity_button.visible, "sin solicitud, la barra está vacía")
 	var request := _manager.start_request(0)
 	panel._process(0.0)
@@ -193,8 +203,9 @@ func test_el_senuelo_vibra_sin_costo() -> bool:
 
 func test_pide_abrir_el_cuaderno_para_responder() -> bool:
 	var panel := _make_panel()
-	check_eq((panel.get_node("Panel/AnswerHint") as Label).text, tr(panel.OPEN_NOTEBOOK_KEY), "aviso")
-	check(not (panel.get_node("Panel/Answers") as Control).visible, "sin página no hay botones de respuesta")
+	check_eq((panel.get_node("%AnswerTitle") as Label).text, _title("CHAT_ANSWER_TITLE", tr("CHAT_OPEN_NOTEBOOK")),
+			"el título lo pide")
+	check(not (panel.get_node("%Answers") as Control).visible, "sin página no hay botones de respuesta")
 	_free(panel)
 	return true
 
@@ -204,9 +215,9 @@ func test_responde_con_las_acciones_de_la_pagina_abierta() -> bool:
 	panel.open_for(0)
 	_memory.open_page(0, _beast())
 	panel._process(0.0)
-	check((panel.get_node("Panel/Answers") as Control).visible, "botones de respuesta visibles")
-	check_eq((panel.get_node("Panel/AnswerHint") as Label).text,
-			tr(panel.ANSWER_FROM_PAGE_KEY).format({"entity": tr(_beast().name_key)}), "de qué página son")
+	check((panel.get_node("%Answers") as Control).visible, "botones de respuesta visibles")
+	check_eq((panel.get_node("%AnswerTitle") as Label).text, _title("CHAT_ANSWER_TITLE", tr(_beast().name_key)),
+			"de qué página son")
 	var buttons := _answer_buttons(panel)
 	check_eq(buttons.map(func(button: Button) -> String: return button.text),
 			_beast().actions.map(func(action: ActionData) -> String: return tr(action.label_key)), "las 4 acciones")
@@ -229,8 +240,9 @@ func test_cada_amigo_responde_desde_su_pagina() -> bool:
 	var panel := _make_panel()
 	_memory.open_page(0, _beast())
 	panel.open_for(1)
-	check(not (panel.get_node("Panel/Answers") as Control).visible, "Gonzalo no tiene página abierta")
-	check_eq((panel.get_node("Panel/AnswerHint") as Label).text, tr(panel.OPEN_NOTEBOOK_KEY), "pide abrir el cuaderno")
+	check(not (panel.get_node("%Answers") as Control).visible, "Gonzalo no tiene página abierta")
+	check_eq((panel.get_node("%AnswerTitle") as Label).text, _title("CHAT_ANSWER_TITLE", tr("CHAT_OPEN_NOTEBOOK")),
+			"pide abrir el cuaderno")
 	_free(panel)
 	return true
 
@@ -240,12 +252,11 @@ func test_sus_textos_existen() -> bool:
 	TranslationServer.set_locale("es")
 	var panel_script := preload("res://scripts/ui/chat_panel.gd")
 	for key: String in [panel_script.PROGRESS_KEY, panel_script.THINKING_KEY, panel_script.OPEN_NOTEBOOK_KEY,
-			panel_script.ANSWER_FROM_PAGE_KEY]:
+			panel_script.ASK_TITLE_KEY, panel_script.ANSWER_TITLE_KEY, panel_script.NO_TIME_KEY, panel_script.NO_SIGNAL_KEY,
+			panel_script.OFFLINE_KEY]:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en ui.csv" % key)
 	var progress := String(TranslationServer.translate(panel_script.PROGRESS_KEY))
 	check(progress.contains("{marked}") and progress.contains("{total}"), "IDENTIFY_PROGRESS debe tener {marked} y {total}")
-	check(String(TranslationServer.translate(panel_script.ANSWER_FROM_PAGE_KEY)).contains("{entity}"),
-			"ANSWER_FROM_PAGE debe tener {entity}")
 	TranslationServer.set_locale(previous)
 	return true
 
@@ -268,7 +279,7 @@ func test_cada_mensaje_lleva_el_nombre_de_quien_escribe() -> bool:
 
 func test_pestanas_y_preguntas_como_en_una_terminal() -> bool:
 	var panel := _make_panel()
-	var tab := panel.get_node("Panel/Tabs").get_child(0) as Button
+	var tab := panel.get_node("%Tabs").get_child(0) as Button
 	var friend: FriendData = _manager.catalog.friends[0]
 	check_eq(tab.theme_type_variation, &"ChatTab", "pestaña con su estilo")
 	check_eq(tab.get_theme_color(&"font_pressed_color"), friend.color, "la elegida, en el color del amigo")
@@ -290,7 +301,7 @@ func test_el_aviso_de_dano_no_lleva_nombre_y_marca_la_pestana() -> bool:
 	var views: Array[Node] = panel.message_views(0)
 	check_eq(views[-1].speaker, "", "lo escribe el juego: sin nombre")
 	panel._process(0.0)
-	check((panel.get_node("Panel/Tabs").get_child(0) as Button).text.contains(panel.UNREAD_MARK), "la pestaña de León avisa")
+	check((panel.get_node("%Tabs").get_child(0) as Button).text.contains(panel.UNREAD_MARK), "la pestaña de León avisa")
 	_free(panel)
 	return true
 
@@ -302,21 +313,18 @@ func _offer_video_from_leon() -> void:
 
 
 func _download_text(panel: Control) -> String:
-	return (panel.get_node("Panel/Download/Text") as Label).text
+	return (panel.get_node("%Download/Text") as Label).text
 
 
 func test_la_descarga_aparece_con_el_video() -> bool:
 	var panel := _make_panel()
 	panel.open_for(0)
 	panel._process(0.0)
-	var download := panel.get_node("Panel/Download") as Control
-	var conversations := panel.get_node("Panel/Conversations") as Control
+	var download := panel.get_node("%Download") as Control
 	check(not download.visible, "sin video no hay barra")
-	check_eq(conversations.offset_bottom, 431.0, "la conversación usa todo el alto")
 	_offer_video_from_leon()
 	panel._process(0.0)
 	check(download.visible, "llegó el video de León")
-	check_eq(conversations.offset_bottom, 395.0, "la conversación se acorta")
 	check_eq(_download_text(panel), "▼ " + tr("DOWNLOAD_START").format({"seconds": 15, "percent": 0}).to_upper(),
 			"pide mantener presionado, con el tiempo para empezar")
 	panel.open_for(1)
@@ -344,9 +352,10 @@ func _mouse_button(position: Vector2, pressed: bool) -> void:
 	(Engine.get_main_loop() as SceneTree).root.push_input(click, true)
 
 
-## El centro de la barra de descarga, en la ventana del juego.
+## El centro de la barra de descarga, en la ventana del juego, con el chat ya acomodado.
 func _bar_center(panel: Control) -> Vector2:
-	return (panel.get_node("Panel/Download/Hold") as Control).get_global_rect().get_center()
+	_layout(panel)
+	return (panel.get_node("%Hold") as Control).get_global_rect().get_center()
 
 
 ## El tester apretó justo cuando aparecía la barra: ese clic lo recibe la conversación, no la barra, y aun así tiene que
@@ -354,10 +363,19 @@ func _bar_center(panel: Control) -> Vector2:
 func test_apretar_justo_antes_de_que_aparezca_la_barra() -> bool:
 	var panel := _make_panel()
 	panel.open_for(0)
+	# Dónde va a aparecer la barra: con un video que después se va.
+	_offer_video_from_leon()
+	panel._process(0.0)
 	var bar := _bar_center(panel)
+	_manager.state.videos.offers.clear()
+	panel._process(0.0)
+	_layout(panel)
+	check(not (panel.get_node("%Download") as Control).visible, "todavía no hay barra")
 	_mouse_motion(bar)
 	_mouse_button(bar, true)
 	_offer_video_from_leon()
+	panel._process(0.0)
+	_layout(panel)
 	panel._process(0.0)
 	check_eq(_manager.state.holding_download, 0, "descarga el video de León")
 	_mouse_button(bar, false)
@@ -381,7 +399,7 @@ func test_mantener_presionado_descarga() -> bool:
 	panel._process(0.0)
 	check_eq(_download_text(panel), "▼ " + tr("DOWNLOAD_ACTIVE").format({"seconds": 19, "percent": 10}).to_upper(),
 			"10 % en 1 s, con 20 s para terminar")
-	check(is_equal_approx((panel.get_node("Panel/Download/Bar") as ProgressBar).value, 10.0), "la barra avanza")
+	check(is_equal_approx((panel.get_node("%Download/Bar") as ProgressBar).value, 10.0), "la barra avanza")
 	_mouse_button(bar, false)
 	panel._process(0.0)
 	check_eq(_manager.state.holding_download, -1, "al soltar se pausa")
@@ -445,8 +463,8 @@ func test_sin_senal_no_se_pregunta_ni_responde() -> bool:
 		check(button.disabled, "no se puede preguntar")
 	for button: Button in _answer_buttons(panel):
 		check(button.disabled, "ni responder")
-	check_eq((panel.get_node("Panel/AnswerHint") as Label).text,
-			tr("CHAT_OFFLINE").format({"friend": tr(_manager.catalog.friends[0].name_key)}), "pide sincronizarlo")
+	check_eq((panel.get_node("%AnswerTitle") as Label).text, _title("CHAT_ANSWER_TITLE", tr("CHAT_OFFLINE")),
+			"pide sincronizarlo")
 	_free(panel)
 	return true
 
@@ -460,7 +478,6 @@ func test_los_textos_de_la_descarga_existen() -> bool:
 		check(String(TranslationServer.translate(key)).contains("{seconds}"), "%s debe estar en ui.csv con {seconds}" % key)
 	for key: String in [panel_script.DOWNLOAD_ACTIVE_KEY, panel_script.DOWNLOAD_SLOW_KEY, panel_script.DOWNLOAD_PAUSED_KEY]:
 		check(String(TranslationServer.translate(key)).contains("{percent}"), "%s debe tener {percent}" % key)
-	check(String(TranslationServer.translate(panel_script.OFFLINE_KEY)).contains("{friend}"), "CHAT_OFFLINE debe tener {friend}")
 	TranslationServer.set_locale(previous)
 	return true
 
@@ -469,7 +486,7 @@ func test_el_boton_sincronizar() -> bool:
 	var panel := _make_panel()
 	panel.open_for(1)
 	panel._process(0.0)
-	var sync := panel.get_node("Panel/IdentifyBar/Sync") as Button
+	var sync := panel.get_node("%Sync") as Button
 	check(not sync.visible, "en la noche 1 no hay Audio Sync")
 	_manager.catalog.nights[0].audio_sync_beats = 4
 	panel._process(0.0)
@@ -496,9 +513,9 @@ func test_el_chat_guionado_se_responde_con_un_boton() -> bool:
 	_manager.start_chat_script(data)
 	_manager.advance(2.5)
 	panel.open_for(1)
-	var reply := panel.get_node("Panel/ScriptReply") as Button
+	var reply := panel.get_node("%ScriptReply") as Button
 	check(reply.visible, "el botón de Matías")
-	check(not (panel.get_node("Panel/AnswerHint") as Label).visible, "sin el aviso del cuaderno")
+	check_eq((panel.get_node("%AnswerTitle") as Label).text, _title("CHAT_ANSWER_TITLE"), "sin el aviso del cuaderno")
 	check_eq(reply.text, String(TranslationServer.translate("K_LINE_1")), "con su línea")
 	panel.open_for(0)
 	check(not reply.visible, "solo en el chat de Gonzalo")
@@ -558,14 +575,15 @@ func test_un_accidente_se_responde_desde_el_chat() -> bool:
 	panel.open_for(0)
 	var incident: RefCounted = _manager.start_incident(0)
 	panel._process(0.0)
-	check((panel.get_node("Panel/Answers") as Control).visible, "se ven las opciones, sin cuaderno")
+	check((panel.get_node("%Answers") as Control).visible, "se ven las opciones, sin cuaderno")
 	var buttons := _answer_buttons(panel)
 	for index in incident.options.size():
 		check((buttons[index] as Button).visible, "opción %d" % index)
 		check_eq((buttons[index] as Button).text, tr(incident.options[index]), "su texto")
 		check(not (buttons[index] as Button).disabled, "se puede elegir")
 	check(not (buttons[3] as Button).visible, "la cuarta no se usa")
-	check_eq((panel.get_node("Panel/AnswerHint") as Label).text, tr(panel.INCIDENT_HINT_KEY), "el aviso")
+	check_eq((panel.get_node("%AnswerTitle") as Label).text, _title("CHAT_ANSWER_TITLE", tr(panel.INCIDENT_HINT_KEY)),
+			"el título pregunta qué le dices")
 	check(_question_buttons(panel).all(func(button: Button) -> bool: return button.disabled), "no se pregunta")
 	check(panel._tab_text(0).contains("15"), "la pestaña muestra su tiempo")
 	(buttons[0] as Button).pressed.emit()
@@ -646,5 +664,68 @@ func test_los_mensajes_se_escriben_en_cola() -> bool:
 	check(first.is_done(), "terminó el primero")
 	check(second._typing != null, "y el segundo empezó a escribirse")
 	check_eq(label.visible_characters, shown, "desde donde estaba: el nombre")
+	_free(panel)
+	return true
+
+
+## Cada bloque con su título, que dice por qué no se puede usar (docs/26 §2.3): los avisos ya no son frases sueltas.
+func test_los_titulos_de_cada_bloque() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	panel._process(0.0)
+	var ask := panel.get_node("%AskTitle") as Label
+	var answer := panel.get_node("%AnswerTitle") as Label
+	check_eq(ask.text, _title("CHAT_ASK_TITLE"), "sin solicitud: PREGUNTAR")
+	check_eq(answer.text, _title("CHAT_ANSWER_TITLE", tr("CHAT_OPEN_NOTEBOOK")), "sin página: abrir el cuaderno")
+	var request := _manager.start_request(0)
+	_memory.open_page(0, _beast())
+	panel._process(0.0)
+	check_eq(ask.text, _title("CHAT_ASK_TITLE"), "con tiempo, sin más")
+	check_eq(answer.text, _title("CHAT_ANSWER_TITLE", tr(_beast().name_key)), "con página: su nombre")
+	request.time_left = 5.0
+	panel._process(0.0)
+	check_eq(ask.text, _title("CHAT_ASK_TITLE", tr("CHAT_NO_TIME")), "sin tiempo")
+	_manager.state.friends[0].signal_level = 0.0
+	panel._process(0.0)
+	check_eq(ask.text, _title("CHAT_ASK_TITLE", tr("CHAT_NO_SIGNAL")), "sin señal no se pregunta")
+	check_eq(answer.text, _title("CHAT_ANSWER_TITLE", tr("CHAT_OFFLINE")), "ni se responde: hay que sincronizar")
+	_free(panel)
+	return true
+
+
+## La descarga acorta la conversación, y lo de abajo no se mueve (docs/27, tarea 7).
+func test_la_descarga_acorta_la_conversacion() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	panel._process(0.0)
+	_layout(panel)
+	var conversations := panel.get_node("%Conversations") as Control
+	var identify := panel.get_node("%IdentifyBar") as Control
+	var tall := conversations.size.y
+	var identify_y := identify.position.y
+	_offer_video_from_leon()
+	panel._process(0.0)
+	_layout(panel)
+	check(conversations.size.y < tall, "la conversación se acorta: %s < %s" % [conversations.size.y, tall])
+	check_eq(identify.position.y, identify_y, "la barra de identificación no se mueve")
+	_free(panel)
+	return true
+
+
+## Abrir la página no mueve las preguntas: las respuestas tienen su espacio reservado, el que piden las acciones más
+## largas de la noche.
+func test_abrir_la_pagina_no_mueve_las_preguntas() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_manager.start_request(0)
+	panel._process(0.0)
+	_layout(panel)
+	var questions := panel.get_node("%Questions") as Control
+	var y := questions.position.y
+	_memory.open_page(0, _beast())
+	panel._process(0.0)
+	_layout(panel)
+	check_eq(questions.position.y, y, "las preguntas siguen en su lugar")
+	check((panel.get_node("%AnswerArea") as Control).custom_minimum_size.y > 0.0, "las respuestas tienen su espacio")
 	_free(panel)
 	return true

@@ -39,7 +39,7 @@ func _capture() -> void:
 	# Lo que tarda en escribirse su mensaje.
 	await create_timer(1.5).timeout
 	await _save(3)
-	desk.get_node("UI/ChatPanel/Panel/ScriptReply").pressed.emit()
+	desk.get_node("UI/ChatPanel/%ScriptReply").pressed.emit()
 	await create_timer(3.0).timeout
 	desk.close_panels()
 	var phone := desk.get_node("DeskPlane/Phone")

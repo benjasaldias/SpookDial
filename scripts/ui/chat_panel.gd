@@ -13,6 +13,9 @@ extends Control
 ## Benja, 7 de noviembre).
 ## Los audios que mandan los amigos suenan aquí, con un clic en el mensaje (decisión de Benja, 7 de noviembre), y
 ## al cerrar el chat se cortan.
+## Desde el Plan 9.3 (tras el primer testeo), el chat va en bloques: la conversación toma el alto que sobra, y debajo van
+## la descarga, la identificación y los bloques PREGUNTAR y RESPONDER, cada uno con un título que dice por qué no se puede
+## usar. Las respuestas tienen su alto reservado, para que nada se mueva al abrir una página.
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
 ## Clic en el nombre de la entidad: el cuaderno abre su página.
@@ -29,11 +32,17 @@ const MessageBuilder := preload("res://scripts/core/message_builder.gd")
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 
-## Textos del panel (ui.csv). IDENTIFY_PROGRESS lleva {marked} y {total}; ANSWER_FROM_PAGE lleva {entity}.
+## Textos del panel (ui.csv). IDENTIFY_PROGRESS lleva {marked} y {total}.
 const PROGRESS_KEY := "IDENTIFY_PROGRESS"
 const THINKING_KEY := "IDENTIFY_THINKING"
+## Los títulos de los bloques y lo que agregan cuando no se puede preguntar o responder (ui.csv).
+const ASK_TITLE_KEY := "CHAT_ASK_TITLE"
+const ANSWER_TITLE_KEY := "CHAT_ANSWER_TITLE"
 const OPEN_NOTEBOOK_KEY := "CHAT_OPEN_NOTEBOOK"
-const ANSWER_FROM_PAGE_KEY := "ANSWER_FROM_PAGE"
+const NO_TIME_KEY := "CHAT_NO_TIME"
+const NO_SIGNAL_KEY := "CHAT_NO_SIGNAL"
+## Lo que separa el título de su detalle: "RESPONDER · EL TRAUCO".
+const TITLE_SEPARATOR := " · "
 ## El nombre de Matías en sus mensajes (ui.csv).
 const PLAYER_NAME_KEY := "CHAT_PLAYER_NAME"
 ## El color de Matías: el de la terminal.
@@ -50,16 +59,13 @@ const DOWNLOAD_PAUSED_KEY := "DOWNLOAD_PAUSED"
 const DOWNLOAD_OFFLINE_KEY := "DOWNLOAD_OFFLINE"
 ## La flecha de la descarga, delante de su texto.
 const DOWNLOAD_MARK := "▼"
-## Sin señal no se puede preguntar ni responder (ui.csv). Lleva {friend}.
+## Sin señal no se puede responder: hay que sincronizar al amigo (ui.csv).
 const OFFLINE_KEY := "CHAT_OFFLINE"
 ## Sobre las opciones de un accidente (ui.csv).
 const INCIDENT_HINT_KEY := "CHAT_INCIDENT_HINT"
 const ChatVoice := preload("res://scripts/core/chat_voice.gd")
 ## El botón que abre el mixer en el canal del amigo (ui.csv).
 const SYNC_KEY := "CHAT_SYNC"
-## Dónde termina la conversación: sobre la barra de identificación o, si hay un video, sobre su descarga.
-const CONVERSATION_BOTTOM := 431.0
-const CONVERSATION_BOTTOM_WITH_DOWNLOAD := 395.0
 
 var selected_friend := 0
 ## La opción "Subtítulos de los audios": vale para los mensajes que llegan desde ahora.
@@ -88,26 +94,30 @@ var _mouse_position := Vector2(-1, -1)
 var _hold_look := &""
 
 @onready var _panel: TextureRect = $Panel
-@onready var _tab_bar: HBoxContainer = $Panel/Tabs
-@onready var _conversation_area: Control = $Panel/Conversations
-@onready var _download: Control = $Panel/Download
-@onready var _download_bar: ProgressBar = $Panel/Download/Bar
-@onready var _download_text: Label = $Panel/Download/Text
-@onready var _download_hold: Panel = $Panel/Download/Hold
-@onready var _progress: Label = $Panel/IdentifyBar/Progress
-@onready var _entity_button: Button = $Panel/IdentifyBar/EntityName
-@onready var _sync_button: Button = $Panel/IdentifyBar/Sync
-@onready var _questions: GridContainer = $Panel/Questions
-@onready var _answer_hint: Label = $Panel/AnswerHint
-@onready var _answers: GridContainer = $Panel/Answers
-@onready var _script_reply: Button = $Panel/ScriptReply
+@onready var _layout: VBoxContainer = $Panel/Layout
+@onready var _tab_bar: HBoxContainer = %Tabs
+@onready var _conversation_area: Control = %Conversations
+@onready var _download: Control = %Download
+@onready var _download_bar: ProgressBar = %Download/Bar
+@onready var _download_text: Label = %Download/Text
+@onready var _download_hold: Panel = %Hold
+@onready var _progress: Label = %Progress
+@onready var _entity_button: Button = %EntityName
+@onready var _sync_button: Button = %Sync
+@onready var _ask_title: Label = %AskTitle
+@onready var _questions: GridContainer = %Questions
+@onready var _answer_title: Label = %AnswerTitle
+@onready var _answer_area: Control = %AnswerArea
+@onready var _answers: VBoxContainer = %Answers
+@onready var _script_reply: Button = %ScriptReply
 @onready var _audio_clip: AudioStreamPlayer = $AudioClip
 @onready var _voice: AudioStreamPlayer = $Voice
 
 
 func _ready() -> void:
 	hide()
-	_answer_hint.text = tr(OPEN_NOTEBOOK_KEY)
+	_answer_title.text = _title(ANSWER_TITLE_KEY, tr(OPEN_NOTEBOOK_KEY))
+	_ask_title.text = _title(ASK_TITLE_KEY)
 	for category: ClueCategory.Kind in MessageBuilder.QUESTION_KEYS:
 		var button := Button.new()
 		button.text = tr(MessageBuilder.QUESTION_KEYS[category]).to_upper()
@@ -128,6 +138,9 @@ func _ready() -> void:
 	_script_reply.pressed.connect(_on_script_reply_pressed)
 	_panel.gui_input.connect(_on_panel_gui_input)
 	visibility_changed.connect(_audio_clip.stop)
+	var sizer := get_node_or_null(^"/root/PixelTextSizer")
+	if sizer != null:
+		sizer.changed.connect(_reserve_answer_space)
 
 
 ## Conecta el panel a las solicitudes y a la memoria del cuaderno. Crea una pestaña y una conversación
@@ -150,6 +163,8 @@ func setup(manager: RequestManager, friends: Array[FriendData], memory: Notebook
 		tab.toggle_mode = true
 		tab.button_group = tab_group
 		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		# A 1080p la letra es más grande: si el nombre, el tiempo y el aviso no caben, se cortan, sin ensanchar el chat.
+		tab.clip_text = true
 		tab.pressed.connect(open_for.bind(index))
 		_tab_bar.add_child(tab)
 		_tabs.append(tab)
@@ -168,6 +183,7 @@ func setup(manager: RequestManager, friends: Array[FriendData], memory: Notebook
 	manager.message_added.connect(_on_message_added)
 	manager.request_changed.connect(_on_request_changed)
 	manager.request_finished.connect(_on_request_changed)
+	_reserve_answer_space()
 	_select(selected_friend)
 
 
@@ -240,11 +256,11 @@ func _tab_text(index: int) -> String:
 	var request := _manager.requests[index]
 	var incident := _manager.incidents[index]
 	if request != null:
-		text += "  %d" % ceili(request.time_left)
+		text += " %d" % ceili(request.time_left)
 	elif incident != null:
-		text += "  %d" % ceili(incident.time_left)
+		text += " %d" % ceili(incident.time_left)
 	if _unread[index]:
-		text += "  " + UNREAD_MARK
+		text += " " + UNREAD_MARK
 	return text
 
 
@@ -265,25 +281,32 @@ func _update_identify_bar() -> void:
 			_entity_button.text = tr(request.entity.name_key)
 
 
-## Con 5 s o menos, sin solicitud o con el amigo sin señal, no se puede preguntar.
+## Con 5 s o menos, sin solicitud o con el amigo sin señal, no se puede preguntar. El título dice por qué.
 func _update_questions() -> void:
 	var request := _manager.requests[selected_friend]
-	var can_ask := request != null and request.can_ask() and _manager.state.friends[selected_friend].is_online()
+	var online := _manager.state.friends[selected_friend].is_online()
+	var can_ask := request != null and request.can_ask() and online
 	for button: Button in _questions.get_children():
 		button.disabled = not can_ask
+	var detail := ""
+	if request != null and not online:
+		detail = tr(NO_SIGNAL_KEY)
+	elif request != null and not request.can_ask():
+		detail = tr(NO_TIME_KEY)
+	_ask_title.text = _title(ASK_TITLE_KEY, detail)
 
 
-## Las acciones de la página que el cuaderno tiene abierta para este amigo. Sin página, el aviso
-## "Abre el cuaderno para responder". Sin solicitud, los botones se ven pero no responden. Con el amigo sin
-## señal, tampoco, y el aviso pide sincronizarlo en el mixer.
+## Las acciones de la página que el cuaderno tiene abierta para este amigo. Sin página, el título pide abrir el
+## cuaderno. Sin solicitud, los botones se ven pero no responden. Con el amigo sin señal, tampoco, y el título pide
+## sincronizarlo.
 func _update_answers() -> void:
 	# Mientras el chat guionado espera la respuesta de Matías, solo está su botón.
 	var reply := _manager.chat_script_reply(selected_friend)
 	_script_reply.visible = reply != null
-	_answer_hint.visible = reply == null
 	if reply != null:
 		_script_reply.text = tr(reply.text_key)
 		_answers.visible = false
+		_answer_title.text = _title(ANSWER_TITLE_KEY)
 		return
 	var online := _manager.state.friends[selected_friend].is_online()
 	var incident := _manager.incidents[selected_friend]
@@ -293,11 +316,11 @@ func _update_answers() -> void:
 	var page := _memory.page_for(selected_friend)
 	_answers.visible = page != null
 	if not online:
-		_answer_hint.text = tr(OFFLINE_KEY).format({"friend": _friend_names[selected_friend]})
+		_answer_title.text = _title(ANSWER_TITLE_KEY, tr(OFFLINE_KEY))
 	elif page == null:
-		_answer_hint.text = tr(OPEN_NOTEBOOK_KEY)
+		_answer_title.text = _title(ANSWER_TITLE_KEY, tr(OPEN_NOTEBOOK_KEY))
 	else:
-		_answer_hint.text = tr(ANSWER_FROM_PAGE_KEY).format({"entity": tr(page.name_key)})
+		_answer_title.text = _title(ANSWER_TITLE_KEY, tr(page.name_key))
 	if page == null:
 		return
 	var waiting := _manager.requests[selected_friend] != null and online
@@ -312,7 +335,7 @@ func _update_answers() -> void:
 ## Las opciones de un accidente, en los botones de respuesta. Sin señal, el amigo no las lee.
 func _show_incident_options(options: Array[String], online: bool) -> void:
 	_answers.visible = true
-	_answer_hint.text = tr(INCIDENT_HINT_KEY) if online else tr(OFFLINE_KEY).format({"friend": _friend_names[selected_friend]})
+	_answer_title.text = _title(ANSWER_TITLE_KEY, tr(INCIDENT_HINT_KEY) if online else tr(OFFLINE_KEY))
 	for index in _answer_buttons.size():
 		var button := _answer_buttons[index]
 		button.visible = index < options.size()
@@ -327,7 +350,6 @@ func _update_download() -> void:
 	var state := _manager.state
 	var offer := state.videos.offer_for(selected_friend)
 	_download.visible = offer != null
-	_conversation_area.offset_bottom = CONVERSATION_BOTTOM_WITH_DOWNLOAD if offer != null else CONVERSATION_BOTTOM
 	var holding := is_holding_download()
 	state.holding_download = selected_friend if holding else -1
 	_paint_hold(holding)
@@ -351,6 +373,42 @@ func _paint_hold(holding: bool) -> void:
 		return
 	_hold_look = look
 	_download_hold.add_theme_stylebox_override(&"panel", _download_hold.get_theme_stylebox(look, &"DownloadHold"))
+
+
+## Un título de bloque, en mayúsculas: "PREGUNTAR" o, con un detalle, "RESPONDER · EL TRAUCO".
+func _title(key: String, detail := "") -> String:
+	return (tr(key) if detail.is_empty() else tr(key) + TITLE_SEPARATOR + detail).to_upper()
+
+
+## Reserva el alto de las respuestas: el que piden las acciones más largas de las entidades de la noche, o las opciones
+## de un accidente, con la letra de ahora. Así, al abrir una página, las preguntas no se mueven. Se vuelve a medir
+## cuando cambia el tamaño de la letra (PixelTextSizer).
+func _reserve_answer_space() -> void:
+	if _manager == null or _answer_buttons.is_empty():
+		return
+	var needed := 0.0
+	for entity: EntityData in _manager.catalog.known_entities(_manager.night_number):
+		needed = maxf(needed, _stack_height(entity.actions.map(func(action: ActionData) -> String:
+				return tr(action.label_key))))
+	for incident: IncidentData in _manager.catalog.incidents:
+		var options: Array[String] = [incident.correct_key]
+		options.append_array(incident.wrong_keys)
+		needed = maxf(needed, _stack_height(options.map(func(key: String) -> String: return tr(key))))
+	_answer_area.custom_minimum_size.y = ceilf(needed)
+
+
+## El alto de los botones de respuesta con `labels`, uno debajo del otro, a todo el ancho del chat.
+func _stack_height(labels: Array) -> float:
+	var button := _answer_buttons[0]
+	var style := button.get_theme_stylebox(&"normal")
+	var font := button.get_theme_font(&"font")
+	var font_size := button.get_theme_font_size(&"font_size")
+	var width := _layout.size.x - style.get_margin(SIDE_LEFT) - style.get_margin(SIDE_RIGHT)
+	var total := 0.0
+	for label: String in labels:
+		var text_height := font.get_multiline_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, width, font_size).y
+		total += maxf(text_height + style.get_margin(SIDE_TOP) + style.get_margin(SIDE_BOTTOM), button.custom_minimum_size.y)
+	return total + _answers.get_theme_constant(&"separation") * maxf(labels.size() - 1, 0.0)
 
 
 ## El mouse está sobre `control`, que se ve.

@@ -27,7 +27,10 @@ func _play(desk: Node2D, seconds: float) -> void:
 
 ## Aprieta o suelta el botón izquierdo sobre la barra de descarga, como el jugador: con el mouse encima.
 func _hold_download(desk: Node2D, pressed: bool) -> void:
-	var bar := (desk.get_node("UI/ChatPanel/Panel/Download/Hold") as Control).get_global_rect().get_center()
+	# Las pruebas no dejan pasar cuadros: el chat muestra la barra y se acomoda a mano, para que la barra esté en su lugar.
+	desk.get_node("UI/ChatPanel")._process(0.0)
+	(desk.get_node("UI/ChatPanel/Panel/Layout") as Container).notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var bar := (desk.get_node("UI/ChatPanel/%Hold") as Control).get_global_rect().get_center()
 	var root := (Engine.get_main_loop() as SceneTree).root
 	var motion := InputEventMouseMotion.new()
 	motion.position = bar
@@ -106,7 +109,7 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	manager.click_clue(messages[-1], &"bad_smell")
 	_play(desk, 4.0)
 	check_eq(request.identification, FriendRequest.Identification.REVEALED, "apareció el nombre")
-	(desk.get_node("UI/ChatPanel/Panel/IdentifyBar/EntityName") as Button).pressed.emit()
+	(desk.get_node("UI/ChatPanel/%EntityName") as Button).pressed.emit()
 	check((desk.get_node("UI/NotebookPanel") as Control).visible, "se abrió su página")
 	_play(desk, 10.0)
 	check(_said(desk, TutorialChat.BEST_KEY), "pide la mejor")
