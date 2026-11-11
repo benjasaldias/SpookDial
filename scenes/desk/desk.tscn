@@ -188,9 +188,9 @@ centered = false
 
 [node name="Videos" type="Label" parent="DeskPlane/PC"]
 offset_left = 39.0
-offset_top = 7.0
+offset_top = 4.0
 offset_right = 282.0
-offset_bottom = 21.0
+offset_bottom = 22.0
 theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
 theme_override_fonts/font = ExtResource("pixel_font")
 theme_override_font_sizes/font_size = 11
@@ -329,9 +329,9 @@ mouse_filter = 2
 [node name="StatBars" type="Control" parent="Overlay"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 490.0
+offset_left = 480.0
 offset_top = 8.0
-offset_right = 790.0
+offset_right = 800.0
 offset_bottom = 62.0
 mouse_filter = 2
 script = ExtResource("stat_bars_script")

@@ -31,9 +31,9 @@ const LIGHT_OFF := Color(0.2, 0.22, 0.28)
 const ROW_TOP := 5.0
 const ROW_HEIGHT := 16.0
 const LABEL_LEFT := 7.0
-const BAR_LEFT := 93.0
+const BAR_LEFT := 113.0
 const BAR_SIZE := Vector2(184, 10)
-const LIGHT_LEFT := 283.0
+const LIGHT_LEFT := 303.0
 ## Cada segmento de LED mide 4 px, con 1 px entre uno y otro: 37 segmentos llenan los 184 px de la barra.
 const SEGMENT := 4.0
 const SEGMENT_GAP := 1.0

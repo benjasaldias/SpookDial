@@ -29,6 +29,8 @@ const FLASH_KEY := "PHONE_FLASH"
 ## Dónde se clickea la linterna, en la barra superior, y dónde se dibuja su rayo.
 const FLASH_RECT := Rect2(112, 16, 24, 18)
 const FLASH_ICON := Vector2(118, 19)
+## Dónde termina el porcentaje de la batería: antes de las barras de señal.
+const PERCENT_RIGHT := 192.0
 ## Bajo este porcentaje, la batería se ve en rojo.
 const LOW_BATTERY := 20.0
 const SIZE := Vector2(260, 520)
@@ -211,7 +213,10 @@ func _draw_battery() -> void:
 	draw_rect(Rect2(216, 22, 20, 9), color, false)
 	draw_rect(Rect2(218, 24, roundf(16.0 * _state.battery / 100.0), 5), color)
 	draw_rect(Rect2(236, 24, 2, 5), color)
-	_draw_text(self, "%d%%" % ceili(_state.battery), Vector2(162, 31), color)
+	# El porcentaje termina antes de las barras de señal, con cualquier tamaño de letra.
+	var percent := "%d%%" % ceili(_state.battery)
+	var width := FONT.get_string_size(percent, HORIZONTAL_ALIGNMENT_LEFT, -1, PixelText.size(FONT_SIZE)).x
+	_draw_text(self, percent, Vector2(roundf(PERCENT_RIGHT - width), 31), color)
 
 
 ## Las publicaciones a la vista, corridas según el scroll. Sin batería, un aviso.

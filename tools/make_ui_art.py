@@ -589,20 +589,21 @@ def phone_frame():
 # Miden lo mismo que StatBars (300×54); las medidas de las filas son las de scripts/ui/stat_bars.gd.
 
 def hud_bars():
-    image = Image.new("RGBA", (300, 54), BLACK)
+    """La placa de las barras de arriba: 320 px de ancho, para que los nombres quepan con la letra de 1080p (Plan 9.2)."""
+    image = Image.new("RGBA", (320, 54), BLACK)
     draw = ImageDraw.Draw(image)
-    box(draw, 1, 1, 298, 52, fill=NAVY)
-    box(draw, 1, 1, 298, 1, fill=NAVY_LIGHT)
+    box(draw, 1, 1, 318, 52, fill=NAVY)
+    box(draw, 1, 1, 318, 1, fill=NAVY_LIGHT)
     box(draw, 1, 1, 1, 52, fill=NAVY_LIGHT)
-    box(draw, 1, 52, 298, 52, fill=NAVY_DEEP)
+    box(draw, 1, 52, 318, 52, fill=NAVY_DEEP)
     for row in range(3):
         top = 5 + row * 16
-        box(draw, 92, top, 277, top + 11, fill=BLACK)
-        box(draw, 93, top + 1, 276, top + 10, fill=NAVY_DEEPER)
-        box(draw, 92, top + 11, 277, top + 11, fill=NAVY_LIGHT)
-        # El marco de la luz de alerta: Godot la dibuja en (283, top + 2), de 8×8.
-        box(draw, 281, top, 292, top + 11, fill=GRAY_DARK)
-        box(draw, 282, top + 1, 291, top + 10, fill=BLACK)
+        box(draw, 112, top, 297, top + 11, fill=BLACK)
+        box(draw, 113, top + 1, 296, top + 10, fill=NAVY_DEEPER)
+        box(draw, 112, top + 11, 297, top + 11, fill=NAVY_LIGHT)
+        # El marco de la luz de alerta: Godot la dibuja en (303, top + 2), de 8×8.
+        box(draw, 301, top, 312, top + 11, fill=GRAY_DARK)
+        box(draw, 302, top + 1, 311, top + 10, fill=BLACK)
     return image
 
 

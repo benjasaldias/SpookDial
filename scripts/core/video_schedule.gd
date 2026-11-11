@@ -138,6 +138,6 @@ func potential() -> int:
 
 
 ## Los videos ya no alcanzan la cuota: alguien tiene que arriesgarse, porque la acción de mayor riesgo da un video extra
-## (decisión de Benja, 11 de noviembre).
+## (decisión de Benja, 11 de noviembre). En el tutorial nunca: ahí el video llega cuando León lo manda.
 func is_short() -> bool:
-	return potential() < quota
+	return not patient and potential() < quota

@@ -199,3 +199,12 @@ func test_cuantos_videos_pueden_llegar() -> bool:
 	schedule.received = 2
 	check_eq(schedule.potential(), 3, "2 recibidos y 1 esperando su descarga")
 	return true
+
+
+## En el tutorial el video llega cuando León lo manda: el PC no avisa que faltan (Plan 9.2).
+func test_en_el_tutorial_nunca_faltan() -> bool:
+	var schedule := _schedule(1)
+	schedule.unreleased = 0
+	schedule.patient = true
+	check(not schedule.is_short(), "no avisa")
+	return true
