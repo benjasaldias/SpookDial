@@ -244,3 +244,13 @@ func test_la_respuesta_usa_la_forma_de_la_solicitud() -> bool:
 	check(MessageBuilder.first_message(request, _translate).plain_text().contains("K_TRAIT_beast_trait_1_2"),
 			"la pista también")
 	return true
+
+
+## Las observaciones llegan marcadas: el chat las muestra en azul, porque deciden la fila de la tabla (decisión de Benja,
+## 11 de noviembre). Las características y los señuelos, no.
+func test_la_respuesta_marca_las_observaciones() -> bool:
+	var sight := MessageBuilder.answer(_make_request(), ClueCategory.Kind.SIGHT, _translate)
+	var marked := sight.tokens.filter(func(token: ChatMessage.Token) -> bool: return token.is_observation) \
+			.map(func(token: ChatMessage.Token) -> String: return token.text)
+	check_eq(marked, ["K_beast_O1_YES."], "solo la observación")
+	return true

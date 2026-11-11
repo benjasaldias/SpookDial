@@ -23,6 +23,9 @@ class Token:
 	var covered := false
 	## Es el audio del mensaje: se clickea para escucharlo.
 	var is_audio := false
+	## Es parte de una observación, lo que decide la fila de la tabla: el chat la muestra en azul (decisión de Benja,
+	## 11 de noviembre).
+	var is_observation := false
 
 	func _init(token_text: String, token_clue_id: StringName = &"") -> void:
 		text = token_text
@@ -59,16 +62,20 @@ func _init(message_sender: Sender, message_request: FriendRequest) -> void:
 
 
 ## Agrega una oración. Con `clue_id`, su frase entre asteriscos se vuelve clickeable;
-## sin `clue_id`, los asteriscos se quitan y la frase queda como texto normal.
-func add_fragment(text: String, clue_id: StringName = &"") -> void:
+## sin `clue_id`, los asteriscos se quitan y la frase queda como texto normal. Con `observation`, sus piezas quedan
+## marcadas como una observación.
+func add_fragment(text: String, clue_id: StringName = &"", observation := false) -> void:
 	if not tokens.is_empty():
 		tokens.append(Token.new(" "))
 	for piece: RegExMatch in RegEx.create_from_string(PIECE_PATTERN).search_all(text):
 		var piece_text := piece.get_string()
+		var token: Token
 		if piece_text.begins_with("*"):
-			tokens.append(Token.new(piece_text.substr(1, piece_text.length() - 2), clue_id))
+			token = Token.new(piece_text.substr(1, piece_text.length() - 2), clue_id)
 		else:
-			tokens.append(Token.new(piece_text))
+			token = Token.new(piece_text)
+		token.is_observation = observation
+		tokens.append(token)
 
 
 ## Agrega un audio: una sola pieza con `label`, que la estática tapa entera o no tapa.
@@ -80,6 +87,21 @@ func add_audio(stream: AudioStream, label: String, caption: String) -> void:
 	var token := Token.new(label)
 	token.is_audio = true
 	tokens.append(token)
+
+
+## La estática tapó algo que sirve: una frase clickeable, una palabra de una observación o el audio. Un mensaje sin nada
+## de eso (la respuesta de "nada") pierde información con cualquier palabra tapada. Así se sabe si vale la pena volver a
+## preguntar (decisión de Benja, 11 de noviembre).
+func lost_information() -> bool:
+	var informative := false
+	for token: Token in tokens:
+		if token.is_clue() or token.is_observation or token.is_audio:
+			informative = true
+			if token.covered:
+				return true
+	if informative:
+		return false
+	return tokens.any(func(token: Token) -> bool: return token.covered)
 
 
 ## El texto como se ve, con la estática.

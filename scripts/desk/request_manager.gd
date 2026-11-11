@@ -210,13 +210,17 @@ func answer_incident(friend_index: int, option: int) -> bool:
 
 
 ## Matías pregunta por una categoría: cuesta 5 s y el amigo responde. false si no se pudo preguntar:
-## sin solicitud, sin tiempo o sin señal.
+## sin solicitud, sin tiempo, sin señal o porque ya la preguntó y su respuesta llegó entera (decisión de Benja, 11 de
+## noviembre). La solicitud guarda si la estática tapó algo de la respuesta.
 func ask(friend_index: int, category: ClueCategory.Kind) -> bool:
 	var request := requests[friend_index]
-	if request == null or not state.friends[friend_index].is_online() or not request.pay_question():
+	if request == null or not state.friends[friend_index].is_online() or not request.can_ask_about(category) \
+			or not request.pay_question():
 		return false
 	message_added.emit(friend_index, MessageBuilder.question(request, category, tr))
-	_add_friend_message(friend_index, MessageBuilder.answer(request, category, tr))
+	var answer := MessageBuilder.answer(request, category, tr)
+	_add_friend_message(friend_index, answer)
+	request.record_answer(category, answer.lost_information())
 	request_changed.emit(friend_index, request)
 	if friend_index == _tutorial_friend:
 		_tutorial(tutorial_chat.question_asked(category))

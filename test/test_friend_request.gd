@@ -208,3 +208,30 @@ func test_un_senuelo_cuesta_1_s_la_primera_vez() -> bool:
 	request.click_clue(&"decoy_sight")
 	check_eq(request.time_left, 29.0, "en el tutorial también cuesta: solo lo que hace Matías le quita tiempo")
 	return true
+
+
+## Una pregunta ya respondida no se repite: costaría 5 s por algo que ya se sabe (decisión de Benja, 11 de noviembre).
+func test_una_pregunta_respondida_no_se_repite() -> bool:
+	var request := _make_request()
+	check(request.can_ask_about(ClueCategory.Kind.SIGHT), "al empezar se puede")
+	check(not request.was_asked(ClueCategory.Kind.SIGHT), "no se ha preguntado")
+	request.record_answer(ClueCategory.Kind.SIGHT, false)
+	check(request.was_asked(ClueCategory.Kind.SIGHT), "ya se preguntó")
+	check(not request.answer_covered(ClueCategory.Kind.SIGHT), "llegó entera")
+	check(not request.can_ask_about(ClueCategory.Kind.SIGHT), "no se repite")
+	check(request.can_ask_about(ClueCategory.Kind.SOUND), "las otras sí")
+	request.time_left = 5.0
+	check(not request.can_ask_about(ClueCategory.Kind.SOUND), "sin tiempo, ninguna")
+	return true
+
+
+## Si la estática tapó algo de la respuesta, hay que volver a preguntar para recuperarlo (decisión de Benja, 15 de
+## octubre).
+func test_con_la_respuesta_tapada_se_puede_repetir() -> bool:
+	var request := _make_request()
+	request.record_answer(ClueCategory.Kind.SIGHT, true)
+	check(request.answer_covered(ClueCategory.Kind.SIGHT), "salió tapada")
+	check(request.can_ask_about(ClueCategory.Kind.SIGHT), "se puede repetir")
+	request.record_answer(ClueCategory.Kind.SIGHT, false)
+	check(not request.can_ask_about(ClueCategory.Kind.SIGHT), "la segunda llegó entera: ya no")
+	return true

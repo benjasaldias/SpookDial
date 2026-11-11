@@ -66,6 +66,8 @@ var outcome := RuleEvaluator.Outcome.WRONG
 var consequence: Consequence
 
 var _clue_states := {}  # id de una frase clickeable → ClueState
+## Las categorías que ya se preguntaron → si la estática tapó algo de su respuesta (decisión de Benja, 11 de noviembre).
+var _answers := {}
 
 
 ## La clave del texto con que el amigo cuenta `clue`: la forma elegida para una característica o, para un señuelo, su
@@ -109,6 +111,27 @@ func click_clue(clue_id: StringName) -> ClueState:
 ## Benja).
 func can_ask() -> bool:
 	return not finished and time_left > question_cost
+
+
+## Ya se preguntó por `category`.
+func was_asked(category: ClueCategory.Kind) -> bool:
+	return _answers.has(category)
+
+
+## La última respuesta a `category` salió con algo tapado por la estática.
+func answer_covered(category: ClueCategory.Kind) -> bool:
+	return _answers.get(category, false)
+
+
+## Se puede preguntar por `category`: hay tiempo, y no se preguntó o la estática tapó algo de su respuesta, que hay que
+## volver a preguntar para recuperarlo (decisiones de Benja, 15 de octubre y 11 de noviembre).
+func can_ask_about(category: ClueCategory.Kind) -> bool:
+	return can_ask() and (not was_asked(category) or answer_covered(category))
+
+
+## Guarda la respuesta a `category`: si `covered`, la estática tapó algo que sirve.
+func record_answer(category: ClueCategory.Kind, covered: bool) -> void:
+	_answers[category] = covered
 
 
 ## Descuenta el costo de una pregunta. Devuelve false si ya no se puede preguntar.

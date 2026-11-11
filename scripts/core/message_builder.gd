@@ -72,7 +72,8 @@ static func first_message(request: FriendRequest, translate: Callable) -> ChatMe
 
 ## Respuesta a una pregunta: las características y los señuelos de esa categoría (con la pista del mensaje
 ## inicial, si es de esa categoría) y todas las observaciones de esa categoría. Es la única forma de saberlos.
-## Una observación con audio llega como audio: hay que escucharla (decisión de Benja, 7 de noviembre).
+## Una observación con audio llega como audio: hay que escucharla (decisión de Benja, 7 de noviembre). Las observaciones
+## van marcadas, para que el chat las muestre en azul (decisión de Benja, 11 de noviembre).
 static func answer(request: FriendRequest, category: ClueCategory.Kind, translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
 	for clue: TraitData in request.clues:
@@ -85,7 +86,7 @@ static func answer(request: FriendRequest, category: ClueCategory.Kind, translat
 		if stream != null:
 			message.add_audio(stream, _text(translate, AUDIO_LABEL_KEY), _observation_text(request, observation, translate))
 		else:
-			message.add_fragment(_observation_text(request, observation, translate))
+			message.add_fragment(_observation_text(request, observation, translate), &"", true)
 	if message.tokens.is_empty():
 		message.add_fragment(_text(translate, NOTHING_KEYS[category]))
 	return message

@@ -788,3 +788,35 @@ func test_llegan_a_su_hora_si_hay_espacio() -> bool:
 	check_eq(manager.incidents.count(null), 2, "al desocuparse, llega")
 	manager.free()
 	return true
+
+
+## Una pregunta ya respondida no se repite (decisión de Benja, 11 de noviembre): no agrega mensajes ni cuesta tiempo.
+func test_no_se_repite_una_pregunta() -> bool:
+	var manager := _make_manager()
+	var request := manager.start_request(0)
+	check(manager.ask(0, ClueCategory.Kind.SIGHT), "la primera vez")
+	var events := []
+	_record(manager, events)
+	check(not manager.ask(0, ClueCategory.Kind.SIGHT), "la segunda no")
+	check_eq(events, [], "sin mensajes")
+	check_eq(request.time_left, 40.0, "y sin costo")
+	check(manager.ask(0, ClueCategory.Kind.SOUND), "otra categoría sí")
+	manager.free()
+	return true
+
+
+## La solicitud guarda si la estática tapó algo de cada respuesta: entonces esa pregunta se puede repetir.
+func test_guarda_si_la_respuesta_salio_tapada() -> bool:
+	var manager := _make_manager()
+	var request := manager.start_request(0)
+	manager.state.friends[0].signal_level = 1.0
+	var events := []
+	_record(manager, events)
+	for category: ClueCategory.Kind in [ClueCategory.Kind.SIGHT, ClueCategory.Kind.SOUND, ClueCategory.Kind.ENVIRONMENT,
+			ClueCategory.Kind.TRACES]:
+		check(manager.ask(0, category), "se pregunta %d" % category)
+		var answer: ChatMessage = _messages(events)[-1]
+		check_eq(request.answer_covered(category), answer.lost_information(), "lo guarda: %d" % category)
+		check_eq(request.can_ask_about(category), answer.lost_information(), "se repite solo si salió tapada: %d" % category)
+	manager.free()
+	return true

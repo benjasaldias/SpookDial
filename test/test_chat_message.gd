@@ -77,3 +77,40 @@ func test_un_audio_es_una_sola_pieza() -> bool:
 	check(token.can_be_covered(), "la estática lo puede tapar")
 	check(not token.is_clue(), "no es una frase clickeable")
 	return true
+
+
+## Las palabras de una observación se marcan: el chat las pinta de azul, porque deciden la fila de la tabla (decisión de
+## Benja, 11 de noviembre).
+func test_las_observaciones_se_marcan() -> bool:
+	var message := _message("Veo un *hombrecito*.", &"little_man")
+	message.add_fragment("Está enojado.", &"", true)
+	var marked := message.tokens.filter(func(token: ChatMessage.Token) -> bool: return token.is_observation) \
+			.map(func(token: ChatMessage.Token) -> String: return token.text)
+	check_eq(marked, ["Está", " ", "enojado."], "solo las piezas de la observación")
+	return true
+
+
+## La estática tapó algo que sirve: una frase clickeable, una observación o el audio. En la respuesta de "nada", cualquier
+## palabra tapada cuenta. Así se sabe si vale la pena volver a preguntar (decisión de Benja, 11 de noviembre).
+func test_informacion_perdida() -> bool:
+	# Piezas: 0 "Veo", 2 "un", 4 "hombrecito" (la característica), 5 ".", 7 "Está" y 9 "enojado." (la observación).
+	var message := _message("Veo un *hombrecito*.", &"little_man")
+	message.add_fragment("Está enojado.", &"", true)
+	check(not message.lost_information(), "sin estática no se perdió nada")
+	(message.tokens[0] as ChatMessage.Token).covered = true
+	check(not message.lost_information(), "una palabra de relleno tapada no importa")
+	(message.tokens[4] as ChatMessage.Token).covered = true
+	check(message.lost_information(), "la característica tapada sí")
+	(message.tokens[4] as ChatMessage.Token).covered = false
+	(message.tokens[9] as ChatMessage.Token).covered = true
+	check(message.lost_information(), "la observación tapada también")
+	var audio := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	audio.add_audio(AudioStreamWAV.new(), "▶ Escuchar audio", "Gritó tres veces.")
+	check(not audio.lost_information(), "el audio entero")
+	(audio.tokens[0] as ChatMessage.Token).covered = true
+	check(audio.lost_information(), "el audio tapado")
+	var nothing := _message("No veo nada raro.")
+	check(not nothing.lost_information(), "la respuesta de nada, entera")
+	(nothing.tokens[2] as ChatMessage.Token).covered = true
+	check(nothing.lost_information(), "en la respuesta de nada, cualquier palabra tapada cuenta")
+	return true
