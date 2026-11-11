@@ -5,7 +5,9 @@ Reemplaza a los dibujos provisionales hechos con rectángulos en Godot (sesión 
 - el cuaderno universitario abierto (la hoja, las pestañas como notas adhesivas);
 - la mancha de tinta del screamer del cuaderno (3 cuadros que salpican y los chorreones que caen);
 - el marco del celular de Snapgram, la placa de las barras de arriba y las barras de señal de las entradas del PC;
-- el marco y los botones del menú, la pausa y las pantallas del final de la noche.
+- el marco y los botones del menú, la pausa y las pantallas del final de la noche;
+- desde el Plan 9.3, el chat: los íconos de las preguntas y de sus estados, el cuaderno junto al nombre de la entidad,
+  la señal del botón de sincronizar y las hojas de las respuestas.
 
 Usa la paleta de los sprites de Benja (el mixer y el cuaderno del escritorio): colores planos, contorno negro de
 1 px y sombreado simple. El arte de Benja no se toca. Benja puede retocar estos PNG en Aseprite, pero se pisan si se
@@ -716,6 +718,197 @@ def mark(color, rows):
     return image
 
 
+# --- El chat (Plan 9.3) ---------------------------------------------------------------------------------------------
+# Cada control del chat con su forma (pedido de Benja tras el primer testeo): las preguntas con un ícono por categoría y
+# su estado, el cuaderno junto al nombre de la entidad, la señal del amigo en el botón de sincronizar y las respuestas
+# como hojas del cuaderno.
+
+# Los íconos de las preguntas, de 9×9 y en blanco: el botón les da el color de su letra. Ojo, parlante (la oreja no se
+# lee a este tamaño), nube con niebla y huella de una pata.
+QUESTION_ICONS = {
+    "chat_icon_sight": [
+        ".........",
+        "...###...",
+        ".##...##.",
+        "#..###..#",
+        "#..###..#",
+        "#..###..#",
+        ".##...##.",
+        "...###...",
+        ".........",
+    ],
+    "chat_icon_sound": [
+        ".........",
+        "...#...#.",
+        "..##.#..#",
+        "####..#.#",
+        "####..#.#",
+        "####..#.#",
+        "..##.#..#",
+        "...#...#.",
+        ".........",
+    ],
+    "chat_icon_environment": [
+        ".........",
+        "...##....",
+        "..####.#.",
+        ".#######.",
+        ".########",
+        "#########",
+        ".#######.",
+        ".........",
+        "##.###.##",
+    ],
+    "chat_icon_traces": [
+        "..##.##..",
+        "..##.##..",
+        "##.....##",
+        "##.....##",
+        "...###...",
+        "..#####..",
+        ".#######.",
+        ".#######.",
+        "..##.##..",
+    ],
+}
+
+# Los estados de una pregunta, de 9×9: ✓ verde (ya se preguntó y llegó entera) y estática (llegó tapada: se puede repetir).
+STATE_ICONS = {
+    "chat_icon_check": ({"a": rgb("#7ee08a")}, [
+        ".........",
+        "........a",
+        ".......aa",
+        "......aa.",
+        "a....aa..",
+        "aa..aa...",
+        ".aaaa....",
+        "..aa.....",
+        ".........",
+    ]),
+    "chat_icon_static": ({"a": rgb("#8b97b8"), "b": rgb("#56637f")}, [
+        "a.b.a.b.a",
+        ".b.a.b.b.",
+        "b.a.b.a.b",
+        ".a.b.a.a.",
+        "b.b.a.b.a",
+        ".a.a.b.b.",
+        "a.b.b.a.b",
+        ".b.a.b.a.",
+        "b.a.b.a.b",
+    ]),
+}
+
+# El cuaderno junto al nombre de la entidad (11×11): la tapa verde con su etiqueta, la espiral y el canto de las hojas.
+NOTEBOOK_ICON = ({
+    "s": WIRE_LIGHT, "k": BLACK, "c": COVER_LIGHT, "d": COVER, "g": rgb("#2f8f62"), "l": LABEL, "p": PAPER,
+}, [
+    ".kkkkkkkkk.",
+    "skggggggckp",
+    ".kgcccccckp",
+    "skgclllcckp",
+    ".kgcccccckp",
+    "skgccccccdp",
+    ".kgccccccdp",
+    "skgccccccdp",
+    ".kgcccccddp",
+    "skdddddddkp",
+    ".kkkkkkkkpp",
+])
+
+# La señal del botón de sincronizar: 4 barritas de 3 px, de 3, 6, 9 y 12 de alto. Verdes con 70 o más, ámbar entre 30
+# y 69 y rojas bajo 30, como los tramos de la estática.
+SIGNAL_FRAME = (15, 12)
+SIGNAL_COLORS = [
+    (rgb("#7ee08a"), rgb("#1d5a2c")),
+    (rgb("#ffb347"), rgb("#6e4410")),
+    (rgb("#ff4d5e"), rgb("#5e1620")),
+]
+SIGNAL_EMPTY = rgb("#56637f")
+
+
+def chat_signal():
+    """5 cuadros (de 0 a 4 barritas) en 3 filas de color. Las llenas tienen sombra; las vacías, solo el borde. Sin señal
+    hay una ×, para que no dependa del color."""
+    w, h = SIGNAL_FRAME
+    image = Image.new("RGBA", (w * 5, h * 3), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    for row, (fill, shade) in enumerate(SIGNAL_COLORS):
+        for frame in range(5):
+            left, top = frame * w, row * h
+            for bar in range(4):
+                x0 = left + bar * 4
+                y0 = top + h - 3 * (bar + 1)
+                if bar < frame:
+                    box(draw, x0 + 1, y0 + 1, min(x0 + 3, left + w - 1), top + h - 1, fill=shade)
+                    box(draw, x0, y0, x0 + 2, top + h - 2, fill=fill)
+                else:
+                    box(draw, x0, y0, x0 + 2, top + h - 2, outline=SIGNAL_EMPTY)
+            if frame == 0:
+                # La ×, en la esquina de arriba a la izquierda, donde no hay barritas.
+                for k in range(5):
+                    image.putpixel((left + k, top + k), fill)
+                    image.putpixel((left + 4 - k, top + k), fill)
+    return image
+
+
+# Las respuestas son hojas del cuaderno: textura 9-slice de 19×19 con márgenes de 4. El centro (11×11) se repite como
+# la cuadrícula de la hoja; el borde de abajo y el de la derecha llevan la sombra del papel.
+SHEET_SIZE = 19
+SHEET_MARGIN = 4
+SHEETS = {
+    "normal": {"paper": PAPER, "grid": GRID, "edge": POSTIT_EDGE, "shade": PAPER_EDGE, "light": None},
+    "hover": {"paper": rgb("#e6e0cb"), "grid": rgb("#cfd0c6"), "edge": rgb("#ffb347"), "shade": PAPER_SHADE,
+              "light": rgb("#f3eedd")},
+    "pressed": {"paper": PAPER_SHADE, "grid": rgb("#b5b6ab"), "edge": POSTIT_EDGE, "shade": None, "light": None},
+    "disabled": {"paper": rgb("#7d786b"), "grid": rgb("#737065"), "edge": rgb("#2a251b"), "shade": rgb("#6a6559"),
+                 "light": None},
+}
+
+
+def answer_sheet(state):
+    """Una hoja de respuesta: el papel con su cuadrícula, el borde y la sombra. Apretada, la sombra queda arriba."""
+    colors = SHEETS[state]
+    size, margin = SHEET_SIZE, SHEET_MARGIN
+    image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    box(draw, 0, 0, size - 1, size - 1, fill=colors["edge"])
+    box(draw, 1, 1, size - 2, size - 2, fill=colors["paper"])
+    # La cuadrícula: una línea en la primera columna y la primera fila del centro, que se repiten.
+    box(draw, margin, 1, margin, size - 2, fill=colors["grid"])
+    box(draw, 1, margin, size - 2, margin, fill=colors["grid"])
+    if colors["shade"] is not None:
+        box(draw, 1, size - 2, size - 2, size - 2, fill=colors["shade"])
+        box(draw, size - 2, 1, size - 2, size - 2, fill=colors["shade"])
+    if colors["light"] is not None:
+        box(draw, 1, 1, size - 3, 1, fill=colors["light"])
+        box(draw, 1, 1, 1, size - 3, fill=colors["light"])
+    if state == "pressed":
+        box(draw, 1, 1, size - 2, 1, fill=PAPER_EDGE)
+        box(draw, 1, 1, 1, size - 2, fill=PAPER_EDGE)
+    return image
+
+
+def chat_art():
+    """Todo el arte del chat, como {nombre: imagen}."""
+    art = {}
+    for name, rows in QUESTION_ICONS.items():
+        image = Image.new("RGBA", (9, 9), (0, 0, 0, 0))
+        stamp(image, 0, 0, rows, {"#": rgb("#ffffff")})
+        art[name] = image
+    for name, (palette, rows) in STATE_ICONS.items():
+        image = Image.new("RGBA", (9, 9), (0, 0, 0, 0))
+        stamp(image, 0, 0, rows, palette)
+        art[name] = image
+    palette, rows = NOTEBOOK_ICON
+    image = Image.new("RGBA", (11, 11), (0, 0, 0, 0))
+    stamp(image, 0, 0, rows, palette)
+    art["chat_icon_notebook"] = image
+    art["chat_signal"] = chat_signal()
+    for state in SHEETS:
+        art[f"chat_answer_{state}"] = answer_sheet(state)
+    return art
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     mixer_body().save(OUT / "mixer_body.png")
@@ -735,6 +928,8 @@ def main():
     menu_frame().save(OUT / "menu_frame.png")
     for state in ("normal", "hover", "pressed"):
         menu_button(state).save(OUT / f"menu_button_{state}.png")
+    for name, image in chat_art().items():
+        image.save(OUT / f"{name}.png")
     print("Arte de interfaz en", OUT)
 
 
