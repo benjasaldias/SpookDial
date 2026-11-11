@@ -6,31 +6,32 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ---
 
-## ▶ Siguiente sesión: S21f — Ajustes de mecánicas y la Mano
+## ▶ Siguiente sesión: S21b — Planificar el lore por noche
 
 | | |
 | --- | --- |
-| **Qué se hace** | Se implementan los ajustes que Benja eligió el 11-nov del diagnóstico (`docs/22`) y sus 2 cambios propios: el mensaje inicial sin lugar fijo, los señuelos de 1 s y las características con sinónimos, las olas de verdad con un final fuerte, el aviso cuando los videos no alcanzan, la criatura con un tiempo al azar, **la Mano** (se espanta con el flash del celular) y Trust sin recuperación. Primero se cierran 6 preguntas cortas con Benja; después se escribe el Plan 9.1 (`docs/24`) y se ejecuta. |
-| **Tipo** | Diseño corto, plan y ejecución. |
+| **Qué se hace** | Se planifica con Benja qué le pasa al grupo en cada noche, con `superpowers:brainstorming`. El resultado es un documento de contenido, sin código; el plan de implementación sale de ahí, en otra sesión. |
+| **Tipo** | Planificación, sin código. |
 | **Modelo** | **Opus 5.5** |
-| **Esfuerzo** | **xhigh** |
-| **Antes de empezar** | Nada. El sprite de la Mano (`art/sprites/hand_sprite.aseprite`) ya está. Conviene que el editor de Godot esté cerrado, para que Claude pueda importarlo. |
-| **Qué escribirle a Claude** | `Lee docs/23_prompt_ajustes_mecanicas.md y sigue sus instrucciones.` |
-| **Tu parte** | Contestar las 6 preguntas (la segunda forma de bajar Trust, cómo se usa el flash, la Mano y el cuaderno, la Mano sobre Connection y Trust, desde qué noche aparece y los valores), autorizar los commits y, después, corregir los textos nuevos y probar (`docs/04`). |
-| **Está terminada cuando** | El Plan 9.1 está ejecutado, las pruebas pasan (incluida la que demuestra que cada noche se puede ganar), las capturas están revisadas y las decisiones están completas en `CLAUDE.md` y en el diseño. |
+| **Esfuerzo** | **high** |
+| **Antes de empezar** | Conviene haber probado el Plan 9.1 (`docs/04`, R, unos 20 minutos), aunque no es requisito. |
+| **Qué escribirle a Claude** | `Lee docs/19_prompt_lore.md y sigue sus instrucciones.` |
+| **Tu parte** | Decidir el lore de cada noche y corregir los borradores. |
+| **Está terminada cuando** | El documento de lore está escrito y aprobado, y la sesión que lo implementa está agendada en este registro. |
 
-**Después:** S21b (planificar el lore, `docs/19`), y luego S22, las correcciones tras las pruebas con personas.
+**Después:** S22, las correcciones tras las pruebas con personas (contenido congelado el 25 de noviembre).
 
 ---
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **no hay ninguno pendiente**: el **Plan 9: dinamismo** (`docs/18_plan_dinamismo.md`) ya se ejecutó en S21. Quedan 2 prompts de sesión listos: `docs/23` (S21f, que escribe y ejecuta el **Plan 9.1**, `docs/24`) y `docs/19` (S21b). El siguiente plan numerado es el **Plan 10** (sonido, pulido y versión, el Plan 9 original), que se escribe en S23.
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Hoy **no hay ninguno pendiente**: el **Plan 9.1: ajustes de mecánicas y la Mano** (`docs/24`) se escribió y se ejecutó en S21f. Queda 1 prompt de sesión listo: `docs/19` (S21b). El siguiente plan numerado es el **Plan 10** (sonido, pulido y versión, el Plan 9 original), que se escribe en S23.
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
-| `docs/23_prompt_ajustes_mecanicas.md` | Prompt de la sesión S21f: ajustes de mecánicas y la Mano | **Sí, en S21f** |
+| `docs/24_plan_ajustes_mecanicas.md` | **Plan 9.1**: ajustes de mecánicas y la Mano, con lo que cambió al ejecutarlo | Ya ejecutado (S21f) ✅ |
+| `docs/23_prompt_ajustes_mecanicas.md` | Prompt de la sesión S21f: ajustes de mecánicas y la Mano | Ya ejecutado (S21f) ✅ |
 | `docs/22_diagnostico_mecanicas.md` | Diagnóstico de Claude: por qué el juego se siente plano, con propuestas y lo que eligió Benja | No (referencia) |
 | `docs/20_prompt_red_social.md` | Prompt de la sesión S21c: la red social imita a una real | Ya ejecutado (S21c) ✅ |
 | `docs/19_prompt_lore.md` | Prompt de la sesión S21b: planificar el lore por noche | **Sí, en S21b** |
@@ -50,7 +51,7 @@ Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta
 | `docs/05_plan_produccion.md` | Alcance por prioridad y calendario por semana | No |
 | `docs/02_bucle_central.md` | Detalle de la mecánica central y plantilla de entidades | No (referencia) |
 | `docs/03_plan_arte.md` | Reglas del pipeline de arte y arte faltante | No (referencia) |
-| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L, M, O y P) |
+| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L, M, O, P, Q y R) |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1 | No (histórico) |
 | `spook_dial_design.md` | Qué es el juego (diseño v2) | No (referencia principal) |
 | `resumen.md` | Detalle de cada sesión: hecho, errores y pendientes | No |
@@ -88,8 +89,8 @@ Hay dos tipos de sesión, que se alternan:
 | S20 | 7 nov | Escribir el Plan 9: dinamismo (nuevo, `docs/17`) | Plan | Opus 5.5 · high | Decisiones del dinamismo | ✅ |
 | S21 | 7 nov | Ejecutar el Plan 9 → el juego es más dinámico | Ejecución | Sonnet 5.5 · high (se adelantó) | Autorizar commits; probar (`docs/04`, N) | ✅ |
 | S21e | 10–11 nov | Diagnóstico de las mecánicas (`docs/22`) y prompt de los ajustes (`docs/23`) | Diseño | Opus 5.5 | Elegir qué arreglar | ✅ |
-| **S21f** | 11–16 nov | **Ajustes de mecánicas y la Mano** (`docs/23`, Plan 9.1) | Diseño, plan y ejecución | **Opus 5.5 · xhigh** | 6 decisiones; autorizar commits; probar | ▶ |
-| S21b | Antes del 25 nov | Planificar el lore por noche (`docs/19`) | Plan | Opus 5.5 · high | Decisiones del lore; corregir borradores | ⏳ |
+| S21f | 11 nov | Ajustes de mecánicas y la Mano (`docs/23`, Plan 9.1 en `docs/24`) | Diseño, plan y ejecución | Opus 5.5 · xhigh | Probar (`docs/04`, R); corregir los textos nuevos; decir desde cuándo se ve la Mano | ✅ |
+| **S21b** | Antes del 25 nov | **Planificar el lore por noche** (`docs/19`) | Plan | **Opus 5.5 · high** | Decisiones del lore; corregir borradores | ▶ |
 | S21c | 9 nov | Red social que imita a una real (`docs/20`) | Diseño y ejecución | Opus 5.5 · high (se adelantó a S21b) | Probar (`docs/04`, P); confirmar de dónde son las fotos | ✅ |
 | S21d | 10 nov | Pulir el arte y los sonidos de Claude (pedido de Benja, sin plan aparte) | Diseño y ejecución | Opus 5.5 | Escuchar los sonidos y revisar el arte (`docs/04`, Q); corregir los textos del Imbunche | ✅ |
 | S22 | 23–29 nov | Correcciones tras las pruebas con personas (contenido congelado el 25) | Corrección | Opus 5.5 · high | Pruebas con 3 a 5 personas | ⏳ |
@@ -105,6 +106,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 11-nov | ✏️ S21f se hizo el mismo 11 de noviembre (fecha objetivo: 11 a 16), en Opus 5.5 · xhigh. Benja contestó las 6 preguntas y autorizó todos los commits al empezar. El Plan 9.1 (`docs/24`) se escribió y se ejecutó en la misma sesión: 12 commits en `main`, de 556 a 613 pruebas OK. La prueba de equilibrio encontró y corrigió un video que podía caer encima de la ola final. Queda abierta una pregunta: la Mano casi no se ve a mitad de camino. **S21b (el lore) es la siguiente.** Detalle en `resumen.md`, Sesión 21f. |
 | 11-nov | ✏️ **S21e, nueva:** Benja pidió un escaneo profundo de lo que hace que el juego se sienta plano. Claude escribió el diagnóstico (`docs/22`), y Benja eligió qué arreglar y sumó la Mano y Trust sin recuperación. **S21f, nueva y siguiente:** implementa esos ajustes con el prompt `docs/23` (Plan 9.1) en Opus 5.5 · xhigh. S21b pasa a ir después de S21f. Detalle en `resumen.md`, Sesión 21e. |
 | 10-nov | ✏️ **S21d, nueva y fuera de la secuencia:** Benja pidió pulir todo el arte y los sonidos que había generado Claude, con las skills nuevas de `disciplines`. Se adelanta una parte del Plan 10: los sonidos ya no son de relleno, y el mixer, el cuaderno, la tinta, el celular, las barras y los menús son pixel art en `art/ui/`. El Plan 10 conserva los sonidos que **faltan**. S21b sigue siendo la siguiente. Detalle en `resumen.md`, Sesión 21d. |
 | 9-nov | ✏️ S21c se hizo antes que S21b, como permitía el registro, porque es independiente del lore. Se diseñó con Benja y se programó en la misma sesión, sin un plan aparte. Creció más allá de la vista: las fotos perturbadoras, que el prompt dejaba como pregunta, entraron ahora con su regla en `balance.tres` (detalle en `resumen.md`, Sesión 21c). S21b sigue siendo la siguiente. |
@@ -163,4 +165,5 @@ Hay dos tipos de sesión, que se alternan:
 | S21c | 9-nov | Snapgram: la red social imita a una real, con 12 fotos reales de gatitos, cuentas sin nombre y barras grises, y 4 fotos perturbadoras con poca Sanity. 555 pruebas OK y capturas revisadas. `docs/04`, P | `resumen.md`, Sesión 21c |
 | S21d | 10-nov | Arte y sonidos pulidos: 38 sonidos realistas sin palabras (síntesis y 5 grabaciones de dominio público o CC0), el Imbunche que llora como guagua, las voces que murmuran, y 17 PNG de pixel art (el mixer, el cuaderno universitario, la tinta, el celular, las barras, las barras de señal y los menús, con los sprites del cuarto en el menú). 556 pruebas OK y capturas revisadas. `docs/04`, Q | `resumen.md`, Sesión 21d |
 | S21e | 10–11 nov | Diagnóstico de las mecánicas: el lugar delata a la entidad, los señuelos no cuestan, las olas no existen (simulación del director), el riesgo nunca conviene y el terror queda detrás de los paneles. Benja eligió los ajustes y sumó la Mano y Trust sin recuperación. Prompt `docs/23` para S21f | `resumen.md`, Sesión 21e |
+| S21f | 11-nov | Plan 9.1 escrito y ejecutado (`docs/24`): 613 pruebas OK, en 12 commits. El mensaje inicial con lo que le pasa al amigo y el lugar solo a veces, las características con otras palabras y un nombre fijo en el cuaderno, el señuelo de 1 s, olas de verdad con una ola final, el aviso de videos, la criatura al azar, la Mano con el flash del celular (y su paso en la noche 0), Trust sin recuperación, y una prueba de que toda noche se puede ganar | `resumen.md`, Sesión 21f |
 | S15 | 2-nov | Plan 6 ejecutado: 326 pruebas OK. La señal de cada amigo con interferencias, las reglas de un amigo sin señal, los avisos de videos y señal en el chat, la descarga en el chat, Audio Sync en el mixer (también con «Sincronizar»), el celular con su feed y 7 sonidos provisionales. Capturas del mixer, de la descarga y del celular revisadas. `docs/04`, J | `resumen.md`, Sesión 15 |

@@ -54,6 +54,8 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 10 de noviem
 | Logo e íconos de Snapgram | S21c | Opcional. El logo hoy es "Snapgram" en Departure Mono a 22 px. Los íconos miden 11×11 (me gusta, comentar, enviar, guardar, inicio, buscar, publicar, videos y perfil), y hoy están hechos píxel por píxel en `scripts/ui/phone_icons.gd`. |
 | **Logo** (el menú ya está: ✅ Claude) | Plan 8 | El logo "Spook Dial". Hoy es texto en Departure Mono a 66 px. El menú muestra tus sprites del cuarto a la luz de la luna, oscurecidos, y el marco de placa a la derecha (`scenes/menu/main_menu.tscn`). Ver `C:\dev\capturas\arte_menu.png`. |
 | Pantalla entre noches | Plan 8 | La página del canal, con el contenido de la noche. |
+| **La Mano** (`hand_sprite`, ✅ tuya, 3 cuadros) | Plan 9.1 | Ya está en el juego. **Ojo:** el lado derecho del cuarto es casi negro, así que a mitad de camino la Mano no se ve (`C:\dev\capturas\plan91_mano_camino.png`): recién aparece en los últimos 3 o 4 s, sobre la pared, y antes solo la delata el crujido. Si quieres que se vea antes, sirven unos pelos o un borde un poco más claros en el brazo. Opcional: un cuadro de "agarre" propio y una animación de retirada al flash (hoy desaparece de golpe). |
+| El rayo de la linterna | Plan 9.1 | Opcional. Hoy es un ícono de 11×11 hecho píxel por píxel (`PhoneIcons.FLASHLIGHT`, en `scripts/ui/phone_icons.gd`), en la barra superior del celular ampliado. |
 
 ## 4. Opcional (pulido, si sobra tiempo)
 

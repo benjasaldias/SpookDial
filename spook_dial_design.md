@@ -7,7 +7,7 @@
 - El detalle de la mecánica central (reglas, valores numéricos, modelo de datos) está en `docs/02_bucle_central.md`.
 - El orden de trabajo y el calendario están en `docs/05_plan_produccion.md`.
 
-Última actualización: 7 de noviembre de 2026.
+Última actualización: 11 de noviembre de 2026.
 
 - 26 de octubre: identificación por características, acción de mayor riesgo y cuota cubierta por los envíos. En la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos.
 - 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
@@ -19,6 +19,7 @@
 - 7 de noviembre (notas de prueba, `docs/17`): las barras arriba de la pantalla, acertar más difícil, los audios en «¿Qué oyes?», Audio Sync más rápido, la batería del celular, las cortinas, la criatura que se queda y hay que revisar, y los accidentes.
 - 9 de noviembre (S21c): Snapgram, la red social con fotos reales de gatitos y fotos perturbadoras con poca Sanity.
 - 10 de noviembre (S21d): sonidos realistas sin palabras, el Imbunche que llora como guagua, las voces que murmuran, el cuaderno universitario y el arte de interfaz de Claude en pixel art.
+- 11 de noviembre (S21e y S21f, `docs/22` a `docs/24`): el mensaje inicial dice qué le pasa al amigo y el lugar solo a veces, los señuelos cuestan 1 s, las características se dicen con otras palabras, olas de verdad con una ola final, el aviso de videos, la criatura se queda un tiempo al azar, la Mano, Trust sin recuperación y más batería.
 
 ---
 
@@ -67,10 +68,17 @@ Durante cinco noches tiene que hacer cuatro cosas:
   - tres solicitudes fijas, una de cada amigo, con El Tue Tué y La Calchona;
   - un aviso arriba de la pantalla dice qué hacer en cada paso: abrir el chat, preguntar, marcar las características, abrir la página de la entidad, responder y descargar el video que manda Agustín;
   - el tiempo para responder no corre solo (solo las preguntas le quitan tiempo), los plazos del video esperan, nadie sale herido y Trust no baja: una respuesta equivocada solo avisa qué habría pasado;
-  - termina con el susto guionado, el chat de Gonzalo y el celular (§11);
+  - termina con el susto guionado, el chat de Gonzalo y el celular (§11). Con el celular abierto llega la Mano, y el aviso enseña a espantarla con el flash (decisión de Benja, 11 de noviembre); la noche termina al cerrar el celular después del flash;
   - "Nueva partida" siempre empieza en la noche 0, y el aviso tiene un botón para saltarla.
 - **5 noches.** Cada una va de las **00:00 a las 06:00** (formato de 24 horas) en unos **7 minutos reales**.
-- **Ritmo de la noche** (decisión de Benja, sesión 16): las solicitudes llegan en **olas**. Después de cada ola hay un **respiro** de unos 25 segundos sin solicitudes nuevas, para sincronizar, descargar videos o mirar el celular. Las olas se aprietan hacia las 06:00, y cuando un amigo queda herido, las solicitudes que faltan se atrasan unos segundos.
+- **Ritmo de la noche: olas de verdad** (decisiones de Benja, sesión 16 y 11 de noviembre):
+  - **el primer minuto es de silencio;**
+  - las solicitudes llegan en **olas de 2**, con 4 a 8 segundos de diferencia;
+  - cuando se resuelven todas las de una ola viene una **calma de verdad**, de 40 a 60 segundos, para sincronizar, descargar videos, mirar el celular o revisar la ventana. Las olas están planeadas parejo, así que si una ola se resuelve rápido, la calma dura hasta la hora de la siguiente;
+  - la **ola final** es el clímax: los **3 amigos piden ayuda a la vez**, lo más tarde posible para que se alcance a responder antes de las 06:00 (entre las 04:29 y las 04:59), y desde la noche 2 llega también la criatura;
+  - una ola que ya no cabe antes de la final se salta;
+  - **en las olas** caen las interferencias, los accidentes (no en la final) y la Mano; **en las calmas**, los videos y los screamers;
+  - cuando un amigo queda herido, lo que falta se atrasa unos segundos, y nunca empieza una solicitud que no alcanza a terminar antes de las 06:00.
 - **Se gana la noche** al llegar a las 06:00 **con la cuota de contenido cumplida**.
 - **Se pierde la noche** en cualquiera de estos casos:
   - Sanity, Trust o Connection llegan a 0;
@@ -115,7 +123,7 @@ Cada objeto cumple una función:
 
 ### 8.1 Flujo de una solicitud
 
-1. **Llega.** Un amigo pide ayuda con un mensaje corto ("¡Mati, ayuda!!", "¿Estás ahí?") y dice dónde está; a veces trae una pista. **No describe lo que ve ni dice el nombre de la entidad**: el experto es Matías, y la información hay que preguntarla (§8.4). Empieza su temporizador.
+1. **Llega.** Un amigo pide ayuda con un mensaje corto: saluda ("¡Mati, ayuda!!", "¿Estás ahí?") y dice **qué le pasa** ("Me perdí.", "Algo me viene siguiendo.", "Creo que escuché algo."). **Dice dónde está solo a veces** (60 % en la noche 1 y cada vez menos, hasta 40 % en la 5; siempre en la noche 0), y a veces trae una pista (decisión de Benja, 11 de noviembre). Reconocer rápido a la criatura es parte de la habilidad, así que no importa que a veces el lugar la delate. **No describe lo que ve ni dice el nombre de la entidad**: el experto es Matías, y la información hay que preguntarla (§8.4). Empieza su temporizador.
 2. **El jugador identifica la entidad**, de memoria o con las características que le cuenta el amigo al preguntar (§8.3).
 3. **Abre la página de esa entidad** en el cuaderno.
 4. **Aplica las reglas** de la página según lo que observa el amigo. Si le falta un dato, pregunta (§8.4).
@@ -135,7 +143,7 @@ Según la **señal de ese amigo** (§10), algunas palabras de su mensaje llegan 
 
 Lo que cuenta el amigo, al preguntar, es de tres tipos:
 
-- **Características.** Son fijas de cada entidad (por ejemplo, "un hombrecito" o "huele a azufre"). Aparecen **destacadas** y se pueden clickear.
+- **Características.** Son fijas de cada entidad (por ejemplo, "un hombrecito" o "huele a azufre"). Aparecen **destacadas** y se pueden clickear. **Cada una se dice de varias formas** (decisión de Benja, 11 de noviembre): "un hombrecito" también puede ser "un enano" o "alguien chiquitito, como un niño viejo", y "neblina helada", "una niebla que te congela los huesos". Así hay que reconocerla de verdad. El cuaderno muestra siempre el mismo nombre (§12).
 - **Señuelos.** Aparecen destacados igual que las características, pero no ayudan a identificar: describen el lugar, un olor, un sonido o algo que se ve. Sirven para camuflar las características.
 - **Observaciones.** Cambian en cada situación y deciden qué regla se aplica. Van como texto normal.
 
@@ -148,7 +156,8 @@ Detalles:
 
 - Así se premia a quien memoriza, sin castigar demasiado a quien no.
 - Una característica tapada por la estática no se puede clickear: hay que preguntar (§8.4) para recuperarla.
-- El amigo cuenta, al preguntar, **2 características** que distinguen a la entidad entre las conocidas, mezcladas con señuelos: 1 en la noche 1 y hasta 3 en la noche 5. Clickear un señuelo no cuesta nada, aparte del tiempo.
+- El amigo cuenta, al preguntar, **2 características** que distinguen a la entidad entre las conocidas, mezcladas con señuelos: 1 en la noche 1 y hasta 4 en la noche 5. **Clickear un señuelo cuesta 1 segundo** del temporizador, la primera vez (decisión de Benja, 11 de noviembre): ya no se puede clickear todo gratis. Mientras vibra, el chat muestra "−1 s".
+- Cada solicitud elige al azar con qué forma dice el amigo cada característica, y la usa siempre, también en la pista. El clic la marca igual.
 - El mensaje inicial puede traer **una pista**: una de las 2 características (siempre en la noche 1 y cada vez menos hasta la noche 5).
 
 ### 8.4 Preguntas de seguimiento
@@ -245,10 +254,11 @@ Decisión de Benja, 7 de noviembre.
 
 - Baja lento todo el tiempo, y de golpe con cada screamer (una cantidad fija).
 - Se recupera **scrolleando el celular**: sube mientras el jugador scrollea y deja de subir cuando se detiene.
-- **El celular tiene batería** (decisión de Benja, 7 de noviembre): un tope por noche, sin recarga, que alcanza para unos 38 s de scroll (una vez y media la barra). Se gasta solo al scrollear. Sin batería no hay feed.
+- **El celular tiene batería** (decisión de Benja, 7 de noviembre): un tope por noche, sin recarga, que alcanza para **48 s** de scroll (desde el 11 de noviembre; antes 38). Se gasta al scrollear y con **cada flash, que gasta 10 %** (§11, la Mano), así que hay que guardar batería. Sin batería no hay feed ni flash.
 - **Snapgram** (decisión de Benja, 9 de noviembre): la red social del celular imita la forma de Instagram, con barra superior, cabecera, foto cuadrada, íconos y barra de navegación. Todo son **fotos reales de gatitos** (mixed media): las cuentas no tienen nombre, el texto se simula con barras grises y los botones son solo dibujo.
 - **Fotos perturbadoras** (decisión de Benja, 9 de noviembre): con Sanity bajo 30, 1 de cada 6 publicaciones es una foto perturbadora; bajo 15, 1 de cada 3. Solo es un susto: no resta Sanity. Una foto a la vista nunca cambia.
 - **Las cortinas** (decisión de Benja, 7 de noviembre): se abren y se cierran con un clic. Cerradas, el cuarto se oscurece y Sanity baja de a poco. Abiertas no pasa nada, salvo que la criatura esté afuera (§11): entonces baja rápido.
+- **Toda noche se puede ganar** (requisito de Benja, 11 de noviembre): la batería de los flashes, más la que hace falta para reponer Sanity jugando bien, no pasa de 100 % (en la noche 5 son 90 %). Lo comprueba `test/test_balance.gd`.
 - **Efecto gradual:** mientras más baja, más se oscurece la visión con una viñeta y más **screamers auditivos falsos** aparecen (sonidos que no vienen de nada).
   - Son sonidos del cuarto (golpes en la ventana, pasos, susurros y rasguños) y también del juego (la estática de una interferencia y el celular vibrando). Confunden: el jugador mira y no hay nada (decisión de Benja, sesión 16).
   - No restan Sanity y nunca suenan durante Audio Sync.
@@ -257,8 +267,9 @@ Decisión de Benja, 7 de noviembre.
 ### 10.3 Trust
 
 - Baja al elegir acciones riesgosas (§9), al no contestar a tiempo y mientras haya amigos sin señal (§10.1).
-- **También baja si tardas en contestar** (decisión de Benja, 4 de noviembre): cada solicitud que lleva más de 30 s abierta le quita 0,25 por segundo, y mientras haya una no se recupera. Preguntar cuenta como tiempo abierto. Responder rápido no cuesta nada.
-- Se recupera lentamente mientras no haya nuevos errores.
+- **También baja si tardas en contestar** (decisión de Benja, 4 de noviembre): cada solicitud que lleva más de 30 s abierta le quita 0,25 por segundo. Preguntar y los señuelos cuentan como tiempo abierto. Responder rápido no cuesta nada.
+- **Baja 10 si se pierde un video** (decisión de Benja, 11 de noviembre): el amigo arriesgó para grabarlo y Matías no lo descargó.
+- **No se recupera durante la noche** (decisión de Benja, 11 de noviembre), así que cada error pesa: una respuesta incorrecta le quita 15, no contestar 15 más, y la acción de mayor riesgo 20. Con 7 respuestas incorrectas se pierde cualquier noche.
 - **Efecto gradual:** mientras más baja, **menos tiempo esperan los amigos tu respuesta** (sus temporizadores se acortan).
 - Con 0, los amigos ya no quieren pedirte ayuda y **se pierde la noche**.
 - Vuelve a 100 al comienzo de cada noche.
@@ -269,6 +280,8 @@ Decisión de Benja, 7 de noviembre.
 - El contenido llega por dos vías:
   - **Envíos programados.** Los amigos graban y mandan videos durante la noche, y **son justo los suficientes para cumplir la cuota** si el jugador los recibe todos.
   - **La acción de mayor riesgo.** Si el amigo sobrevive, llega un video extra (si quedó herido, cuando se recupera). Sirve para compensar los envíos perdidos, a cambio de arriesgar al amigo y su confianza.
+- **Los envíos programados llegan en las calmas** entre las olas (§5), a tiempo para descargarlos antes de la ola siguiente.
+- **Aviso cuando los videos ya no alcanzan** (decisión de Benja, 11 de noviembre): si al perderse un video los que quedan (los recibidos, los que esperan su descarga y los que faltan llegar) ya no alcanzan la cuota, el chat de ese amigo avisa en rojo que **alguien tiene que arriesgarse**, porque la acción de mayor riesgo da un video extra. Avisa una vez por cada video que se pierde. El PC muestra los videos en rojo ("Videos: 1 de 3 (faltan)") hasta que vuelvan a alcanzar.
 
 ### 10.5 Recibir videos (Receive Media)
 
@@ -289,11 +302,18 @@ Decisión de Benja, 7 de noviembre.
 
 ## 11. Screamers
 
-- **Llegan en cualquier momento** de la noche, solo con las reglas de justicia (decisión de Benja, sesión 16).
+- **Llegan en las calmas** entre las olas (decisión de Benja, 11 de noviembre; antes, en cualquier momento), con las reglas de justicia (sesión 16). Una visita de la criatura llega en la ola final.
 - **Tipos:**
   - ambientales: la cortina se abre o se cierra sola (decisión de Benja, 7 de noviembre), aparece la figura en la ventana, el celular vibra, las luces parpadean. La figura de la ventana está escondida y solo aparece al asustar (decisión de Benja, sesión 16);
   - sobre el cuaderno: se cierra de golpe, o una mancha de tinta tapa las reglas durante 5 segundos;
-  - **la criatura en la ventana** (antes, un jumpscare de pantalla completa; decisión de Benja, 4 de noviembre): desde la noche 2 (1, 2, 2 y 3 veces por noche). Se asoma por la ventana con respiración pesada y golpes en el vidrio. Se arma solo cuando el chat o el mixer tapan la ventana, y al cerrarlos ya está ahí. No tapa la pantalla ni pausa la noche. **Se queda 25 s desde que llega** (decisión de Benja, 7 de noviembre): si la cortina estaba cerrada, la abre; mientras esté afuera con la cortina abierta, Sanity baja rápido. Cerrar la cortina no la espanta, y con la cortina cerrada no se oye, así que hay que abrirla para revisar si sigue ahí y volver a cerrarla si sigue.
+  - **la criatura en la ventana** (antes, un jumpscare de pantalla completa; decisión de Benja, 4 de noviembre): desde la noche 2 (1, 2, 2 y 3 veces por noche). Se asoma por la ventana con respiración pesada y golpes en el vidrio. Se arma solo cuando el chat o el mixer tapan la ventana, y al cerrarlos ya está ahí. No tapa la pantalla ni pausa la noche. **Se queda un tiempo al azar, entre 15 y 40 s desde que llega** (decisión de Benja, 11 de noviembre; antes, 25 s fijos): si la cortina estaba cerrada, la abre; mientras esté afuera con la cortina abierta, Sanity baja rápido. Cerrar la cortina no la espanta, y con la cortina cerrada no se oye, así que hay que abrirla para revisar si sigue ahí y volver a cerrarla si sigue.
+- **La Mano** (idea de Benja, 11 de noviembre): el segundo enemigo del cuarto, un brazo negro y peludo (`hand_sprite`).
+  - **Cómo se acerca:** asoma por el borde derecho hacia un dial al azar (Connection, Sanity o Trust, los 3 por igual) y tarda unos 12 s en llegar, a tirones de 0,5 a 0,7 s: en cada uno alterna sus 3 cuadros y tiembla 1 o 2 píxeles, como un movimiento forzado de Undertale.
+  - **Cómo suena:** en cada tirón, un crujido sutil de algo que se retuerce, con o sin el cuaderno abierto.
+  - **Dónde se ve:** en la pared, detrás de los paneles: el chat, el mixer y el cuaderno la tapan, y entonces solo la delata el crujido.
+  - **Qué hace:** si agarra el dial, lo baja 6 puntos por segundo hasta 15, nunca hasta 0, y se queda hasta que la espantan. En Connection baja las 3 señales parejo, así que también sube la estática.
+  - **Cómo se espanta:** con el **flash del celular**, el rayo de la barra superior del celular abierto, que la hace desaparecer al instante. Cada flash gasta 10 % de la batería, haya o no una Mano.
+  - **Cuándo llega:** en las olas, 1, 1, 2, 2 y 3 veces en las noches 1 a 5. No coincide con la criatura: espera a que se vaya, y la criatura no se arma mientras la Mano está en la pared. La noche 0 la enseña.
 - **La sombra:** lo que se asoma por la ventana (la criatura y la figura) hace sombra sobre el escritorio. Con la cortina cerrada no hay sombra, para no delatar a la criatura (decisión de Benja, 8 de noviembre).
 - **Señal previa breve:** un parpadeo de luz y una caída del sonido ambiente.
 - **Reglas de justicia:**
@@ -315,7 +335,7 @@ Decisión de Benja, 7 de noviembre.
 - **Índice:** una pestaña con el nombre de cada entidad conocida.
 - **Página de una entidad:**
   - folclore breve y un boceto;
-  - sus características, para quien quiera aprenderlas de memoria;
+  - sus características, para quien quiera aprenderlas de memoria, cada una con un nombre fijo, aunque el amigo la diga con otras palabras (decisión de Benja, 11 de noviembre);
   - las observaciones y a qué pregunta pertenece cada una;
   - las reglas ordenadas, cada una con su acción correcta y su acción de mayor riesgo;
   - las 4 acciones.
@@ -342,8 +362,8 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 
 | Noche | Dónde están los amigos | Entidades nuevas | Qué se agrega |
 | --- | --- | --- | --- |
-| 0 (tutorial) | Alrededores de la cabaña | (usa las páginas de la noche 1) | Guiada y sin perder (§5): preguntar, identificar, escuchar un audio, responder desde el cuaderno y descargar un video. Al final, el susto guionado y su chat enseñan las cortinas, Sanity y el celular (§11). |
-| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust, ya sin ayuda. La señal baja un poco, con 1 interferencia y Audio Sync de 4 aplausos, y hay 2 screamers ambientales y 1 accidente. El mensaje inicial siempre trae una pista. |
+| 0 (tutorial) | Alrededores de la cabaña | (usa las páginas de la noche 1) | Guiada y sin perder (§5): preguntar, identificar, escuchar un audio, responder desde el cuaderno y descargar un video. Al final, el susto guionado y su chat enseñan las cortinas, Sanity y el celular, y con el celular abierto llega la Mano, que enseña el flash (§11). |
+| 1 | Alrededores de la cabaña | El Tue Tué, La Calchona | Solicitudes, reglas, recibir videos, cuota y Trust, ya sin ayuda. La señal baja un poco, con 1 interferencia y Audio Sync de 4 aplausos, y hay 2 screamers ambientales, 1 accidente y 1 visita de la Mano. El mensaje inicial siempre trae una pista. |
 | 2 | Camino y lago | El Cuero, La Viuda | Señal por amigo, interferencias, Audio Sync de 4 tiempos, estática y screamers regulares. |
 | 3 | Bosque | El Trauco | Sin pista en el mensaje inicial: preguntar es necesario. El Trauco comparte 2 características con La Calchona. |
 | 4 | Casa abandonada y cueva | El Basilisco, El Imbunche | Audio Sync de 8 aplausos (2 rondas de 4) y varias solicitudes a la vez. |

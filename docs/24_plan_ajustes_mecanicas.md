@@ -37,6 +37,30 @@
 
 **Punto de partida:** 556 pruebas OK (11-nov, antes de la Tarea 1).
 
+**Resultado (11-nov, S21f):** ejecutado completo, en 12 commits (las Tareas 6 y 7 van en uno, porque el director nuevo cambia su interfaz). **613 pruebas OK.** Las 6 capturas y la curva de olas están revisadas, en `C:\dev\capturas\plan91_*.png`.
+
+| Tarea | Commit | Pruebas |
+| --- | --- | --- |
+| 1. El mensaje inicial | `3805af6` | 564 |
+| 2. Las variantes de las características | `fb0d2ba` | 571 |
+| 3. El señuelo cuesta 1 s | `0fefc88` | 574 |
+| 4. Trust sin recuperación | `69dbc89` | 575 |
+| 5. El aviso de videos | `12f5e47` | 578 |
+| 6 y 7. El director de olas y su conexión | `1152f8c` | 583 |
+| 8. La criatura al azar | `ddc72a8` | 584 |
+| 9. La Mano (lógica) | `8a18fd6` | 594 |
+| 10. Los sonidos | `af797cf` | 594 |
+| 11. La Mano en el escritorio y en la noche 0 | `31998ee` | 608 |
+| 12. La prueba de equilibrio | `e6c45e0` | 613 |
+| 13. Las capturas | `6828614` | 613 |
+
+**Lo que cambió al ejecutar:**
+
+- **Un video podía caer encima de la ola final** (lo encontró la prueba de equilibrio, en la noche 5): ahora el video de una calma llega a más tardar 25 s antes de la ola siguiente, o al empezar la calma, si es corta. Tiene su prueba en `test_pacing_director.gd`.
+- **La Mano casi no se ve a mitad de camino:** el lado derecho del cuarto es negro, y recién se distingue en los últimos 3 o 4 s. Queda como pregunta para Benja.
+- `ScreamerManager` suma `creature_stay`, cuánto se queda la visita en curso, para las pruebas. `PacingDirector` expone `next_at`.
+- `TUTORIAL_SCROLL` ya no dice que cerrar el celular termina el tutorial: ahora lo dice `TUTORIAL_HAND_DONE`.
+
 ---
 
 ## Decisiones de este plan
@@ -140,15 +164,15 @@
 - Textos (`messages.csv`): `PREDICAMENT_1` a `PREDICAMENT_8`.
 - Valores: `place_chance` = 1, 0,6, 0,55, 0,5, 0,45 y 0,4 (noches 0 a 5).
 
-- [ ] **Paso 1:** pruebas que fallan:
+- [x] **Paso 1:** pruebas que fallan:
   - `test_request_generator.gd`: `test_el_lugar_segun_la_probabilidad_de_la_noche` (con 0 nunca, con 1 siempre), `test_siempre_dice_lo_que_le_pasa` y `test_en_el_tutorial_siempre_dice_el_lugar`;
   - `test_message_builder.gd`: `test_el_mensaje_inicial_sin_lugar` y el orden en `test_el_mensaje_inicial...`;
   - `test_validator_catalog.gd`: `test_sin_frases_de_lo_que_le_pasa`;
   - `test_balance.gd`: los valores de `place_chance`.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar y escribir los 8 textos.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "El mensaje inicial dice qué le pasa al amigo y, a veces, el lugar".
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar y escribir los 8 textos.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "El mensaje inicial dice qué le pasa al amigo y, a veces, el lugar".
 
 ### Tarea 2: Las características se dicen con otras palabras
 
@@ -166,16 +190,16 @@
   - las claves existen.
 - **Textos:** 18 nombres `TRAIT_*_LABEL` en `notebook.csv` (la frase de hoy) y de 2 a 4 variantes por característica, `TRAIT_*_2` a `TRAIT_*_5`, en `messages.csv`.
 
-- [ ] **Paso 1:** pruebas que fallan:
+- [x] **Paso 1:** pruebas que fallan:
   - `test_request_generator.gd`: `test_cada_caracteristica_con_una_de_sus_formas` y `test_la_pista_usa_la_misma_forma`;
   - `test_message_builder.gd`: `test_la_respuesta_usa_la_forma_de_la_solicitud`;
   - `test_notebook_page.gd`: `test_el_nombre_de_la_caracteristica_es_su_etiqueta`;
   - `test_validator_entity.gd`: `test_variantes_de_las_caracteristicas` (sin nombre, con 1 variante, con 5) y `test_las_compartidas_tienen_las_mismas_variantes`;
   - `test_validator_texts.gd`: `test_cada_variante_con_una_frase_marcada`.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar, escribir los textos y llenar los 7 `.tres`.
-- [ ] **Paso 4:** correr todas las pruebas: OK. `test_catalog.gd` revisa el contenido real.
-- [ ] **Paso 5:** commit "Las características se dicen con otras palabras; el cuaderno muestra su nombre".
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar, escribir los textos y llenar los 7 `.tres`.
+- [x] **Paso 4:** correr todas las pruebas: OK. `test_catalog.gd` revisa el contenido real.
+- [x] **Paso 5:** commit "Las características se dicen con otras palabras; el cuaderno muestra su nombre".
 
 ### Tarea 3: Los señuelos cuestan 1 s
 
@@ -186,14 +210,14 @@
 - `ChatMessageView.shake(clue_id, penalty := "")`: mientras vibra, la frase lleva el texto en rojo detrás. El panel pasa `CHAT_DECOY_COST` ("−{seconds} s") solo si esta vez costó.
 - `TUTORIAL_MARK`: suma que un señuelo quita 1 s.
 
-- [ ] **Paso 1:** pruebas que fallan:
+- [x] **Paso 1:** pruebas que fallan:
   - `test_friend_request.gd`: `test_un_senuelo_cuesta_1_s_la_primera_vez`;
   - `test_chat_panel.gd`: `test_el_senuelo_muestra_lo_que_costo`;
   - `test_balance.gd`: el valor.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Clickear un señuelo cuesta 1 s".
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Clickear un señuelo cuesta 1 s".
 
 ### Tarea 4: Trust no se recupera y un video perdido lo baja
 
@@ -204,13 +228,13 @@
 - `wrong_trust` pasa de −10 a −15.
 - `TUTORIAL_DIALS` dice que Trust no se recupera en la noche y que también baja si se pierde un video.
 
-- [ ] **Paso 1:** pruebas que fallan:
+- [x] **Paso 1:** pruebas que fallan:
   - `test_night_state.gd`: `test_trust_no_se_recupera` (reemplaza a la prueba de la recuperación) y `test_un_video_perdido_baja_trust`;
   - `test_balance.gd`: los valores nuevos y los que se quitan.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Trust no se recupera en la noche, y un video perdido lo baja".
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Trust no se recupera en la noche, y un video perdido lo baja".
 
 ### Tarea 5: El aviso de que los videos ya no alcanzan
 
@@ -220,14 +244,14 @@
 - `RequestManager.report()`: después de "Se perdió el video de León", si `is_short()`, avisa en rojo en ese mismo chat (`CHAT_VIDEOS_SHORT`). Es una vez por cada video que se pierde.
 - El PC: con `is_short()`, el texto de los videos va en rojo y dice `PC_VIDEOS_SHORT` ("Videos: 1 de 3 (faltan)"). Vuelve a la normalidad si la cuota vuelve a alcanzar (por ejemplo, con el video extra de la acción de mayor riesgo).
 
-- [ ] **Paso 1:** pruebas que fallan:
+- [x] **Paso 1:** pruebas que fallan:
   - `test_video_schedule.gd`: `test_cuantos_videos_pueden_llegar`;
   - `test_request_manager.gd`: `test_avisa_cuando_los_videos_no_alcanzan`;
   - `test_desk_scene.gd`: `test_los_videos_que_faltan_en_rojo`.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Aviso cuando los videos ya no alcanzan la cuota".
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Aviso cuando los videos ya no alcanzan la cuota".
 
 ### Tarea 6: El director de olas (lógica pura)
 
@@ -255,7 +279,7 @@
   - quita `wave_respite`, `wave_tightening`, `request_min_gap` y `first_scare_after`;
   - `first_request_delay` queda solo para el tutorial.
 
-- [ ] **Paso 1:** pruebas que fallan, en `test_pacing_director.gd`:
+- [x] **Paso 1:** pruebas que fallan, en `test_pacing_director.gd`:
   - `test_el_primer_minuto_es_de_silencio`;
   - `test_las_solicitudes_de_una_ola_llegan_juntas`;
   - `test_la_calma_empieza_cuando_se_resuelve_la_ola`;
@@ -271,10 +295,10 @@
   - `test_screamers_en_las_calmas`;
   - `test_la_criatura_llega_en_la_ola_final`;
   - `test_el_susto_guionado_espera_sin_solicitudes`.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr `test_pacing_director.gd`: OK.
-- [ ] **Paso 5:** sin commit: la Tarea 7 conecta el director y deja todo en verde.
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr `test_pacing_director.gd`: OK.
+- [x] **Paso 5:** sin commit: la Tarea 7 conecta el director y deja todo en verde.
 
 ### Tarea 7: El director en la noche
 
@@ -300,16 +324,16 @@
   - Mano 1, 1, 2, 2 y 3;
   - en la noche 0, la Mano en 0: la enseña su guía (Tarea 11).
 
-- [ ] **Paso 1:** pruebas que fallan:
+- [x] **Paso 1:** pruebas que fallan:
   - `test_interference_schedule.gd`: `test_se_agregan_en_orden`;
   - `test_video_schedule.gd`: `test_los_videos_se_sueltan_cuando_toca`;
   - `test_request_manager.gd`: reescribir `test_las_solicitudes_llegan_solas`, `test_no_pasa_de_las_simultaneas`, `test_un_amigo_herido_atrasa_las_solicitudes` y `test_llegan_a_su_hora_si_hay_espacio`, y sumar `test_las_olas_traen_interferencias_y_las_calmas_videos` y `test_con_temporizadores_lentos_no_pasa_de_las_06`;
   - `test_screamer_manager.gd`: el ayudante `_scare_now` con la cola nueva;
   - `test_balance.gd`: los valores de las noches.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Olas de verdad: el director reparte olas, calmas y una ola final".
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Olas de verdad: el director reparte olas, calmas y una ola final".
 
 ### Tarea 8: La criatura se queda un tiempo al azar
 
@@ -318,13 +342,13 @@
 - `creature_seconds` pasa a `creature_stay := Vector2(15, 40)`. `_creature_arrives()` sortea la estadía con el `rng` de la noche.
 - `TUTORIAL_OPEN_CURTAINS` dice que cada vez se queda un rato distinto.
 
-- [ ] **Paso 1:** pruebas que fallan:
+- [x] **Paso 1:** pruebas que fallan:
   - `test_screamer_manager.gd`: `test_la_criatura_se_queda_un_tiempo_al_azar` (entre 15 y 40 s, y no siempre el mismo);
   - `test_balance.gd`: el valor.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La criatura se queda un tiempo al azar".
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La criatura se queda un tiempo al azar".
 
 ### Tarea 9: La Mano (lógica pura)
 
@@ -341,14 +365,14 @@
   - `dial_value(dial)`.
 - `BalanceData` (grupo "La Mano"): `flash_cost := 10.0`, `hand_approach_seconds := 12.0`, `hand_step_seconds := Vector2(0.5, 0.7)`, `hand_drain := 6.0` y `hand_floor := 15.0`. `phone_battery_seconds` pasa a 48.
 
-- [ ] **Paso 1:** pruebas que fallan:
+- [x] **Paso 1:** pruebas que fallan:
   - `test_hand_visit.gd`: `test_avanza_a_tirones`, `test_llega_al_dial_en_unos_12_s`, `test_las_posiciones_son_enteras`, `test_los_cuadros_se_alternan` y `test_agarrada_sigue_tironeando_sin_avanzar`;
   - `test_night_state.gd`: `test_el_flash_gasta_bateria`, `test_sin_bateria_no_hay_flash`, `test_la_mano_baja_el_dial_hasta_el_minimo` (los 3 diales) y `test_en_connection_baja_las_3_senales`;
   - `test_balance.gd`: los valores.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La Mano: los tirones, el agarre y el flash (lógica)".
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La Mano: los tirones, el agarre y el flash (lógica)".
 
 ### Tarea 10: Los sonidos de la Mano y del flash
 
@@ -358,11 +382,11 @@
 - `phone_flash()`: el obturador de una cámara de celular (2 clics), un zumbido agudo de carga que sube y un golpe de aire. Dura unos 0,5 s.
 - Ninguno dice palabras. Los picos quedan bajo −1 dBFS, como los demás.
 
-- [ ] **Paso 1:** sumar los 2 sonidos a la lista de `test_sounds.gd` (que existan y carguen).
-- [ ] **Paso 2:** correr la prueba y ver que falla.
-- [ ] **Paso 3:** escribir las recetas, correr `/usr/bin/python3 tools/make_sounds.py` e importar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Sonidos de la Mano y del flash".
+- [x] **Paso 1:** sumar los 2 sonidos a la lista de `test_sounds.gd` (que existan y carguen).
+- [x] **Paso 2:** correr la prueba y ver que falla.
+- [x] **Paso 3:** escribir las recetas, correr `/usr/bin/python3 tools/make_sounds.py` e importar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Sonidos de la Mano y del flash".
 
 ### Tarea 11: La Mano en el escritorio y en la noche 0
 
@@ -391,16 +415,16 @@
   - el escritorio larga la Mano del tutorial cuando el celular se abre y la criatura no está.
 - **`art/positions.md`:** la fila de `hand_sprite`.
 
-- [ ] **Paso 1:** pruebas que fallan:
+- [x] **Paso 1:** pruebas que fallan:
   - `test_desk_scene.gd`: `test_la_mano_esta_escondida`;
   - `test_hand_manager.gd` (nuevo): `test_llega_cuando_el_director_la_pide`, `test_no_llega_con_la_criatura_cerca`, `test_agarrada_baja_el_dial`, `test_el_flash_la_espanta_y_gasta_bateria`, `test_suena_en_cada_tiron`, `test_queda_detras_de_los_paneles` y `test_reducir_destellos`;
   - `test_screamer_manager.gd`: `test_con_la_mano_no_llega_la_criatura`;
   - `test_phone_view.gd`: `test_la_linterna_avisa` y `test_sin_bateria_la_linterna_no_prende`;
   - `test_tutorial_guide.gd`: `test_la_mano_despues_del_celular` y `test_cerrar_el_celular_antes_del_flash_no_termina`.
-- [ ] **Paso 2:** correr las pruebas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La Mano en el escritorio, la linterna del celular y su paso en la noche 0".
+- [x] **Paso 2:** correr las pruebas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La Mano en el escritorio, la linterna del celular y su paso en la noche 0".
 
 ### Tarea 12: La prueba de equilibrio: cada noche se puede ganar
 
@@ -427,11 +451,11 @@ Pruebas en `test_balance.gd`:
 
 Para el dibujo, `dump_waves.gd` escribe la simulación de una noche en JSON, y `plot_waves.py` dibuja la curva con matplotlib.
 
-- [ ] **Paso 1:** escribir el modelo y las pruebas.
-- [ ] **Paso 2:** correrlas. Si alguna falla, ajustar los valores (no el modelo) y anotarlo en este plan.
-- [ ] **Paso 3:** correr todas las pruebas: OK.
-- [ ] **Paso 4:** dibujar la curva de la noche 3 y la 5 y revisarlas.
-- [ ] **Paso 5:** commit "Prueba de equilibrio: cada noche se puede ganar, y la curva de olas".
+- [x] **Paso 1:** escribir el modelo y las pruebas.
+- [x] **Paso 2:** correrlas. Si alguna falla, ajustar los valores (no el modelo) y anotarlo en este plan.
+- [x] **Paso 3:** correr todas las pruebas: OK.
+- [x] **Paso 4:** dibujar la curva de la noche 3 y la 5 y revisarlas.
+- [x] **Paso 5:** commit "Prueba de equilibrio: cada noche se puede ganar, y la curva de olas".
 
 ### Tarea 13: Capturas
 
@@ -448,9 +472,9 @@ Capturas:
 
 La curva de olas sale de la Tarea 12.
 
-- [ ] **Paso 1:** escribir el script y correrlo con ventana.
-- [ ] **Paso 2:** revisar cada captura y corregir lo que se vea mal.
-- [ ] **Paso 3:** commit "Capturas del Plan 9.1".
+- [x] **Paso 1:** escribir el script y correrlo con ventana.
+- [x] **Paso 2:** revisar cada captura y corregir lo que se vea mal.
+- [x] **Paso 3:** commit "Capturas del Plan 9.1".
 
 ### Tarea 14: Documentos
 
@@ -465,10 +489,10 @@ La curva de olas sale de la Tarea 12.
 - `resumen.md`;
 - `docs/00_log.md`.
 
-- [ ] **Paso 1:** pasar las decisiones del 11-nov, con sus valores, a `CLAUDE.md` y al diseño v2.
-- [ ] **Paso 2:** actualizar `docs/02`, `sonidos_pendiente.md`, `arte_pendiente.md` y `docs/04` (una sección nueva de unos 20 minutos para probar todo esto, y la sección I, donde Trust ya no sube).
-- [ ] **Paso 3:** escribir la entrada de `resumen.md` (Sesión 21f) con sus 4 categorías, y cerrar S21f en `docs/00_log.md`. Después sigue S21b.
-- [ ] **Paso 4:** commit "Documentos de la sesión S21f: ajustes de mecánicas y la Mano".
+- [x] **Paso 1:** pasar las decisiones del 11-nov, con sus valores, a `CLAUDE.md` y al diseño v2.
+- [x] **Paso 2:** actualizar `docs/02`, `sonidos_pendiente.md`, `arte_pendiente.md` y `docs/04` (una sección nueva de unos 20 minutos para probar todo esto, y la sección I, donde Trust ya no sube).
+- [x] **Paso 3:** escribir la entrada de `resumen.md` (Sesión 21f) con sus 4 categorías, y cerrar S21f en `docs/00_log.md`. Después sigue S21b.
+- [x] **Paso 4:** commit "Documentos de la sesión S21f: ajustes de mecánicas y la Mano".
 
 ---
 

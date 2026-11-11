@@ -28,17 +28,25 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 ## 2. Ciclo de vida de una solicitud
 
 1. **El director de ritmo** decide que un amigo disponible recibe una situación. Disponible significa vivo, sin otra solicitud y no aturdido. Un amigo sin señal también recibe situaciones (decisión de Benja, sesión 14; ver §4.1).
-   - Las solicitudes llegan **en olas** de 2 a 4 (según la noche, §6). Después de cada ola hay un **respiro** de 25 s sin solicitudes nuevas, y los espacios se acortan hacia las 06:00 (decisión de Benja, sesión 16).
-   - Si no hay a quién darle una solicitud (todos ocupados o aturdidos, o ya están las simultáneas de la noche), espera, y las que faltan se atrasan lo mismo. Cuando un amigo queda herido, las que faltan se atrasan 10 s.
-   - Entre dos solicitudes pasan al menos 6 s, y nunca empieza una que no alcanza a terminar antes de las 06:00: por eso el total de la noche es aproximado.
+   - **Olas de verdad** (decisión de Benja, 11 de noviembre; reemplaza a las olas con respiro del 2-nov):
+     - el primer minuto es de silencio, y la primera ola llega a los 60 s;
+     - las solicitudes de una ola (2) llegan con 4 a 8 s de diferencia;
+     - cuando se resuelven todas, empieza una calma de 40 a 60 s. Las olas están planeadas parejo entre los 60 s y la ola final, así que si una ola se resuelve rápido, la calma dura hasta la hora de la siguiente;
+     - la **ola final**, de 3 (los 3 amigos a la vez), llega a `06:00 − tiempo para responder − 2 × 8 s − 10 s`, para que su última solicitud alcance a terminar aunque lleguen con el mayor espacio y aunque un amigo quede herido antes;
+     - una ola común que empezaría a menos de 40 s de la final se salta, con las que siguen. Si la final llega con una ola sin resolver, empieza igual.
+   - **Qué cae en cada momento:** en las olas, las interferencias (las que sobran, hacia el final), los accidentes (en las comunes, los que sobran hacia el comienzo) y la Mano (en las comunes, las que sobran hacia el final), de 3 a 15 s después de empezar la ola. En las calmas, los videos (si es la última calma, todos los que faltan) y los screamers, desde 5 a 15 s después de empezar la calma. Un video de una calma llega a más tardar 25 s antes de la ola siguiente. Una visita de la criatura llega en la ola final.
+   - Si no hay a quién darle una solicitud (todos ocupados o aturdidos, o ya están las simultáneas de la noche), espera. Cuando un amigo queda herido, lo que falta se atrasa 10 s.
+   - Nunca empieza una solicitud que no alcanza a terminar antes de las 06:00, y con "Temporizadores ×1,5" su tiempo no pasa de las 06:00: por eso el total de la noche es aproximado.
 2. **Se generan los datos de la situación:**
    - la entidad, entre las conocidas en esa noche;
-   - el lugar y el saludo;
+   - el lugar, el saludo, lo que le pasa al amigo y si el mensaje dice el lugar;
+   - con qué forma dice el amigo cada característica;
    - un valor al azar para cada observación de esa entidad;
    - las 2 características, los señuelos y si el mensaje inicial trae pista.
 3. **Se arma el mensaje inicial** (decisión de Benja, 3-nov): corto, sin describir a la entidad. Con fragmentos de texto:
    - un **saludo** al azar entre los del catálogo ("¡Mati, ayuda!!", "¿Estás ahí?", "Mati… algo pasó.");
-   - el lugar ("Estoy en el bosque.");
+   - **lo que le pasa** al amigo, al azar entre los del catálogo ("Me perdí.", "Algo me viene siguiendo."; decisión de Benja, 11 de noviembre);
+   - **a veces**, el lugar ("Estoy en el bosque."), según la probabilidad de la noche (§6);
    - a veces, una **pista**: una de las 2 características, clickeable (probabilidad según la noche, §6).
 
    Todo lo demás se **pregunta** (§3). Lo que la solicitud tiene escondido, y que el amigo cuenta al preguntar:
@@ -59,7 +67,8 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 ### 3.1 Características clickeables
 
 - El mensaje inicial casi no trae nada que clickear: a veces una **pista** (una de las 2 características). Las demás frases clickeables salen **al preguntar** (§3.2).
-- Las características y los señuelos que el amigo cuenta se ven destacados igual. Al clickear una característica, queda marcada; al clickear un señuelo, vibra y se pone rojo, sin otro costo.
+- Las características y los señuelos que el amigo cuenta se ven destacados igual. Al clickear una característica, queda marcada; al clickear un señuelo, vibra y se pone rojo, y la primera vez **le quita 1 s al temporizador** (`decoy_cost`; decisión de Benja, 11 de noviembre). Mientras vibra, el chat muestra "−1 s".
+- **Cada característica se dice de varias formas** (decisión de Benja, 11 de noviembre): además de su texto, tiene de 2 a 4 variantes con sinónimos y paráfrasis. Cada solicitud elige una al azar para cada característica y la usa siempre, también en la pista. El clic la marca igual, y el cuaderno muestra un nombre fijo.
 - Los **señuelos** describen el lugar, un olor, un sonido o algo que se ve, y no ayudan a identificar. Viven en el catálogo, cada uno con su categoría y los lugares donde sirve (o en cualquiera).
 - Una barra fija, sobre las preguntas, muestra cuántas características van marcadas ("1 de 2"; desde el principio dice "0 de 2").
 - Con **las 2** marcadas (en cualquier mensaje de esa solicitud), la barra dice "Matías piensa…" durante **3 segundos** y aparece el nombre de la entidad. Clickear el nombre abre su página en el cuaderno.
@@ -147,9 +156,10 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 
 | Parámetro | N1 | N2 | N3 | N4 | N5 |
 | --- | --- | --- | --- | --- | --- |
-| Solicitudes por noche (aprox.) | 5 | 7 | 7 | 8 | 10 |
-| Solicitudes simultáneas máx. | 2 | 2 | 2 | 3 | 3 |
-| Tiempo base para responder (s) | 80 | 65 | 55 | 45 | 40 |
+| Solicitudes por noche (aprox.) | 7 | 7 | 9 | 9 | 11 |
+| Solicitudes simultáneas máx. | 3 | 3 | 3 | 3 | 3 |
+| Tiempo base para responder (s) | 80 | 65 | 55 | 50 | 45 |
+| Probabilidad de que el mensaje inicial diga el lugar (noche 0: siempre) | 60 % | 55 % | 50 % | 45 % | 40 % |
 | Probabilidad de pista en el mensaje inicial | 100 % | 75 % | 0 % | 0 % | 0 % |
 | Señuelos por solicitud | 1 | 2 | 3 | 3 | 4 |
 | Accidentes por noche | 1 | 1 | 2 | 2 | 3 |
@@ -158,37 +168,43 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 | Audio Sync (aplausos; 8 son 2 rondas de 4) | 4 | 4 | 4 | 8 | 8 |
 | Audio Sync (golpes por minuto de la base) | 90 | 100 | 115 | 130 | 145 |
 | Cuota de videos (= envíos programados) | 2 | 3 | 3 | 4 | 4 |
-| Solicitudes por ola | 2 | 3 | 3 | 4 | 4 |
+| Solicitudes por ola común | 2 | 2 | 2 | 2 | 2 |
+| Solicitudes de la ola final (los 3 amigos a la vez) | 3 | 3 | 3 | 3 | 3 |
 | Screamers (sin contar las alucinaciones) | 2 | 4 | 4 | 5 | 6 |
 | Cuántos de ellos son la criatura de la ventana (el antiguo jumpscare) | 0 | 1 | 2 | 2 | 3 |
+| Visitas de la Mano (la noche 0 la enseña aparte) | 1 | 1 | 2 | 2 | 3 |
+| Batería que pide jugando bien (flashes y Sanity; `test_balance.gd`) | 10 % | 31 % | 57 % | 61 % | 90 % |
 | Susto guionado (va en la noche 0 cuando exista) | A los 60 s | — | — | — | — |
 
 ### Medidores
 
 | Medidor | Inicio | Baja | Sube | Efecto gradual | En 0 |
 | --- | --- | --- | --- | --- | --- |
-| Señal (cada amigo) | 100 | Entre −1 cada 3 s y −1 cada 6 s: a cada amigo le toca un ritmo al azar en ese rango. Interferencia: −40, anunciada 3 s antes. | Audio Sync exitoso: vuelve a 100 | Estática (§4). Descargas más lentas bajo 50. | Ese amigo queda sin señal (§4.1) |
+| Señal (cada amigo) | 100 | Entre −1 cada 3 s y −1 cada 6 s: a cada amigo le toca un ritmo al azar en ese rango. Interferencia: −40, anunciada 3 s antes. La Mano en Connection: −6 por segundo a cada uno, hasta 15. | Audio Sync exitoso: vuelve a 100 | Estática (§4). Descargas más lentas bajo 50. | Ese amigo queda sin señal (§4.1) |
 | Connection (dial) | — | Es el promedio de las 3 señales | — | — | Se pierde la noche |
-| Sanity | 100 | −1 cada 6 s (N1: cada 10 s). Screamer: −8 ambiental, −15 la criatura de la ventana. Cortinas cerradas: −0,3 por segundo más. Criatura afuera con la cortina abierta: −2 por segundo más. | +4 por segundo mientras scrolleas, con batería (38 s de scroll por noche, sin recarga) | Viñeta oscura y screamers auditivos falsos, más fuertes cuanto más baja | Se pierde la noche |
-| Trust | 100 al empezar cada noche | Ver §5.2. Con amigos sin señal, −1 cada 4 s por cada uno (§4.1). Cada solicitud abierta más de 30 s: −0,25 por segundo (45 s con "Temporizadores ×1,5"; decisión de Benja, 4 de noviembre). | +1 cada 8 s si no bajó en 20 s | Temporizador × (0,6 + 0,4 × Trust/100) | Se pierde la noche |
+| Sanity | 100 | −1 cada 6 s (N1: cada 10 s). Screamer: −8 ambiental, −15 la criatura de la ventana. Cortinas cerradas: −0,3 por segundo más. Criatura afuera con la cortina abierta: −2 por segundo más. La Mano: −6 por segundo hasta 15. | +4 por segundo mientras scrolleas, con batería (48 s de scroll por noche, sin recarga; cada flash gasta 10 %) | Viñeta oscura y screamers auditivos falsos, más fuertes cuanto más baja | Se pierde la noche |
+| Trust | 100 al empezar cada noche | Ver §5.2 (incorrecta −15, sin respuesta −15 más, mayor riesgo −20). Video perdido: −10. Con amigos sin señal, −1 cada 4 s por cada uno (§4.1). Cada solicitud abierta más de 30 s: −0,25 por segundo (45 s con "Temporizadores ×1,5"; decisión de Benja, 4 de noviembre). La Mano: −6 por segundo hasta 15. | No se recupera durante la noche (decisión de Benja, 11 de noviembre) | Temporizador × (0,6 + 0,4 × Trust/100) | Se pierde la noche |
 | Vida (cada amigo) | 3 PV | Ver §5.2. Accidente mal respondido o sin respuesta: −1 PV, sin bajar Trust. | No se recupera durante la noche | Avatar herido | Muere y se pierde la noche |
 
 ### Otros
 
-- Preguntar: 5 s (`question_cost` en `BalanceData`).
+- Preguntar: 5 s (`question_cost` en `BalanceData`). Un señuelo: 1 s, la primera vez (`decoy_cost`).
 - **Por qué hay menos solicitudes y más tiempo (sesión 17, a probar):** el jugador atiende un chat a la vez, así que lo que cuenta es cuánta atención pide cada solicitud, no cuántas caben a la vez. Antes (todo en el mensaje) una solicitud pedía unos 10 a 15 s de atención; ahora pide unos 25 a 40 s (preguntar, marcar, abrir la página, preguntar las observaciones y responder). Se mantuvo más o menos la misma carga total por noche: de 6 a 18 solicitudes pasaron a 4 a 10, y de 45 a 30 s de tiempo pasaron a 90 a 65 s. Son valores iniciales: se ajustan probando (`data/nights/night_N.tres`, grupo **Solicitudes**).
 - Espera de identificación: 3 s.
 - Empezar a descargar un video que llegó: 15 s; si no, se pierde. Terminar la descarga: 20 s desde que empezó (decisión de Benja, sesión 14).
 - Descarga: 10 s manteniendo presionada la barra del chat (15 s si la señal de ese amigo está bajo 50; sin señal no avanza). Si se suelta, se pausa.
 - Audio Sync: la base va en los golpes por minuto de cada noche, y cada ronda va un 15 % más rápida que la anterior. Tras un compás de cuenta, el amigo aplaude 4 veces en corcheas (el primer aplauso al comienzo) y Matías lo repite en el compás siguiente. Las noches de 8 aplausos son 2 rondas de 4 seguidas, cada una con su cuenta y su patrón; si se falla la segunda, se vuelve a la primera con patrones nuevos (decisión de Benja, 4 de noviembre). Tolerancia de cada golpe: ±150 ms.
 - Scroll del celular: cada movimiento de la rueda cuenta 0,3 s de scroll.
-- Director de ritmo (decisión de Benja, sesión 16): la primera solicitud a los 5 s; un respiro de 25 s después de cada ola; al final de la noche, los espacios entre solicitudes son la mitad que al principio; al menos 6 s entre dos solicitudes; un amigo herido atrasa 10 s las que faltan.
-- Screamers (decisión de Benja, sesión 16: en cualquier momento, con las reglas de justicia):
-  - uno por tramo igual de la noche, desde los 30 s y con al menos 25 s entre dos;
+- Director de ritmo (decisión de Benja, 11 de noviembre; §2): silencio hasta los 60 s (`first_wave_at`); de 4 a 8 s entre las solicitudes de una ola (`wave_spacing`); calma de 40 a 60 s (`wave_calm`); lo de una ola, de 3 a 15 s después de empezar (`wave_event_delay`), y lo de una calma, de 5 a 15 s (`calm_event_delay`); un amigo herido atrasa 10 s lo que falta. En la noche 0, la primera solicitud llega a los 5 s (`first_request_delay`).
+- Screamers (decisión de Benja, 11 de noviembre: en las calmas, con las reglas de justicia):
+  - en las calmas, con al menos 25 s entre dos, y una visita de la criatura en la ola final;
   - la señal previa dura 1 s: las luces parpadean y baja el sonido ambiente;
   - nunca empiezan si a una decisión o a un accidente le quedan 5 s o menos al terminar la señal previa (la mancha de tinta, que tapa las reglas 5 s, necesita 5 s más), ni durante una ronda de Audio Sync o un audio de un amigo;
   - los ambientales se eligen solo si su objeto está a la vista (el chat, el mixer y el celular ampliado tapan la ventana y el celular), y los del cuaderno, si está abierto. Las luces se ven siempre;
-  - la criatura de la ventana (el antiguo jumpscare) solo se arma con el chat o el mixer abiertos, que tapan la ventana; se ve apenas se cierran y se queda 25 s desde que llega, aunque se cierren las cortinas. No tapa nada ni pausa la noche (decisiones de Benja, 4 y 7 de noviembre).
+  - la criatura de la ventana (el antiguo jumpscare) solo se arma con el chat o el mixer abiertos, que tapan la ventana, y no mientras la Mano está en la pared; se ve apenas se cierran y se queda entre 15 y 40 s al azar desde que llega (`creature_stay`), aunque se cierren las cortinas. No tapa nada ni pausa la noche (decisiones de Benja, 4, 7 y 11 de noviembre).
+- La Mano (decisión de Benja, 11 de noviembre): tarda 12 s en llegar al dial (`hand_approach_seconds`), a tirones de 0,5 a 0,7 s (`hand_step_seconds`); agarrado, el dial baja 6 por segundo (`hand_drain`) hasta 15 (`hand_floor`); cada flash gasta 10 % de la batería (`flash_cost`). No llega mientras la criatura está cerca.
+- Videos que ya no alcanzan la cuota (decisión de Benja, 11 de noviembre): aviso en rojo en el chat, una vez por video perdido, y los videos del PC en rojo.
+- **Toda noche se puede ganar** (requisito de Benja, 11 de noviembre): `test/test_balance.gd` lo comprueba con un modelo de "jugar bien" (`test/balance_model.gd`: 12 s y 2 preguntas por solicitud, la Mano espantada antes de que agarre, la cortina cerrada a los 3 s de llegar la criatura). La batería alcanza, nada vence y Trust termina sobre 75 en las 5 noches.
 - Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync, un audio de un amigo ni un screamer.
 - Accidentes (decisión de Benja, 7 de noviembre): se reparten en la noche como los screamers, 15 s para responder (22,5 s con "Temporizadores ×1,5"). Solo le pasan a un amigo libre, con señal y con más de 1 PV; si la ola está llena, esperan.
 - El chat guionado: cada línea del amigo llega 2,5 s después de la anterior; las de Matías esperan su botón.
@@ -267,9 +283,10 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
 - **Claude escribe un borrador real de cada texto, y tú lo corriges** (decisión tuya, 31-oct; antes eran textos `[PROTO]`). Los amigos hablan en primera persona y en mensajes cortos, como en un chat: `Me vio primero. Me está mirando.`
 - El chat muestra el nombre de quien escribe (`LEÓN:`), así que los textos no lo repiten.
 - Cada característica marca su frase destacable (la que se clickea) **entre asteriscos** dentro de su fragmento: `había un *hombrecito* entre los árboles`. Se eligió así (26-oct) porque los corchetes chocan con el BBCode del chat. Las pruebas avisan si un texto no tiene exactamente una frase marcada.
-- **La frase entre asteriscos de una característica también es su nombre en la página del cuaderno** (Plan 4), así que tiene que entenderse sola: `*ropa de fibra vegetal*`, no `*ropa*`.
+- **Cada característica tiene un nombre fijo en el cuaderno** (`TRAIT_*_LABEL`, en `notebook.csv`), y de 2 a 4 formas más de decirse (`TRAIT_*_2` a `TRAIT_*_5`, en `messages.csv`), cada una con su frase entre asteriscos (decisión de Benja, 11 de noviembre). Antes, el nombre era la frase entre asteriscos de su texto (Plan 4). Las pruebas avisan si una forma no tiene exactamente una frase marcada.
+- **Lo que le pasa al amigo** (`PREDICAMENT_*`, en `messages.csv`) va después del saludo.
 - Los **señuelos** también van en `messages.csv`, con su frase clickeable entre asteriscos.
-- **Cada fragmento es una oración completa, con su puntuación.** El mensaje los une con un espacio. El inicial va en este orden: el saludo, el lugar y la pista. Cada respuesta va en este orden: las características y los señuelos de esa categoría, mezclados, y sus observaciones.
+- **Cada fragmento es una oración completa, con su puntuación.** El mensaje los une con un espacio. El inicial va en este orden: el saludo, lo que le pasa, el lugar (si lo dice) y la pista. Cada respuesta va en este orden: las características y los señuelos de esa categoría, mezclados, y sus observaciones.
 - **Una coma dentro de un texto lleva comillas** (`"¡Mati, ayuda!!"`): sin ellas, el CSV parte el texto y se pierde lo que sigue. Una prueba (`test_text_csv.gd`) avisa.
 - Los textos con datos usan marcadores con nombre: `{action}` (la acción que eligió el amigo) y `{marked}` y `{total}` (la barra de identificación).
 
@@ -282,7 +299,8 @@ Implementado en el Plan 2 (`docs/08`). Los señuelos se agregan en el Plan 3 (`d
 ```text
 DecoyData        señuelo: como TraitData (id, category, text_key), más place_keys[] (vacío = cualquier lugar)
 TraitData        id, category (SIGHT/SOUND/ENVIRONMENT/TRACES = Vista/Sonido/Ambiente/Rastro),
-                 text_key (fragmento con la frase destacable entre asteriscos)
+                 text_key (fragmento con la frase destacable entre asteriscos), label_key (el nombre en el cuaderno),
+                 variant_keys[2-4] (otras formas de decirla)
 IncidentData     id, message_key, correct_key, wrong_keys (1 o 2): un accidente, en ContentCatalog.incidents
 ObservationData  id, category, audio_values (valor → audio; solo en "¿Qué oyes?"), question_key (la pregunta en el cuaderno),
                  values {valor → clave de su fragmento} (ej. friend, trauco)
@@ -294,7 +312,8 @@ EntityData       id, name_key, lore_key, sketch, place_keys[], traits[2-4], acti
 FriendData       id, name_key, avatar, color
 NightData        number, place_key, new_entities[], requests_total, max_simultaneous,
                  base_decision_time, first_hint_chance (probabilidad de pista en el mensaje inicial),
-                 decoys_per_request, wave_size (solicitudes por ola),
+                 place_chance (probabilidad de que diga el lugar), decoys_per_request,
+                 wave_size (solicitudes por ola común), finale_size (las de la ola final), hand_visits,
                  signal_decays, signal_decay_interval, interference_count,
                  audio_sync_beats, sanity_drain_interval, content_quota,
                  scare_count, creature_visits, incident_count, audio_sync_bpm,
@@ -303,16 +322,17 @@ NightData        number, place_key, new_entities[], requests_total, max_simultan
 TutorialRequestData  una solicitud fija de la noche 0: friend, entity, situation {observación → valor},
                  with_hint, sends_video
 ChatScriptData   friend, lines[] (ChatLineData: speaker FRIEND/PLAYER, text_key), highlight_phone
-BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust), recuperación de Trust, vignette_start, el scroll del celular, las fotos perturbadoras (`disturbing_post_*`), la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`), el director (olas y respiros), los screamers (señal previa, justicia, Sanity, jumpscare y tinta) y las alucinaciones
+BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust, también el video perdido), vignette_start, el scroll del celular, las fotos perturbadoras (`disturbing_post_*`), la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`) y de un señuelo (`decoy_cost`), el director (silencio, olas y calmas), los screamers (señal previa, justicia, Sanity, la criatura y la tinta), la Mano y el flash, y las alucinaciones
 PhonePostData    picture (la foto, de 232×232; las cuentas no tienen nombre ni texto)
-ContentCatalog   friends[3], nights[5], tutorial (la noche 0), decoys[], greeting_keys[] (saludos), balance,
+ContentCatalog   friends[3], nights[5], tutorial (la noche 0), decoys[], greeting_keys[] (saludos),
+                 predicament_keys[] (lo que le pasa al amigo), balance,
                  phone_posts[] (12 gatitos), phone_disturbing_posts[] (4 fotos, con poca Sanity) (data/catalog.tres)
 ```
 
 - Una entidad es **un solo `.tres`** en `data/entities/`, con todas sus partes dentro.
 - Las reglas nombran las acciones por su id. Responder desde la página equivocada es incorrecto aunque la otra entidad tenga una acción con el mismo id.
 - Las entidades conocidas en una noche son las `new_entities` de esa noche y de las anteriores (ya no existe `intro_night`). La noche 0 (el tutorial) usa las de la noche 1.
-- Dos entidades comparten una característica si usan el mismo id. Ninguna entidad puede tener todas sus características dentro de las de otra: así siempre hay un par que la distingue.
+- Dos entidades comparten una característica si usan el mismo id, y entonces se dice igual: mismo texto, mismo nombre y mismas formas. Ninguna entidad puede tener todas sus características dentro de las de otra: así siempre hay un par que la distingue.
 - Al correr las pruebas, un validador revisa el contenido real y avisa en español: cantidades de la plantilla (§7), ids que no existen, reglas que nunca se aplican, características compartidas por más de 2 entidades y claves de texto que faltan.
 - Los tipos de screamer son `ScareKind`: la cortina, la ventana, el celular, las luces, el golpe del cuaderno, la tinta y `JUMPSCARE`, que desde el 4 de noviembre es la criatura que se asoma por la ventana.
 

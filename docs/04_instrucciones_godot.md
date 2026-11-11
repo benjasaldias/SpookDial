@@ -22,6 +22,8 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **O.** Probar las correcciones del 8-nov | ⬜ Pendiente (unos 10 minutos) |
 | **P.** Probar Snapgram | ⬜ Pendiente (unos 10 minutos) |
 | **Q.** Escuchar los sonidos nuevos y revisar el arte de Claude | ⬜ Pendiente (unos 20 minutos) |
+| **R.** Probar los ajustes de mecánicas y la Mano (Plan 9.1) | ⬜ Pendiente (unos 20 minutos) |
+| Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
 | **J.** Probar el mantenimiento (Plan 6) | ⬜ Pendiente (unos 20 minutos) |
@@ -219,12 +221,12 @@ Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los
 1. Abre Godot y el proyecto. Abre `scenes/desk/desk.tscn` y presiona **F5**.
 2. **Los medidores:**
    - el celular muestra la hora: empieza en 00:00 y avanza un minuto cada poco más de un segundo. La noche dura 7 minutos, hasta las 06:00;
-   - arriba de la pantalla del PC dice "Videos: 0 de 3". A las 01:30, a las 03:00 y a las 04:30 llega un video, que hay que descargar en el chat (sección J);
+   - arriba de la pantalla del PC dice "Videos: 0 de 3". Los videos llegan en las calmas entre las olas, y hay que descargarlos en el chat (sección J). Desde el Plan 9.1, el primer minuto es de silencio (sección R);
    - en la pared, el dial del medio (Sanity, aguja roja) baja de a poco. El de abajo (Trust, aguja amarilla) baja cuando eliges mal. El de arriba (Connection, aguja verde) baja con la señal de los amigos (sección J);
    - cada entrada del PC muestra 3 marcas de vida.
 3. **Una acción incorrecta:** cuando llegue una solicitud, ábrela, identifica a la entidad y elige una acción que no sea la correcta ni la de mayor riesgo (míralo en las reglas del cuaderno). El amigo cuenta cómo le fue:
    - si quedó herido, grita en el chat ("¡ME ATACÓ! CONCÉNTRATE, MATI.") y debajo aparece un aviso rojo y centrado con la vida que le queda ("León recibió daño: 2/3"). Pierde una marca de vida en su entrada del PC, que se oscurece y dice "Aturdido" con los segundos que faltan. Durante 15 segundos no le llegan solicitudes;
-   - el dial de Trust baja. Si pasas 20 segundos sin errores, empieza a subir de a poco.
+   - el dial de Trust baja, y desde el 11 de noviembre **no se recupera en toda la noche** (sección R).
 4. **La acción de mayor riesgo:** en otra solicitud, elige la de mayor riesgo. Si el amigo sobrevive, manda un video extra, que hay que descargar en su chat; si quedó herido, lo manda cuando se recupera. Trust baja más que con una acción incorrecta.
 5. **Sin respuesta:** deja que se acabe el tiempo de una solicitud. El amigo cuenta qué hizo y, en otro mensaje, cómo le fue. Trust baja más que si hubieras respondido.
 6. **Perder:** sigue respondiendo mal al mismo amigo hasta que pierda sus 3 marcas. La pantalla se oscurece de a poco y dice "Perdiste la noche", que el amigo murió y por qué: la entidad, lo que observaba, la regla que se aplicaba, la acción correcta (en verde) y la que elegiste (en rojo). Haz clic en **Reintentar**: la noche empieza de nuevo, con otras solicitudes.
@@ -495,3 +497,58 @@ Las capturas de Claude están en `C:\dev\capturas\arte_*.png`.
 
 **Verifica:** el estilo combina con tu arte y el cuaderno se lee rápido. Si quieres redibujar una pieza, la lista con los tamaños está en `arte_pendiente.md`.
 
+---
+
+## R. Probar los ajustes de mecánicas y la Mano (Plan 9.1)
+
+Del 11 de noviembre (sesión S21f). Antes de abrir Godot, avísale a Claude si está trabajando: no pueden estar los dos abiertos a la vez. Son unos 20 minutos.
+
+### La noche 0 y la Mano (unos 5 minutos)
+
+1. Abre Godot y el proyecto, y presiona **F5**. En el menú, haz clic en **Nueva partida**: empieza la noche 0.
+2. Juega el tutorial hasta el celular (la criatura, las cortinas y el chat de Gonzalo). Abre el celular y scrollea.
+3. **Verifica:**
+   - unos 5 segundos después de abrir el celular, una mano negra asoma por la derecha de la pantalla y avanza a tirones hacia el dial del medio (Sanity), con un crujido suave en cada tirón;
+   - el aviso de arriba dice que la espantes con el flash. Arriba del celular, entre la hora y el porcentaje de batería, hay un **rayo**;
+   - al hacer clic en el rayo, la pantalla destella, suena el flash, la Mano desaparece y la batería baja 10 %;
+   - el aviso dice que guardes batería y que cierres el celular. Al cerrarlo con clic derecho, termina el tutorial.
+4. **Dime:** desde qué momento ves la Mano. En el lado derecho del cuarto, que es casi negro, Claude no la ve hasta los últimos 3 o 4 segundos del camino.
+
+### Una noche normal (unos 15 minutos)
+
+1. En el panel **FileSystem**, abre `scenes/desk/desk.tscn`. En el panel **Scene**, selecciona **RequestManager** y, en el **Inspector**, deja **Night Number** en 3. Presiona **F6** (correr la escena actual).
+2. **El primer minuto es de silencio.** A las 01:00 del celular (unos 60 s), llegan 2 solicitudes juntas, con pocos segundos de diferencia.
+3. **El mensaje inicial:** el amigo saluda y cuenta qué le pasa ("Me perdí.", "Algo me viene siguiendo."). A veces dice dónde está y a veces no.
+4. **Las características con otras palabras:** pregunta. Las frases destacadas no siempre son las del cuaderno: por ejemplo, "un enano" en vez de "hombrecito". Márcalas igual. Abre la página de la entidad: el cuaderno muestra el nombre de siempre.
+5. **Un señuelo:** haz clic en una frase destacada que no sea una característica. Vibra en rojo, dice "−1 s" al lado y el tiempo de la pestaña baja 1. La segunda vez que la clickeas ya no cuesta.
+6. **La calma:** cuando respondas las 2 solicitudes, no llega otra por al menos 40 s. En la calma llega un video, y a veces un screamer.
+7. **La Mano:** llega en una ola, mientras respondes. Escucha el crujido. Abre el celular y espántala con el rayo. Si la dejas, agarra un dial y lo baja hasta 15: mira las barras de arriba.
+8. **Un video perdido:** deja pasar un video sin descargarlo. El chat dice que se perdió y, en rojo, que ya no alcanzan los videos y alguien tiene que arriesgarse. Arriba del PC dice "Videos: 0 de 3 (faltan)" en rojo, y Trust baja 10.
+9. **Trust no sube:** después de un error, espera un rato sin errores. Trust se queda donde estaba.
+10. **La criatura:** cuando llegue, cierra las cortinas y ábrelas cada tanto. Cada vez se queda un rato distinto (entre 15 y 40 s).
+11. **La ola final:** hacia las 04:30 o 05:00 del celular, los 3 amigos piden ayuda a la vez, y llega la criatura.
+
+**Verifica:** los pasos 2 a 11 se cumplen. Anota cómo se sienten las olas y las calmas, si la Mano asusta y si guardar batería es una decisión.
+
+### La curva de olas
+
+Claude dibujó cómo se reparte una noche, con un jugador que juega bien: `C:\dev\capturas\plan91_olas_3.png` y `plan91_olas_5.png`. En rojo, las olas (la final, más fuerte); arriba, cada solicitud, accidente, Mano y video; abajo, cuántas cosas hay abiertas a la vez.
+
+### Los textos nuevos para corregir (antes del 25 de noviembre)
+
+- `data/text/messages.csv`: `PREDICAMENT_1` a `PREDICAMENT_8` (lo que le pasa al amigo) y las variantes de las 18 características (`TRAIT_*_2` a `TRAIT_*_4`).
+- `data/text/notebook.csv`: los nombres de las características en el cuaderno (`TRAIT_*_LABEL`).
+- `data/text/ui.csv`: `CHAT_DECOY_COST`, `CHAT_VIDEOS_SHORT`, `PC_VIDEOS_SHORT`, `TUTORIAL_HAND`, `TUTORIAL_HAND_DONE`, y los cambios en `TUTORIAL_DIALS`, `TUTORIAL_MARK`, `TUTORIAL_SCROLL` y `TUTORIAL_OPEN_CURTAINS`.
+- `data/text/phone.csv`: `PHONE_FLASH` (lo que dice el rayo al pasar el mouse).
+
+### Para ajustar
+
+Todos los valores están en el **Inspector**:
+
+- `data/balance.tres`:
+  - grupo **Director**: el silencio, las olas y las calmas;
+  - grupo **La Mano**: el costo del flash, cuánto tarda, a qué velocidad baja el dial y hasta dónde;
+  - `Decoy Cost`, `Creature Stay`, `Phone Battery Seconds` y `Lost Video Trust`.
+- `data/nights/night_N.tres`: `Place Chance`, `Finale Size`, `Hand Visits` y `Requests Total`.
+
+Si cambias algo, avísale a Claude: `test_balance.gd` comprueba que todas las noches se sigan pudiendo ganar.
