@@ -1,0 +1,96 @@
+[gd_resource type="Resource" script_class="EntityData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="1_entity"]
+[ext_resource type="Script" path="res://scripts/data/trait_data.gd" id="2_trait"]
+[ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
+[ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
+[ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+
+[sub_resource type="Resource" id="Trait_glasses"]
+script = ExtResource("2_trait")
+id = &"glasses"
+text_key = "TUTORIAL_TRAIT_GLASSES"
+label_key = "TUTORIAL_TRAIT_GLASSES_LABEL"
+variant_keys = Array[String](["TUTORIAL_TRAIT_GLASSES_2", "TUTORIAL_TRAIT_GLASSES_3"])
+
+[sub_resource type="Resource" id="Trait_bad_smell"]
+script = ExtResource("2_trait")
+id = &"bad_smell"
+category = 2
+text_key = "TUTORIAL_TRAIT_SMELL"
+label_key = "TUTORIAL_TRAIT_SMELL_LABEL"
+variant_keys = Array[String](["TUTORIAL_TRAIT_SMELL_2", "TUTORIAL_TRAIT_SMELL_3"])
+
+[sub_resource type="Resource" id="Action_deodorant"]
+script = ExtResource("3_action")
+id = &"deodorant"
+label_key = "TUTORIAL_ACTION_DEODORANT"
+
+[sub_resource type="Resource" id="Action_joke"]
+script = ExtResource("3_action")
+id = &"joke"
+label_key = "TUTORIAL_ACTION_JOKE"
+
+[sub_resource type="Resource" id="Action_hide_glasses"]
+script = ExtResource("3_action")
+id = &"hide_glasses"
+label_key = "TUTORIAL_ACTION_HIDE_GLASSES"
+
+[sub_resource type="Resource" id="Action_pizza"]
+script = ExtResource("3_action")
+id = &"pizza"
+label_key = "TUTORIAL_ACTION_PIZZA"
+
+[sub_resource type="Resource" id="Observation_angry"]
+script = ExtResource("4_observation")
+id = &"angry"
+question_key = "TUTORIAL_OBS_ANGRY_Q"
+values = Dictionary[StringName, String]({
+&"yes": "TUTORIAL_OBS_ANGRY_YES",
+&"no": "TUTORIAL_OBS_ANGRY_NO"
+})
+
+[sub_resource type="Resource" id="Observation_hungry"]
+script = ExtResource("4_observation")
+id = &"hungry"
+category = 2
+question_key = "TUTORIAL_OBS_HUNGRY_Q"
+values = Dictionary[StringName, String]({
+&"yes": "TUTORIAL_OBS_HUNGRY_YES",
+&"no": "TUTORIAL_OBS_HUNGRY_NO"
+})
+
+[sub_resource type="Resource" id="Rule_angry"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"angry": &"yes"
+})
+correct_action_id = &"joke"
+risky_action_id = &"hide_glasses"
+text_key = "TUTORIAL_RULE_ANGRY"
+
+[sub_resource type="Resource" id="Rule_hungry"]
+script = ExtResource("5_rule")
+conditions = Dictionary[StringName, StringName]({
+&"hungry": &"yes"
+})
+correct_action_id = &"pizza"
+risky_action_id = &"deodorant"
+text_key = "TUTORIAL_RULE_HUNGRY"
+
+[sub_resource type="Resource" id="Rule_otherwise"]
+script = ExtResource("5_rule")
+correct_action_id = &"deodorant"
+risky_action_id = &"hide_glasses"
+text_key = "RULE_OTHERWISE"
+
+[resource]
+script = ExtResource("1_entity")
+id = &"gonzalo"
+name_key = "TUTORIAL_PAGE_NAME"
+lore_key = "TUTORIAL_PAGE_LORE"
+place_keys = Array[String](["TUTORIAL_PLACE"])
+traits = Array[ExtResource("2_trait")]([SubResource("Trait_glasses"), SubResource("Trait_bad_smell")])
+actions = Array[ExtResource("3_action")]([SubResource("Action_deodorant"), SubResource("Action_joke"), SubResource("Action_hide_glasses"), SubResource("Action_pizza")])
+observations = Array[ExtResource("4_observation")]([SubResource("Observation_angry"), SubResource("Observation_hungry")])
+rules = Array[ExtResource("5_rule")]([SubResource("Rule_angry"), SubResource("Rule_hungry"), SubResource("Rule_otherwise")])

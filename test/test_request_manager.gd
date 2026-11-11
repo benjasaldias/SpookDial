@@ -8,6 +8,7 @@ const NightState := preload("res://scripts/core/night_state.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 const VideoSchedule := preload("res://scripts/core/video_schedule.gd")
+const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
 
 
 ## Manager con el catálogo de prueba (u otro), en la noche 1 (solo "beast"), sin que las solicitudes lleguen
@@ -522,60 +523,115 @@ func _correct_action(manager: RequestManager, friend_index: int) -> ActionData:
 	return request.entity.find_action(RuleEvaluator.applicable_rule(request.entity, request.situation).correct_action_id)
 
 
-## En el tutorial, las solicitudes son las fijas de la noche 0 y llegan de a una (decisión de Benja). La
-## siguiente espera a que termine la anterior, un respiro de 4 s y el video, si el amigo mandó uno.
-func test_en_el_tutorial_las_solicitudes_llegan_de_a_una() -> bool:
+## Avanza `seconds` de a 0,5 s.
+func _run(manager: RequestManager, seconds: float) -> void:
+	for _step in roundi(seconds * 2.0):
+		manager.advance(0.5)
+
+
+## Avanza `seconds` de a 0,5 s el manager y el estado de la noche, como NightManager.
+func _run_night(manager: RequestManager, seconds: float) -> void:
+	for _step in roundi(seconds * 2.0):
+		manager.report(manager.state.advance(0.5))
+		manager.advance(0.5)
+
+
+## Los textos de los mensajes de León en `events`.
+func _leon_lines(events: Array) -> Array:
+	return _messages(events).filter(func(message: ChatMessage) -> bool: return message.sender == ChatMessage.Sender.FRIEND) \
+			.map(func(message: ChatMessage) -> String: return message.plain_text())
+
+
+func _line(key: String) -> String:
+	return String(TranslationServer.translate(key))
+
+
+## En el tutorial, León enseña en su chat (decisión de Benja, 11 de noviembre): su solicitud llega sin mensaje inicial y
+## él escribe sus líneas de a una.
+func test_en_el_tutorial_leon_escribe() -> bool:
 	var manager := _make_tutorial_manager()
+	var events := []
+	_record(manager, events)
 	manager.advance(4.9)
 	check_eq(manager.active_count(), 0, "a los 4,9 s todavía no")
 	manager.advance(0.2)
-	var first := manager.requests[0]
-	check(first != null, "la primera es de León")
-	if first == null:
-		manager.free()
-		return true
-	check_eq(first.situation[&"o1"], &"yes", "con su situación fija")
-	check(first.timer_paused, "su temporizador espera")
-	manager.advance(100.0)
-	check(manager.requests[1] == null and manager.requests[2] == null, "no llega otra mientras tanto")
-	check_eq(manager.tutorial_queue.size(), 1, "falta una")
-	manager.answer(0, _correct_action(manager, 0))
-	check_eq(manager.state.videos.pending.size(), 1, "León manda su video")
-	manager.advance(10.0)
-	check_eq(manager.active_count(), 0, "la siguiente espera el video")
-	manager.state.videos.pending.clear()
-	manager.advance(1.0)
-	check(manager.requests[1] != null, "recibido el video, llega la de Gonzalo")
-	check_eq(manager.tutorial_queue.size(), 0, "no falta ninguna")
+	var request := manager.requests[0]
+	check(request != null and request.timer_paused, "la de León, con el temporizador en espera")
+	check_eq(_leon_lines(events), [_line(TutorialChat.HELLO_KEY)], "saluda, sin el mensaje inicial de siempre")
+	_run(manager, 6.0)
+	check_eq(_leon_lines(events), [_line(TutorialChat.HELLO_KEY), _line(TutorialChat.GUESS_KEY)],
+			"la segunda línea, después de la primera")
 	manager.free()
 	return true
 
 
-## En el tutorial nadie sale herido y Trust no baja (decisión de Benja).
-func test_en_el_tutorial_no_hay_consecuencias() -> bool:
+## Hasta la mejor decisión y la peor: una respuesta que no cuenta no termina la solicitud, y nadie sale herido.
+func test_en_el_tutorial_una_respuesta_que_no_cuenta() -> bool:
 	var manager := _make_tutorial_manager()
 	manager.advance(5.1)
 	var request := manager.requests[0]
+	manager.ask(0, ClueCategory.Kind.SIGHT)
+	for trait_data: TraitData in request.traits:
+		request.click_clue(trait_data.id)
+	manager.tutorial_page_opened()
+	_run(manager, 4.0)
+	check_eq(manager.tutorial_chat.step, TutorialChat.Step.BEST, "León pide la mejor")
 	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
+	var wrong: ActionData = request.entity.actions.filter(func(action: ActionData) -> bool:
+		return action.id != rule.correct_action_id and action.id != rule.risky_action_id)[0]
+	var events := []
+	_record(manager, events)
+	manager.answer(0, wrong)
+	check(manager.requests[0] == request and not request.finished, "una incorrecta no cuenta: sigue abierta")
+	check_eq(_messages(events)[0].sender, ChatMessage.Sender.PLAYER, "se ve la respuesta de Matías")
+	_run(manager, 20.0)
+	check(_leon_lines(events).has(_line(TutorialChat.RETRY_KEY)), "León pide intentarlo de nuevo")
+	manager.answer(0, request.entity.find_action(rule.correct_action_id))
+	check(manager.requests[0] == request, "la mejor tampoco termina: ahora pide la peor")
 	manager.answer(0, request.entity.find_action(rule.risky_action_id))
-	check_eq(request.outcome, RuleEvaluator.Outcome.RISKY, "la de mayor riesgo")
+	check(manager.requests[0] == null and request.finished, "la peor termina la solicitud")
 	check_eq(manager.state.friends[0].health, 3, "León sigue entero")
 	check_eq(manager.state.trust, 100.0, "Trust igual")
 	manager.free()
 	return true
 
 
-## El susto guionado espera a que termine el tutorial: mientras falten solicitudes, el respiro o el video, hay algo
-## pendiente.
+## Después de la peor, León manda el video; al descargarlo se le corta la señal y, al sincronizarlo, se despide.
+func test_en_el_tutorial_el_video_y_la_senal() -> bool:
+	var manager := _make_tutorial_manager()
+	var finished := []
+	manager.tutorial_finished.connect(func() -> void: finished.append(true))
+	manager.advance(5.1)
+	var request := manager.requests[0]
+	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
+	for trait_data: TraitData in request.traits:
+		request.click_clue(trait_data.id)
+	manager.tutorial_page_opened()
+	_run(manager, 4.0)
+	manager.answer(0, request.entity.find_action(rule.correct_action_id))
+	manager.answer(0, request.entity.find_action(rule.risky_action_id))
+	_run_night(manager, 30.0)
+	check_eq(manager.state.videos.offers.size(), 1, "León mandó su video")
+	manager.state.holding_download = 0
+	_run_night(manager, 11.0)
+	manager.state.holding_download = -1
+	check_eq(manager.state.videos.received, 1, "descargado")
+	_run_night(manager, 20.0)
+	check(not manager.state.friends[0].is_online(), "a León se le cortó la señal")
+	check(finished.is_empty(), "todavía no termina")
+	manager.restore_signal(0)
+	_run_night(manager, 15.0)
+	check_eq(finished.size(), 1, "al volver la señal, se despide y termina")
+	manager.free()
+	return true
+
+
+## El susto guionado espera las solicitudes fijas del tutorial que faltan.
 func test_en_el_tutorial_lo_pendiente_hace_esperar_al_susto() -> bool:
 	var manager := _make_tutorial_manager()
-	check(manager.pending_count() > 0, "al empezar faltan las solicitudes")
-	manager.tutorial_queue.clear()
-	check_eq(manager.pending_count(), 1, "falta el respiro antes de la primera")
-	manager.advance(5.0)
-	check_eq(manager.pending_count(), 0, "sin solicitudes, ni respiro, ni video")
-	manager.state.videos.add_extra(2, 5.0)
-	check_eq(manager.pending_count(), 1, "un video que espera")
+	check_eq(manager.pending_count(), 1, "al empezar falta la de León")
+	manager.advance(5.1)
+	check_eq(manager.pending_count(), 1, "llegó: ahora es una solicitud activa")
 	manager.free()
 	return true
 

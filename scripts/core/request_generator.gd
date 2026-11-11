@@ -25,8 +25,13 @@ static func generate_tutorial(catalog: ContentCatalog, night: NightData, data: T
 	for observation_id: StringName in data.situation:
 		request.situation[observation_id] = data.situation[observation_id]
 	request.hint = request.traits[0] if data.with_hint else null
-	# La noche 0 enseña: el lugar se dice siempre.
+	# La noche 0 enseña: el lugar se dice siempre, y cada característica, con su forma de siempre.
 	request.says_place = true
+	for trait_data: TraitData in request.traits:
+		request.trait_forms[trait_data.id] = trait_data.text_key
+	if not data.decoys.is_empty():
+		request.decoys.assign(data.decoys)
+		request.clues.assign(request.traits + request.decoys)
 	request.timer_paused = true
 	return request
 

@@ -95,28 +95,27 @@ static func make_catalog() -> ContentCatalog:
 	return catalog
 
 
-## La noche 0 del catálogo de prueba: 2 solicitudes de "beast", con un video de 1 de cuota.
+## La noche 0 del catálogo de prueba: una solicitud de "beast" para León (o1 = yes, sin pista), como la de León en el
+## tutorial, con un video de cuota.
 static func make_tutorial(catalog: ContentCatalog) -> NightData:
 	var tutorial := NightData.new()
 	tutorial.number = 0
 	tutorial.place_key = "K_NIGHT_0"
 	tutorial.content_quota = 1
+	tutorial.audio_sync_beats = 4
 	var beast: EntityData = catalog.nights[0].new_entities[0]
-	tutorial.tutorial_requests.append(make_tutorial_request(catalog.friends[0], beast, {&"o1": &"yes"}, true, true))
-	tutorial.tutorial_requests.append(make_tutorial_request(catalog.friends[1], beast, {&"o1": &"no", &"o2": &"yes"},
-			false, false))
+	tutorial.tutorial_requests.append(make_tutorial_request(catalog.friends[0], beast, {&"o1": &"yes"}, false))
 	return tutorial
 
 
-static func make_tutorial_request(friend: FriendData, entity: EntityData, situation: Dictionary, with_hint: bool,
-		sends_video: bool) -> TutorialRequestData:
+static func make_tutorial_request(friend: FriendData, entity: EntityData, situation: Dictionary,
+		with_hint: bool) -> TutorialRequestData:
 	var data := TutorialRequestData.new()
 	data.friend = friend
 	data.entity = entity
 	for observation_id: StringName in situation:
 		data.situation[observation_id] = situation[observation_id]
 	data.with_hint = with_hint
-	data.sends_video = sends_video
 	return data
 
 

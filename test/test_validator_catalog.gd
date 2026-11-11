@@ -105,9 +105,14 @@ func test_tutorial() -> bool:
 	catalog.tutorial.tutorial_requests[0].friend = FriendData.new()
 	check_contains(ContentValidator.validate_catalog(catalog), "Tutorial, solicitud 1: el amigo no es del catálogo")
 	catalog = Fixtures.make_catalog()
-	catalog.tutorial.tutorial_requests[1].entity = catalog.nights[1].new_entities[0]
+	catalog.tutorial.tutorial_requests[0].entity = catalog.nights[1].new_entities[0]
 	check_contains(ContentValidator.validate_catalog(catalog),
-			"Tutorial, solicitud 2: la entidad 'ghost' no está en las páginas de la noche 0")
+			"Tutorial, solicitud 1: la entidad 'ghost' no está en las páginas de la noche 0")
+	# Con páginas propias, la noche 0 solo conoce esas (la de Gonzalo, decisión de Benja, 11 de noviembre).
+	catalog = Fixtures.make_catalog()
+	catalog.tutorial.new_entities.append(Fixtures.make_entity(&"page"))
+	check_contains(ContentValidator.validate_catalog(catalog),
+			"Tutorial, solicitud 1: la entidad 'beast' no está en las páginas de la noche 0")
 	catalog = Fixtures.make_catalog()
 	catalog.tutorial.tutorial_requests[0].situation[&"o1"] = &"maybe"
 	check_contains(ContentValidator.validate_catalog(catalog), "Tutorial, solicitud 1: 'maybe' no es un valor de 'o1'")

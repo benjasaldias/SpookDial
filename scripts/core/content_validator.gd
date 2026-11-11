@@ -132,15 +132,36 @@ static func validate_texts(catalog: ContentCatalog, translate: Callable) -> Arra
 			errors.append("%s: falta la clave de texto" % where)
 		elif String(translate.call(key)) == key:
 			errors.append("%s: la clave '%s' no está en ningún CSV" % [where, key])
-	for entity: EntityData in catalog.all_entities():
+	for entity: EntityData in _entities_with_tutorial(catalog):
 		for trait_data: TraitData in entity.traits:
 			_check_highlight(errors, "Característica '%s'" % trait_data.id, trait_data.text_key, translate)
 			for variant_key: String in trait_data.variant_keys:
 				_check_highlight(errors, "Característica '%s', forma '%s'" % [trait_data.id, variant_key], variant_key,
 						translate)
-	for decoy: DecoyData in catalog.decoys:
+	for decoy: DecoyData in catalog.decoys + _tutorial_decoys(catalog):
 		_check_highlight(errors, "Señuelo '%s'" % decoy.id, decoy.text_key, translate)
 	return errors
+
+
+## Las entidades de las noches 1 a 5 y las páginas propias de la noche 0.
+static func _entities_with_tutorial(catalog: ContentCatalog) -> Array[EntityData]:
+	var entities := catalog.all_entities()
+	if catalog.tutorial != null:
+		for entity: EntityData in catalog.tutorial.new_entities:
+			if entity != null and not entities.has(entity):
+				entities.append(entity)
+	return entities
+
+
+## Los señuelos fijos de las solicitudes de la noche 0.
+static func _tutorial_decoys(catalog: ContentCatalog) -> Array[DecoyData]:
+	var decoys: Array[DecoyData] = []
+	if catalog.tutorial == null:
+		return decoys
+	for data: TutorialRequestData in catalog.tutorial.tutorial_requests:
+		if data != null:
+			decoys.append_array(data.decoys)
+	return decoys
 
 
 ## Una característica o un señuelo necesita exactamente una frase clickeable entre asteriscos.
@@ -165,7 +186,7 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 				var line := night.scripted_chat.lines[index]
 				if line != null:
 					keys.append(["Noche %d, chat guionado, línea %d" % [night.number, index + 1], line.text_key])
-	for entity: EntityData in catalog.all_entities():
+	for entity: EntityData in _entities_with_tutorial(catalog):
 		var who := "Entidad '%s'" % entity.id
 		keys.append([who + ", nombre", entity.name_key])
 		keys.append([who + ", folclore", entity.lore_key])
@@ -185,7 +206,7 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 				keys.append(["%s, observación '%s' = '%s'" % [who, observation.id, value], observation.values[value]])
 		for index in entity.rules.size():
 			keys.append(["%s, regla %d" % [who, index + 1], entity.rules[index].text_key])
-	for decoy: DecoyData in catalog.decoys:
+	for decoy: DecoyData in catalog.decoys + _tutorial_decoys(catalog):
 		keys.append(["Señuelo '%s'" % decoy.id, decoy.text_key])
 	for index in catalog.greeting_keys.size():
 		keys.append(["Saludo %d" % (index + 1), catalog.greeting_keys[index]])
@@ -212,6 +233,11 @@ static func _check_tutorial(errors: Array[String], catalog: ContentCatalog) -> v
 	if tutorial.tutorial_requests.has(null):
 		errors.append("Tutorial: hay un espacio vacío en 'tutorial_requests'")
 		return
+	for entity: EntityData in tutorial.new_entities:
+		if entity == null:
+			errors.append("Tutorial: hay un espacio vacío en 'new_entities'")
+		else:
+			errors.append_array(validate_entity(entity))
 	var known := catalog.known_entities(0)
 	for index in tutorial.tutorial_requests.size():
 		var data := tutorial.tutorial_requests[index]

@@ -103,3 +103,23 @@ func test_sus_textos_existen() -> bool:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en ui.csv" % key)
 	desk.free()
 	return true
+
+
+## "Saltar tutorial" está en la pausa, solo en la noche 0 (decisión de Benja, 11 de noviembre).
+func test_saltar_tutorial_solo_en_la_noche_0() -> bool:
+	var desk := _make_desk()
+	var skip := desk.get_node("Overlay/PauseMenu/Center/Box/SkipTutorial") as Button
+	check(not skip.visible, "en una noche normal, no está")
+	desk.free()
+	desk = DESK.instantiate()
+	desk.get_node("RequestManager").night_number = 0
+	_tree().root.add_child(desk)
+	skip = desk.get_node("Overlay/PauseMenu/Center/Box/SkipTutorial") as Button
+	check(skip.visible, "en la noche 0, sí")
+	var skipped := []
+	desk.tutorial_skipped.connect(func() -> void: skipped.append(true))
+	skip.pressed.emit()
+	check_eq(skipped.size(), 1, "salta el tutorial")
+	check_eq(skip.text, String(TranslationServer.translate("PAUSE_SKIP_TUTORIAL")), "su texto")
+	desk.free()
+	return true

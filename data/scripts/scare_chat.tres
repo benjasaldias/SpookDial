@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ChatScriptData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/chat_script_data.gd" id="1_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_line_data.gd" id="2_line"]
+[ext_resource type="Resource" path="res://data/friends/gonzalo.tres" id="3_gonzalo"]
+
+[sub_resource type="Resource" id="Line_ask"]
+script = ExtResource("2_line")
+text_key = "SCRIPT_SCARE_ASK"
+
+[sub_resource type="Resource" id="Line_reply"]
+script = ExtResource("2_line")
+speaker = 1
+text_key = "SCRIPT_SCARE_REPLY"
+
+[sub_resource type="Resource" id="Line_phone"]
+script = ExtResource("2_line")
+text_key = "SCRIPT_SCARE_PHONE"
+
+[resource]
+script = ExtResource("1_chat")
+friend = ExtResource("3_gonzalo")
+lines = Array[ExtResource("2_line")]([SubResource("Line_ask"), SubResource("Line_reply"), SubResource("Line_phone")])
+highlight_phone = true

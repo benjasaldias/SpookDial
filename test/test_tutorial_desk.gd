@@ -1,12 +1,12 @@
 extends "res://test/test_case.gd"
-## La noche 0, el tutorial, en el escritorio (decisión de Benja): el aviso dice qué hacer en cada paso, el
-## temporizador espera y la noche termina al cerrar el celular.
+## La noche 0, el tutorial, en el escritorio (decisión de Benja, 11 de noviembre): León enseña en su chat, describiendo a
+## Gonzalo, sin aviso arriba de la pantalla. El cuaderno solo tiene la página de Gonzalo.
 
 const DESK := preload("res://scenes/desk/desk.tscn")
+const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
-const NightState := preload("res://scripts/core/night_state.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
-const TutorialGuide := preload("res://scripts/core/tutorial_guide.gd")
+const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
 
 
 func _make_desk(night_number := 0) -> Node2D:
@@ -17,167 +17,106 @@ func _make_desk(night_number := 0) -> Node2D:
 	return desk
 
 
-## Avanza la noche y el escritorio `seconds` segundos, de a 1, como en el juego.
-func _play(desk: Node2D, seconds: int) -> void:
-	for _i in seconds:
-		desk.get_node("NightManager").advance(1.0)
-		desk._process(1.0)
+## Avanza la noche, el escritorio y el chat `seconds` segundos, de a 0,5, como en el juego.
+func _play(desk: Node2D, seconds: float) -> void:
+	for _step in roundi(seconds * 2.0):
+		desk.get_node("UI/ChatPanel")._process(0.5)
+		desk.get_node("NightManager").advance(0.5)
+		desk._process(0.5)
 
 
-func _hint_text(desk: Node2D) -> String:
-	return (desk.get_node("Overlay/TutorialHint/Box/Body") as Label).text
+## Avanza hasta que `done` se cumpla, como mucho `seconds` segundos.
+func _play_until(desk: Node2D, done: Callable, seconds := 40.0) -> void:
+	for _step in roundi(seconds * 2.0):
+		if done.call():
+			return
+		_play(desk, 0.5)
 
 
-## El texto del aviso `key`, con el nombre del amigo `friend_key`.
-func _expected(key: String, friend_key := "") -> String:
-	var friend_name := String(TranslationServer.translate(friend_key)) if not friend_key.is_empty() else ""
-	return String(TranslationServer.translate(key)).format({"friend": friend_name})
+## Lo que escribió León hasta ahora, en orden.
+func _leon_lines(desk: Node2D) -> Array:
+	var lines := []
+	for view: Node in desk.get_node("UI/ChatPanel").message_views(0):
+		if view.message.sender == ChatMessage.Sender.FRIEND:
+			lines.append(view.message.plain_text())
+	return lines
 
 
-func _correct(request: FriendRequest) -> ActionData:
-	return request.entity.find_action(RuleEvaluator.applicable_rule(request.entity, request.situation).correct_action_id)
+func _said(desk: Node2D, key: String) -> bool:
+	return _leon_lines(desk).has(String(TranslationServer.translate(key)))
 
 
-func test_en_una_noche_normal_no_hay_aviso() -> bool:
-	var desk := _make_desk(3)
-	check(not (desk.get_node("Overlay/TutorialHint") as Control).visible, "sin aviso")
-	desk.free()
-	return true
-
-
-func test_el_boton_salta_el_tutorial() -> bool:
+func test_sin_aviso_arriba() -> bool:
 	var desk := _make_desk()
-	var skipped := []
-	desk.tutorial_skipped.connect(func() -> void: skipped.append(true))
-	(desk.get_node("Overlay/TutorialHint/Box/Skip") as Button).pressed.emit()
-	check_eq(skipped, [true], "avisa que se saltó")
+	check(desk.get_node_or_null("Overlay/TutorialHint") == null, "ya no hay aviso arriba de la pantalla")
 	desk.free()
 	return true
 
 
-## De punta a punta: las 3 solicitudes, el video, el susto, el chat de Gonzalo y el celular.
+func test_el_cuaderno_solo_tiene_a_gonzalo() -> bool:
+	var desk := _make_desk()
+	var tabs := desk.get_node("UI/NotebookPanel/Page/Layout/Index").get_children()
+	check_eq(tabs.map(func(tab: Button) -> String: return tab.text), [String(TranslationServer.translate("TUTORIAL_PAGE_NAME"))],
+			"una sola página")
+	desk.free()
+	return true
+
+
+## De punta a punta: León saluda, se le pregunta, se marca (con el señuelo), se abre la página, se elige mal, la mejor y
+## la peor, se descarga el video, se sincroniza y León se despide. Después, la noche 1.
 func test_el_tutorial_de_punta_a_punta() -> bool:
 	var desk := _make_desk()
 	var manager := desk.get_node("RequestManager")
-	var hint := desk.get_node("Overlay/TutorialHint") as Control
-	check(hint.visible, "el aviso se ve")
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.DIALS_KEY), "primero, los diales")
-	var ok := desk.get_node("Overlay/TutorialHint/Box/Ok") as Button
-	check(ok.visible, "con su botón Entendido")
-	ok.pressed.emit()
-	desk._process(0.0)
-	check(not ok.visible, "el botón se va")
-	check_eq(_hint_text(desk), _expected(TutorialGuide.WELCOME_KEY), "bienvenida")
-	# La solicitud de León: abrir el chat, preguntar, marcar, abrir la página y responder.
-	_play(desk, 6)
+	var next := []
+	desk.next_night_requested.connect(func() -> void: next.append(true))
+	_play(desk, 9.0)
 	var request: FriendRequest = manager.requests[0]
 	check(request != null, "llegó la solicitud de León")
 	if request == null:
 		desk.free()
 		return true
-	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_CHAT_KEY, "FRIEND_LEON_NAME"), "abrir el chat")
+	check(_said(desk, TutorialChat.GUESS_KEY), "León pide que le pregunten qué ve")
 	desk.get_node("DeskPlane/Entries/EntryLeon").pressed.emit()
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.ASK_KEY, "FRIEND_LEON_NAME"), "preguntar")
+	var messages := []
+	manager.message_added.connect(func(_friend: int, message: ChatMessage) -> void: messages.append(message))
 	manager.ask(0, ClueCategory.Kind.SIGHT)
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.MARK_KEY), "marcar")
-	for trait_data: TraitData in request.traits:
-		request.click_clue(trait_data.id)
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_PAGE_KEY), "abrir la página")
-	_play(desk, 30)
-	check_eq(request.time_left, 85.0, "el temporizador esperó: solo bajó la pregunta")
-	desk.get_node("UI/ChatPanel").entity_page_requested.emit(0, request.entity)
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.ANSWER_KEY), "responder")
-	manager.answer(0, _correct(request))
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.CORRECT_KEY, "FRIEND_LEON_NAME"), "le fue bien")
-	# La de Agustín, con un video al terminar.
-	_play(desk, 5)
-	request = manager.requests[2]
-	check(request != null, "llegó la solicitud de Agustín")
-	if request == null:
-		desk.free()
-		return true
-	manager.answer(2, _correct(request))
-	_play(desk, 1)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.VIDEO_KEY, "FRIEND_AGUSTIN_NAME"), "el video")
-	desk.get_node("DeskPlane/Entries/EntryAgustin").pressed.emit()
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.HOLD_KEY), "mantener presionado")
-	manager.state.holding_download = 2
-	_play(desk, 10)
-	manager.state.holding_download = -1
-	check_eq(manager.state.videos.received, 1, "se recibió")
-	# La de Gonzalo, sin pista: una respuesta equivocada no lo hiere.
-	_play(desk, 4)
-	request = manager.requests[1]
-	check(request != null, "llegó la solicitud de Gonzalo")
-	if request == null:
-		desk.free()
-		return true
-	check(request.hint == null, "sin pista")
-	var wrong := request.entity.actions.filter(func(action: ActionData) -> bool:
-		return RuleEvaluator.outcome(request.entity, request.situation, action) == RuleEvaluator.Outcome.WRONG)
-	manager.answer(1, wrong[0])
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.WRONG_KEY, "FRIEND_GONZALO_NAME"), "le fue mal")
-	check_eq(manager.state.friends[1].health, 3, "pero no salió herido")
-	# El respiro, el susto guionado (con su señal previa y su pausa) y lo que tarda Gonzalo en escribir.
-	_play(desk, 10)
-	# La criatura enseña las cortinas: se cierran, se espera y se abren para revisar.
-	var curtains := desk.get_node("WallPlane/Curtains") as AnimatedSprite2D
-	check_eq(_hint_text(desk), _expected(TutorialGuide.CLOSE_CURTAINS_KEY), "cerrar las cortinas")
-	curtains.clicked.emit()
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_CURTAINS_KEY), "revisar")
-	# Se queda un tiempo al azar (decisión de Benja, 11 de noviembre).
-	_play(desk, ceili(desk.get_node("Screamers").creature_stay))
-	curtains.clicked.emit()
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_CHAT_KEY, "FRIEND_GONZALO_NAME"), "Gonzalo escribió")
-	desk.get_node("DeskPlane/Entries/EntryGonzalo").pressed.emit()
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.REPLY_KEY), "responderle")
-	(desk.get_node("UI/ChatPanel/Panel/ScriptReply") as Button).pressed.emit()
-	_play(desk, 3)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.PHONE_KEY), "el celular")
-	desk.get_node("DeskPlane/Phone").clicked.emit()
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.SCROLL_KEY), "scrollear")
-	# Con el celular abierto llega la Mano, y el aviso enseña el flash (decisión de Benja, 11 de noviembre).
-	_play(desk, 6)
-	check(desk.get_node("Hands").is_present(), "llegó la Mano")
-	check_eq(_hint_text(desk), _expected(TutorialGuide.HAND_KEY), "espantarla con el flash")
-	(desk.get_node("UI/PhoneView") as Control).flash_pressed.emit()
-	desk._process(0.0)
-	check(not desk.get_node("Hands").is_present(), "el flash la espantó")
-	check_eq(_hint_text(desk), _expected(TutorialGuide.HAND_DONE_KEY), "guardar batería y cerrar el celular")
-	var endings := []
-	desk.get_node("NightManager").night_ended.connect(func(ending: NightState.Ending, _request: FriendRequest) -> void:
-		endings.append(ending))
-	(desk.get_node("UI/PhoneView") as Control).close()
-	desk._process(0.0)
-	check_eq(endings, [NightState.Ending.WON], "al cerrar el celular, terminó el tutorial")
-	check(not hint.visible, "el aviso se va con la pantalla final")
-	desk.free()
-	return true
-
-
-## La criatura del susto guionado: el aviso pide cerrar las cortinas, y después abrirlas para revisar (decisión de
-## Benja, 7 de noviembre).
-func test_la_criatura_ensena_las_cortinas() -> bool:
-	var desk := _make_desk()
-	desk.get_node("RequestManager").tutorial_queue.clear()
-	var curtains := desk.get_node("WallPlane/Curtains") as AnimatedSprite2D
-	(desk.get_node("Overlay/TutorialHint/Box/Ok") as Button).pressed.emit()
-	_play(desk, 6)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.CLOSE_CURTAINS_KEY), "pide cerrarlas")
-	curtains.clicked.emit()
-	desk._process(0.0)
-	check_eq(_hint_text(desk), _expected(TutorialGuide.OPEN_CURTAINS_KEY), "pide revisar")
+	var answer: ChatMessage = messages[-1]
+	check(answer.plain_text().contains("lentes") and answer.plain_text().contains("polerón"), "lo que ve: " + answer.plain_text())
+	manager.click_clue(answer, &"red_hoodie")
+	manager.click_clue(answer, &"glasses")
+	_play(desk, 8.0)
+	check(_said(desk, TutorialChat.DECOY_KEY), "bromea con el señuelo")
+	check(_said(desk, TutorialChat.AMBIENT_KEY), "pide preguntar por el ambiente")
+	manager.ask(0, ClueCategory.Kind.ENVIRONMENT)
+	manager.click_clue(messages[-1], &"bad_smell")
+	_play(desk, 4.0)
+	check_eq(request.identification, FriendRequest.Identification.REVEALED, "apareció el nombre")
+	(desk.get_node("UI/ChatPanel/Panel/IdentifyBar/EntityName") as Button).pressed.emit()
+	check((desk.get_node("UI/NotebookPanel") as Control).visible, "se abrió su página")
+	_play(desk, 10.0)
+	check(_said(desk, TutorialChat.BEST_KEY), "pide la mejor")
+	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
+	manager.answer(0, request.entity.find_action(&"pizza"))
+	_play(desk, 4.0)
+	check(_said(desk, TutorialChat.RETRY_KEY), "la de la pizza no: enojado gana, porque es la primera fila")
+	manager.answer(0, request.entity.find_action(rule.correct_action_id))
+	_play(desk, 8.0)
+	check(_said(desk, TutorialChat.WORST_KEY), "pide la peor")
+	manager.answer(0, request.entity.find_action(rule.risky_action_id))
+	_play_until(desk, func() -> bool: return manager.state.videos.offer_for(0) != null)
+	check(manager.state.videos.offer_for(0) != null, "mandó el video")
+	var hold := desk.get_node("UI/ChatPanel/Panel/Download/Hold") as Button
+	hold.button_down.emit()
+	_play_until(desk, func() -> bool: return manager.state.videos.received == 1, 15.0)
+	hold.button_up.emit()
+	check_eq(manager.state.videos.received, 1, "descargado")
+	_play_until(desk, func() -> bool: return not manager.state.friends[0].is_online())
+	check(not manager.state.friends[0].is_online(), "se le cortó la señal")
+	check(next.is_empty(), "todavía no termina")
+	manager.restore_signal(0)
+	_play_until(desk, func() -> bool: return not next.is_empty())
+	check(_said(desk, TutorialChat.READY_KEY), "se despide")
+	check_eq(next.size(), 1, "y el juego sigue a la noche 1")
+	check_eq(manager.state.friends[0].health, 3, "nadie salió herido")
 	desk.free()
 	return true

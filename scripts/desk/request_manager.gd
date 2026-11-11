@@ -5,8 +5,10 @@ extends Node
 ## Desde el Plan 7, el director de ritmo (PacingDirector) decide cuándo llega cada solicitud, y desde el Plan 9.1 en
 ## olas de verdad, con calmas y una ola final (decisión de Benja, 11 de noviembre): las olas traen interferencias y las
 ## calmas, videos, que el manager les da a amigos al azar.
-## Desde el Plan 8, en la noche 0 (el tutorial) llegan las solicitudes fijas de la noche, de a una, y nadie sale
-## herido (decisión de Benja).
+## En la noche 0 (el tutorial), desde el Plan 9.2, León enseña en su chat (TutorialChat): llega su solicitud fija, sin
+## mensaje inicial, y él escribe sus líneas de a una. Una respuesta que el tutorial no acepta no termina la solicitud.
+## Después de la peor decisión León manda un video, se le corta la señal y, cuando vuelve, se despide (decisión de
+## Benja, 11 de noviembre). Nadie sale herido.
 ## Desde el Plan 9, también los accidentes de los amigos: se responden en el chat, sin cuaderno, y una mala
 ## respuesta los hiere (decisión de Benja, 7 de noviembre).
 ## En el escritorio lo avanza NightManager, junto con el estado de la noche.
@@ -19,6 +21,8 @@ signal request_changed(friend_index: int, request: FriendRequest)
 signal request_finished(friend_index: int, request: FriendRequest)
 ## Terminó el chat guionado (Plan 7).
 signal chat_script_finished(chat: ChatScript)
+## León terminó el tutorial de la noche 0 y se despidió (Plan 9.2).
+signal tutorial_finished
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatScript := preload("res://scripts/core/chat_script.gd")
@@ -30,9 +34,14 @@ const MessageBuilder := preload("res://scripts/core/message_builder.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
+const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
+const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
 
-## Segundos que pasan entre una solicitud del tutorial y la siguiente, para leer lo que pasó.
-const TUTORIAL_GAP := 4.0
+## En el tutorial, León escribe sus líneas de a una: cada una espera lo que tarda en escribirse la anterior (las letras
+## por segundo del chat) y una pausa para leerla. Al despedirse, una pausa más larga antes de terminar.
+const TUTORIAL_CHARS_PER_SECOND := 60.0
+const TUTORIAL_LINE_PAUSE := 1.0
+const TUTORIAL_END_PAUSE := 2.5
 
 @export var catalog: ContentCatalog
 ## Noche que se juega (0: el tutorial). En el juego la elige GameState; este valor es el de las pruebas y el de
@@ -59,15 +68,29 @@ var state: NightState
 var director: PacingDirector
 ## El chat guionado en curso, o null (Plan 7).
 var chat_script: ChatScript
-## En el tutorial, las solicitudes fijas que todavía no llegan, en orden.
+## En el tutorial, las solicitudes fijas que todavía no llegan, en orden. Solo se usa la primera: la de León.
 var tutorial_queue: Array[TutorialRequestData] = []
+## La conversación de León en el tutorial, o null en las demás noches.
+var tutorial_chat: TutorialChat
+## En el tutorial, la página de la entidad de León ya está abierta en el cuaderno.
+var tutorial_page_open := false
 
 ## Segundos desde las 00:00, como la hora del estado de la noche: el director cuenta en esa hora.
 var _elapsed := 0.0
-## En el tutorial, la hora desde la que puede llegar la próxima solicitud fija.
+## En el tutorial, la hora desde la que puede llegar la solicitud de León.
 var _next_tutorial_at := 0.0
-## La solicitud fija en curso en el tutorial, o null.
-var _tutorial_current: TutorialRequestData
+## El amigo que enseña en el tutorial, o -1.
+var _tutorial_friend := -1
+## Lo que falta que haga León: sus líneas (claves de ui.csv) y sus órdenes (TUTORIAL_* de abajo), en orden.
+var _tutorial_items: Array = []
+## Segundos hasta lo próximo de León.
+var _tutorial_wait := 0.0
+
+## Las órdenes de León en el tutorial: mandar el video, cortar su señal, esperar y terminar.
+const TUTORIAL_SEND_VIDEO := &"send_video"
+const TUTORIAL_CUT_SIGNAL := &"cut_signal"
+const TUTORIAL_PAUSE := &"pause"
+const TUTORIAL_FINISH := &"finish"
 
 
 func _ready() -> void:
@@ -79,6 +102,8 @@ func _ready() -> void:
 	director = PacingDirector.new(night(), catalog.balance, rng)
 	tutorial_queue.assign(night().tutorial_requests)
 	_next_tutorial_at = catalog.balance.first_request_delay
+	if night().is_tutorial():
+		tutorial_chat = TutorialChat.new()
 	for index in catalog.friends.size():
 		requests.append(null)
 		incidents.append(null)
@@ -97,15 +122,9 @@ func active_count() -> int:
 	return requests.size() - requests.count(null)
 
 
-## Lo que hace esperar al susto guionado: las solicitudes activas y, en el tutorial, las fijas que faltan, el
-## respiro antes de la próxima y el video que espera.
+## Lo que hace esperar al susto guionado: las solicitudes activas y, en el tutorial, las fijas que faltan.
 func pending_count() -> int:
-	var count := active_count()
-	if night().is_tutorial():
-		count += tutorial_queue.size()
-		if _elapsed < _next_tutorial_at or not (state.videos.pending.is_empty() and state.videos.offers.is_empty()):
-			count += 1
-	return count
+	return active_count() + (tutorial_queue.size() if night().is_tutorial() else 0)
 
 
 ## Cuántas solicitudes esperan más de la cuenta y hacen bajar Trust (decisión de Benja, 4 de noviembre): las que
@@ -130,6 +149,8 @@ func advance(delta: float) -> void:
 			continue
 		if request.advance(delta):
 			request_changed.emit(index, request)
+			if index == _tutorial_friend:
+				_tutorial(tutorial_chat.identified(tutorial_page_open))
 		if request.is_out_of_time():
 			_decide_alone(index)
 	_advance_incidents(delta)
@@ -138,6 +159,7 @@ func advance(delta: float) -> void:
 		return
 	if night().is_tutorial():
 		_maybe_start_tutorial_request()
+		_advance_tutorial(delta)
 	else:
 		_follow_director()
 		_maybe_start_request()
@@ -196,6 +218,8 @@ func ask(friend_index: int, category: ClueCategory.Kind) -> bool:
 	message_added.emit(friend_index, MessageBuilder.question(request, category, tr))
 	_add_friend_message(friend_index, MessageBuilder.answer(request, category, tr))
 	request_changed.emit(friend_index, request)
+	if friend_index == _tutorial_friend:
+		_tutorial(tutorial_chat.question_asked(category))
 	return true
 
 
@@ -206,6 +230,8 @@ func click_clue(message: ChatMessage, clue_id: StringName) -> FriendRequest.Clue
 		return FriendRequest.ClueState.UNMARKED
 	var clue_state := request.click_clue(clue_id)
 	request_changed.emit(request.friend_index, request)
+	if request.friend_index == _tutorial_friend:
+		_tutorial(tutorial_chat.clue_marked(clue_state == FriendRequest.ClueState.DECOY, request.marked_count()))
 	return clue_state
 
 
@@ -216,6 +242,8 @@ func answer(friend_index: int, action: ActionData) -> bool:
 	var request := requests[friend_index]
 	if request == null or action == null or not state.friends[friend_index].is_online():
 		return false
+	if friend_index == _tutorial_friend:
+		return _answer_tutorial(request, action)
 	request.finish(action, true)
 	_resolve(request)
 	requests[friend_index] = null
@@ -267,6 +295,8 @@ func report(events: NightState.Events) -> void:
 		_add_friend_message(friend_index, MessageBuilder.video_sent(tr))
 	for friend_index: int in events.videos.received:
 		_add_notice(friend_index, MessageBuilder.VIDEO_RECEIVED_KEY, ChatMessage.Tone.GOOD)
+		if friend_index == _tutorial_friend:
+			_tutorial(tutorial_chat.video_received())
 	for friend_index: int in events.videos.lost:
 		_add_notice(friend_index, MessageBuilder.VIDEO_LOST_KEY, ChatMessage.Tone.DANGER)
 		if state.videos.is_short():
@@ -280,6 +310,8 @@ func restore_signal(friend_index: int) -> void:
 	friend.restore_signal()
 	if was_offline:
 		_add_notice(friend_index, MessageBuilder.SIGNAL_BACK_KEY, ChatMessage.Tone.GOOD)
+		if friend_index == _tutorial_friend:
+			_tutorial(tutorial_chat.signal_restored())
 
 
 ## El amigo no tiene ni solicitud ni accidente, y está disponible.
@@ -337,8 +369,6 @@ func _resolve(request: FriendRequest) -> void:
 	state.apply(request.friend_index, request.consequence)
 	if request.consequence.is_hurt():
 		director.friend_hurt()
-	if _tutorial_current != null:
-		_finish_tutorial_request(request.friend_index)
 
 
 ## Si el amigo quedó herido, el juego lo avisa en el chat con la vida que le queda. El aviso no pasa
@@ -425,24 +455,64 @@ func _maybe_start_incident() -> void:
 		director.incident_started()
 
 
-## En el tutorial, la próxima solicitud fija llega cuando no hay otra, pasó el respiro y no hay un video
-## esperando.
+## En el tutorial, la solicitud de León llega a su hora, sin mensaje inicial: él escribe por su cuenta.
 func _maybe_start_tutorial_request() -> void:
-	if tutorial_queue.is_empty() or active_count() > 0 or _elapsed < _next_tutorial_at:
-		return
-	if not (state.videos.pending.is_empty() and state.videos.offers.is_empty()):
+	if tutorial_queue.is_empty() or _tutorial_friend >= 0 or _elapsed < _next_tutorial_at:
 		return
 	var data: TutorialRequestData = tutorial_queue.pop_front()
 	var request := RequestGenerator.generate_tutorial(catalog, night(), data, rng)
 	requests[request.friend_index] = request
-	_tutorial_current = data
+	_tutorial_friend = request.friend_index
 	request_started.emit(request.friend_index, request)
-	_add_friend_message(request.friend_index, MessageBuilder.first_message(request, tr))
+	_tutorial(tutorial_chat.start())
 
 
-## Terminó la solicitud fija en curso: empieza el respiro y, si la solicitud lo pide, el amigo manda un video.
-func _finish_tutorial_request(friend_index: int) -> void:
-	if _tutorial_current.sends_video:
-		state.videos.add_extra(friend_index, _elapsed)
-	_tutorial_current = null
-	_next_tutorial_at = _elapsed + TUTORIAL_GAP
+## En el tutorial, se abrió la página de la entidad de León en el cuaderno: lo avisa el escritorio.
+func tutorial_page_opened() -> void:
+	tutorial_page_open = true
+	if tutorial_chat != null and _tutorial_friend >= 0:
+		_tutorial(tutorial_chat.page_opened())
+
+
+## Matías le responde a León en el tutorial: se ve su respuesta, y León dice si cuenta. Solo cuando cuenta (la peor
+## decisión), la solicitud termina, sin consecuencias.
+func _answer_tutorial(request: FriendRequest, action: ActionData) -> bool:
+	var friend_index := request.friend_index
+	message_added.emit(friend_index, MessageBuilder.line(ChatMessage.Sender.PLAYER, action.label_key, tr))
+	var reply := tutorial_chat.answered(RuleEvaluator.outcome(request.entity, request.situation, action))
+	if reply.accept_answer:
+		request.finish(action, true)
+		_resolve(request)
+		requests[friend_index] = null
+		request_finished.emit(friend_index, request)
+	_tutorial(reply)
+	return true
+
+
+## Encola lo que hace León después de algo que hizo Matías: sus líneas y, después, sus órdenes.
+func _tutorial(reply: TutorialChat.Reply) -> void:
+	_tutorial_items.append_array(reply.lines)
+	if reply.send_video:
+		_tutorial_items.append(TUTORIAL_SEND_VIDEO)
+	if reply.cut_signal:
+		_tutorial_items.append(TUTORIAL_CUT_SIGNAL)
+	if reply.finished:
+		_tutorial_items.append_array([TUTORIAL_PAUSE, TUTORIAL_FINISH])
+
+
+## León escribe sus líneas de a una y cumple sus órdenes cuando les toca.
+func _advance_tutorial(delta: float) -> void:
+	_tutorial_wait -= delta
+	while _tutorial_wait <= 0.0 and not _tutorial_items.is_empty():
+		var item: Variant = _tutorial_items.pop_front()
+		if item is String:
+			_add_friend_message(_tutorial_friend, MessageBuilder.line(ChatMessage.Sender.FRIEND, item, tr))
+			_tutorial_wait = tr(item).length() / TUTORIAL_CHARS_PER_SECOND + TUTORIAL_LINE_PAUSE
+		elif item == TUTORIAL_SEND_VIDEO:
+			state.videos.add_extra(_tutorial_friend, _elapsed)
+		elif item == TUTORIAL_CUT_SIGNAL:
+			state.friends[_tutorial_friend].signal_level = 0.0
+		elif item == TUTORIAL_PAUSE:
+			_tutorial_wait = TUTORIAL_END_PAUSE
+		elif item == TUTORIAL_FINISH:
+			tutorial_finished.emit()

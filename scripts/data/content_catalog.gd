@@ -31,10 +31,13 @@ func night(number: int) -> NightData:
 	return tutorial if number == 0 else nights[number - 1]
 
 
-## Entidades conocidas en una noche: las nuevas de esa noche y de todas las anteriores. El tutorial (noche 0)
-## usa las de la noche 1.
+## Entidades conocidas en una noche: las nuevas de esa noche y de todas las anteriores. El tutorial (noche 0) tiene sus
+## propias páginas (la de Gonzalo, decisión de Benja, 11 de noviembre) y, si no tiene, usa las de la noche 1.
 func known_entities(night_number: int) -> Array[EntityData]:
 	var known: Array[EntityData] = []
+	if night_number == 0 and tutorial != null and not tutorial.new_entities.is_empty():
+		known.append_array(tutorial.new_entities)
+		return known
 	for night_data: NightData in nights:
 		if night_data.number <= maxi(night_number, 1):
 			known.append_array(night_data.new_entities)

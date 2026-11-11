@@ -94,15 +94,21 @@ func test_el_tutorial() -> bool:
 	if tutorial == null:
 		return true
 	check_eq(tutorial.number, 0, "es la noche 0")
-	check_eq(tutorial.tutorial_requests.size(), 3, "3 solicitudes")
-	var friends := tutorial.tutorial_requests.map(func(data: TutorialRequestData) -> StringName: return data.friend.id)
-	check_eq(friends, [&"leon", &"agustin", &"gonzalo"], "una de cada amigo")
-	var videos := tutorial.tutorial_requests.filter(func(data: TutorialRequestData) -> bool: return data.sends_video)
-	check_eq(videos.size(), 1, "un video")
-	check_eq(tutorial.content_quota, 1, "su cuota")
-	check(tutorial.scripted_scare_time > 0.0, "el susto guionado")
-	check(tutorial.scripted_chat != null and tutorial.scripted_chat.highlight_phone, "su chat enseña el celular")
-	check_eq(catalog.known_entities(0), catalog.known_entities(1), "las páginas de la noche 1")
+	# León enseña en su chat describiendo a Gonzalo (decisión de Benja, 11 de noviembre).
+	check_eq(tutorial.tutorial_requests.size(), 1, "una solicitud")
+	if tutorial.tutorial_requests.size() != 1:
+		return true
+	var data := tutorial.tutorial_requests[0]
+	check_eq(data.friend.id, &"leon", "la pide León")
+	check_eq(data.entity.id, &"gonzalo", "describe a Gonzalo")
+	check_eq(data.decoys.size(), 1, "con un señuelo fijo")
+	check_eq(RuleEvaluator.applicable_rule(data.entity, data.situation).text_key, "TUTORIAL_RULE_ANGRY",
+			"enojado y con hambre: vale la primera fila")
+	check_eq(catalog.known_entities(0).map(func(entity: EntityData) -> StringName: return entity.id), [&"gonzalo"],
+			"el cuaderno solo tiene su página")
+	check_eq(tutorial.scripted_scare_time, 0.0, "sin susto guionado")
+	check(tutorial.scripted_chat == null, "sin chat guionado")
+	check_eq(tutorial.audio_sync_beats, 4, "León enseña a sincronizar")
 	return true
 
 

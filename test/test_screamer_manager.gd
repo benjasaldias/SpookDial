@@ -293,10 +293,18 @@ func _play(desk: Node2D, seconds: int) -> void:
 		desk._process(1.0)
 
 
+## La noche 0 ya no tiene el susto guionado (decisión de Benja, 11 de noviembre), pero queda para la historia: se prueba
+## en una noche que lo pida.
 func test_el_susto_guionado_ensena_el_celular() -> bool:
-	var desk := _make_desk(0)
-	# Sin las solicitudes del tutorial: el susto guionado las espera.
-	desk.get_node("RequestManager").tutorial_queue.clear()
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var night := catalog.night(1)
+	night.scripted_scare_time = 5.0
+	night.scripted_chat = load("res://data/scripts/scare_chat.tres")
+	var desk := DESK.instantiate()
+	desk.get_node("RequestManager").night_number = 1
+	desk.get_node("RequestManager").random_seed = 11
+	desk.get_node("RequestManager").requests_arrive = false
+	(Engine.get_main_loop() as SceneTree).root.add_child(desk)
 	var gonzalo := desk.get_node("DeskPlane/Entries/EntryGonzalo")
 	var phone := desk.get_node("DeskPlane/Phone")
 	var kinds := []
@@ -318,6 +326,8 @@ func test_el_susto_guionado_ensena_el_celular() -> bool:
 	phone.clicked.emit()
 	check(not phone.blinking, "al abrirlo, deja de parpadear")
 	check((desk.get_node("UI/PhoneView") as Control).visible, "se abrió el celular")
+	night.scripted_scare_time = 0.0
+	night.scripted_chat = null
 	desk.free()
 	return true
 

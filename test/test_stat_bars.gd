@@ -83,15 +83,6 @@ func test_estan_en_el_hueco_entre_el_chat_y_el_cuaderno() -> bool:
 	return true
 
 
-func test_el_aviso_del_tutorial_va_debajo_de_las_barras() -> bool:
-	var desk := _make_desk()
-	var bars := desk.get_node("Overlay/StatBars") as Control
-	var hint := desk.get_node("Overlay/TutorialHint") as Control
-	check(hint.offset_top >= bars.offset_bottom, "no se tapan")
-	desk.free()
-	return true
-
-
 func test_muestran_el_estado_de_la_noche() -> bool:
 	var desk := _make_desk()
 	var state: RefCounted = desk.get_node("RequestManager").state

@@ -74,13 +74,11 @@ func test_el_manager_escribe_el_chat_guionado() -> bool:
 	return true
 
 
-func test_la_noche_0_tiene_el_chat_del_susto() -> bool:
+## El chat del susto ya no está en la noche 0 (decisión de Benja, 11 de noviembre): queda guardado para la historia.
+func test_el_chat_del_susto_queda_guardado() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
-	check(catalog.tutorial != null, "existe la noche 0")
-	if catalog.tutorial == null:
-		return true
-	var chat := catalog.tutorial.scripted_chat
-	check(chat != null, "la noche 0 tiene un chat guionado")
+	var chat: ChatScriptData = load("res://data/scripts/scare_chat.tres")
+	check(chat != null, "existe")
 	if chat == null:
 		return true
 	check_eq(chat.friend, catalog.friends[1], "lo escribe Gonzalo")
