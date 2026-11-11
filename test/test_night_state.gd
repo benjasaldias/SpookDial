@@ -69,19 +69,24 @@ func test_sanity_baja_con_el_tiempo() -> bool:
 	return true
 
 
-func test_trust_baja_y_se_recupera_sin_errores() -> bool:
+## Trust no se recupera durante la noche (decisión de Benja, 11 de noviembre): lo que se pierde, se pierde hasta la
+## noche siguiente.
+func test_trust_no_se_recupera() -> bool:
 	var state := _make_state()
 	state.apply(0, _consequence(0, -10.0))
 	check_eq(state.trust, 90.0, "−10")
-	_advance(state, 20)
-	check(is_equal_approx(state.trust, 90.0), "durante 20 s no se recupera: %s" % state.trust)
-	_advance(state, 8)
-	check(is_equal_approx(state.trust, 91.0), "después, +1 cada 8 s: %s" % state.trust)
-	state.apply(0, _consequence(0, -10.0))
-	_advance(state, 19)
-	check(is_equal_approx(state.trust, 81.0), "un error nuevo reinicia la espera: %s" % state.trust)
-	_advance(state, 200)
-	check_eq(state.trust, 100.0, "no pasa de 100")
+	_advance_downloading(state, 300)
+	check(is_equal_approx(state.trust, 90.0), "300 s sin errores y sigue igual: %s" % state.trust)
+	return true
+
+
+## Un video perdido baja Trust (decisión de Benja, 11 de noviembre): el amigo arriesgó para grabarlo.
+func test_un_video_perdido_baja_trust() -> bool:
+	var state := _make_state()
+	state.videos.offers.append(state.videos.Offer.new(1, 0.5))
+	var events := state.advance(1.0)
+	check_eq(events.videos.lost, [1], "se perdió el video de Gonzalo")
+	check_eq(state.trust, 90.0, "Trust −10")
 	return true
 
 
@@ -242,10 +247,8 @@ func test_sin_senal_trust_baja_y_no_se_recupera() -> bool:
 	check(is_equal_approx(state.trust, 20.0), "dos amigos: el doble de rápido: %s" % state.trust)
 	state.friends[0].restore_signal()
 	state.friends[1].restore_signal()
-	_advance(state, 20)
-	check(is_equal_approx(state.trust, 20.0), "reconectados, 20 s sin recuperarse: %s" % state.trust)
-	_advance(state, 8)
-	check(is_equal_approx(state.trust, 21.0), "después se recupera como siempre: %s" % state.trust)
+	_advance(state, 60)
+	check(is_equal_approx(state.trust, 20.0), "reconectados, deja de bajar y no se recupera: %s" % state.trust)
 	return true
 
 
@@ -297,10 +300,8 @@ func test_la_espera_baja_trust() -> bool:
 	state.advance(10.0)
 	check_eq(state.trust, 95.0, "2 solicitudes × 0,25 por segundo × 10 s")
 	state.impatient = 0
-	state.advance(20.0)
-	check_eq(state.trust, 95.0, "recién deja de bajar: todavía no se recupera")
-	state.advance(8.0)
-	check_eq(state.trust, 96.0, "después de 20 s sin bajar, vuelve a subir")
+	state.advance(60.0)
+	check_eq(state.trust, 95.0, "deja de bajar y no se recupera")
 	return true
 
 

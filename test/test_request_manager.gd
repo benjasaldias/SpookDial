@@ -262,7 +262,7 @@ func test_responder_aplica_la_consecuencia() -> bool:
 	check(request.consequence != null and request.consequence.is_hurt(), "quedó herido")
 	check_eq(manager.state.friends[0].health, 2, "León pierde 1 PV")
 	check(not manager.state.is_available(0), "y queda aturdido")
-	check_eq(manager.state.trust, 90.0, "Trust −10")
+	check_eq(manager.state.trust, 85.0, "Trust −15")
 	var messages := _messages(events)
 	check_eq(messages.size(), 3, "la respuesta, la reacción y el aviso de daño")
 	if messages.size() == 3:

@@ -47,8 +47,6 @@ var holding_download := -1
 var impatient := 0
 var interferences: InterferenceSchedule
 
-## Segundos desde la última vez que bajó Trust.
-var _since_trust_loss := 0.0
 ## Segundos que todavía cuentan como scroll del celular.
 var _scroll_left := 0.0
 
@@ -87,6 +85,8 @@ func advance(delta: float) -> Events:
 	_advance_sanity(delta)
 	_advance_trust(delta)
 	events.videos = videos.advance(elapsed, delta, friends, holding_download)
+	# Un video perdido baja Trust: el amigo arriesgó para grabarlo (decisión de Benja, 11 de noviembre).
+	trust = maxf(trust + balance.lost_video_trust * events.videos.lost.size(), 0.0)
 	return events
 
 
@@ -96,8 +96,6 @@ func apply(friend_index: int, consequence: Consequence) -> void:
 	var friend := friends[friend_index]
 	if consequence.is_hurt():
 		friend.hurt(consequence.damage, balance.stun_seconds)
-	if consequence.trust_change < 0.0:
-		_since_trust_loss = 0.0
 	trust = clampf(trust + consequence.trust_change, 0.0, METER_MAX)
 	if consequence.risky and friend.is_alive():
 		videos.add_extra(friend_index, elapsed)
@@ -199,16 +197,9 @@ func _advance_sanity(delta: float) -> void:
 			0.0, METER_MAX)
 
 
-## Trust se recupera si no bajó en un rato. Con amigos sin señal o con solicitudes esperando demasiado, baja
-## por cada uno y no se recupera (decisión de Benja).
+## Trust baja por cada amigo sin señal y por cada solicitud que espera demasiado, y no se recupera durante la noche
+## (decisiones de Benja, 4 y 11 de noviembre).
 func _advance_trust(delta: float) -> void:
 	var drain := delta * offline_count() / balance.offline_trust_interval \
 			+ delta * impatient * balance.slow_answer_trust
-	if drain > 0.0:
-		_since_trust_loss = 0.0
-		trust = maxf(trust - drain, 0.0)
-		return
-	_since_trust_loss += delta
-	# Solo cuenta la parte del paso que cae después de la espera sin errores.
-	var calm := clampf(_since_trust_loss - balance.trust_recovery_delay, 0.0, delta)
-	trust = minf(trust + calm / balance.trust_recovery_interval, METER_MAX)
+	trust = maxf(trust - drain, 0.0)

@@ -39,15 +39,15 @@ func test_la_accion_de_mayor_riesgo() -> bool:
 func test_una_accion_incorrecta() -> bool:
 	var hurt := _roll(RuleEvaluator.Outcome.WRONG, true, 1.0)
 	check_eq(hurt.damage, 1, "−1 PV")
-	check_eq(hurt.trust_change, -10.0, "Trust −10")
+	check_eq(hurt.trust_change, -15.0, "Trust −15")
 	check(not hurt.risky, "no da video")
-	check_eq(_roll(RuleEvaluator.Outcome.WRONG, true, 0.0).trust_change, -10.0, "Trust −10 aunque no lo hiera")
+	check_eq(_roll(RuleEvaluator.Outcome.WRONG, true, 0.0).trust_change, -15.0, "Trust −15 aunque no lo hiera")
 	return true
 
 
 func test_sin_respuesta_trust_baja_ademas() -> bool:
 	check_eq(_roll(RuleEvaluator.Outcome.CORRECT, false, 0.0).trust_change, -15.0, "acertó solo: −15")
-	check_eq(_roll(RuleEvaluator.Outcome.WRONG, false, 0.0).trust_change, -25.0, "incorrecta y sin respuesta: −25")
+	check_eq(_roll(RuleEvaluator.Outcome.WRONG, false, 0.0).trust_change, -30.0, "incorrecta y sin respuesta: −30")
 	return true
 
 

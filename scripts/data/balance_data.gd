@@ -1,7 +1,7 @@
 class_name BalanceData
 extends Resource
 ## Valores de equilibrio que valen para todas las noches (docs/02 §5.2 y §6): cuánto dura la noche,
-## la vida y el aturdimiento de los amigos, las consecuencias de cada acción y cómo se recupera Trust.
+## la vida y el aturdimiento de los amigos, las consecuencias de cada acción y cómo baja Trust.
 ## Se ajustan probando, en el Inspector de data/balance.tres. Los que cambian por noche están en NightData.
 
 ## Segundos reales que dura una noche, de las 00:00 a las 06:00 (diseño §5).
@@ -24,10 +24,13 @@ extends Resource
 @export_range(0.0, 1.0) var wrong_hurt_chance := 0.6
 ## Vida que le quita una acción incorrecta si lo hiere.
 @export var wrong_damage := 1
-## Trust que se pierde por una acción incorrecta (negativo).
-@export var wrong_trust := -10.0
+## Trust que se pierde por una acción incorrecta (negativo). Desde el 11 de noviembre, Trust no se recupera en la
+## noche, así que cada error pesa más.
+@export var wrong_trust := -15.0
 ## Trust que se pierde, además, cuando nadie responde a tiempo y el amigo decide solo (negativo).
 @export var no_answer_trust := -15.0
+## Trust que se pierde cuando se pierde un video: el amigo arriesgó para grabarlo (decisión de Benja, 11 de noviembre).
+@export var lost_video_trust := -10.0
 
 @export_group("Accidentes")
 ## Segundos para responder un accidente (decisión de Benja, 7 de noviembre).
@@ -36,10 +39,7 @@ extends Resource
 @export var incident_damage := 1
 
 @export_group("Trust")
-## Trust sube 1 punto cada tantos segundos…
-@export var trust_recovery_interval := 8.0
-## …si no bajó en los últimos tantos segundos.
-@export var trust_recovery_delay := 20.0
+## Trust no se recupera durante la noche (decisión de Benja, 11 de noviembre): vuelve a 100 al empezar cada una.
 ## Segundos que una solicitud puede esperar sin que Trust baje (decisión de Benja, 4 de noviembre)…
 @export var slow_answer_grace := 30.0
 ## …y después, Trust baja tantos puntos por segundo por cada solicitud que sigue esperando.

@@ -17,10 +17,10 @@ func test_valores_de_docs_02() -> bool:
 	check_eq(balance.risky_trust, -20.0, "mayor riesgo: Trust −20")
 	check_eq(balance.wrong_hurt_chance, 0.6, "incorrecta: 60 %")
 	check_eq(balance.wrong_damage, 1, "incorrecta: −1 PV")
-	check_eq(balance.wrong_trust, -10.0, "incorrecta: Trust −10")
+	check_eq(balance.wrong_trust, -15.0, "incorrecta: Trust −15 (11 de noviembre: Trust ya no se recupera)")
 	check_eq(balance.no_answer_trust, -15.0, "sin respuesta: Trust −15 extra")
-	check_eq(balance.trust_recovery_interval, 8.0, "Trust +1 cada 8 s")
-	check_eq(balance.trust_recovery_delay, 20.0, "si no hubo errores en 20 s")
+	check_eq(balance.lost_video_trust, -10.0, "video perdido: Trust −10")
+	check(not "trust_recovery_interval" in balance, "Trust ya no se recupera durante la noche")
 	return true
 
 
