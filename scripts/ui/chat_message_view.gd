@@ -52,8 +52,6 @@ var _done := false
 ## Cuántas letras se ven ya, con el nombre.
 var _typed := 0
 var _shaking_clue := &""
-## Lo que costó el señuelo que vibra ("−1 s"), o vacío.
-var _shake_penalty := ""
 
 
 func _init(chat_message: ChatMessage, speaker_name := "", color := Color.WHITE, caption := false) -> void:
@@ -165,16 +163,14 @@ func refresh() -> void:
 
 
 ## El señuelo clickeado vibra un momento; después queda rojo.
-func shake(clue_id: StringName, penalty := "") -> void:
+func shake(clue_id: StringName) -> void:
 	_shaking_clue = clue_id
-	_shake_penalty = penalty
 	refresh()
 	create_tween().tween_callback(_stop_shaking).set_delay(SHAKE_SECONDS)
 
 
 func _stop_shaking() -> void:
 	_shaking_clue = &""
-	_shake_penalty = ""
 	refresh()
 
 
@@ -194,8 +190,7 @@ func _token_bbcode(token: ChatMessage.Token) -> String:
 			var red := _colored(text, DECOY_COLOR)
 			if token.clue_id != _shaking_clue:
 				return red
-			var penalty := "" if _shake_penalty.is_empty() else " " + _colored(_shake_penalty, DECOY_COLOR)
-			return "[shake rate=30 level=10]%s[/shake]%s" % [red, penalty]
+			return "[shake rate=30 level=10]%s[/shake]" % red
 	if message.request.finished:
 		return _colored(text, CLUE_COLOR)
 	return "[url=%s]%s[/url]" % [token.clue_id, _colored(text, CLUE_COLOR)]

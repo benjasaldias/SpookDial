@@ -119,6 +119,15 @@ func test_preguntar_cuesta_lo_que_dice_el_equilibrio() -> bool:
 	return true
 
 
+## "Matías piensa" dura lo que dice el equilibrio: 2 s (decisión de Benja, 11 de noviembre).
+func test_copia_el_tiempo_de_pensar() -> bool:
+	var catalog := Fixtures.make_catalog()
+	check_eq(RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(1)).thinking_seconds, 2.0, "por defecto, 2 s")
+	catalog.balance.thinking_seconds = 1.5
+	check_eq(RequestGenerator.generate(catalog, catalog.nights[0], 0, _rng(1)).thinking_seconds, 1.5, "el de BalanceData")
+	return true
+
+
 func test_tiempo_para_responder() -> bool:
 	var night := NightData.new()
 	night.base_decision_time = 40.0

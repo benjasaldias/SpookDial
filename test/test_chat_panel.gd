@@ -172,8 +172,8 @@ func test_clic_en_un_senuelo_lo_hace_vibrar() -> bool:
 	return true
 
 
-## Mientras vibra, el señuelo muestra lo que costó, solo la primera vez (decisión de Benja, 11 de noviembre).
-func test_el_senuelo_muestra_lo_que_costo() -> bool:
+## Un señuelo solo vibra y se pone rojo, sin mostrar un costo (decisión de Benja, 11 de noviembre, tras el primer testeo).
+func test_el_senuelo_vibra_sin_costo() -> bool:
 	var panel := _make_panel()
 	panel.open_for(0)
 	var request := _manager.start_request(0)
@@ -181,13 +181,12 @@ func test_el_senuelo_muestra_lo_que_costo() -> bool:
 	message.add_fragment("Hay *algo*", request.decoys[0].id)
 	_manager.message_added.emit(0, message)
 	var view: ChatMessageView = panel.message_views(0)[-1]
-	var cost := tr("CHAT_DECOY_COST").format({"seconds": 1})
+	var time_left := request.time_left
 	view.clue_clicked.emit(view, request.decoys[0].id)
-	check((view.get_node("Bubble/Text") as RichTextLabel).text.contains(cost), "muestra %s" % cost)
-	view.shake(&"")
-	view.clue_clicked.emit(view, request.decoys[0].id)
-	check(not (view.get_node("Bubble/Text") as RichTextLabel).text.contains(cost), "la segunda vez vibra sin costo")
-	check(tr("CHAT_DECOY_COST") != "CHAT_DECOY_COST", "el texto existe")
+	var text := (view.get_node("Bubble/Text") as RichTextLabel).text
+	check(text.contains("[shake"), "vibra")
+	check(not text.contains("−"), "sin costo: %s" % text)
+	check_eq(request.time_left, time_left, "no quita tiempo")
 	_free(panel)
 	return true
 

@@ -109,9 +109,9 @@ extends Resource
 ## menos, ya no se puede preguntar. Es la palanca principal de la identificación por preguntas (decisión de
 ## Benja, 3-nov).
 @export var question_cost := 5.0
-## Segundos del temporizador que cuesta clickear un señuelo, solo la primera vez (decisión de Benja, 11 de noviembre):
-## clickear todas las frases ya no es gratis.
-@export var decoy_cost := 1.0
+## Segundos que Matías piensa, después de marcar las 2 características, antes de que aparezca el nombre de la entidad
+## (docs/02 §3.1). Eran 3; el primer testeo los encontró largos (decisión de Benja, 11 de noviembre).
+@export var thinking_seconds := 2.0
 
 @export_group("Director")
 ## Olas de verdad (decisión de Benja, 11 de noviembre): un minuto de silencio, olas que llegan juntas, una calma

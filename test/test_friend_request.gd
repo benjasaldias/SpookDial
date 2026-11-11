@@ -25,7 +25,7 @@ func test_marcar_las_2_caracteristicas_hace_pensar_a_matias() -> bool:
 	check_eq(request.identification, FriendRequest.Identification.PENDING, "todavía falta una")
 	request.click_clue(&"beast_trait_2")
 	check_eq(request.identification, FriendRequest.Identification.THINKING, "Matías piensa")
-	check_eq(request.thinking_left, FriendRequest.THINKING_TIME, "espera de 3 s")
+	check_eq(request.thinking_left, 2.0, "espera de 2 s (decisión de Benja, 11 de noviembre)")
 	return true
 
 
@@ -33,8 +33,8 @@ func test_el_nombre_aparece_tras_la_espera() -> bool:
 	var request := _make_request()
 	request.click_clue(&"beast_trait_1")
 	request.click_clue(&"beast_trait_2")
-	check(not request.advance(2.9), "a los 2,9 s sigue pensando")
-	check(request.advance(0.2), "a los 3,1 s aparece el nombre")
+	check(not request.advance(1.9), "a los 1,9 s sigue pensando")
+	check(request.advance(0.2), "a los 2,1 s aparece el nombre")
 	check_eq(request.identification, FriendRequest.Identification.REVEALED, "identificada")
 	check(not request.advance(1.0), "aparece una sola vez")
 	return true
@@ -141,7 +141,7 @@ func test_en_el_tutorial_el_temporizador_espera() -> bool:
 	check_eq(request.time_left, 25.0, "la pregunta cuesta igual")
 	request.click_clue(&"beast_trait_1")
 	request.click_clue(&"beast_trait_2")
-	check(request.advance(FriendRequest.THINKING_TIME), "aparece el nombre")
+	check(request.advance(request.thinking_seconds), "aparece el nombre")
 	return true
 
 
@@ -187,26 +187,23 @@ func test_en_el_tutorial_nunca_es_lenta() -> bool:
 	return true
 
 
-## Clickear un señuelo cuesta 1 s la primera vez (decisión de Benja, 11 de noviembre): ya no se puede clickear todo
-## gratis. Cuenta como tiempo abierto, como las preguntas.
-func test_un_senuelo_cuesta_1_s_la_primera_vez() -> bool:
+## Un señuelo solo vibra y se pone rojo: no cuesta tiempo (decisión de Benja, 11 de noviembre, tras el primer testeo).
+func test_un_senuelo_no_cuesta() -> bool:
 	var request := _make_request()
-	check_eq(request.decoy_cost, 1.0, "por defecto, 1 s")
-	request.click_clue(&"decoy_sight")
-	check_eq(request.time_left, 29.0, "costó 1 s")
-	check_eq(request.open_seconds, 1.0, "cuenta como tiempo abierto")
-	request.click_clue(&"decoy_sight")
-	check_eq(request.time_left, 29.0, "la segunda vez no cuesta")
+	check_eq(request.click_clue(&"decoy_sight"), FriendRequest.ClueState.DECOY, "queda en rojo")
+	check_eq(request.time_left, 30.0, "no costó tiempo")
+	check_eq(request.open_seconds, 0.0, "ni cuenta como tiempo abierto")
+	return true
+
+
+## Cuánto piensa Matías antes del nombre sale del equilibrio (BalanceData.thinking_seconds), que copia el generador.
+func test_matias_piensa_lo_que_dice_el_equilibrio() -> bool:
+	var request := _make_request()
+	request.thinking_seconds = 1.0
 	request.click_clue(&"beast_trait_1")
-	check_eq(request.time_left, 29.0, "una característica no cuesta")
-	request = _make_request()
-	request.time_left = 0.5
-	request.click_clue(&"decoy_sight")
-	check_eq(request.time_left, 0.0, "no baja de 0")
-	request = _make_request()
-	request.timer_paused = true
-	request.click_clue(&"decoy_sight")
-	check_eq(request.time_left, 29.0, "en el tutorial también cuesta: solo lo que hace Matías le quita tiempo")
+	request.click_clue(&"beast_trait_2")
+	check_eq(request.thinking_left, 1.0, "piensa 1 s")
+	check(request.advance(1.1), "y aparece el nombre")
 	return true
 
 

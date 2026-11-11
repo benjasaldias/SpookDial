@@ -186,10 +186,11 @@ func test_el_lugar_solo_a_veces() -> bool:
 	return true
 
 
-## Clickear un señuelo cuesta 1 s (decisión de Benja, 11 de noviembre).
-func test_el_senuelo_cuesta() -> bool:
+## "Matías piensa" dura 2 s (decisión de Benja, 11 de noviembre, tras el primer testeo). Los señuelos ya no cuestan.
+func test_matias_piensa_2_s() -> bool:
 	var balance: BalanceData = load(BALANCE_PATH)
-	check_eq(balance.decoy_cost, 1.0, "1 s por señuelo")
+	check_eq(balance.thinking_seconds, 2.0, "2 s")
+	check(not "decoy_cost" in balance, "el costo del señuelo ya no existe")
 	return true
 
 

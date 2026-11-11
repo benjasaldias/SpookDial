@@ -14,10 +14,9 @@ enum ClueState { UNMARKED, MARKED, DECOY }
 ## Segundos del temporizador que cuesta una pregunta por defecto (docs/02 §3.2); el del juego es el de
 ## BalanceData.question_cost, que el generador copia a `question_cost`.
 const QUESTION_COST := 5.0
-## Segundos del temporizador que cuesta un señuelo por defecto; el del juego es BalanceData.decoy_cost.
-const DECOY_COST := 1.0
-## Segundos que Matías piensa antes de que aparezca el nombre de la entidad (docs/02 §3.1).
-const THINKING_TIME := 3.0
+## Segundos que Matías piensa antes de que aparezca el nombre de la entidad, por defecto (docs/02 §3.1); el del juego
+## es BalanceData.thinking_seconds, que el generador copia a `thinking_seconds`.
+const THINKING_SECONDS := 2.0
 
 var friend_index := 0
 var entity: EntityData
@@ -42,8 +41,8 @@ var greeting_key := ""
 var predicament_key := ""
 ## Segundos que cuesta una pregunta.
 var question_cost := QUESTION_COST
-## Segundos que cuesta clickear un señuelo, la primera vez (decisión de Benja, 11 de noviembre).
-var decoy_cost := DECOY_COST
+## Segundos que Matías piensa antes de que aparezca el nombre.
+var thinking_seconds := THINKING_SECONDS
 ## Segundos que quedan para responder.
 var time_left := 0.0
 ## En el tutorial, el temporizador espera: solo las preguntas le quitan tiempo (decisión de Benja).
@@ -88,9 +87,9 @@ func marked_count() -> int:
 	return count
 
 
-## Clic en una frase: una característica queda marcada y un señuelo, en rojo. La primera vez que un señuelo se pone
-## rojo cuesta decoy_cost segundos, también en el tutorial: solo lo que hace Matías le quita tiempo ahí.
-## Al marcar las 2 características, Matías empieza a pensar. Devuelve el estado de la frase.
+## Clic en una frase: una característica queda marcada y un señuelo, en rojo, sin costo (decisión de Benja, 11 de
+## noviembre, tras el primer testeo). Al marcar las 2 características, Matías empieza a pensar. Devuelve el estado de la
+## frase.
 func click_clue(clue_id: StringName) -> ClueState:
 	if finished:
 		return clue_state(clue_id)
@@ -98,11 +97,8 @@ func click_clue(clue_id: StringName) -> ClueState:
 		_clue_states[clue_id] = ClueState.MARKED
 		if identification == Identification.PENDING and marked_count() == traits.size():
 			identification = Identification.THINKING
-			thinking_left = THINKING_TIME
+			thinking_left = thinking_seconds
 	elif _has_clue(decoys, clue_id):
-		if clue_state(clue_id) != ClueState.DECOY:
-			time_left = maxf(time_left - decoy_cost, 0.0)
-			open_seconds += decoy_cost
 		_clue_states[clue_id] = ClueState.DECOY
 	return clue_state(clue_id)
 
