@@ -8,6 +8,8 @@ const FriendState := preload("res://scripts/core/friend_state.gd")
 const InterferenceSchedule := preload("res://scripts/core/interference_schedule.gd")
 const VideoSchedule := preload("res://scripts/core/video_schedule.gd")
 
+## Los diales que puede agarrar la Mano (decisión de Benja, 11 de noviembre).
+enum Dial { CONNECTION, SANITY, TRUST }
 ## Cómo termina la noche. NONE: todavía no termina.
 enum Ending { NONE, WON, FRIEND_DIED, SANITY, TRUST, CONNECTION, QUOTA }
 
@@ -136,6 +138,46 @@ func sanity_drain_per_second() -> float:
 ## Al celular le queda batería.
 func has_battery() -> bool:
 	return battery > 0.0
+
+
+## Matías prende el flash del celular: gasta flash_cost de la batería, haya o no una Mano (decisión de Benja, 11 de
+## noviembre). Sin batería no prende y devuelve false.
+func flash() -> bool:
+	if not has_battery():
+		return false
+	battery = maxf(battery - balance.flash_cost, 0.0)
+	return true
+
+
+## La Mano tiene agarrado el dial `dial` durante `delta` segundos: lo baja hand_drain por segundo hasta hand_floor,
+## nunca a 0. En Connection baja las 3 señales parejo, así que también sube la estática.
+func hand_pull(dial: Dial, delta: float) -> void:
+	var amount := balance.hand_drain * delta
+	match dial:
+		Dial.CONNECTION:
+			for friend: FriendState in friends:
+				friend.signal_level = _pulled(friend.signal_level, amount)
+		Dial.SANITY:
+			sanity = _pulled(sanity, amount)
+		Dial.TRUST:
+			trust = _pulled(trust, amount)
+
+
+## Lo que muestra el dial `dial`, de 0 a 100.
+func dial_value(dial: Dial) -> float:
+	match dial:
+		Dial.CONNECTION:
+			return connection()
+		Dial.SANITY:
+			return sanity
+	return trust
+
+
+## `value` bajado `amount` sin pasar de hand_floor. Si ya estaba bajo el mínimo, queda igual.
+func _pulled(value: float, amount: float) -> float:
+	if value <= balance.hand_floor:
+		return value
+	return maxf(value - amount, balance.hand_floor)
 
 
 ## Al amigo `friend_index` le va a golpear una interferencia: su entrada titila y suena estática.

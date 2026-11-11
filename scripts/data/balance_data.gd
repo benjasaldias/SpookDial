@@ -54,8 +54,9 @@ extends Resource
 ## deja de subir.
 @export var scroll_grace := 0.3
 ## Segundos de scroll que dura la batería del celular, que vuelve a llenarse solo al empezar la noche (decisión de
-## Benja, 7 de noviembre). 38 s a 4 de Sanity por segundo son una vez y media la barra.
-@export var phone_battery_seconds := 38.0
+## Benja, 7 de noviembre). Desde que el flash también la gasta, son 48 s (antes 38): con 38, la noche 5 no se podía
+## ganar (decisión de Benja, 11 de noviembre).
+@export var phone_battery_seconds := 48.0
 
 ## Bajo este valor de Sanity, algunas publicaciones del celular son fotos perturbadoras (decisión de Benja,
 ## 9 de noviembre)…
@@ -148,6 +149,20 @@ extends Resource
 @export var creature_stay := Vector2(15, 40)
 ## Segundos que la mancha de tinta tapa la página del cuaderno (diseño §11).
 @export var ink_seconds := 5.0
+
+@export_group("La Mano")
+## La Mano (idea de Benja, 11 de noviembre): asoma por la derecha hacia un dial al azar y, si lo agarra, lo baja hasta
+## un mínimo. Se espanta con el flash del celular.
+## Porcentaje de la batería que gasta cada flash, haya o no una Mano.
+@export var flash_cost := 10.0
+## Segundos que tarda en llegar al dial desde el borde de la pantalla.
+@export var hand_approach_seconds := 12.0
+## Segundos de cada tirón (mínimo y máximo, al azar): avanza lento y forzado.
+@export var hand_step_seconds := Vector2(0.5, 0.7)
+## Puntos por segundo que baja el dial agarrado (en Connection, cada una de las 3 señales).
+@export var hand_drain := 6.0
+## Hasta dónde lo baja: nunca a 0.
+@export var hand_floor := 15.0
 
 @export_group("Alucinaciones")
 ## Bajo este valor de Sanity suenan screamers auditivos falsos (diseño §10.2).

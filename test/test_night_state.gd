@@ -321,8 +321,8 @@ func test_la_bateria_se_gasta_solo_al_scrollear() -> bool:
 	check_eq(state.battery, 100.0, "empieza llena")
 	state.advance(30.0)
 	check_eq(state.battery, 100.0, "sin scrollear no se gasta")
-	_scroll_for(state, 19.0)
-	check(absf(state.battery - 50.0) < 1.0, "19 de 38 s: la mitad: %s" % state.battery)
+	_scroll_for(state, 24.0)
+	check(absf(state.battery - 50.0) < 1.0, "24 de 48 s: la mitad: %s" % state.battery)
 	state.advance(30.0)
 	check(absf(state.battery - 50.0) < 1.0, "no se recarga: %s" % state.battery)
 	return true
@@ -330,7 +330,7 @@ func test_la_bateria_se_gasta_solo_al_scrollear() -> bool:
 
 func test_sin_bateria_sanity_no_sube() -> bool:
 	var state := _make_state()
-	_scroll_for(state, 40.0)
+	_scroll_for(state, 50.0)
 	check_eq(state.battery, 0.0, "se acabó")
 	check(not state.has_battery(), "sin batería")
 	state.sanity = 50.0
@@ -354,4 +354,51 @@ func test_las_cortinas_y_la_criatura_bajan_sanity() -> bool:
 	state.sanity = 50.0
 	state.advance(1.0)
 	check(is_equal_approx(state.sanity, 50.0 - base - 2.0), "y Sanity baja: %s" % state.sanity)
+	return true
+
+
+## Cada flash de la linterna gasta 10 % de la batería, haya o no una Mano (decisión de Benja, 11 de noviembre).
+func test_el_flash_gasta_bateria() -> bool:
+	var state := _make_state()
+	check(state.flash(), "hay batería")
+	check_eq(state.battery, 90.0, "−10 %")
+	state.battery = 4.0
+	check(state.flash(), "con 4 %, alcanza para uno más")
+	check_eq(state.battery, 0.0, "y queda vacía")
+	return true
+
+
+func test_sin_bateria_no_hay_flash() -> bool:
+	var state := _make_state()
+	state.battery = 0.0
+	check(not state.flash(), "sin batería, la linterna no prende")
+	return true
+
+
+## Agarrado, el dial baja 6 por segundo hasta 15, nunca menos (decisión de Benja, 11 de noviembre).
+func test_la_mano_baja_el_dial_hasta_el_minimo() -> bool:
+	for dial: NightState.Dial in [NightState.Dial.SANITY, NightState.Dial.TRUST]:
+		var state := _make_state()
+		state.hand_pull(dial, 2.0)
+		check_eq(state.dial_value(dial), 88.0, "%d: −6 por segundo" % dial)
+		state.hand_pull(dial, 60.0)
+		check_eq(state.dial_value(dial), 15.0, "%d: hasta 15" % dial)
+		state.hand_pull(dial, 10.0)
+		check_eq(state.dial_value(dial), 15.0, "%d: no menos" % dial)
+	var low := _make_state()
+	low.sanity = 10.0
+	low.hand_pull(NightState.Dial.SANITY, 5.0)
+	check_eq(low.sanity, 10.0, "si ya estaba bajo el mínimo, no lo sube ni lo baja")
+	return true
+
+
+## En Connection baja las 3 señales parejo (decisión de Benja, 11 de noviembre): también sube la estática.
+func test_en_connection_baja_las_3_senales() -> bool:
+	var state := _make_state()
+	state.friends[2].signal_level = 20.0
+	state.hand_pull(NightState.Dial.CONNECTION, 5.0)
+	check_eq(state.friends[0].signal_level, 70.0, "León −30")
+	check_eq(state.friends[1].signal_level, 70.0, "Gonzalo −30")
+	check_eq(state.friends[2].signal_level, 15.0, "Agustín, hasta 15")
+	check_eq(state.dial_value(NightState.Dial.CONNECTION), state.connection(), "el dial es el promedio")
 	return true

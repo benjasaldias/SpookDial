@@ -32,7 +32,6 @@ func test_valores_del_mantenimiento() -> bool:
 		return true
 	check_eq(balance.scroll_sanity_per_second, 4.0, "scrollear: Sanity +4 por segundo")
 	check_eq(balance.scroll_grace, 0.3, "cada movimiento de la rueda cuenta 0,3 s")
-	check_eq(balance.phone_battery_seconds, 38.0, "la batería alcanza para 38 s de scroll")
 	check_eq(balance.interference_damage, 40.0, "interferencia: −40 de señal")
 	check_eq(balance.interference_warning, 3.0, "anunciada 3 s antes")
 	check_eq(balance.offline_trust_interval, 4.0, "desconectado: Trust −1 cada 4 s por amigo")
@@ -191,4 +190,16 @@ func test_el_lugar_solo_a_veces() -> bool:
 func test_el_senuelo_cuesta() -> bool:
 	var balance: BalanceData = load(BALANCE_PATH)
 	check_eq(balance.decoy_cost, 1.0, "1 s por señuelo")
+	return true
+
+
+## La Mano (idea de Benja, 11 de noviembre): los valores de partida que confirmó Benja.
+func test_la_mano() -> bool:
+	var balance: BalanceData = load(BALANCE_PATH)
+	check_eq(balance.flash_cost, 10.0, "cada flash, 10 % de la batería")
+	check_eq(balance.hand_approach_seconds, 12.0, "tarda unos 12 s en llegar al dial")
+	check_eq(balance.hand_step_seconds, Vector2(0.5, 0.7), "a tirones de 0,5 a 0,7 s")
+	check_eq(balance.hand_drain, 6.0, "agarrado, el dial baja 6 por segundo")
+	check_eq(balance.hand_floor, 15.0, "hasta 15, nunca 0")
+	check_eq(balance.phone_battery_seconds, 48.0, "la batería alcanza para 48 s de scroll (antes 38)")
 	return true
