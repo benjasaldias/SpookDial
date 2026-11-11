@@ -9,6 +9,7 @@ extends Control
 enum Stat { CONNECTION, SANITY, TRUST }
 
 const FONT := preload("res://fonts/departure_mono/DepartureMono-Regular.otf")
+const PixelText := preload("res://scripts/ui/pixel_text.gd")
 const PLATE := preload("res://art/ui/hud_bars.png")
 
 ## Sus nombres (ui.csv), en el orden de Stat.
@@ -92,7 +93,7 @@ func _draw() -> void:
 func _draw_row(stat: Stat) -> void:
 	var top := ROW_TOP + stat * ROW_HEIGHT
 	draw_string(FONT, Vector2(LABEL_LEFT, top + 10.0), tr(LABEL_KEYS[stat]).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1,
-			FONT_SIZE, TEXT_COLOR)
+			PixelText.size(FONT_SIZE), TEXT_COLOR)
 	var color := COLORS[stat]
 	if is_flashing(stat):
 		var lit := reduce_flashes or fmod(_flash_left[stat], BLINK_SECONDS) < BLINK_SECONDS / 2.0

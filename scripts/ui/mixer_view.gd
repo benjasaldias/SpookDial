@@ -12,6 +12,7 @@ extends Control
 const AudioSyncRound := preload("res://scripts/core/audio_sync_round.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const FONT := preload("res://fonts/departure_mono/DepartureMono-Regular.otf")
+const PixelText := preload("res://scripts/ui/pixel_text.gd")
 const BODY_TEXTURE := preload("res://art/ui/mixer_body.png")
 const FADER_CAP := preload("res://art/ui/mixer_fader_cap.png")
 
@@ -450,11 +451,11 @@ func _draw_led(top_left: Vector2, color: Color, lit: float) -> void:
 
 
 func _draw_text(text: String, baseline_left: Vector2, color: Color) -> void:
-	draw_string(FONT, baseline_left, text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, color)
+	draw_string(FONT, baseline_left, text, HORIZONTAL_ALIGNMENT_LEFT, -1, PixelText.size(FONT_SIZE), color)
 
 
 func _draw_text_centered(text: String, center_x: float, baseline: float, color: Color) -> void:
-	var width := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
+	var width := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, PixelText.size(FONT_SIZE)).x
 	_draw_text(text, Vector2(roundf(center_x - width / 2.0), baseline), color)
 
 

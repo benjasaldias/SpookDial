@@ -22,6 +22,7 @@ import/import_plugin/default_automatic_importer="SpriteFrames"
 [autoload]
 
 GameState="*res://scripts/autoload/game_state.gd"
+PixelTextSizer="*res://scripts/ui/pixel_text.gd"
 
 [display]
 

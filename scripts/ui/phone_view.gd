@@ -15,6 +15,7 @@ signal flash_pressed
 const NightState := preload("res://scripts/core/night_state.gd")
 const PhoneFeed := preload("res://scripts/core/phone_feed.gd")
 const PhoneIcons := preload("res://scripts/ui/phone_icons.gd")
+const PixelText := preload("res://scripts/ui/pixel_text.gd")
 const FONT := preload("res://fonts/departure_mono/DepartureMono-Regular.otf")
 ## El marco del celular: la carcasa azul, los botones y el vidrio negro alrededor de la pantalla.
 const FRAME := preload("res://art/ui/phone_frame.png")
@@ -191,7 +192,8 @@ func _draw() -> void:
 
 ## La barra superior, con el nombre de la red social y sus íconos, y la de navegación, abajo.
 func _draw_app_bars() -> void:
-	draw_string(FONT, Vector2(22, 57), tr(APP_NAME_KEY), HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE * 2, TEXT_COLOR)
+	draw_string(FONT, Vector2(22, 57), tr(APP_NAME_KEY), HORIZONTAL_ALIGNMENT_LEFT, -1, PixelText.size(FONT_SIZE * 2),
+			TEXT_COLOR)
 	PhoneIcons.draw_icon(self, PhoneIcons.HEART, Vector2(204, 45), TEXT_COLOR)
 	PhoneIcons.draw_icon(self, PhoneIcons.SEND, Vector2(226, 45), TEXT_COLOR)
 	draw_rect(Rect2(14, 63, 232, 1), DIVIDER_COLOR)
@@ -217,7 +219,8 @@ func _draw_feed() -> void:
 	if not _state.has_battery():
 		_feed.draw_rect(Rect2(Vector2.ZERO, _feed.size), GLASS_COLOR)
 		var center := Vector2(0, _feed.size.y / 2.0)
-		_feed.draw_string(FONT, center, tr(NO_BATTERY_KEY), HORIZONTAL_ALIGNMENT_CENTER, _feed.size.x, FONT_SIZE, DIM_COLOR)
+		_feed.draw_string(FONT, center, tr(NO_BATTERY_KEY), HORIZONTAL_ALIGNMENT_CENTER, _feed.size.x,
+				PixelText.size(FONT_SIZE), DIM_COLOR)
 		return
 	if _posts.is_empty():
 		return
@@ -256,4 +259,4 @@ func _draw_text_bar(left: float, top: float, width: float, color: Color) -> void
 
 
 func _draw_text(canvas: CanvasItem, text: String, baseline_left: Vector2, color: Color) -> void:
-	canvas.draw_string(FONT, baseline_left, text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, color)
+	canvas.draw_string(FONT, baseline_left, text, HORIZONTAL_ALIGNMENT_LEFT, -1, PixelText.size(FONT_SIZE), color)
