@@ -203,3 +203,53 @@ func test_la_mano() -> bool:
 	check_eq(balance.hand_floor, 15.0, "hasta 15, nunca 0")
 	check_eq(balance.phone_battery_seconds, 48.0, "la batería alcanza para 48 s de scroll (antes 38)")
 	return true
+
+
+# --- Toda noche se puede ganar (requisito de Benja, 11 de noviembre). El modelo de "jugar bien" está en
+# test/balance_model.gd.
+
+const BalanceModel := preload("res://test/balance_model.gd")
+## Semillas por noche: el director y la criatura cambian con cada una.
+const SEEDS := 20
+
+
+## La batería de los flashes, más la que hace falta para reponer Sanity jugando bien, no pasa de 100 %.
+func test_la_bateria_alcanza_en_cada_noche() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	for night: NightData in catalog.nights:
+		var needed := BalanceModel.battery_needed(night, catalog.balance)
+		check(needed <= 100.0, "noche %d: pide %.1f %% de batería" % [night.number, needed])
+	return true
+
+
+## Jugando bien, ninguna solicitud, accidente, video ni Mano vence sin atender, ni siquiera en la ola final.
+func test_jugando_bien_nada_vence() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	for night: NightData in catalog.nights:
+		for seed_value in SEEDS:
+			var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1)
+			check_eq(result["missed"], 0, "noche %d, semilla %d: tareas vencidas" % [night.number, seed_value + 1])
+			check(result["requests"] >= night.requests_total - 2, "noche %d, semilla %d: llegan casi todas: %d"
+					% [night.number, seed_value + 1, result["requests"]])
+	return true
+
+
+## Jugando bien, Trust termina sobre 75: queda espacio para unos errores.
+func test_jugando_bien_trust_queda_sobre_75() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	for night: NightData in catalog.nights:
+		for seed_value in SEEDS:
+			var trust: float = BalanceModel.simulate(night, catalog.balance, seed_value + 1)["trust"]
+			check(trust >= 75.0, "noche %d, semilla %d: Trust %.1f" % [night.number, seed_value + 1, trust])
+	return true
+
+
+## Trust amenaza de verdad: como ya no se recupera, 7 respuestas incorrectas bastan para perder cualquier noche, y
+## cada noche tiene al menos esas solicitudes.
+func test_trust_amenaza() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var wrong_to_lose := ceili(100.0 / -catalog.balance.wrong_trust)
+	check(wrong_to_lose <= 7, "%d incorrectas pierden la noche" % wrong_to_lose)
+	for night: NightData in catalog.nights:
+		check(night.requests_total >= wrong_to_lose, "noche %d: %d solicitudes" % [night.number, night.requests_total])
+	return true

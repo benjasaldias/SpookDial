@@ -164,6 +164,31 @@ func test_videos_en_las_calmas() -> bool:
 	return true
 
 
+## Un video de una calma alcanza a descargarse antes de la ola siguiente: llega a más tardar 25 s antes (15 para
+## empezar y 10 de descarga), o al empezar la calma, si es corta.
+func test_el_video_no_llega_encima_de_la_ola() -> bool:
+	var night := _night()
+	var director := _director(night, 12)
+	var balance := BalanceData.new()
+	director.advance(60.0, 0)
+	director.request_started(60.0)
+	director.request_started(65.0)
+	# La ola se resuelve tarde: la final llega 14 s después de que empieza la calma.
+	var calm_start := director.finale_at - 14.0
+	director.wave_index = director.waves.size() - 2
+	var beat := director.advance(calm_start, 0)
+	check(beat.calm_started, "empezó la calma")
+	check_eq(beat.videos.size(), 2, "la última calma suelta los 2 videos")
+	if beat.videos.size() == 2:
+		check_eq(beat.videos[0], calm_start, "con la calma corta, el primero llega enseguida")
+	var window := balance.video_accept_seconds + balance.download_seconds
+	var long_calm := _run(_director(_night(), 4), _night(), 30.0)
+	for index in long_calm["videos"].size():
+		var next_wave: float = long_calm["waves"][index + 1][0]
+		check(long_calm["videos"][index] <= next_wave - window + 0.5, "llega 25 s antes de la ola siguiente")
+	return true
+
+
 ## Si una calma es la última antes de la final, suelta todos los videos que faltan.
 func test_la_ultima_calma_suelta_todos_los_videos() -> bool:
 	var night := _night()

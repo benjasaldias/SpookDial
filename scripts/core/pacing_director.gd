@@ -293,10 +293,13 @@ func _start_calm(now: float, beat: Beat) -> void:
 		time += _balance.scare_min_gap
 
 
-## Suelta `count` videos desde `now`, uno cada video_accept_seconds.
+## Suelta `count` videos desde `now`, uno cada video_accept_seconds. El primero llega a más tardar a tiempo para
+## descargarlo antes de la ola siguiente (next_at), o enseguida si la calma es corta: un video nunca cae encima de una
+## ola.
 func _release_videos(now: float, count: int, beat: Beat) -> void:
 	count = mini(count, videos_left)
-	var time := now + _calm_delay()
+	var latest := next_at - _balance.video_accept_seconds - _balance.download_seconds
+	var time := clampf(now + _calm_delay(), now, maxf(latest, now))
 	for _index in count:
 		beat.videos.append(time)
 		time += _balance.video_accept_seconds
