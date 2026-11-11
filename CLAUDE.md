@@ -38,6 +38,8 @@ Lee este archivo completo al empezar cada sesión. Después lee **`docs/00_log.m
 | `docs/18_plan_dinamismo.md` | Plan 9, paso a paso: las barras, la dificultad, los audios, la batería, las cortinas y los accidentes. |
 | `docs/19_prompt_lore.md` | Prompt de la sesión que planifica el lore por noche. |
 | `docs/20_prompt_red_social.md` | Prompt de la sesión que rediseña la red social del celular. |
+| `docs/22_diagnostico_mecanicas.md` | Diagnóstico de Claude de por qué el juego se siente plano, con propuestas. Al inicio dice cuáles eligió Benja (11-nov). |
+| `docs/23_prompt_ajustes_mecanicas.md` | Prompt de la sesión que implementa los ajustes del 11-nov y la Mano. |
 | `art/positions.md` | Posición de cada objeto recortado en la escena. |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1. Es **histórico**: su encabezado dice qué se aceptó y qué no. |
 | `spook_dial_design_v1.md` | Diseño original (histórico). |
@@ -120,6 +122,12 @@ No se vuelven a discutir salvo que Benja lo pida. El detalle de cada una está e
 | 08-11-2026 | **Audio Sync muestra una fila de 8 luces**, las de una ronda, aunque la noche tenga 2 rondas. |
 | 09-11-2026 | **Luces de ronda en Audio Sync:** junto a la fila, una luz por ronda (solo si la noche tiene varias), visible desde que se abre el mixer: azul la ronda en curso, verde las pasadas. Al fallar se apagan, porque se vuelve a la primera. |
 | 08-11-2026 | **Los amigos suenan mientras escriben,** como en Undertale, cada uno con su voz (sonido, altura y ritmo, en `data/friends/*.tres`). Solo suena el chat que se está viendo, no suena sobre un audio, y Matías y los avisos no tienen voz. |
+| 11-11-2026 | **El mensaje inicial no siempre dice el lugar:** el amigo saluda y dice qué le pasa (está perdido, algo lo persigue, creyó escuchar algo), y menciona el lugar solo a veces, con una probabilidad considerable. Reconocer rápido a la criatura es parte de la habilidad. Reemplaza al lugar fijo del 3-nov. Valores en `docs/23`. |
+| 11-11-2026 | **Los señuelos cuestan 1 s** del temporizador (reemplaza al "sin otro costo" del 26-oct), y **las características se dicen con sinónimos y paráfrasis**, de 2 a 4 variantes cada una. El cuaderno conserva un nombre fijo por característica. |
+| 11-11-2026 | **Olas de verdad:** las solicitudes de una ola llegan juntas y después hay una calma real; las interferencias caen en las olas y los videos, en las calmas; el primer minuto es de silencio, y la última hora es el clímax. Ajusta la del 2-nov. **La cuota no sube** (sigue la del 26-oct). |
+| 11-11-2026 | **Aviso cuando los videos ya no alcanzan:** el juego dice que alguien tiene que arriesgarse. **La criatura se queda un tiempo al azar** (reemplaza los 25 s fijos del 7-nov). |
+| 11-11-2026 | **La Mano** (idea de Benja, `hand_sprite`): el segundo enemigo del cuarto. Asoma desde el costado derecho, en silencio y de a poco, hacia un dial al azar, y lo baja rápido hasta un mínimo, nunca hasta 0. **Se espanta al instante con el flash del celular**, que gasta batería, así que hay que guardar batería. Se anima alternando sus 3 cuadros, pausada y con sacudidas, como en Undertale. **Toda noche debe ser ganable:** Claude regula los valores. |
+| 11-11-2026 | **Trust no se recupera durante la noche** (vuelve a 100 al empezar cada noche) y tendrá una segunda forma de bajar, que se elige en la sesión de `docs/23`. |
 | 02-11-2026 | **Noche 0 (tutorial):** una noche nueva antes de la 1. El susto guionado y su chat son datos de una noche y van al final de la noche 0. |
 | 04-11-2026 | **La noche 0 es guiada y no se pierde:** unos 3 o 4 minutos, con 3 solicitudes fijas (una de cada amigo, con El Tue Tué y La Calchona). Un aviso arriba de la pantalla dice qué hacer en cada paso. El tiempo para responder no corre solo (solo las preguntas le quitan tiempo), nadie sale herido y Trust no baja. Enseña también a descargar un video (sus plazos esperan). Termina con el susto guionado, el chat de Gonzalo y el celular. "Nueva partida" empieza en la noche 0, y el aviso tiene un botón "Saltar tutorial". |
 | 04-11-2026 | **Las 7 entidades son un borrador de Claude:** las 3 de `docs/09` y 4 nuevas, como `.tres` y CSV. Benja las corrige antes del congelamiento del contenido (25-nov). |

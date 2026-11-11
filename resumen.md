@@ -4,6 +4,101 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 21e — 10 y 11 de noviembre de 2026 — Diagnóstico de las mecánicas
+
+Sesión pedida por Benja, en Opus 5.5: un escaneo profundo de lo que hace que el juego se sienta plano y las ideas para mejorarlo. Sin código.
+
+### Realizado
+
+- **Diagnóstico** (`docs/22_diagnostico_mecanicas.md`). Se revisaron el código, los datos de las 6 noches y las 7 entidades, los textos y las capturas. Los hallazgos principales:
+  - **el lugar delata a la entidad:** de los 13 lugares, 12 son de una sola entidad;
+  - **los señuelos no cuestan nada,** así que clickear todo identifica a la entidad;
+  - **el cuaderno dice qué preguntar,** y la regla trae la acción con el mismo texto del botón;
+  - **en las 7 entidades, la regla 1 depende del audio,** y «¿Cómo está el ambiente?» nunca decide una acción;
+  - **las olas no existen:** según la simulación del director, las solicitudes llegan cada 40 a 110 s, y en la noche 1 nunca hay 2 a la vez, aunque no se conteste;
+  - **la acción de mayor riesgo nunca conviene,** porque la cuota ya está cubierta;
+  - **lo que muestran las barras casi nunca hace perder;**
+  - **el terror queda detrás del chat y del cuaderno.**
+
+  Propuestas en 5 grupos: A (arreglos baratos), B (que decidir cueste pensar), C (el terror en el chat), D (cambios grandes) y E (recortes).
+- **Decisiones de Benja (11-nov):**
+  - el mensaje inicial dice qué le pasa al amigo y menciona el lugar solo a veces;
+  - los señuelos cuestan 1 s y las características se dicen con sinónimos;
+  - olas de verdad y un final fuerte;
+  - la cuota **no** sube;
+  - aviso cuando los videos ya no alcanzan;
+  - la criatura se queda un tiempo al azar;
+  - **la Mano** (idea suya): asoma en silencio por la derecha hacia un dial al azar y lo baja hasta un mínimo; se espanta con el flash del celular, que gasta batería;
+  - **Trust sin recuperación,** con una segunda forma de bajar por decidir.
+
+  Ya están en `CLAUDE.md`. El diseño v2 se actualiza en S21f, junto con los valores.
+- **El sprite de la Mano**, revisado: 319×81, 3 cuadros, sin tags. En la maqueta (capa `Hand`, cuadro 2), agarra el dial de Connection.
+- **Prompt de la siguiente sesión** (`docs/23_prompt_ajustes_mecanicas.md`), para Opus 5.5 · xhigh. Trae las skills que hay que usar, las decisiones y 6 preguntas, cada una con una opción recomendada. Claude recomienda que el flash cueste **10 %** de la batería, y no 5 %, y que **un video perdido baje Trust**.
+- **Documentos:** `CLAUDE.md` (6 decisiones y 2 documentos nuevos) y `docs/00_log.md` (S21e cerrada, S21f siguiente y S21b después).
+
+### Errores encontrados
+
+- **Claude no jugó con las manos:** los tiempos de atención del diagnóstico (unos 25 s por solicitud) son estimaciones.
+- **Choque de espacio con la Mano:** el cuaderno abierto tapa la mitad derecha de la pantalla, justo los diales y el lugar por donde entra la Mano. Queda como pregunta 3 de S21f.
+- **Con un señuelo de 1 s, clickear todo sigue siendo barato** (como mucho 4 s en la noche 5). Lo que más obliga a identificar son los sinónimos, sobre todo para quien reconoce a la criatura desde el cuaderno. El costo se ajusta en `balance.tres`.
+- **Benja cambió la maqueta** (`scene_layout.aseprite`, capa `Hand`) y agregó `hand_sprite.aseprite`. Ninguno de los dos tiene commit todavía.
+
+### Pendientes Código
+
+- [ ] **S21f: ajustes de mecánicas y la Mano** (`docs/23_prompt_ajustes_mecanicas.md`, Plan 9.1), antes de S21b.
+- [ ] En S21f: pasar las decisiones del 11-nov al diseño v2, con sus valores (en `CLAUDE.md` ya están, sin valores).
+- [ ] En S21f: registrar `hand_sprite` en `art/positions.md` e importarlo con Aseprite Wizard.
+- [ ] Para otro momento (`docs/22`): A6 (reacciones por entidad), A7 ("Matías piensa" a 1 s) y las secciones B a E (reglas con condiciones, "Reglas de la casa", situaciones que cambian, el daño que se oye, el impostor, mandar a grabar, recortes).
+- [ ] **Planificar el lore** (`docs/19_prompt_lore.md`).
+- [ ] Ajustar las recetas de `tools/make_sounds.py` según lo que diga Benja al escuchar (`docs/04`, Q).
+- [ ] Si las fotos perturbadoras no se alcanzan a ver bajo la viñeta: dejar el celular por encima de ella, en su propia capa. Hay que cambiar `UI/PhoneView` en `desk.gd` y en los 5 archivos de pruebas y capturas que lo usan.
+- [ ] Plan 10: los créditos de las fotos de Snapgram, si sus licencias los piden, y los de las 5 grabaciones (`audio/source/creditos.md`; no son obligatorios, pero conviene ponerlos).
+- [ ] Al probar el escalado a 1080p (`docs/04`, D): mirar cómo se ven las fotos y el arte de `art/ui/` a ×1,5 con el filtro Nearest.
+- [ ] Lore (S21b): decidir si el canal de los amigos aparece en Snapgram. Con cuentas sin nombre, habría que ver cómo se reconoce.
+- [ ] **S22: correcciones tras las pruebas con personas** (`docs/00_log.md`), con el contenido congelado el 25 de noviembre. Todos los valores del Plan 9 son de partida y se ajustan ahí: tiempos, señuelos, batería (38 s), cortinas, la criatura (25 s) y los accidentes.
+- [ ] Si en las pruebas con personas no entienden Audio Sync o los accidentes: enseñarlos en la noche 0.
+- [ ] Si la velocidad de Audio Sync se queda corta: bajar `audio_sync_tolerance` por noche.
+- [ ] Si Benja dibuja la animación de las cortinas o de la criatura: va en `curtains_sprite`.
+- [ ] Si las voces cansan: subir `CHARS_PER_SECOND` no ayuda; bajar la frecuencia con `voice_every`, o hacer sonar solo el comienzo de cada mensaje.
+- [ ] Menor: el panel de opciones deja ver tenue el menú de pausa detrás (fondo al 95 %). Las opciones siguen con el tema del chat, no con el de los menús.
+- [ ] Menor: abrir el escritorio solo (F6): "Empezar la noche N" y "Volver al menú" no hacen nada, porque los atiende `GameState`.
+- [ ] Menor: al cerrar el escritorio suelto, el sonido ambiente en bucle queda sonando y Godot avisa de 2 objetos sin liberar.
+- [ ] Planes 10 en adelante según `docs/00_log.md`.
+- [ ] Registrar los `.en.translation` cuando la columna `en` tenga textos (también el de `phone.csv`).
+- [ ] Plan 10: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Cuando llegue el arte de Benja: el logo, los bocetos de las 7 entidades, los diales rediseñados, los íconos de Snapgram, y las manos o el rostro de los screamers. Lo de `art/ui/` se reemplaza si Benja lo redibuja.
+- [ ] Si en las pruebas con personas los videos y las interferencias se juntan con las olas de solicitudes: el director no los mueve hoy (`docs/14`, "Fuera de este plan").
+- [ ] Menor: que los segundos de una entrada en alerta no toquen el ícono ⚠ del arte.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si al probar se siente seco o lento: una demora de "escribiendo…" en las respuestas del amigo, y marcar en el chat qué categorías ya se preguntaron.
+- [ ] Borrar `~/godot-games/spook-dial` y las copias `C:\dev\plan8`, `C:\dev\plan8_check`, `C:\dev\plan9` y `C:\dev\plan9_check` cuando Benja lo pida.
+
+### Pendientes Externos
+
+- [ ] **Abrir S21f** y contestar sus 6 preguntas (`docs/23`). Lo ideal es tener el editor de Godot cerrado.
+- [ ] Decidir si quieres hacer `art/_layout/scene_layout.aseprite` (con la capa `Hand`) y `hand_sprite.aseprite` en un commit ahora o en S21f.
+- [ ] **Escuchar los sonidos nuevos y revisar el arte** (`docs/04`, Q, unos 20 minutos). Lo más importante: que los audios de cada entidad se distingan de oído.
+- [ ] **Corregir los textos nuevos del Imbunche** (borradores de Claude): `OBS_IMBUNCHE_BABY_CRY_YES` y `_NO` en `messages.csv`, y `OBS_IMBUNCHE_BABY_CRY_Q`, `RULE_IMBUNCHE_1` y la frase nueva de `ENTITY_IMBUNCHE_LORE` en `notebook.csv`.
+- [ ] **Probar Snapgram** (`docs/04`, P, unos 10 minutos) y decir si las fotos perturbadoras se alcanzan a ver bajo la viñeta.
+- [ ] **Confirmar de dónde salió cada foto** de `art/phone/source/` y que su licencia permita usarla en un juego publicado. Si alguna no sirve, reemplázala: las perturbadoras son las que más preocupan.
+- [ ] **Si cambias de idea con el nombre:** Snapgram está en `PHONE_APP_NAME` (`data/text/phone.csv`).
+- [ ] **Si quieres:** dibujar el logo, los bocetos de las entidades, los íconos de Snapgram o redibujar cualquier pieza de `art/ui/` (`arte_pendiente.md`).
+- [ ] **Probar las correcciones** (`docs/04`, O, unos 10 minutos) y corregir `MIXER_ROUNDS` (`ui.csv`). Las voces ahora murmuran: escúchalas con la sección Q.
+- [ ] **Corregir las reglas de las 7 entidades** (están en `data/entities/`, en el Inspector, con sus textos en `messages.csv` y `notebook.csv`) y los textos nuevos del Plan 9: `RULE_*`, `OBS_*`, `INCIDENT_*`, `HUD_*`, `TUTORIAL_*`, `CHAT_AUDIO`, `CHAT_INCIDENT_HINT`, `OPTIONS_AUDIO_CAPTIONS` y `PHONE_NO_BATTERY`. Antes del congelamiento del contenido (25 de noviembre).
+- [ ] **Revisar los supuestos del Plan 9** (`docs/18`, al inicio), sobre todo que la criatura no se oiga con la cortina cerrada y que un accidente nunca mate.
+- [ ] **Probar el feedback** (`docs/04`, M, unos 15 minutos) y decir cómo se sienten las noches 1 y 2, Trust y la criatura. Los valores son de partida: `data/balance.tres` y `data/nights/night_N.tres`.
+- [ ] **Corregir los textos del Plan 8.1** (en `ui.csv`): `MIXER_ROUND` y `MIXER_FAIL_RESTART`. `TUTORIAL_DIALS` ya se reescribió en el Plan 9 para hablar de las barras.
+- [ ] **Probar el juego de punta a punta** (`docs/04`, L, unos 25 minutos): la noche 0, el menú, el guardado, la pausa y las opciones.
+- [ ] **Corregir los textos nuevos del Plan 8** (en `ui.csv`): el aviso del tutorial (`TUTORIAL_*`), el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el resumen y la victoria (`END_*`); y los 7 señuelos nuevos (`DECOY_*`, en `messages.csv`).
+- [ ] **Probar los screamers y el director** (`docs/04`, K), **la identificación por preguntas** (G), **el mantenimiento** (J), **la noche** (I) y **el chat y el cuaderno** (G y H).
+- [ ] **Corregir los textos que escribió Claude en los planes anteriores** (la lista completa está en la Sesión 17).
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara, y **probar el escalado a pantalla completa** (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Al probar con personas (semana 5): fijarse si notan que hay que preguntar, si la noche de práctica es muy larga o muy corta, y si entienden las barras, Audio Sync, los audios, las cortinas, la batería y los accidentes.
+
+---
+
 ## Sesión 21d — 10 de noviembre de 2026 — Arte y sonidos pulidos
 
 Sesión pedida por Benja, fuera de la secuencia y antes de S21b, en Opus 5.5. Se usaron las skills nuevas `disciplines:create-game-assets` y `disciplines:audio-design` (Benja instaló el plugin `disciplines` de awesome-gamedev-agent-skills; se verificó que el plugin `godot` del mismo marketplace estaba bien instalado). El arte de Benja no se tocó.
