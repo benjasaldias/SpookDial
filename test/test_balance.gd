@@ -180,3 +180,10 @@ func test_el_lugar_solo_a_veces() -> bool:
 	check_eq(catalog.tutorial.place_chance, 1.0, "noche 0")
 	check(catalog.predicament_keys.size() >= 6, "varias frases de lo que le pasa: %d" % catalog.predicament_keys.size())
 	return true
+
+
+## Clickear un señuelo cuesta 1 s (decisión de Benja, 11 de noviembre).
+func test_el_senuelo_cuesta() -> bool:
+	var balance: BalanceData = load(BALANCE_PATH)
+	check_eq(balance.decoy_cost, 1.0, "1 s por señuelo")
+	return true

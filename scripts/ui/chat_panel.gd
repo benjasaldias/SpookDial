@@ -51,6 +51,8 @@ const DOWNLOAD_OFFLINE_KEY := "DOWNLOAD_OFFLINE"
 const DOWNLOAD_MARK := "▼"
 ## Sin señal no se puede preguntar ni responder (ui.csv). Lleva {friend}.
 const OFFLINE_KEY := "CHAT_OFFLINE"
+## Lo que costó un señuelo, mientras vibra (ui.csv). Lleva {seconds}.
+const DECOY_COST_KEY := "CHAT_DECOY_COST"
 ## Sobre las opciones de un accidente (ui.csv).
 const INCIDENT_HINT_KEY := "CHAT_INCIDENT_HINT"
 const ChatVoice := preload("res://scripts/core/chat_voice.gd")
@@ -361,9 +363,14 @@ func _on_audio_clicked(view: ChatMessageView) -> void:
 	_audio_clip.play()
 
 
+## Un señuelo vibra y, la primera vez, muestra lo que costó (decisión de Benja, 11 de noviembre).
 func _on_clue_clicked(view: ChatMessageView, clue_id: StringName) -> void:
-	if _manager.click_clue(view.message, clue_id) == FriendRequest.ClueState.DECOY:
-		view.shake(clue_id)
+	var request := view.message.request
+	var was_decoy := request != null and request.clue_state(clue_id) == FriendRequest.ClueState.DECOY
+	if _manager.click_clue(view.message, clue_id) != FriendRequest.ClueState.DECOY:
+		return
+	var penalty := "" if was_decoy else tr(DECOY_COST_KEY).format({"seconds": ("%.1f" % request.decoy_cost).trim_suffix(".0")})
+	view.shake(clue_id, penalty)
 
 
 ## Vuelve a armar los mensajes de esa solicitud: frases marcadas, en rojo o sin enlaces si terminó.

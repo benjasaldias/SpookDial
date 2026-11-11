@@ -108,6 +108,9 @@ extends Resource
 ## menos, ya no se puede preguntar. Es la palanca principal de la identificación por preguntas (decisión de
 ## Benja, 3-nov).
 @export var question_cost := 5.0
+## Segundos del temporizador que cuesta clickear un señuelo, solo la primera vez (decisión de Benja, 11 de noviembre):
+## clickear todas las frases ya no es gratis.
+@export var decoy_cost := 1.0
 
 @export_group("Director")
 ## Segundos hasta la primera solicitud de la noche.

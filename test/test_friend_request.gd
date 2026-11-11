@@ -185,3 +185,26 @@ func test_en_el_tutorial_nunca_es_lenta() -> bool:
 	check_eq(request.open_seconds, 0.0, "no cuenta")
 	check(not request.is_slow(30.0), "no es lenta")
 	return true
+
+
+## Clickear un señuelo cuesta 1 s la primera vez (decisión de Benja, 11 de noviembre): ya no se puede clickear todo
+## gratis. Cuenta como tiempo abierto, como las preguntas.
+func test_un_senuelo_cuesta_1_s_la_primera_vez() -> bool:
+	var request := _make_request()
+	check_eq(request.decoy_cost, 1.0, "por defecto, 1 s")
+	request.click_clue(&"decoy_sight")
+	check_eq(request.time_left, 29.0, "costó 1 s")
+	check_eq(request.open_seconds, 1.0, "cuenta como tiempo abierto")
+	request.click_clue(&"decoy_sight")
+	check_eq(request.time_left, 29.0, "la segunda vez no cuesta")
+	request.click_clue(&"beast_trait_1")
+	check_eq(request.time_left, 29.0, "una característica no cuesta")
+	request = _make_request()
+	request.time_left = 0.5
+	request.click_clue(&"decoy_sight")
+	check_eq(request.time_left, 0.0, "no baja de 0")
+	request = _make_request()
+	request.timer_paused = true
+	request.click_clue(&"decoy_sight")
+	check_eq(request.time_left, 29.0, "en el tutorial también cuesta: solo lo que hace Matías le quita tiempo")
+	return true

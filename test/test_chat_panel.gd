@@ -172,6 +172,26 @@ func test_clic_en_un_senuelo_lo_hace_vibrar() -> bool:
 	return true
 
 
+## Mientras vibra, el señuelo muestra lo que costó, solo la primera vez (decisión de Benja, 11 de noviembre).
+func test_el_senuelo_muestra_lo_que_costo() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	var request := _manager.start_request(0)
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
+	message.add_fragment("Hay *algo*", request.decoys[0].id)
+	_manager.message_added.emit(0, message)
+	var view: ChatMessageView = panel.message_views(0)[-1]
+	var cost := tr("CHAT_DECOY_COST").format({"seconds": 1})
+	view.clue_clicked.emit(view, request.decoys[0].id)
+	check((view.get_node("Bubble/Text") as RichTextLabel).text.contains(cost), "muestra %s" % cost)
+	view.shake(&"")
+	view.clue_clicked.emit(view, request.decoys[0].id)
+	check(not (view.get_node("Bubble/Text") as RichTextLabel).text.contains(cost), "la segunda vez vibra sin costo")
+	check(tr("CHAT_DECOY_COST") != "CHAT_DECOY_COST", "el texto existe")
+	_free(panel)
+	return true
+
+
 func test_pide_abrir_el_cuaderno_para_responder() -> bool:
 	var panel := _make_panel()
 	check_eq((panel.get_node("Panel/AnswerHint") as Label).text, tr(panel.OPEN_NOTEBOOK_KEY), "aviso")

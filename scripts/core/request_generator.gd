@@ -65,6 +65,7 @@ static func build(catalog: ContentCatalog, night: NightData, friend_index: int, 
 	if not catalog.predicament_keys.is_empty():
 		request.predicament_key = catalog.predicament_keys[rng.randi_range(0, catalog.predicament_keys.size() - 1)]
 	request.question_cost = catalog.balance.question_cost
+	request.decoy_cost = catalog.balance.decoy_cost
 	request.time_left = decision_time(night, trust)
 	return request
 

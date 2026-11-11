@@ -41,6 +41,7 @@ download_seconds = 10.0
 download_slow_seconds = 15.0
 download_slow_below = 50.0
 question_cost = 5.0
+decoy_cost = 1.0
 first_request_delay = 5.0
 wave_respite = 25.0
 wave_tightening = 0.5
