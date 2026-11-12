@@ -6,28 +6,18 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ---
 
-## ▶ Siguiente sesión: S21l — La historia en el chat: el sistema y la noche 1 (Plan 9.7)
+## ▶ Siguiente sesión: S21m — La historia de la noche 2 (cuando Benja apruebe su guion)
 
 | | |
 | --- | --- |
-| **Qué se hace** | Escribir con `superpowers:writing-plans` y ejecutar el Plan 9.7 (`docs/31_plan_historia.md`): la historia como datos de la noche, sus disparadores, la llamada grupal con su ícono, las decisiones con forma de accidente (con la decisión doble de la noche 1), que cada criatura nueva salga al menos una vez, la prueba de equilibrio con la historia, y el guion de la noche 1 en los 3 modos. La noche 2 no entra hasta que Benja la apruebe. |
+| **Qué se hace** | Escribir con `superpowers:writing-plans` y ejecutar el plan de la noche 2 de la historia (`docs/21` §5), sobre el sistema de S21l (`docs/31`): un amigo inconsciente (sin consultas ni accidentes), una decisión que daña a otro amigo, cortar la señal de un amigo a propósito, y el guion en los 3 modos. |
+| **Cuándo** | **Solo cuando Benja apruebe el guion de la noche 2** en el documento compartido. Si no alcanza antes del 20 de noviembre, se salta y sigue S22 (la noche 2 queda con el mínimo de `docs/05`: la intro y el cierre del vlog). |
 | **Tipo** | Plan y ejecución. |
 | **Modelo** | **Opus 5.5** |
 | **Esfuerzo** | **xhigh** |
-| **Qué escribirle a Claude** | `Lee docs/21_lore_por_noche.md y escribe y ejecuta el plan de la historia (sistema y noche 1).` |
-| **Tu parte** | Autorizar los commits; probar la noche 1 y decir si la historia se deja, se modifica o se quita. Si alcanzas, revisar el guion de la noche 2 en el documento compartido. |
-| **Está terminada cuando** | La noche 1 se juega con su historia en los 3 modos y `test_balance` sigue en verde. |
-
-**Antes del 25 de noviembre** (congelamiento del contenido). Después: S22, las pruebas con personas.
-
---- | --- |
-| **Qué se hace** | Planificar con Benja qué le pasa al grupo en cada noche (separarse, reunirse, caer inconsciente, recibir daño, actuar raro y el texto de vlog), con `superpowers:brainstorming`. El resultado es un documento de contenido, sin código; el plan de implementación sale de ahí en otra sesión. |
-| **Tipo** | Plan (sin código). |
-| **Modelo** | **Opus 5.5** |
-| **Esfuerzo** | **high** |
-| **Qué escribirle a Claude** | `Lee docs/19_prompt_lore.md y sigue sus instrucciones.` |
-| **Tu parte** | Contestar las preguntas del lore y corregir los borradores. Si alcanzas antes, prueba Extremo (`docs/04`, W), la noche 0 nueva (V) y Normal y Difícil (U). |
-| **Está terminada cuando** | El documento del lore por noche está aprobado por Benja y la implementación quedó agendada en este registro. |
+| **Qué escribirle a Claude** | `Lee docs/21_lore_por_noche.md y escribe y ejecuta el plan de la noche 2 de la historia.` |
+| **Tu parte antes** | Probar la noche 1 con su historia (`docs/04`, X) y decir si se deja, se modifica o se quita; revisar y aprobar el guion de la noche 2 (y confirmar lo que asusta a Agustín: algo en el agua). |
+| **Está terminada cuando** | La noche 2 se juega con su historia en los 3 modos y `test_balance` sigue en verde. |
 
 **Antes del 25 de noviembre** (congelamiento del contenido). Después: S22, las pruebas con personas.
 
@@ -35,11 +25,12 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Los planes del feedback del primer testeo (9.3, 9.4 y 9.5) los escribieron y ejecutaron S21h, S21i y S21j, a partir de `docs/26`. Ya ejecutados: el **Plan 9.6: Extremo** (`docs/30`), en S21k, pedido de Benja fuera de la secuencia; el **Plan 9.1: ajustes de mecánicas y la Mano** (`docs/24`) y el **Plan 9.2: la letra, el cuaderno y el tutorial con León** (`docs/25`), en S21f; el **Plan 9.3: errores y el chat** (`docs/27`), en S21h, el **Plan 9.4: Normal y Difícil** (`docs/28`), en S21i, y el **Plan 9.5: el tutorial** (`docs/29`), en S21j. Ya ejecutado también `docs/19` (S21b), que produjo `docs/21`. El siguiente es el **Plan 9.7: la historia** (`docs/31`), que escribe y ejecuta S21l. El siguiente plan numerado es el **Plan 10** (sonido, pulido y versión, el Plan 9 original), que se escribe en S23.
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Los planes del feedback del primer testeo (9.3, 9.4 y 9.5) los escribieron y ejecutaron S21h, S21i y S21j, a partir de `docs/26`. Ya ejecutados: el **Plan 9.6: Extremo** (`docs/30`), en S21k, pedido de Benja fuera de la secuencia; el **Plan 9.1: ajustes de mecánicas y la Mano** (`docs/24`) y el **Plan 9.2: la letra, el cuaderno y el tutorial con León** (`docs/25`), en S21f; el **Plan 9.3: errores y el chat** (`docs/27`), en S21h, el **Plan 9.4: Normal y Difícil** (`docs/28`), en S21i, y el **Plan 9.5: el tutorial** (`docs/29`), en S21j. Ya ejecutado también `docs/19` (S21b), que produjo `docs/21`, y el **Plan 9.7: la historia y la noche 1** (`docs/31`), en S21l. El siguiente es el plan de la noche 2 de la historia (S21m), cuando Benja apruebe su guion. El siguiente plan numerado es el **Plan 10** (sonido, pulido y versión, el Plan 9 original), que se escribe en S23.
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
+| `docs/31_plan_historia.md` | **Plan 9.7**: la historia en el chat y la noche 1, con lo que mide la prueba de equilibrio y lo que cambió al ejecutarlo | Ya ejecutado (S21l) ✅ |
 | `docs/30_plan_extremo.md` | **Plan 9.6**: Extremo, con cómo se llegó a sus valores y lo que cambió al ejecutarlo | Ya ejecutado (S21k) ✅ |
 | `docs/29_plan_tutorial.md` | **Plan 9.5**: el tutorial y los pedidos del 12-nov, con lo que cambió al ejecutarlo | Ya ejecutado (S21j) ✅ |
 | `docs/28_plan_dificultad.md` | **Plan 9.4**: Normal y Difícil, con lo que cambió al ejecutarlo | Ya ejecutado (S21i) ✅ |
@@ -50,7 +41,7 @@ Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta
 | `docs/23_prompt_ajustes_mecanicas.md` | Prompt de la sesión S21f: ajustes de mecánicas y la Mano | Ya ejecutado (S21f) ✅ |
 | `docs/22_diagnostico_mecanicas.md` | Diagnóstico de Claude: por qué el juego se siente plano, con propuestas y lo que eligió Benja | No (referencia) |
 | `docs/20_prompt_red_social.md` | Prompt de la sesión S21c: la red social imita a una real | Ya ejecutado (S21c) ✅ |
-| `docs/21_lore_por_noche.md` | La historia por noche: decisiones, llamada grupal, personajes, canal y guiones (la noche 1 aprobada) | No; de aquí sale el Plan 9.7 (S21l) |
+| `docs/21_lore_por_noche.md` | La historia por noche: decisiones, llamada grupal, personajes, canal y guiones (la noche 1 aprobada e implementada) | No; de aquí salieron el Plan 9.7 (S21l) y el de la noche 2 (S21m) |
 | `docs/19_prompt_lore.md` | Prompt de la sesión S21b: planificar el lore por noche | Ya ejecutado (S21b) ✅ |
 | `docs/18_plan_dinamismo.md` | **Plan 9**: dinamismo, paso a paso, con código | Ya ejecutado (S21) ✅ |
 | `docs/17_ideas_dinamismo.md` | Notas de la prueba del 7-nov, ordenadas, con las decisiones del Plan 9 | No (referencia; de aquí sale el Plan 9) |
@@ -68,7 +59,7 @@ Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta
 | `docs/05_plan_produccion.md` | Alcance por prioridad y calendario por semana | No |
 | `docs/02_bucle_central.md` | Detalle de la mecánica central y plantilla de entidades | No (referencia) |
 | `docs/03_plan_arte.md` | Reglas del pipeline de arte y arte faltante | No (referencia) |
-| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L, M, O, P, Q, R, S, T, U, V y W) |
+| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L, M, O, P, Q, R, S, T, U, V, W y X) |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1 | No (histórico) |
 | `spook_dial_design.md` | Qué es el juego (diseño v2) | No (referencia principal) |
 | `resumen.md` | Detalle de cada sesión: hecho, errores y pendientes | No |
@@ -113,7 +104,8 @@ Hay dos tipos de sesión, que se alternan:
 | S21j | 12 nov | El tutorial (`docs/26` §4, Plan 9.5 en `docs/29`), y 5 pedidos de Benja | Diseño corto, plan y ejecución | Opus 5.5 · xhigh (se adelantó) | Probar la noche 0 (`docs/04`, V); corregir las líneas de León y Gonzalo | ✅ |
 | S21k | 12 nov | Extremo, una tercera dificultad (pedido de Benja, Plan 9.6 en `docs/30`) | Diseño corto, plan y ejecución | Opus 5.5 | Probar Extremo (`docs/04`, W); corregir los textos nuevos | ✅ |
 | S21b | 12 nov | Planificar el lore por noche (`docs/19` → `docs/21`) | Diseño | Opus 5.5 | Decisiones del lore; corregir los guiones | ✅ |
-| **S21l** | Antes del 25 nov | **La historia: el sistema y la noche 1** (Plan 9.7, `docs/31`) | Plan y ejecución | **Opus 5.5 · xhigh** | Autorizar commits; probar la noche 1 | ▶ |
+| S21l | 12 nov | La historia: el sistema y la noche 1 (Plan 9.7, `docs/31`) | Plan y ejecución | Opus 5.5 · xhigh | Probar la noche 1 (`docs/04`, X); corregir los textos nuevos | ✅ |
+| **S21m** | Antes del 20 nov | **La historia de la noche 2** (cuando Benja apruebe su guion) | Plan y ejecución | **Opus 5.5 · xhigh** | Aprobar el guion de la noche 2; autorizar commits | ▶ |
 | S21c | 9 nov | Red social que imita a una real (`docs/20`) | Diseño y ejecución | Opus 5.5 · high (se adelantó a S21b) | Probar (`docs/04`, P); confirmar de dónde son las fotos | ✅ |
 | S21d | 10 nov | Pulir el arte y los sonidos de Claude (pedido de Benja, sin plan aparte) | Diseño y ejecución | Opus 5.5 | Escuchar los sonidos y revisar el arte (`docs/04`, Q); corregir los textos del Imbunche | ✅ |
 | S22 | 23–29 nov | Correcciones tras las pruebas con personas (contenido congelado el 25) | Corrección | Opus 5.5 · high | Pruebas con 3 a 5 personas | ⏳ |
@@ -129,6 +121,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 12-nov | ✏️ S21l se hizo el mismo 12 de noviembre, en Opus 5.5 · xhigh. Benja contestó 4 preguntas (la final espera a la reunión a lo más 45 s, la historia no baja Trust de 1, los commits y el editor cerrado). El Plan 9.7 (`docs/31`) se escribió y se ejecutó: 8 commits en `main` (más uno con los documentos de S21b), de 763 a 821 pruebas OK. **S21m, nueva y siguiente:** la noche 2 de la historia, solo si Benja aprueba su guion antes del 20 de noviembre; si no, sigue S22. Detalle en `resumen.md`, Sesión 21l. |
 | 12-nov | ✏️ S21b se hizo el 12 de noviembre, en Opus 5.5. Benja respondió 6 preguntas (la historia habla de las criaturas pero las consultas no cambian, la llamada grupal, repetir igual, los 3 modos, el canal Acá Penan y las cinemáticas solo de intro y final) y trabajó los guiones en un documento compartido. **La noche 1 quedó aprobada; la 2 se pospuso** porque Benja tiene que terminar un informe. **S21l, nueva y siguiente:** escribe y ejecuta el plan de la historia con la noche 1. Detalle en `resumen.md`, Sesión 21b. |
 | 12-nov | ✏️ **S21k, nueva y fuera de la secuencia:** Benja pidió una tercera dificultad, Extremo, "realísticamente lograble pero difícil". Contestó 4 preguntas (los commits, el desbloqueo, Trust ×1,5 y que Difícil no cambia, porque lo probó y funciona) y pidió cambios al primer diseño (menos tiempo, menos tiempo libre que Difícil y olas de 2). El Plan 9.6 (`docs/30`) se escribió y se ejecutó en la misma sesión: 5 commits en `main`, de 748 a 763 pruebas OK. **S21b (el lore) sigue siendo la siguiente.** Detalle en `resumen.md`, Sesión 21k. |
 | 12-nov | ✏️ S21j se adelantó al 11 y 12 de noviembre (fecha objetivo: 17 a 20), en Opus 5.5 · xhigh. Benja contestó 3 preguntas (los commits, que en el chat de la noche 0 solo funciona lo que pide León, y el editor cerrado) y, al aprobar el diseño, sumó **5 pedidos que entraron en la misma sesión**: las tarjetas con colores y viñetas, el feed más lento, las fotos perturbadoras desde Sanity 50, el ambiente que no baja y una alarma en las entradas. El Plan 9.5 (`docs/29`) se escribió y se ejecutó: 10 commits en `main`, de 715 a 748 pruebas OK, y los videos de la Mano y del celular se grabaron de nuevo. La sesión se interrumpió una vez, sin pérdidas. **S21b es la siguiente.** Detalle en `resumen.md`, Sesión 21j. |

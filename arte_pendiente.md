@@ -1,6 +1,6 @@
 # Arte pendiente
 
-Todo el arte que falta para la v1, en un solo lugar. Actualizado el 12 de noviembre de 2026 (sesión S21j).
+Todo el arte que falta para la v1, en un solo lugar. Actualizado el 12 de noviembre de 2026 (sesión S21l).
 
 - **Cómo usar esta lista:** dibuja en el orden que prefieras y avísale a Claude cuando una pieza esté lista. La integración se hace en una sesión aparte.
 - **Mientras tanto:** todo lo marcado "provisional" ya funciona en el juego con un reemplazo hecho en Godot, así que nada bloquea la programación.
@@ -56,6 +56,7 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 12 de noviem
 | **Logo** (el menú ya está: ✅ Claude) | Plan 8 | El logo "Spook Dial". Hoy es texto en Departure Mono a 66 px. El menú muestra tus sprites del cuarto a la luz de la luna, oscurecidos, y el marco de placa a la derecha (`scenes/menu/main_menu.tscn`). Ver `C:\dev\capturas\arte_menu.png`. |
 | Pantalla entre noches | Plan 8 | La página del canal, con el contenido de la noche. |
 | **La Mano** (`hand_sprite`, ✅ tuya, 3 cuadros) | Plan 9.1 | Ya está en el juego, y en el video de su tarjeta de la noche 0 (si cambia, hay que volver a grabarlo: `tools/make_tutorial_videos.sh`). **Ojo:** el lado derecho del cuarto es casi negro, así que a mitad de camino la Mano no se ve (`C:\dev\capturas\plan91_mano_camino.png`): recién aparece en los últimos 3 o 4 s, sobre la pared, y antes solo la delata el crujido. Si quieres que se vea antes, sirven unos pelos o un borde un poco más claros en el brazo. Opcional: un cuadro de "agarre" propio y una animación de retirada al flash (hoy desaparece de golpe). |
+| El ícono de la llamada grupal ✅ Claude | Plan 9.7 | Un auricular que suena, de 11×11 y en blanco (`art/ui/chat_call.png`, de `tools/make_ui_art.py`): Godot lo pinta del color de la terminal en el encabezado del chat y en las entradas del PC. Si lo redibujas, del mismo tamaño y en blanco. |
 | Las marcas de la tabla del cuaderno ✅ Claude | Plan 9.2 | ✓, ✗ y la calavera, de 9×9 (`art/ui/mark_*.png`, de `tools/make_ui_art.py`). Si las redibujas, del mismo tamaño. |
 | Un boceto de Gonzalo para su página de la noche 0 | Plan 9.2 | Opcional, como los bocetos de las entidades. |
 | El rayo de la linterna | Plan 9.1 | Opcional. Hoy es un ícono de 11×11 hecho píxel por píxel (`PhoneIcons.FLASHLIGHT`, en `scripts/ui/phone_icons.gd`), en la barra superior del celular ampliado. |

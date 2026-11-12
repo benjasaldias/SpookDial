@@ -2,7 +2,7 @@
 
 Sesión S21b, 12 de noviembre de 2026, con Benja. Es un documento de contenido, sin código: el plan de implementación sale de aquí, en otra sesión.
 
-- **La noche 1 está aprobada** por Benja, con sus textos corregidos.
+- **La noche 1 está aprobada** por Benja, con sus textos corregidos, e **implementada en S21l** (Plan 9.7, `docs/31`), en los 3 modos.
 - **La noche 2 queda pospuesta:** el borrador está escrito, pero Benja no alcanzó a revisarlo, y no se implementa hasta que lo apruebe.
 - **Las noches 3 a 5 son un esquema** con las ideas de Benja, para detallar después de probar las noches 1 y 2.
 
@@ -127,7 +127,7 @@ Llegan juntos, algo los asusta y se separan: Gonzalo en la cabaña, León en el 
 
 Benja escribió "baja bastante Trust" y "le quita tiempo"; los −20, −10 y 10 s son de Claude, para probar. Benja había propuesto 3 s; Claude propuso 10, porque 3 s sobre 90 no se notan.
 
-**Lo que hay que resolver en el plan:**
+**Lo que había que resolver en el plan** (resuelto en S21l, `docs/31`): la final espera a las decisiones, a lo más 45 s (decisión de Benja); el daño y el aturdimiento son los de un accidente; y las respuestas de León a las 2 opciones malas, que el guion no tenía, son borradores de Claude en `messages.csv` (`STORY_N1_LEON_STABLE_REPLY` y `_SHOUT_REPLY`), igual que las de Matías a Agustín ("Escóndete" y "Corre"; con León, "Escóndanse" y "Corran").
 
 - **Las dos decisiones van una después de la otra,** porque la de Agustín depende de si León fue con él. Con los mensajes, son unos 40 s. En Extremo, la calma antes de la final es de 20 a 30 s: el plan tiene que decidir si la final espera a que terminen o si las decisiones se acortan.
 - **El daño del error de Agustín** sigue la regla de que la historia nunca mata: no le quita vida a quien tiene 1. Si están juntos, el daño es para el que tenga más vida; si los dos tienen 1, a ninguno.
@@ -155,6 +155,8 @@ Solo las ideas de Benja; los textos se escriben después de probar las noches 1 
 | 5 | La cueva del Imbunche | — | León los traiciona y se dan cuenta. El Imbunche es especialmente fuerte y tiene una **opción LETAL**, además de la calavera, que mata al instante. Antes del encuentro: "Mati, yo creo que esa wea nos toca y cagamos. Mantennos lejos de eso" (tal cual) | Si el Imbunche pasa de la noche 4 a la 5. La opción letal cambia una regla de la entidad, no la historia: propuesta de Claude, que sea siempre la misma acción en todas las filas y que el cuaderno la marque distinto de la calavera |
 
 ## 7. Lo que necesita la implementación (para el plan)
+
+Implementado en S21l (Plan 9.7, `docs/31`), salvo lo de la noche 2, al final de esta sección.
 
 | Pieza | Qué hace | Base que ya existe |
 | --- | --- | --- |

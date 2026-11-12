@@ -31,7 +31,7 @@ Tras probar el juego, Benja notó que es poco dinámico. El detalle y las decisi
 
 | Qué | Dónde se decide |
 | --- | --- |
-| **Lore por noche, en la v1** (planificado en S21b, 12-nov): la historia en el chat, la llamada grupal, las decisiones con forma de accidente y que cada criatura nueva salga al menos una vez. Orden: el sistema y la noche 1 (aprobada); la noche 2 cuando Benja la apruebe; las noches 3 a 5 después de probar. **Mínimo si falta tiempo:** la intro y el cierre del vlog en la llamada grupal de cada noche, sin decisiones. Absorbe los puntos 20 y 22. | `docs/21_lore_por_noche.md` |
+| **Lore por noche, en la v1** (planificado en S21b, 12-nov): la historia en el chat, la llamada grupal, las decisiones con forma de accidente y que cada criatura nueva salga al menos una vez. Orden: ✅ el sistema y la noche 1 (S21l, `docs/31`); la noche 2 cuando Benja la apruebe; las noches 3 a 5 después de probar. **Mínimo si falta tiempo:** la intro y el cierre del vlog en la llamada grupal de cada noche, sin decisiones. Absorbe los puntos 20 y 22. | `docs/21_lore_por_noche.md` |
 | ✅ La red social del celular imita a una real: Snapgram (hecho en S21c, 9-nov). | `docs/20_prompt_red_social.md` |
 
 ### Prioridad 2 — antes del 10 de diciembre, si alcanza el tiempo

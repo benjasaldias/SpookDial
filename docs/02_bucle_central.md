@@ -279,6 +279,7 @@ Lo demás: olas de 2 y la final de 3, 3 solicitudes a la vez, la señal que baja
 - Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync, un audio de un amigo ni un screamer.
 - Accidentes (decisión de Benja, 7 de noviembre): se reparten en la noche como los screamers, 15 s para responder (22,5 s con "Temporizadores ×1,5"). Solo le pasan a un amigo libre, con señal y con más de 1 PV; si la ola está llena, esperan.
 - El chat guionado: cada línea del amigo llega 2,5 s después de la anterior; las de Matías esperan su botón.
+- **La historia** (Plan 9.7, `docs/31`): cada línea espera lo que tarda en escribirse (60 letras por segundo) más 1,2 s para leerla. Los momentos "antes de" una ola empiezan 15 s antes (25 s el de antes de la ola 1 de la noche 1, que tiene 10 líneas). Mientras la historia cuenta algo, la ola espera a lo más 45 s (`story_hold_limit`, decisión de Benja). Una decisión dura lo que un accidente (15 s, 22,5 con "Temporizadores ×1,5"); Trust no baja de 1 por la historia, y los segundos que pierde la próxima consulta de un amigo nunca la dejan bajo 10 s. Los valores de las decisiones de la noche 1 (10 s menos, Trust −10 y −20) son de partida (`docs/21` §4). La prueba de equilibrio juega la historia: jugando bien, ninguna ola espera y la historia llega entera en los 3 modos.
 
 ---
 
@@ -396,10 +397,16 @@ TutorialRequestData  la solicitud fija de la noche 0: friend, entity, situation 
                  with_hint, decoys[] (fijos; desde el Plan 9.2, León describe a Gonzalo)
 TutorialCardData una tarjeta del final de la noche 0: title_key, text_key, video (VideoStream, video/tutorial/*.ogv)
 ChatScriptData   friend, lines[] (ChatLineData: speaker FRIEND/PLAYER, text_key), highlight_phone
+StoryData        la historia de una noche (NightData.story; Plan 9.7): beats[] (StoryBeatData: moment, lead_seconds, steps[]),
+                 starts_together
+StoryStepData    kind (LINE/SEPARATE/JOIN/DECISION), speaker, text_key, decision, requires_flag, unless_flag
+StoryDecisionData friend, message_key, options[] (StoryOptionData), no_answer
+StoryOptionData  label_key, good, reply_keys[], trust_change, penalty_seconds + penalized[], damage +
+                 damage_candidates[], sets_flag
 BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust, también el video perdido), vignette_start, el scroll del celular, las fotos perturbadoras (`disturbing_post_*`), la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`) y la espera de "Matías piensa" (`thinking_seconds`), el director (silencio, olas y calmas), los screamers (señal previa, justicia, Sanity, la criatura y la tinta), la Mano y el flash, y las alucinaciones
 PhonePostData    picture (la foto, de 232×232; las cuentas no tienen nombre ni texto)
 ContentCatalog   friends[3], nights[5], tutorial (la noche 0), decoys[], greeting_keys[] (saludos),
-                 predicament_keys[] (lo que le pasa al amigo), balance,
+                 predicament_keys[] (lo que le pasa al amigo), alone_predicament_keys[] (las de uno solo), balance,
                  phone_posts[] (12 gatitos), phone_disturbing_posts[] (4 fotos, con poca Sanity) (data/catalog.tres)
 ```
 

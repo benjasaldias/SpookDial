@@ -25,6 +25,7 @@
 - 11 de noviembre, tras el primer testeo (S21i, `docs/26` §3 y `docs/28`): **dos modos, Normal y Difícil**, que se eligen al empezar una partida. Difícil se desbloquea al terminar Normal. La noche 1 de Normal va armada a mano, las noches 2 a 5 de Normal son algo más fáciles, y en Difícil se identifica leyendo, sin nada destacado.
 - 12 de noviembre, tras el primer testeo (S21j, `docs/26` §4 y `docs/29`): **la noche 0 de nuevo**, donde solo funciona lo que León va enseñando y eso parpadea, con lo que cuesta preguntar, lo azul, un audio, la estática y Gonzalo mostrando qué pasa si nadie contesta; el flash es un botón con relieve y las tarjetas van con colores y viñetas. Y 5 pedidos de Benja: el feed más lento, las fotos perturbadoras desde Sanity 50, el ambiente que no baja antes de un screamer y una alarma en cada entrada del PC.
 - 12 de noviembre (S21b, `docs/21`): **la historia va en el chat durante la noche**, como el vlog del canal Acá Penan, con una llamada grupal cuando los amigos están juntos y decisiones con forma de accidente. Las consultas no cambian, salvo que cada criatura nueva sale al menos una vez. Las cinemáticas quedan solo para la intro y el final.
+- 12 de noviembre (S21l, `docs/31`): **la historia de la noche 1 se juega** en los 3 modos. La ola espera a la historia a lo más 45 s, y la historia no baja Trust de 1.
 - 12 de noviembre (S21k, `docs/30`): **un tercer modo, Extremo**, que se desbloquea al terminar Difícil: olas más seguidas, menos tiempo, más obstrucciones, Trust por error ×1,5 y un amigo al azar que empieza cada noche con 1 de vida. Se gana jugando como experto.
 
 ---
@@ -435,7 +436,9 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 - **las decisiones** llegan como un accidente (alarma y 15 s) y pueden bajar Trust, quitar segundos a la próxima consulta de un amigo o hacerle daño, sin matarlo nunca;
 - **las consultas no cambian:** la criatura y el lugar siguen al azar, aunque la historia hable de las criaturas de la noche. Cada criatura nueva de la noche sale al menos una vez, y solo se fuerza cuando falta;
 - va igual en los 3 modos y se repite igual al perder una noche;
-- la noche 1 está escrita y aprobada; la noche 2, pospuesta, y las noches 3 a 5, en esquema (`docs/21`).
+- **la ola espera a la historia** mientras cuenta algo antes de ella, a lo más 45 s (decisión de Benja, S21l): jugando bien nunca espera. Si la ola final llega encima de la ola anterior, lo que iba antes de ella se salta (las decisiones también), pero los amigos se reúnen igual;
+- **la historia nunca hace perder:** su daño no le quita vida a quien tiene 1, y Trust no baja de 1 por ella (decisión de Benja, S21l);
+- la noche 1 está escrita, aprobada e implementada (S21l, `docs/31`); la noche 2, pospuesta, y las noches 3 a 5, en esquema (`docs/21`).
 
 **Las cinemáticas opcionales** (introducción y final), basadas en la versión Twine:
 

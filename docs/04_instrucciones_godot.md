@@ -28,6 +28,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **U.** Probar Normal y Difícil (Plan 9.4) | ⬜ Pendiente (unos 20 minutos) |
 | **V.** Probar la noche 0 nueva y los pedidos del 12 de noviembre (Plan 9.5) | ⬜ Pendiente (unos 20 minutos) |
 | **W.** Probar Extremo (Plan 9.6) | ⬜ Pendiente (unos 30 minutos, o más si quieres ganarlo) |
+| **X.** Probar la historia de la noche 1 (Plan 9.7) | ⬜ Pendiente (unos 25 minutos: la noche 1 en Normal y, si alcanzas, en Difícil) |
 | Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
@@ -839,3 +840,44 @@ Los valores están en `data/nights/extreme/night_N.tres` y en `data/difficulty/e
 ### Los textos nuevos para corregir (antes del 25 de noviembre)
 
 Todos en `data/text/ui.csv`: `DIFFICULTY_EXTREME`, `DIFFICULTY_EXTREME_INFO` y `CHAT_WOUNDED_START` (lleva `{friend}`, `{health}` y `{max}`).
+
+---
+
+## X. Probar la historia de la noche 1 (Plan 9.7)
+
+Del 12 de noviembre (sesión S21l). Avísale a Claude antes de abrir Godot. Son unos 25 minutos: la noche 1 en Normal y, si alcanzas, en Difícil (dura 7 minutos cada una). La historia es la misma en los 3 modos.
+
+### Llegar a la noche 1
+
+- **En Normal:** **Nueva partida**, elige **Normal** y **Empezar**. Empieza en la noche 0: con `Esc` abre la pausa y aprieta **Saltar tutorial**.
+- **En Difícil o Extremo:** desbloquéalos con `progress.cfg` (está explicado en la sección W) y elige el modo: empiezan en la noche 1.
+
+### Qué verificar
+
+1. **Al empezar (00:00):** las 3 entradas del PC muestran un **auricular celeste** a la derecha. Haz clic en cualquiera: el chat dice **LLAMADA GRUPAL**, no tiene pestañas, arriba están las barritas de los 3 y León, Gonzalo y Agustín presentan el capítulo de **Acá Penan**, cada uno con su color y su voz.
+2. **Unos 25 s antes de la primera ola:** el susto ("???? qué fue eso" hasta "Escóndanse!! Nos reunimos en la cabaña!!"). La llamada termina, vuelven las pestañas y cada uno escribe en su chat dónde se escondió (el punto en la pestaña marca lo que no leíste).
+3. **Al terminar la ola 1:** León muestra el establo, Gonzalo la cocina, Agustín se siente en una película y León pregunta si lo llamaste. **15 s antes de la ola 2,** cada uno escribe que algo se acerca.
+4. **Al terminar la ola 2, la reunión:** Gonzalo prende la luz del pórtico y después **León decide** (con alarma, 15 s y 4 opciones en su chat). Después **decide Agustín**: en plural si León fue a las luces blancas. Prueba al menos una vez no contestar.
+5. **Cuando llegan:** vuelve la llamada, con todo lo que se habló antes ("Ya estamos todos. Nadie se separa más").
+6. **15 s antes de la ola final,** 3 líneas en la llamada; la final la corta en los 3 chats. **Después de la final,** el cierre del vlog.
+7. **Además:** el Tue Tué y la Calchona salen al menos una vez cada uno, y con los 3 juntos ninguna consulta dice "Me perdí" ni "Me separé de los demás".
+
+**Qué esperar:** jugando bien, la historia nunca atrasa una ola. Si te demoras en las decisiones, la ola final espera a que terminen, a lo más 45 s. Si la final te llega encima de la ola 2, la reunión se salta y se reúnen solos.
+
+### Dime
+
+- si la historia **se deja, se modifica o se quita**;
+- si se entiende que es una llamada (y que no se puede cambiar de chat);
+- si las decisiones se sienten justas y si los castigos se notan (10 s menos, Trust −10 o −20);
+- si se lee bien sin perder el hilo de las consultas.
+
+### Dónde se cambia
+
+- **El guion:** en Godot, panel **FileSystem** (Sistema de archivos), carpeta `data/story`, doble clic en `night_1.tres`. En el **Inspector**, **Beats** tiene los 7 momentos; despliega uno para ver sus **Steps** (cada línea con su **Speaker** y su **Text Key**). Una decisión tiene sus **Options**, con **Trust Change**, **Penalty Seconds**, **Penalized** y **Damage**. Al guardar (`Ctrl+S`), **verifica:** el archivo sigue en la lista de **Story** de `data/nights/normal/night_1.tres`.
+- **Los textos:** `data/text/messages.csv`, las claves `STORY_N1_*`.
+- **Cuánto espera una ola a la historia:** `data/balance.tres`, grupo **Director**, **Story Hold Limit** (45).
+
+### Los textos nuevos para corregir (antes del 25 de noviembre)
+
+- **Borradores de Claude** (el guion no los tenía), en `messages.csv`: lo que contesta León a las opciones malas (`STORY_N1_LEON_STABLE_REPLY` y `STORY_N1_LEON_SHOUT_REPLY`) y lo que le responde Matías a Agustín (`STORY_N1_AGUSTIN_HIDE`, `_RUN`, `STORY_N1_DUO_HIDE` y `_RUN`).
+- En `ui.csv`: `CHAT_CALL_TITLE` y `CHAT_CALL_SYNC` (lleva `{friend}`).

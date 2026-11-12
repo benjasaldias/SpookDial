@@ -26,6 +26,37 @@
 
 **Punto de partida:** 763 pruebas OK (commit `0a4c2dd`, con los documentos de S21b).
 
+**Resultado (12-nov, S21l):** ejecutado completo, en 8 commits. **821 pruebas OK.** Las capturas se revisaron a 1280×720 y 1920×1080 (`C:\dev\capturas\plan97_*.png`), y una prueba de humo jugó la noche 1 entera con el escritorio real en los 3 modos (2 semillas cada uno): se ganan las 6, con la historia entera (los 7 momentos, 22 líneas en la llamada y las 2 decisiones).
+
+| Tarea | Commit | Pruebas |
+| --- | --- | --- |
+| 1. La historia como datos | `297f938` | 769 |
+| 2. El director cuenta sus olas y espera a la historia | `794db58` | 774 |
+| 3. `StoryRunner` | `2094835` | 790 |
+| 4. El manager cuenta la historia | `18da094` | 806 |
+| 5. La llamada grupal en el chat y en el PC | `d395192` | 813 |
+| 6. El guion de la noche 1 | `5f7286c` | 818 |
+| 7. La prueba de equilibrio juega la historia | `8792fb7` | 820 |
+| 8. Revisión | `b42d1d2` | 821 |
+
+**Lo que mide la prueba de equilibrio con la historia** (la noche 1, 20 semillas):
+
+| Quien juega | Normal | Difícil | Extremo |
+| --- | --- | --- | --- |
+| Bien (12, 14 y 11 s por consulta) | La historia entera; ninguna ola espera; Trust mínimo 90 | Igual; Trust mínimo 83 | Igual; Trust mínimo 88 |
+| Con 15 s más por consulta | Una ola espera a lo más 2,5 s | No espera | No espera |
+| Con 30 s más por consulta | La final espera a lo más 28 s; la reunión se salta en unas 13 de 20 noches (la final llega encima de la ola 2); llegan las 5 consultas | No espera | No espera |
+
+Trust baja 10 porque quien juega bien elige la buena opción más cara (León va a las blancas). Con 15 o 30 s más por consulta, Difícil y Extremo ya pierden tareas, con o sin historia: no son para ese ritmo.
+
+**Lo que cambió al ejecutar:**
+
+- **Las barritas de la llamada subieron** debajo del encabezado (en la Tarea 5 quedaron abajo, en la barra de identificación), como dice `docs/21`; en la llamada, la barra de identificación se oculta entera.
+- **Un mensaje que llega a un chat mientras se ve la llamada queda sin leer,** aunque sea el del amigo elegido.
+- **Un chat guionado que espera la respuesta de Matías también corta la llamada:** lo encontró la prueba del susto guionado, que usa la noche 1.
+- La prueba de las claves de texto de la historia quedó en `test_validator_texts.gd`, con las demás de textos.
+- `test/dump_waves.gd` no cambió: el modelo juega la historia solo.
+
 ---
 
 ## Decisiones de Benja
@@ -81,17 +112,17 @@
 
 **El validador** revisa la historia de cada noche que tenga: sin espacios vacíos; los que hablan y deciden son amigos del catálogo; cada línea tiene texto; cada decisión tiene al menos una opción buena, su opción sin respuesta y sus opciones con lo que responde Matías; los heridos y castigados son amigos del catálogo; y los momentos van en orden (no se puede poner uno antes de otro anterior). `alone_predicament_keys` tiene que estar dentro de `predicament_keys`. Las claves de texto de la historia entran en `_text_keys`.
 
-- [ ] **Paso 1:** pruebas en `test_validator_catalog.gd`:
+- [x] **Paso 1:** pruebas en `test_validator_catalog.gd`:
   - `test_una_historia_valida_no_tiene_errores`;
   - `test_la_historia_habla_con_amigos_del_catalogo`;
   - `test_una_decision_necesita_una_opcion_buena_y_su_sin_respuesta`;
   - `test_los_momentos_de_la_historia_van_en_orden`;
   - `test_lo_que_le_pasa_a_uno_solo_esta_en_las_frases`;
   - `test_las_claves_de_la_historia_se_revisan` (con `validate_texts`).
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La historia de una noche como datos, con su validación".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La historia de una noche como datos, con su validación".
 
 ### Tarea 2: El director cuenta las olas y espera a la historia
 
@@ -101,17 +132,17 @@
 - `story_hold := false`: en el silencio y en las calmas, la próxima ola no empieza mientras esté encendido, salvo que ya lleve `story_hold_limit` segundos de atraso (desde `next_at`). En una ola, la final llega a su hora como siempre.
 - `BalanceData.story_hold_limit := 45.0` (decisión de Benja).
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_cuenta_las_olas_y_las_calmas`;
   - `test_la_ultima_ola_comun` (con olas automáticas, con un plan y sin final);
   - `test_la_ola_espera_a_la_historia`;
   - `test_la_espera_dura_a_lo_mas_45_s`;
   - `test_la_final_espera_a_la_historia`;
   - `test_balance.gd`: el valor nuevo en `test_valores_del_director_y_los_screamers`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "El director cuenta sus olas y espera a la historia".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "El director cuenta sus olas y espera a la historia".
 
 ### Tarea 3: `StoryRunner`, la historia en curso
 
@@ -129,7 +160,7 @@
 - `holds() -> bool`: la historia está contando algo (un momento empezado): la próxima ola espera.
 - `is_done() -> bool`.
 
-- [ ] **Paso 1:** pruebas en `test_story_runner.gd` (con una historia de prueba y un director real de una noche con 2 olas comunes y la final):
+- [x] **Paso 1:** pruebas en `test_story_runner.gd` (con una historia de prueba y un director real de una noche con 2 olas comunes y la final):
   - `test_la_noche_empieza_con_la_llamada`;
   - `test_las_lineas_esperan_lo_que_tardan_en_escribirse`;
   - `test_antes_de_la_ola_llega_con_su_anticipacion`;
@@ -146,10 +177,10 @@
   - `test_las_marcas_eligen_las_lineas_y_las_decisiones`;
   - `test_el_cierre_espera_a_que_no_quede_nada`;
   - `test_mientras_cuenta_algo_la_ola_espera`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La historia en curso: sus momentos, la llamada y las decisiones".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La historia en curso: sus momentos, la llamada y las decisiones".
 
 ### Tarea 4: El manager cuenta la historia
 
@@ -164,7 +195,7 @@
 - **`FriendIncident.for_decision(decision, friend, seconds)`**: un accidente con las opciones de la decisión, en orden; `decision` guarda de dónde viene.
 - **`RequestGenerator.generate(..., together, candidates)`**: con `together`, no usa `alone_predicament_keys`; con `candidates`, elige la entidad entre ellas.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_request_generator.gd`: `test_juntos_no_dice_que_esta_solo` y `test_puede_elegir_entre_algunas_entidades`;
   - `test_request_manager.gd`:
     - `test_sin_historia_no_hay_llamada`;
@@ -181,10 +212,10 @@
     - `test_cada_criatura_nueva_sale_al_menos_una_vez`;
     - `test_juntos_las_consultas_no_dicen_que_esta_solo`;
     - `test_la_ola_espera_a_la_historia` (con el director del manager).
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "El manager cuenta la historia: la llamada, las decisiones y las criaturas nuevas".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "El manager cuenta la historia: la llamada, las decisiones y las criaturas nuevas".
 
 ### Tarea 5: La llamada grupal en el chat y en el PC
 
@@ -199,14 +230,14 @@
   Al cortarse la llamada con el chat abierto, se elige el primer amigo con algo que jugar.
 - **Las entradas del PC** muestran el ícono de la llamada (en lugar del temporizador) mientras dura, salvo un amigo sin señal o aturdido, que muestra lo de siempre. Cualquiera abre la llamada.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_chat_panel.gd`: `test_en_llamada_no_hay_pestanas`, `test_la_llamada_muestra_quien_habla`, `test_en_llamada_hay_una_senal_por_amigo`, `test_la_llamada_se_corta_en_el_chat_del_que_juega` y `test_las_voces_de_la_llamada`;
   - `test_chat_entry.gd`: `test_en_llamada_muestra_el_icono`;
   - `test_desk_scene.gd`: `test_las_entradas_abren_la_llamada`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar, generar el ícono con `/usr/bin/python3 tools/make_ui_art.py` y reimportar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La llamada grupal en el chat y en las entradas del PC".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar, generar el ícono con `/usr/bin/python3 tools/make_ui_art.py` y reimportar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La llamada grupal en el chat y en las entradas del PC".
 
 ### Tarea 6: El guion de la noche 1
 
@@ -226,16 +257,16 @@ El guion es el de `docs/21` §4, tal cual, en 7 momentos:
 
 **La decisión de León:** "Anda a la amarilla" (buena: Agustín, 10 s menos), "Anda a las blancas" (buena: León, 10 s menos, Trust −10 y la marca), "Vuelve al establo y espera ahí" y "Grita y ve de dónde responden" (malas: Trust −20 y los 3, 10 s menos); sin respuesta, como las malas. **La de Agustín:** "Escóndete" (buena) y "Corre" (mala: Trust −10 y 1 de daño a Agustín); con León, en plural y el daño para el que tenga más vida de los dos; sin respuesta, como la mala.
 
-- [ ] **Paso 1:** pruebas en `test_catalog.gd`:
+- [x] **Paso 1:** pruebas en `test_catalog.gd`:
   - `test_la_noche_1_tiene_su_historia_en_los_3_modos` (la misma historia, 7 momentos en orden);
   - `test_la_historia_de_la_noche_1_empieza_juntos_y_se_separa_antes_de_la_ola_1`;
   - `test_las_decisiones_de_la_noche_1` (opciones, buenas, castigos y marca);
   - `test_lo_que_le_pasa_a_uno_solo`;
   - las del validador y de los textos ya corren sobre el catálogo real.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** escribir los textos y los recursos (con un script temporal que arma el `.tres` con `ResourceSaver` y se borra), y reimportar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "El guion de la noche 1 en los 3 modos".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** escribir los textos y los recursos (con un script temporal que arma el `.tres` con `ResourceSaver` y se borra), y reimportar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "El guion de la noche 1 en los 3 modos".
 
 ### Tarea 7: La prueba de equilibrio juega la historia
 
@@ -247,11 +278,11 @@ El guion es el de `docs/21` §4, tal cual, en 7 momentos:
   - `test_jugando_bien_la_final_casi_no_espera` (la espera más larga, bajo 10 s);
   - las de siempre (nada vence, Trust sobre 75 y la holgura) ya incluyen la historia.
 
-- [ ] **Paso 1:** las pruebas.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar. Si una noche deja de ganarse, ajustar primero el momento (su anticipación) y después la noche, y anotarlo abajo.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La prueba de equilibrio juega la historia".
+- [x] **Paso 1:** las pruebas.
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar. Si una noche deja de ganarse, ajustar primero el momento (su anticipación) y después la noche, y anotarlo abajo.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La prueba de equilibrio juega la historia".
 
 ### Tarea 8: Revisión
 
@@ -259,10 +290,10 @@ El guion es el de `docs/21` §4, tal cual, en 7 momentos:
 
 **Capturas a 1280×720 y 1920×1080:** la llamada al empezar (con las entradas del PC); los chats separados después de la ola 1; la decisión de León; la llamada al reunirse; el cierre.
 
-- [ ] **Paso 1:** sacar las capturas, revisarlas y corregir lo que haga falta.
-- [ ] **Paso 2:** correr todas las pruebas: OK. Abrir el juego sin errores nuevos.
-- [ ] **Paso 3:** commit "Revisión de la historia de la noche 1".
-- [ ] **Paso 4:** documentos: `CLAUDE.md`, el diseño v2, `docs/02`, `docs/04` (sección X, nueva), `docs/05`, `docs/21`, `arte_pendiente.md` (el ícono de la llamada), este plan con su resultado, `docs/00_log.md` y `resumen.md`. Commit "Documentos de la sesión S21l: la historia de la noche 1".
+- [x] **Paso 1:** sacar las capturas, revisarlas y corregir lo que haga falta.
+- [x] **Paso 2:** correr todas las pruebas: OK. Abrir el juego sin errores nuevos.
+- [x] **Paso 3:** commit "Revisión de la historia de la noche 1".
+- [x] **Paso 4:** documentos: `CLAUDE.md`, el diseño v2, `docs/02`, `docs/04` (sección X, nueva), `docs/05`, `docs/21`, `arte_pendiente.md` (el ícono de la llamada), este plan con su resultado, `docs/00_log.md` y `resumen.md`. Commit "Documentos de la sesión S21l: la historia de la noche 1".
 
 ---
 
