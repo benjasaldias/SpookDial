@@ -7,10 +7,14 @@ extends Control
 ## marca el tiempo, el amigo aplaude un ritmo y Matías lo repite con la barra espaciadora o con clics en el
 ## mixer (decisión de Benja). El VU-metro de la izquierda muestra los golpes de Matías, y el de la derecha,
 ## los aplausos del amigo. Si sale bien, la señal del amigo vuelve a 100; si no, se reintenta.
+## En la noche 0, cuando León pide sincronizar, parpadea lo que hay que apretar: su canal para empezar (o reintentar) y,
+## en el turno de Matías, su VU-metro (Plan 9.5, docs/26 §4.2).
 ## Se cierra con clic derecho; Esc y un clic fuera lo cierran desde el escritorio.
 
 const AudioSyncRound := preload("res://scripts/core/audio_sync_round.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
+const Highlight := preload("res://scripts/ui/highlight.gd")
+const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
 const FONT := preload("res://fonts/departure_mono/DepartureMono-Regular.otf")
 const PixelText := preload("res://scripts/ui/pixel_text.gd")
 const BODY_TEXTURE := preload("res://art/ui/mixer_body.png")
@@ -348,6 +352,21 @@ func _finish_round() -> void:
 		_fail.play()
 
 
+## Lo que hay que apretar en la noche 0, cuando León pide sincronizar: su canal sin ronda o tras fallar, y el VU-metro de
+## Matías en su turno. Mientras cuenta y aplaude León, o en las demás noches, nada (un rectángulo vacío).
+func guide_rect() -> Rect2:
+	if _manager == null or not _manager.tutorial_wants(TutorialChat.Focus.SYNC):
+		return Rect2()
+	var guide := _manager.tutorial_guide()
+	if guide < 0:
+		return Rect2()
+	if sync_round == null or (not is_playing() and not sync_round.succeeded):
+		return channel_rect(guide)
+	if is_playing() and sync_round.phase() == AudioSyncRound.Phase.RESPONSE:
+		return METER_PLAYER
+	return Rect2()
+
+
 ## El amigo con menos señal: el que más necesita sincronizarse.
 func _weakest_friend() -> int:
 	var friends := _manager.state.friends
@@ -371,6 +390,7 @@ func _draw() -> void:
 	_draw_round_lights()
 	for index in _faders.size():
 		_draw_channel(index)
+	_draw_guide()
 	_draw_text_centered(status_text().to_upper(), SIZE.x / 2.0, 394, DISPLAY_COLOR)
 	_draw_text_centered(tr(HINT_KEY).to_upper(), SIZE.x / 2.0, 414, DIM_COLOR)
 
@@ -435,6 +455,13 @@ func _draw_channel(index: int) -> void:
 	draw_texture(FADER_CAP, Vector2(center_x - 15, knob_y - 6))
 	var value_color := TEXT_COLOR if friend.is_online() else LED_RED
 	_draw_text_centered("%d" % roundi(friend.signal_level), center_x, rect.end.y - 12, value_color)
+
+
+## El borde de lo que hay que apretar en el tutorial, al ritmo del parpadeo de siempre (Highlight), por fuera.
+func _draw_guide() -> void:
+	var rect := guide_rect()
+	if rect.has_area() and Highlight.is_lit(_blink, reduce_flashes):
+		_draw_frame(rect.grow(Highlight.MARGIN + Highlight.WIDTH), Highlight.DEFAULT_COLOR, Highlight.WIDTH)
 
 
 ## Un borde de `width` píxeles por dentro de `rect`, con píxeles enteros.

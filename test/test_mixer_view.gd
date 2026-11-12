@@ -340,3 +340,52 @@ func test_con_una_sola_ronda_no_hay_luces_de_ronda() -> bool:
 	check(not mixer.shows_round_lights(), "no hay nada que contar")
 	_free(mixer)
 	return true
+
+
+## El mixer en la noche 0 con León pidiendo sincronizar (Plan 9.5).
+func _make_tutorial_mixer() -> Control:
+	var root := (Engine.get_main_loop() as SceneTree).root
+	_manager = RequestManager.new()
+	_manager.catalog = Fixtures.make_catalog()
+	_manager.night_number = 0
+	_manager.random_seed = 3
+	_manager.requests_arrive = false
+	root.add_child(_manager)
+	_manager._tutorial_friend = 0
+	_manager.tutorial_focus = _manager.TutorialChat.Focus.SYNC
+	var mixer := MIXER.instantiate()
+	root.add_child(mixer)
+	mixer.setup(_manager, _manager.catalog.friends)
+	return mixer
+
+
+## Fuera del tutorial, el mixer no guía nada.
+func test_fuera_del_tutorial_no_guia() -> bool:
+	var mixer := _make_mixer()
+	mixer.open()
+	check_eq(mixer.guide_rect(), Rect2(), "sin guía")
+	_free(mixer)
+	return true
+
+
+## En el tutorial parpadea lo que hay que apretar: el canal de León para empezar y, en su turno, el VU-metro de Matías.
+func test_en_el_tutorial_guia_lo_que_hay_que_apretar() -> bool:
+	var mixer := _make_tutorial_mixer()
+	mixer.open()
+	check_eq(mixer.guide_rect(), mixer.channel_rect(0), "sin ronda: el canal de León")
+	mixer.start_round(0)
+	check_eq(mixer.guide_rect(), Rect2(), "mientras cuenta y aplaude León, hay que escuchar")
+	for _step in 200:
+		if mixer.sync_round.phase() == AudioSyncRound.Phase.RESPONSE:
+			break
+		mixer._process(0.05)
+	check_eq(mixer.sync_round.phase(), AudioSyncRound.Phase.RESPONSE, "llegó su turno")
+	check_eq(mixer.guide_rect(), mixer.METER_PLAYER, "en su turno: «TÚ»")
+	for _step in 200:
+		if not mixer.is_playing():
+			break
+		mixer._process(0.05)
+	check(not mixer.sync_round.succeeded, "sin golpes, falló")
+	check_eq(mixer.guide_rect(), mixer.channel_rect(0), "falló: el canal otra vez, para reintentar")
+	_free(mixer)
+	return true
