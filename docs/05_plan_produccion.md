@@ -31,7 +31,7 @@ Tras probar el juego, Benja notó que es poco dinámico. El detalle y las decisi
 
 | Qué | Dónde se decide |
 | --- | --- |
-| Lore por noche (el grupo se separa, alguien cae inconsciente, alguien actúa raro y relleno de vlog). Toca los puntos 20 y 22, y la regla 9. Su alcance real se decide en esa sesión. | `docs/19_prompt_lore.md` |
+| **Lore por noche, en la v1** (planificado en S21b, 12-nov): la historia en el chat, la llamada grupal, las decisiones con forma de accidente y que cada criatura nueva salga al menos una vez. Orden: el sistema y la noche 1 (aprobada); la noche 2 cuando Benja la apruebe; las noches 3 a 5 después de probar. **Mínimo si falta tiempo:** la intro y el cierre del vlog en la llamada grupal de cada noche, sin decisiones. Absorbe los puntos 20 y 22. | `docs/21_lore_por_noche.md` |
 | ✅ La red social del celular imita a una real: Snapgram (hecho en S21c, 9-nov). | `docs/20_prompt_red_social.md` |
 
 ### Prioridad 2 — antes del 10 de diciembre, si alcanza el tiempo
@@ -39,7 +39,7 @@ Tras probar el juego, Benja notó que es poco dinámico. El detalle y las decisi
 | # | Qué |
 | --- | --- |
 | 11 | Traducción al inglés. Los textos están en CSV desde el primer día. |
-| 12 | Cinemáticas opcionales (introducción, entre noches y final), como texto con una ilustración y la opción de saltarlas. |
+| 12 | Cinemáticas opcionales (introducción y final; lo de entre noches lo cuenta el chat desde S21b), como texto con una ilustración y la opción de saltarlas. |
 
 ### Después de la v1, en este orden
 
@@ -52,9 +52,9 @@ Tras probar el juego, Benja notó que es poco dinámico. El detalle y las decisi
 | 17 | Estado "perdido" de los amigos. |
 | 18 | Trust por amigo. |
 | 19 | Audífonos en el escritorio (decorativos). |
-| 20 | Progresión guionada entre los amigos: chats guionados que avanzan noche a noche, como el que sigue al susto guionado (idea de Benja, sesión 16). El Plan 7 ya deja los chats guionados como datos de una noche. |
+| 20 | ✅ Pasó a la v1 con el lore (10ter, `docs/21`). Antes: progresión guionada entre los amigos: chats guionados que avanzan noche a noche, como el que sigue al susto guionado (idea de Benja, sesión 16). El Plan 7 ya deja los chats guionados como datos de una noche. |
 | 21 | Editar los videos recibidos (nota de Benja, 7-nov), si al probar sigue faltando algo que hacer entre solicitudes. Detalle en `docs/17_ideas_dinamismo.md`, Lote D. |
-| 22 | Historia con pseudo-lore y decisiones de sentido común (notas de Benja, 7-nov): los amigos se separan, se encuentran heridos, decisiones básicas contestadas por intuición. Choca con la regla 9 de `CLAUDE.md` (la historia no cambia las mecánicas) y habría que enmendarla. Detalle en `docs/17_ideas_dinamismo.md`, "Para después". Recomendación de Benja y de Claude: esperar a que las mecánicas se sientan bien solas. |
+| 22 | ✅ Pasó a la v1 con el lore (10ter, `docs/21`); la regla 9 se enmendó. Antes: historia con pseudo-lore y decisiones de sentido común (notas de Benja, 7-nov): los amigos se separan, se encuentran heridos, decisiones básicas contestadas por intuición. Choca con la regla 9 de `CLAUDE.md` (la historia no cambia las mecánicas) y habría que enmendarla. Detalle en `docs/17_ideas_dinamismo.md`, "Para después". Recomendación de Benja y de Claude: esperar a que las mecánicas se sientan bien solas. |
 
 **Eliminado:** la cruz, el retrato y mentir (obsoletos), y el buscador por rasgos (reemplazado por las características clickeables).
 

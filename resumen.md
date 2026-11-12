@@ -4,6 +4,143 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 21b — 12 de noviembre de 2026 — La historia por noche
+
+La sesión de planificación del lore (`docs/19`), sin código, en Opus 5.5 con `superpowers:brainstorming`. Benja trajo sus ideas para las noches 1 y 2, respondió 6 preguntas y trabajó los guiones en un documento compartido de Claude Docs ("Spook Dial — Guiones de las 5 noches"). Aprobó la noche 1 y pospuso la 2 porque tiene que terminar un informe.
+
+### Realizado
+
+- **Decisiones de Benja** (`docs/21` §1):
+  - la historia habla de las criaturas de la noche, pero **las consultas no cambian**; solo se asegura que **cada criatura nueva salga al menos una vez** (se fuerza solo cuando falta, para que sigan casi igual de probables);
+  - **la llamada grupal** (idea de Benja): con los 3 juntos y sin nada que jugar, el chat es una llamada con un ícono y no se cambia de chat; si llega algo que jugar, se separa en los 3 chats;
+  - al perder, la historia se repite igual; va igual en los 3 modos;
+  - el canal se llama **Acá Penan**;
+  - las cinemáticas quedan solo para la intro y el final;
+  - **la regla 9 se enmendó:** la historia va en el chat, usa mecánicas que ya existen y nunca mata ni cambia la criatura o la acción correcta.
+- **Feedback de Claude a las ideas de Benja:** la historia se puede contar con mecánicas que ya existen (separarse, sin consultas, un accidente, sin señal); no puede llegar en medio de una ola; "neblina helada" y "pájaro con cara de persona" son características y no pueden ir en la historia; la llamada grupal no puede durar en la ola final.
+- **El guion de la noche 1, aprobado** (`docs/21` §4). Benja rediseñó la decisión para reunirse: León elige entre la cabaña y rescatar a Agustín (2 aciertos con distinto costo), y la decisión de Agustín depende de esa (en plural si León fue con él; los plurales los completó Claude).
+- **Borrador de la noche 2** (pospuesto) y **esquema de las noches 3 a 5** con las ideas de Benja, incluida su frase del Imbunche tal cual.
+- **Documentos:** `docs/21` (nuevo), `CLAUDE.md` (la regla 9, la decisión y el documento), el diseño v2 (encabezado, §3, §4 y §15), `docs/05` (el lore pasa a la v1 en el 10ter, con un mínimo si falta tiempo; los puntos 20 y 22 se absorben; las cinemáticas, solo intro y final) y `docs/00_log.md` (S21b cerrada y **S21l, nueva y siguiente**).
+- Sin código, arte ni sonidos: `arte_pendiente.md` y `sonidos_pendiente.md` no cambian.
+
+### Errores encontrados
+
+- Ninguno de código. En el diseño: la idea de la neblina helada coincidía palabra por palabra con `TRAIT_ICY_MIST`, y la llamada grupal no podía cubrir la ola final (cada consulta depende del chat de su amigo). Las dos quedaron resueltas en `docs/21`.
+
+### Pendientes Código
+
+- [ ] **Según lo que diga Benja de Extremo** (`docs/04`, W): si la noche 5 se siente imposible, aflojarla primero (más tiempo o 13 consultas, en `data/nights/extreme/night_5.tres`), y después la calma (25 a 35 s). Si el amigo herido se siente injusto, `wounded_friends` en 0 (`data/difficulty/extreme.tres`).
+- [ ] **El modelo con sincronizaciones como tareas** (probado en S21k) decía que Difícil 4 y 5 no se ganan, y Benja las ganó: se reemplazó por la holgura. Si en las pruebas con personas Difícil 4 y 5 resultan imposibles, revisarlo con ese dato.
+- [x] ~~**S21j: el tutorial**~~ (Plan 9.5, `docs/29`).
+- [x] ~~Menor: si el jugador pregunta muy rápido en la noche 0, las líneas de León llegan después de las respuestas~~ (S21j: todo se habilita cuando León terminó).
+- [x] ~~**Planificar el lore** (`docs/19_prompt_lore.md`, S21b)~~ (S21b: `docs/21`).
+- [ ] **S21l: la historia, el sistema y la noche 1** (Plan 9.7, `docs/31`, `docs/21` §7). **Es la siguiente**, antes del 25 de noviembre. Resolver ahí: si la ola final espera a las 2 decisiones de la noche 1 (unos 40 s; en Extremo la calma es de 20 a 30 s), y los valores de la decisión de León (10 s, Trust −10 y −20, de partida).
+- [ ] **La noche 2 de la historia,** cuando Benja apruebe su guion (`docs/21` §5): un amigo inconsciente, una decisión que daña a otro amigo y cortar la señal a propósito.
+- [ ] **Las noches 3 a 5 de la historia,** después de probar las noches 1 y 2 (`docs/21` §6), incluida la opción letal del Imbunche.
+- [ ] Al implementar la llamada grupal: su ícono en pixel art (`art/ui/`) va a `arte_pendiente.md` para que Benja lo pueda redibujar.
+- [ ] **Según lo que diga Benja de la noche 0** (`docs/04`, V): los textos de León y Gonzalo, el tiempo de la demostración (`demo_seconds` en `data/nights/night_0.tres`) y si algo parpadea antes de tiempo.
+- [ ] **Según lo que diga Benja de la alarma:** bajarla (`alarm()` en `make_sounds.py`), espaciarla (`ChatEntry.ALARM_SECONDS`) o que suene solo con el chat cerrado y la noche en una ola.
+- [ ] Si las tarjetas se sienten vacías a la derecha del texto: agrandar la letra a 22 y ensanchar la columna, revisando que quepa a 1080p.
+- [ ] **Según lo que diga Benja de la noche 1 de Normal** (`docs/04`, U), en `data/nights/normal/night_1.tres`:
+  - si sobra la calma antes de la ola final, adelantarla: hoy llega lo más tarde posible (03:04), y con respuestas rápidas la calma dura cerca de un minuto;
+  - si después de la última consulta sobra mucho tiempo hasta las 06:00, dejar la final con 2 consultas seguidas y el video al final (llegaría a las 03:55);
+  - dejar la ola 2 en 1 consulta, si se siente mucho.
+- [ ] **Difícil está en el límite en la noche 5:** con 15 s por consulta en el modelo (en vez de 14), deja de poder ganarse. Si en las pruebas con personas nadie la gana, darle más tiempo para responder o una ola final de 2 (`data/nights/hard/night_5.tres`).
+- [ ] **S22:** los valores de Normal (`docs/02` §6) son de partida, como los de Difícil. `test_balance` revisa los 2 modos.
+- [ ] **Si la conversación queda baja con la ventana maximizada** (escala 1,4, letra de 16): con el video y las hojas a la vista se leen unas 6 líneas. Si Benja lo nota, achicar el alto reservado de las respuestas o la letra del nombre de la entidad.
+- [ ] Menor: la ayuda del botón de las barritas ("Sincronizar") lleva el estilo de la terminal en el tema, pero no se revisó en una captura.
+- [ ] **Pantalla completa:** el juego no tiene opción para ponerla (F11 o en Opciones). Para el Plan 10, si Benja la quiere.
+- [ ] Si Benja redibuja algo que se ve en los videos de las tarjetas (las barras, los diales, la ventana, el celular, el botón del flash o la Mano): volver a grabarlos con `tools/make_tutorial_videos.sh`.
+- [ ] Menor: el final de la noche 0 con la pantalla de "Práctica terminada" (`END_TUTORIAL*`, en `EndingText`) ya no se usa; se puede borrar.
+- [ ] **Según lo que diga Benja de la visibilidad de la Mano:** dejarla así, que asome más cerca del dial (`HandVisit.START_X`), un borde tenue por shader o arte nuevo de Benja.
+- [ ] Si en la prueba con personas la Mano agarra casi siempre: alargar `hand_approach_seconds` o hacer más fuerte el crujido (`Hands/CreakSound`).
+- [ ] Para otro momento (`docs/22`): A6 (reacciones por entidad), A7 ("Matías piensa" a 1 s; S21h lo bajó a 2 s, y se cambia en `thinking_seconds`) y las secciones B a E.
+- [ ] Ajustar las recetas de `tools/make_sounds.py` según lo que diga Benja al escuchar (`docs/04`, Q, R y V), también el crujido, el flash, las tripas y la alarma.
+- [ ] Si las fotos perturbadoras no se alcanzan a ver bajo la viñeta: dejar el celular por encima de ella, en su propia capa. Hay que cambiar `UI/PhoneView` en `desk.gd` y en los 5 archivos de pruebas y capturas que lo usan.
+- [ ] Plan 10: los créditos de las fotos de Snapgram, si sus licencias los piden, y los de las 5 grabaciones (`audio/source/creditos.md`; no son obligatorios, pero conviene ponerlos).
+- [ ] Al probar el escalado a 1080p (`docs/04`, D): mirar cómo se ven las fotos y el arte de `art/ui/` a ×1,5 con el filtro Nearest.
+- [ ] Lore: decidir si el canal de los amigos (Acá Penan) aparece en Snapgram. Con cuentas sin nombre, habría que ver cómo se reconoce. No se habló en S21b.
+- [ ] **S22: correcciones tras las pruebas con personas** (`docs/00_log.md`), con el contenido congelado el 25 de noviembre. Todos los valores del Plan 9 y del 9.1 son de partida y se ajustan ahí, y `test_balance.gd` avisa si una noche deja de poder ganarse.
+- [ ] Si en las pruebas con personas no entienden los accidentes: enseñarlos en la noche 0.
+- [ ] Si la velocidad de Audio Sync se queda corta: bajar `audio_sync_tolerance` por noche.
+- [ ] Si Benja dibuja la animación de las cortinas o de la criatura: va en `curtains_sprite`.
+- [ ] Si las voces cansan: subir `CHARS_PER_SECOND` no ayuda; bajar la frecuencia con `voice_every`, o hacer sonar solo el comienzo de cada mensaje.
+- [ ] Menor: el panel de opciones deja ver tenue el menú de pausa detrás (fondo al 95 %). Las opciones siguen con el tema del chat, no con el de los menús.
+- [ ] Menor: abrir el escritorio solo (F6): "Empezar la noche N" y "Volver al menú" no hacen nada, porque los atiende `GameState`.
+- [ ] Menor: al cerrar el escritorio suelto, el sonido ambiente en bucle queda sonando y Godot avisa de 2 objetos sin liberar (`ambient_room.wav` y su reproducción, confirmado en S21h).
+- [ ] Planes 10 en adelante según `docs/00_log.md`.
+- [ ] Registrar los `.en.translation` cuando la columna `en` tenga textos (también el de `phone.csv`).
+- [ ] Plan 10: incluir `fonts/departure_mono/OFL.txt` en la exportación del juego, como pide la licencia de la fuente.
+- [ ] Cuando llegue el arte de Benja: el logo, los bocetos de las 7 entidades, los diales rediseñados, los íconos de Snapgram, y las manos o el rostro de los screamers. Lo de `art/ui/` se reemplaza si Benja lo redibuja, también los íconos del chat, la señal, las hojas y el botón del flash.
+- [ ] Menor: que los segundos de una entrada en alerta no toquen el ícono ⚠ del arte.
+- [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
+- [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
+- [ ] Si al probar se siente seco o lento: una demora de "escribiendo…" en las respuestas del amigo.
+- [ ] Borrar `~/godot-games/spook-dial` y las copias `C:\dev\plan8`, `C:\dev\plan8_check`, `C:\dev\plan9` y `C:\dev\plan9_check` cuando Benja lo pida.
+
+### Pendientes Externos
+
+- [ ] **Probar Extremo** (`docs/04`, W, unos 30 minutos o más). Hay que desbloquearlo con `progress.cfg` (está explicado ahí). Dime hasta qué noche llegas, si la noche 1 se siente como el paso siguiente después de Difícil y si el amigo herido se siente justo.
+- [ ] **Corregir los textos nuevos de Extremo** antes del 25 de noviembre, en `ui.csv`: `DIFFICULTY_EXTREME`, `DIFFICULTY_EXTREME_INFO` y `CHAT_WOUNDED_START`.
+- [ ] **Probar la noche 0 nueva y los pedidos del 12 de noviembre** (`docs/04`, V, unos 20 minutos). Lo más importante: que en cada paso sepas qué apretar y que la demostración de Gonzalo se entienda sola. Dime si la alarma molesta y si con el feed más lento alcanzas a ver las fotos.
+- [ ] **Corregir los textos nuevos del Plan 9.5** antes del 25 de noviembre:
+  - León (`TUTORIAL_LEON_COST`, `_BLUE`, `_ASK_SOUND`, `_LISTEN`, `_HEARD`, `_GONZALO`, `_NO_ANSWER`, `_STATIC` y `_STATIC_EXPLAIN`) y Gonzalo (`TUTORIAL_GONZALO_HELP`, `_ALONE`, `_HURT` y `_WATCH`), en `ui.csv`;
+  - las tarjetas (`TUTORIAL_CARD_*_TEXT`, en viñetas), en `ui.csv`;
+  - `PHONE_FLASH_BUTTON`, en `phone.csv`.
+- [ ] **Escuchar las tripas y la alarma** (`audio/clues/tutorial_stomach_yes.wav` y `audio/sfx/alarm_*.wav`; `sonidos_pendiente.md`).
+- [ ] **Si quieres:** redibujar el botón del flash (`art/ui/phone_flash_button.png`, en `arte_pendiente.md`).
+- [x] ~~**Abrir S21b**~~ (12-nov).
+- [ ] **Abrir S21l** (`Lee docs/21_lore_por_noche.md y escribe y ejecuta el plan de la historia (sistema y noche 1).`), antes del 25 de noviembre.
+- [ ] **Revisar el guion de la noche 2** en el documento compartido (https://claude.ai/artifact/6FbUx39GCLyCPsjrJA7Aqo) y confirmar lo que asusta a Agustín (algo en el agua en vez de la neblina helada). Después, escribir las noches 3 a 5.
+- [ ] **Probar Normal y Difícil** (`docs/04`, U, unos 20 minutos). Lo más importante: la noche 1 de Normal. Dime si se siente tranquila para aprender, si la calma antes de la ola final se hace larga y si sobra tiempo al final.
+- [ ] **Corregir los textos nuevos del Plan 9.4** antes del 25 de noviembre, en `ui.csv`:
+  - los modos: `DIFFICULTY_NORMAL`, `DIFFICULTY_HARD`, `DIFFICULTY_NORMAL_INFO` y `DIFFICULTY_HARD_INFO`;
+  - el menú: `MENU_DIFFICULTY_TITLE`, `MENU_LOCKED`, `MENU_START` y `MENU_BACK`;
+  - el aviso al terminar Normal: `END_UNLOCKED`.
+- [ ] **Si quieres:** redibujar el candado (`art/ui/menu_lock.png`, en `arte_pendiente.md`).
+- [ ] **Probar el chat nuevo, la descarga y el guardado** (`docs/04`, T, unos 15 minutos). Dime si se entiende qué hace cada botón, si el azul se distingue y si las hojas se sienten parte del cuaderno.
+- [ ] **Corregir los textos nuevos del Plan 9.3** antes del 25 de noviembre, en `ui.csv`:
+  - los títulos: `CHAT_ASK_TITLE`, `CHAT_ANSWER_TITLE`, `CHAT_NO_TIME` y `CHAT_NO_SIGNAL`, y los que se acortaron, `CHAT_OPEN_NOTEBOOK` y `CHAT_OFFLINE`;
+  - las preguntas cortas, `QUESTION_*_SHORT`, y el costo, `CHAT_QUESTION_COST`;
+  - León: `TUTORIAL_LEON_DECOY` y `TUTORIAL_LEON_SIGNAL_WARN`.
+- [ ] **Si quieres:** redibujar los íconos del chat, la señal o las hojas (`arte_pendiente.md`).
+- [x] ~~**Revisar `docs/26` §4**: el orden de la conversación de León~~ (S21j: aprobado con el diseño).
+- [ ] **Probar el Plan 9.2** (`docs/04`, S, unos 15 minutos): la letra con la ventana grande y el cuaderno. La noche 0 cambió: pruébala con la sección V.
+- [ ] **Corregir los textos nuevos del Plan 9.2** antes del 25 de noviembre:
+  - lo que dice León (`TUTORIAL_LEON_*`), las tarjetas (`TUTORIAL_CARD_*` y `TUTORIAL_CARDS_*`) y `PAUSE_SKIP_TUTORIAL`, en `ui.csv`;
+  - lo que cuenta de Gonzalo (`TUTORIAL_TRAIT_*`, `TUTORIAL_DECOY_HOODIE` y `TUTORIAL_OBS_*`), en `messages.csv`;
+  - su página (`TUTORIAL_PAGE_*`, `TUTORIAL_ACTION_*` y `TUTORIAL_RULE_*`) y `NOTEBOOK_RULES`, `NOTEBOOK_CONDITION` y `NOTEBOOK_RISK_LEGEND`, en `notebook.csv`;
+  - `IDENTIFY_PROGRESS` y `MIXER_HINT` se acortaron para caber.
+- [ ] **Si quieres:** un boceto de Gonzalo para su página, o redibujar las marcas de la tabla (`arte_pendiente.md`).
+- [ ] **Probar el Plan 9.1** (`docs/04`, R, unos 20 minutos) y decir **desde qué momento ves la Mano**, si guardar batería se vuelve una decisión y cómo se sienten las olas y las calmas.
+- [ ] **Corregir los textos nuevos del Plan 9.1** antes del 25 de noviembre:
+  - lo que le pasa al amigo (`PREDICAMENT_*`) y las variantes de las características (`TRAIT_*_2` a `_4`), en `messages.csv`;
+  - los nombres de las características en el cuaderno (`TRAIT_*_LABEL`), en `notebook.csv`;
+  - `CHAT_VIDEOS_SHORT` y `PC_VIDEOS_SHORT`, en `ui.csv` (`CHAT_DECOY_COST` ya no existe);
+  - `PHONE_FLASH`, en `phone.csv`.
+- [ ] **Escuchar el crujido de la Mano y el flash** (`audio/sfx/hand_creak.wav` y `phone_flash.wav`; `sonidos_pendiente.md`).
+- [ ] **Si quieres:** pelos o un borde más claros en el brazo de la Mano, para que se vea antes sobre el lado oscuro, o un cuadro de agarre y una retirada (`arte_pendiente.md`).
+- [ ] **Escuchar los sonidos nuevos y revisar el arte** (`docs/04`, Q, unos 20 minutos). Lo más importante: que los audios de cada entidad se distingan de oído.
+- [ ] **Corregir los textos nuevos del Imbunche** (borradores de Claude): `OBS_IMBUNCHE_BABY_CRY_YES` y `_NO` en `messages.csv`, y `OBS_IMBUNCHE_BABY_CRY_Q`, `RULE_IMBUNCHE_1` y la frase nueva de `ENTITY_IMBUNCHE_LORE` en `notebook.csv`.
+- [ ] **Probar Snapgram** (`docs/04`, P, unos 10 minutos) y decir si las fotos perturbadoras se alcanzan a ver bajo la viñeta.
+- [ ] **Confirmar de dónde salió cada foto** de `art/phone/source/` y que su licencia permita usarla en un juego publicado. Si alguna no sirve, reemplázala: las perturbadoras son las que más preocupan.
+- [ ] **Si cambias de idea con el nombre:** Snapgram está en `PHONE_APP_NAME` (`data/text/phone.csv`).
+- [ ] **Si quieres:** dibujar el logo, los bocetos de las entidades, los íconos de Snapgram o redibujar cualquier pieza de `art/ui/` (`arte_pendiente.md`).
+- [ ] **Probar las correcciones** (`docs/04`, O, unos 10 minutos) y corregir `MIXER_ROUNDS` (`ui.csv`). Las voces ahora murmuran: escúchalas con la sección Q.
+- [ ] **Corregir las reglas de las 7 entidades** (están en `data/entities/`, en el Inspector, con sus textos en `messages.csv` y `notebook.csv`) y los textos nuevos del Plan 9: `RULE_*`, `OBS_*`, `INCIDENT_*`, `HUD_*`, `CHAT_AUDIO`, `CHAT_INCIDENT_HINT`, `OPTIONS_AUDIO_CAPTIONS` y `PHONE_NO_BATTERY`. Antes del congelamiento del contenido (25 de noviembre).
+- [ ] **Revisar los supuestos del Plan 9** (`docs/18`, al inicio), **del Plan 9.1** (`docs/24`), **del Plan 9.3** (`docs/27`) y **del Plan 9.5** (`docs/29`), sobre todo el modelo de "jugar bien" de la prueba de equilibrio.
+- [ ] **Probar el feedback** (`docs/04`, M, unos 15 minutos). Los valores son de partida: `data/balance.tres` y `data/nights/night_N.tres`.
+- [ ] **Corregir los textos del Plan 8.1** (en `ui.csv`): `MIXER_ROUND` y `MIXER_FAIL_RESTART`.
+- [ ] **Probar el juego de punta a punta** (`docs/04`, L, unos 25 minutos): la noche 0, el menú, el guardado, la pausa y las opciones.
+- [ ] **Corregir los textos nuevos del Plan 8** (en `ui.csv`): el menú (`MENU_*`), la pausa (`PAUSE_*`), las opciones (`OPTIONS_*`) y el resumen y la victoria (`END_*`); y los 7 señuelos nuevos (`DECOY_*`, en `messages.csv`).
+- [ ] **Probar los screamers y el director** (`docs/04`, K), **la identificación por preguntas** (G), **el mantenimiento** (J), **la noche** (I) y **el chat y el cuaderno** (G y H).
+- [ ] **Corregir los textos que escribió Claude en los planes anteriores** (la lista completa está en la Sesión 17).
+- [ ] **Revisar la escena en Godot** (`docs/04`, C), sobre todo la cámara, y **probar el escalado a pantalla completa** (`docs/04`, D).
+- [ ] Godot: volver al proyecto de OneDrive en el Project Manager, si todavía no lo hiciste (`docs/04`, A).
+- [ ] Al probar con personas (semana 5): fijarse si notan que hay que preguntar y que preguntar cuesta tiempo, si distinguen lo amarillo de lo azul, si reconocen las características dichas con otras palabras, si ven y oyen la Mano, si la noche de práctica es muy larga o muy corta, si se entiende la demostración de Gonzalo, y si entienden las barras, Audio Sync, los audios, las cortinas, la batería, los accidentes y la alarma.
+
+---
+
 ## Sesión 21k — 12 de noviembre de 2026 — Plan 9.6: Extremo
 
 Una sesión nueva, fuera de la secuencia, pedida por Benja: una tercera dificultad, **Extremo**, "realísticamente lograble pero difícil", con sus ideas (más obstrucciones, olas más intensas, más Trust perdido por error y, quizás, un amigo al azar con 1 de vida). En Opus 5.5. Benja contestó 4 preguntas al empezar (autorizó todos los commits, Extremo se desbloquea al terminar Difícil, Trust ×1,5 y Difícil no cambia) y pidió cambios al primer diseño (menos tiempo, menos tiempo libre que Difícil y olas de 2). El Plan 9.6 (`docs/30`) se escribió y se ejecutó en la misma sesión, en `main` y sin push.

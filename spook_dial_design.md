@@ -24,6 +24,7 @@
 - 11 de noviembre, tras el primer testeo (S21h, `docs/26` y `docs/27`): las preguntas muestran su costo y no se repiten, lo decisivo va en azul (también en el cuaderno), el chat se ordena en bloques con las respuestas como hojas del cuaderno y la señal en barritas, "Matías piensa" dura 2 s, los señuelos ya no cuestan, y la noche ganada se guarda.
 - 11 de noviembre, tras el primer testeo (S21i, `docs/26` §3 y `docs/28`): **dos modos, Normal y Difícil**, que se eligen al empezar una partida. Difícil se desbloquea al terminar Normal. La noche 1 de Normal va armada a mano, las noches 2 a 5 de Normal son algo más fáciles, y en Difícil se identifica leyendo, sin nada destacado.
 - 12 de noviembre, tras el primer testeo (S21j, `docs/26` §4 y `docs/29`): **la noche 0 de nuevo**, donde solo funciona lo que León va enseñando y eso parpadea, con lo que cuesta preguntar, lo azul, un audio, la estática y Gonzalo mostrando qué pasa si nadie contesta; el flash es un botón con relieve y las tarjetas van con colores y viñetas. Y 5 pedidos de Benja: el feed más lento, las fotos perturbadoras desde Sanity 50, el ambiente que no baja antes de un screamer y una alarma en cada entrada del PC.
+- 12 de noviembre (S21b, `docs/21`): **la historia va en el chat durante la noche**, como el vlog del canal Acá Penan, con una llamada grupal cuando los amigos están juntos y decisiones con forma de accidente. Las consultas no cambian, salvo que cada criatura nueva sale al menos una vez. Las cinemáticas quedan solo para la intro y el final.
 - 12 de noviembre (S21k, `docs/30`): **un tercer modo, Extremo**, que se desbloquea al terminar Difícil: olas más seguidas, menos tiempo, más obstrucciones, Trust por error ×1,5 y un amigo al azar que empieza cada noche con 1 de vida. Se gana jugando como experto.
 
 ---
@@ -55,13 +56,13 @@ Durante cinco noches tiene que hacer cuatro cosas:
 ## 3. Principio rector: el juego es el escritorio
 
 - **Todo el juego ocurre en el escritorio de Matías**, en primera persona y con cámara fija. El jugador no se desplaza: interactúa con los objetos que tiene enfrente.
-- **La historia queda fuera de las mecánicas.** Se cuenta en **cinemáticas opcionales** (introducción, entre noches y final) y nunca cambia cómo se juega.
+- **La historia se cuenta en el chat, durante la noche** (enmendado por Benja, 12 de noviembre; `docs/21`): lo que los amigos le escriben a Matías y una llamada grupal cuando están juntos. Puede usar las mecánicas que ya existen (separarse, quedar inconsciente, desaparecer sin señal, un accidente o una decisión con forma de accidente), pero nunca agrega otra forma de perder, nunca mata a un amigo y nunca cambia qué criatura llega ni qué acción es la correcta. Las **cinemáticas opcionales** quedan para la introducción y el final.
 - Las entidades **no pueden dañar a Matías**: solo asustarlo. El riesgo de muerte siempre recae sobre los amigos.
 
 ## 4. Personajes
 
 - **Matías (el jugador).** Nunca se le ve: el jugador mira desde sus ojos.
-- **León, Gonzalo y Agustín.** Los amigos que graban. Cada uno tiene nombre, avatar y una personalidad propia, que es solo de sabor (no cambia las reglas). Su voz llega al chat convertida en texto. León es el que termina poseído, pero eso ocurre solo en las cinemáticas.
+- **León, Gonzalo y Agustín.** Los amigos que graban. Cada uno tiene nombre, avatar y una personalidad propia, que es solo de sabor (no cambia las reglas). Su voz llega al chat convertida en texto. León es el presentador del canal, Gonzalo el líder y Agustín el miedoso (`docs/21` §3). León es el que termina poseído: los traiciona en las noches 4 y 5, en el chat.
 - **Loreto.** La madre de Matías; aparece solo en las cinemáticas.
 - **Las entidades.** Siete criaturas del folclore chileno (§13). **El jugador nunca las ve durante las decisiones**: las conoce por lo que dicen sus amigos y por su cuaderno.
 - **Los Brujos de Chiloé.** Son los antagonistas de la historia, los que se interesan cada vez más en Matías. Solo aparecen en las cinemáticas y en la ambientación, no como entidad que hay que resolver.
@@ -425,16 +426,25 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 
 **Toda noche se puede ganar** (requisito de Benja): la prueba de equilibrio lo comprueba en los 3 modos con quien juega bien (12 s por consulta en Normal, 14 en Difícil y 11 en Extremo), y revisa que el tiempo libre alcance para sincronizar a los amigos y reponer Sanity con el celular. La referencia es Difícil 5, que Benja probó: difícil pero ganable.
 
-## 15. Historia (fuera del juego)
+## 15. Historia
 
-Se cuenta solo en cinemáticas opcionales (introducción, entre noches y final), basadas en la versión Twine:
+**Durante la noche** (decisión de Benja, 12 de noviembre; `docs/21`), la historia se cuenta en el chat. Los amigos graban un vlog para su canal, **Acá Penan**, y cada noche es un capítulo:
+
+- **la llamada grupal:** cuando están los 3 juntos y no hay nada que jugar, el chat es una llamada grupal, con un ícono, y no se puede cambiar de chat. Si llega una consulta, un accidente, una decisión o un video, se separa en los 3 chats;
+- **cuándo llega:** al empezar la noche, al terminar una ola, 15 s antes de la siguiente, después de la ola final y cuando se responde una decisión; nunca en medio de una ola, salvo las decisiones. Marca el chat como no leído, sin alarma, y leerla es opcional;
+- **las decisiones** llegan como un accidente (alarma y 15 s) y pueden bajar Trust, quitar segundos a la próxima consulta de un amigo o hacerle daño, sin matarlo nunca;
+- **las consultas no cambian:** la criatura y el lugar siguen al azar, aunque la historia hable de las criaturas de la noche. Cada criatura nueva de la noche sale al menos una vez, y solo se fuerza cuando falta;
+- va igual en los 3 modos y se repite igual al perder una noche;
+- la noche 1 está escrita y aprobada; la noche 2, pospuesta, y las noches 3 a 5, en esquema (`docs/21`).
+
+**Las cinemáticas opcionales** (introducción y final), basadas en la versión Twine:
 
 - Matías acompaña a sus amigos a una cabaña aislada cerca de Puerto Montt.
 - Los Brujos de Chiloé se interesan cada vez más en él.
 - León termina poseído.
 - Lo que Matías realmente buscaba no era contenido, sino amistad.
 
-El guion de las cinemáticas lo escribe Benja.
+El guion de las cinemáticas lo escribe Benja. Los guiones del chat se trabajan en un documento compartido (enlazado en `docs/21`).
 
 ## 16. Arte
 
