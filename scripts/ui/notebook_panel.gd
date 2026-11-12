@@ -104,7 +104,7 @@ func _refresh() -> void:
 	_title.text = tr(entity.name_key)
 	_sketch.texture = entity.sketch
 	# Los íconos de la tabla, al tamaño de la letra, para que se vean nítidos.
-	var icon_size := roundi(NotebookPage.MARK_PIXELS * PixelText.size(11) / 11.0)
+	var icon_size := PixelText.icon_size(NotebookPage.MARK_PIXELS)
 	_body.text = NotebookPage.bbcode(entity, tr, icon_size)
 
 

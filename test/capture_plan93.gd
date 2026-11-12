@@ -4,6 +4,7 @@ extends SceneTree
 ## Uso: ~/tools/godot-wsl.sh --path "$PWD" -s res://test/capture_plan93.gd -- /mnt/c/dev/capturas 1920 1080
 ## Guarda plan93_<ancho>_<nombre>.png:
 ## - chat: preguntas hechas, el nombre, la página abierta (las hojas de respuesta) y un video por descargar;
+## - cost: lo que costó una pregunta, debajo de la pestaña;
 ## - static: con poca señal, una respuesta tapada y su pregunta que vuelve;
 ## - offline_1 y offline_2: sin señal, el botón de la señal parpadeando (dos momentos del parpadeo);
 ## - incident: un accidente, con sus opciones como botones de terminal;
@@ -75,6 +76,9 @@ func _capture() -> void:
 	desk._on_entity_page_requested(0, request.entity)
 	manager.state.videos.add_extra(0, manager.state.elapsed)
 	await _save("chat", 2.5)
+	# Lo que costó una pregunta, debajo de la pestaña de León.
+	desk.get_node("UI/ChatPanel")._on_question_pressed(ClueCategory.Kind.TRACES)
+	await _save("cost", 0.25)
 	desk.free()
 	# Con poca señal: una respuesta tapada, y su pregunta vuelve.
 	desk = _desk(3)

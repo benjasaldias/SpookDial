@@ -124,6 +124,42 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.49, 0.88, 0.54, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_question_hover"]
+content_margin_left = 6.0
+content_margin_top = 5.0
+content_margin_right = 6.0
+content_margin_bottom = 5.0
+bg_color = Color(0.05, 0.16, 0.2, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.76, 0.79, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_question_pressed"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+bg_color = Color(0.08, 0.27, 0.32, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.93, 0.95, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cost_popup"]
+content_margin_left = 4.0
+content_margin_top = 1.0
+content_margin_right = 4.0
+content_margin_bottom = 1.0
+bg_color = Color(0.13, 0.03, 0.06, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.3, 0.37, 1)
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_notice"]
@@ -153,6 +189,9 @@ ChatTab/styles/hover = SubResource("StyleBoxFlat_tab_hover")
 ChatTab/styles/hover_pressed = SubResource("StyleBoxFlat_tab_selected")
 ChatTab/styles/normal = SubResource("StyleBoxFlat_tab_normal")
 ChatTab/styles/pressed = SubResource("StyleBoxFlat_tab_selected")
+CostPopup/base_type = &"Label"
+CostPopup/colors/font_color = Color(1, 0.3, 0.37, 1)
+CostPopup/styles/normal = SubResource("StyleBoxFlat_cost_popup")
 DownloadBar/base_type = &"ProgressBar"
 DownloadBar/styles/background = SubResource("StyleBoxFlat_download_background")
 DownloadBar/styles/fill = SubResource("StyleBoxFlat_download_fill")
@@ -169,5 +208,18 @@ SectionTitle/base_type = &"Label"
 SectionTitle/colors/font_color = Color(0.36, 0.62, 0.66, 1)
 SystemNotice/base_type = &"PanelContainer"
 SystemNotice/styles/panel = SubResource("StyleBoxEmpty_notice")
+QuestionButton/base_type = &"Button"
+QuestionButton/colors/font_hover_color = Color(0.94, 0.97, 1, 1)
+QuestionButton/colors/font_hover_pressed_color = Color(0.94, 0.97, 1, 1)
+QuestionButton/colors/font_pressed_color = Color(0.94, 0.97, 1, 1)
+QuestionButton/colors/icon_disabled_color = Color(0.22, 0.27, 0.36, 1)
+QuestionButton/colors/icon_hover_color = Color(0.94, 0.97, 1, 1)
+QuestionButton/colors/icon_hover_pressed_color = Color(0.94, 0.97, 1, 1)
+QuestionButton/colors/icon_normal_color = Color(0.79, 0.84, 0.95, 1)
+QuestionButton/colors/icon_pressed_color = Color(0.94, 0.97, 1, 1)
+QuestionButton/constants/h_separation = 6
+QuestionButton/styles/hover = SubResource("StyleBoxFlat_question_hover")
+QuestionButton/styles/hover_pressed = SubResource("StyleBoxFlat_question_pressed")
+QuestionButton/styles/pressed = SubResource("StyleBoxFlat_question_pressed")
 RichTextLabel/colors/default_color = Color(0.82, 0.87, 0.97, 1)
 RichTextLabel/constants/line_separation = 3

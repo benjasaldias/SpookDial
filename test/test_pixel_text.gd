@@ -56,3 +56,13 @@ func test_aplica_a_temas_y_nodos() -> bool:
 	label.free()
 	sizer.free()
 	return true
+
+
+## Un ícono de pixel art junto a la letra crece con ella, para seguir nítido: a 1080p la letra pasa de 11 a 15 y un
+## ícono de 9 px, a 12 (18 px reales, el doble exacto).
+func test_el_icono_sigue_a_la_letra() -> bool:
+	check_eq(PixelText.icon_size_for(9, 11), 9, "a 1280×720 queda igual")
+	check_eq(PixelText.icon_size_for(9, 15), 12, "a 1080p, 12")
+	check_eq(PixelText.icon_size_for(11, 15), 15, "el cuaderno de 11, 15")
+	check_eq(PixelText.icon_size_for(15, 15), 20, "la señal de 15, 20")
+	return true

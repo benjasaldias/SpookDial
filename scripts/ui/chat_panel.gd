@@ -30,6 +30,7 @@ const ChatMessageView := preload("res://scripts/ui/chat_message_view.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const MessageBuilder := preload("res://scripts/core/message_builder.gd")
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
+const QuestionButton := preload("res://scripts/ui/question_button.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 
 ## Textos del panel (ui.csv). IDENTIFY_PROGRESS lleva {marked} y {total}.
@@ -43,6 +44,25 @@ const NO_TIME_KEY := "CHAT_NO_TIME"
 const NO_SIGNAL_KEY := "CHAT_NO_SIGNAL"
 ## Lo que separa el título de su detalle: "RESPONDER · EL TRAUCO".
 const TITLE_SEPARATOR := " · "
+## La etiqueta corta de cada pregunta en su botón (ui.csv): Matías pregunta con la frase completa, de QUESTION_KEYS.
+const QUESTION_LABEL_KEYS := {
+	ClueCategory.Kind.SIGHT: "QUESTION_SIGHT_SHORT",
+	ClueCategory.Kind.SOUND: "QUESTION_SOUND_SHORT",
+	ClueCategory.Kind.ENVIRONMENT: "QUESTION_ENVIRONMENT_SHORT",
+	ClueCategory.Kind.TRACES: "QUESTION_TRACES_SHORT",
+}
+## El ícono de cada pregunta (art/ui/, pixel art de Claude): ojo, parlante, nube con niebla y huella.
+const QUESTION_ICONS := {
+	ClueCategory.Kind.SIGHT: preload("res://art/ui/chat_icon_sight.png"),
+	ClueCategory.Kind.SOUND: preload("res://art/ui/chat_icon_sound.png"),
+	ClueCategory.Kind.ENVIRONMENT: preload("res://art/ui/chat_icon_environment.png"),
+	ClueCategory.Kind.TRACES: preload("res://art/ui/chat_icon_traces.png"),
+}
+## Lo que cuesta una pregunta (ui.csv). Lleva {seconds}.
+const QUESTION_COST_KEY := "CHAT_QUESTION_COST"
+## Lo que costó una pregunta sube desde la pestaña del amigo y se desvanece en estos segundos, subiendo tantos píxeles.
+const COST_POPUP_SECONDS := 1.2
+const COST_POPUP_RISE := 8.0
 ## El nombre de Matías en sus mensajes (ui.csv).
 const PLAYER_NAME_KEY := "CHAT_PLAYER_NAME"
 ## El color de Matías: el de la terminal.
@@ -82,6 +102,8 @@ var _unread: Array[bool] = []
 ## El último mensaje de cada conversación que se escribe de a poco: el siguiente espera a que termine.
 var _last_typed: Array[Node] = []
 var _answer_buttons: Array[Button] = []
+## Los botones de pregunta, por categoría.
+var _question_buttons := {}
 ## La voz de cada amigo y el sonido que usa, en orden.
 var _voices: Array[ChatVoice] = []
 var _voice_streams: Array[AudioStream] = []
@@ -119,11 +141,12 @@ func _ready() -> void:
 	_answer_title.text = _title(ANSWER_TITLE_KEY, tr(OPEN_NOTEBOOK_KEY))
 	_ask_title.text = _title(ASK_TITLE_KEY)
 	for category: ClueCategory.Kind in MessageBuilder.QUESTION_KEYS:
-		var button := Button.new()
-		button.text = tr(MessageBuilder.QUESTION_KEYS[category]).to_upper()
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var button := QuestionButton.new()
+		button.icon = QUESTION_ICONS[category]
+		button.text = tr(QUESTION_LABEL_KEYS[category]).to_upper()
 		button.pressed.connect(_on_question_pressed.bind(category))
 		_questions.add_child(button)
+		_question_buttons[category] = button
 	for index in ANSWER_COUNT:
 		var button := Button.new()
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -140,7 +163,7 @@ func _ready() -> void:
 	visibility_changed.connect(_audio_clip.stop)
 	var sizer := get_node_or_null(^"/root/PixelTextSizer")
 	if sizer != null:
-		sizer.changed.connect(_reserve_answer_space)
+		sizer.changed.connect(_on_text_size_changed)
 
 
 ## Conecta el panel a las solicitudes y a la memoria del cuaderno. Crea una pestaña y una conversación
@@ -183,6 +206,8 @@ func setup(manager: RequestManager, friends: Array[FriendData], memory: Notebook
 	manager.message_added.connect(_on_message_added)
 	manager.request_changed.connect(_on_request_changed)
 	manager.request_finished.connect(_on_request_changed)
+	for button: QuestionButton in _question_buttons.values():
+		button.cost_text = _cost_text(manager.catalog.balance.question_cost)
 	_reserve_answer_space()
 	_select(selected_friend)
 
@@ -281,13 +306,17 @@ func _update_identify_bar() -> void:
 			_entity_button.text = tr(request.entity.name_key)
 
 
-## Con 5 s o menos, sin solicitud o con el amigo sin señal, no se puede preguntar. El título dice por qué.
+## Con 5 s o menos, sin solicitud o con el amigo sin señal, no se puede preguntar, y una pregunta ya respondida no se
+## repite salvo que la estática haya tapado su respuesta (docs/26 §2.1). El título dice por qué no se puede.
 func _update_questions() -> void:
 	var request := _manager.requests[selected_friend]
 	var online := _manager.state.friends[selected_friend].is_online()
-	var can_ask := request != null and request.can_ask() and online
-	for button: Button in _questions.get_children():
-		button.disabled = not can_ask
+	for category: ClueCategory.Kind in _question_buttons:
+		var mark := QuestionButton.Mark.NONE
+		if request != null and request.was_asked(category):
+			mark = QuestionButton.Mark.STATIC if request.answer_covered(category) else QuestionButton.Mark.ASKED
+		var enabled := request != null and online and request.can_ask_about(category)
+		(_question_buttons[category] as QuestionButton).show_state(mark, enabled)
 	var detail := ""
 	if request != null and not online:
 		detail = tr(NO_SIGNAL_KEY)
@@ -469,8 +498,42 @@ func _on_request_changed(friend_index: int, request: FriendRequest) -> void:
 			view.refresh()
 
 
+## Pregunta y, si se pudo, la pestaña del amigo muestra lo que costó.
 func _on_question_pressed(category: ClueCategory.Kind) -> void:
-	_manager.ask(selected_friend, category)
+	var request := _manager.requests[selected_friend]
+	if request != null and _manager.ask(selected_friend, category):
+		_show_cost(selected_friend, request.question_cost)
+
+
+## Lo que costó una pregunta, sobre el borde de abajo de la pestaña del amigo: un "−5 s" rojo, con fondo para leerse sobre
+## la conversación, que sube y se desvanece (docs/26 §2.1).
+func _show_cost(friend_index: int, seconds: float) -> void:
+	var popup := Label.new()
+	popup.name = "CostPopup"
+	popup.theme_type_variation = &"CostPopup"
+	popup.text = _cost_text(seconds)
+	popup.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel.add_child(popup)
+	popup.reset_size()
+	var tab_rect := _tabs[friend_index].get_global_rect()
+	popup.global_position = Vector2(roundf(tab_rect.get_center().x - popup.size.x / 2.0),
+			roundf(tab_rect.end.y - popup.size.y / 2.0))
+	var tween := popup.create_tween().set_parallel()
+	tween.tween_property(popup, ^"position:y", popup.position.y - COST_POPUP_RISE, COST_POPUP_SECONDS)
+	tween.tween_property(popup, ^"modulate:a", 0.0, COST_POPUP_SECONDS).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(popup.queue_free)
+
+
+## "−5 s": los segundos sin decimales si son enteros.
+func _cost_text(seconds: float) -> String:
+	return tr(QUESTION_COST_KEY).format({"seconds": ("%.1f" % seconds).trim_suffix(".0")})
+
+
+## Cambió el tamaño de la letra: los íconos crecen con ella y las respuestas vuelven a medir su espacio.
+func _on_text_size_changed() -> void:
+	for button: QuestionButton in _question_buttons.values():
+		button.resize_icons()
+	_reserve_answer_space()
 
 
 ## Responde el accidente del amigo o, si no tiene, con la acción `index` de la página abierta para él.

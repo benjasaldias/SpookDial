@@ -4,6 +4,7 @@ const Fixtures := preload("res://test/content_fixtures.gd")
 const PANEL := preload("res://scenes/ui/chat_panel.tscn")
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatMessageView := preload("res://scripts/ui/chat_message_view.gd")
+const QuestionButton := preload("res://scripts/ui/question_button.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
@@ -284,8 +285,8 @@ func test_pestanas_y_preguntas_como_en_una_terminal() -> bool:
 	check_eq(tab.theme_type_variation, &"ChatTab", "pestaña con su estilo")
 	check_eq(tab.get_theme_color(&"font_pressed_color"), friend.color, "la elegida, en el color del amigo")
 	check(tab.text.begins_with(tr(friend.name_key).to_upper()), "el nombre en mayúsculas: %s" % tab.text)
-	check_eq((_question_buttons(panel)[0] as Button).text, String(TranslationServer.translate("QUESTION_SIGHT")).to_upper(),
-			"las preguntas en mayúsculas")
+	check_eq((_question_buttons(panel)[0] as Button).text,
+			String(TranslationServer.translate("QUESTION_SIGHT_SHORT")).to_upper(), "las preguntas, cortas y en mayúsculas")
 	_free(panel)
 	return true
 
@@ -727,5 +728,79 @@ func test_abrir_la_pagina_no_mueve_las_preguntas() -> bool:
 	_layout(panel)
 	check_eq(questions.position.y, y, "las preguntas siguen en su lugar")
 	check((panel.get_node("%AnswerArea") as Control).custom_minimum_size.y > 0.0, "las respuestas tienen su espacio")
+	_free(panel)
+	return true
+
+
+## Lo que cuesta una pregunta, como se ve: "−5 s".
+func _cost(seconds: int) -> String:
+	return tr("CHAT_QUESTION_COST").format({"seconds": seconds})
+
+
+## Cada pregunta muestra lo que cuesta, para que se entienda que preguntar quita tiempo (observación 1 del primer testeo).
+func test_cada_pregunta_muestra_su_costo() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_manager.start_request(0)
+	panel._process(0.0)
+	var keys := ["QUESTION_SIGHT_SHORT", "QUESTION_SOUND_SHORT", "QUESTION_ENVIRONMENT_SHORT", "QUESTION_TRACES_SHORT"]
+	var buttons := _question_buttons(panel)
+	for index in buttons.size():
+		var button: Button = buttons[index]
+		check_eq(button.text, tr(keys[index]).to_upper(), "su etiqueta corta")
+		check(button.icon != null, "con el ícono de su categoría")
+		check_eq(button.get("cost_text"), _cost(5), "muestra lo que cuesta")
+		check(not button.disabled, "se puede preguntar")
+	check(tr("CHAT_QUESTION_COST") != "CHAT_QUESTION_COST", "el texto del costo está en ui.csv")
+	_free(panel)
+	return true
+
+
+## Una pregunta ya respondida queda marcada (✓, más tenue) y no se repite (docs/26 §2.1).
+func test_la_pregunta_respondida_queda_marcada() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_manager.start_request(0)
+	(_question_buttons(panel)[0] as Button).pressed.emit()
+	panel._process(0.0)
+	var sight: Button = _question_buttons(panel)[0]
+	check(sight.disabled, "no se repite")
+	check_eq(sight.get("mark"), QuestionButton.Mark.ASKED, "queda con su ✓")
+	check(not (_question_buttons(panel)[1] as Button).disabled, "las otras siguen")
+	check_eq((_question_buttons(panel)[1] as Button).get("mark"), QuestionButton.Mark.NONE, "sin marca")
+	_free(panel)
+	return true
+
+
+## Si la estática tapó algo de la respuesta, la pregunta vuelve, con el ícono de la estática (docs/26 §2.1).
+func test_con_estatica_la_pregunta_vuelve() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	var request := _manager.start_request(0)
+	request.record_answer(ClueCategory.Kind.SIGHT, true)
+	panel._process(0.0)
+	var sight: Button = _question_buttons(panel)[0]
+	check(not sight.disabled, "se puede repetir")
+	check_eq(sight.get("mark"), QuestionButton.Mark.STATIC, "con el ícono de la estática")
+	_manager.state.friends[0].signal_level = 0.0
+	panel._process(0.0)
+	check(sight.disabled, "sin señal, no")
+	check_eq(sight.get("mark"), QuestionButton.Mark.STATIC, "pero sigue avisando que llegó tapada")
+	_free(panel)
+	return true
+
+
+## Al preguntar, debajo de la pestaña del amigo aparece lo que costó: un "−5 s" que sube y se desvanece.
+func test_al_preguntar_la_pestana_muestra_el_costo() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_manager.start_request(0)
+	(_question_buttons(panel)[0] as Button).pressed.emit()
+	var popups := panel.find_children("CostPopup*", "Label", true, false)
+	check_eq(popups.size(), 1, "aparece una vez")
+	if popups.size() == 1:
+		check_eq((popups[0] as Label).text, _cost(5), "con lo que costó")
+	(_question_buttons(panel)[0] as Button).pressed.emit()
+	check_eq(panel.find_children("CostPopup*", "Label", true, false).size(), 1, "una pregunta que no se hizo no cuesta")
 	_free(panel)
 	return true

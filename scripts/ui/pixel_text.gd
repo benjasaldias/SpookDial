@@ -62,6 +62,17 @@ static func window_scale_for(window_size: Vector2) -> float:
 	return minf(window_size.x / BASE_SIZE.x, window_size.y / BASE_SIZE.y)
 
 
+## El lado de un ícono de pixel art de `pixels` px que acompaña a la letra de tamaño `font_size`: crece con ella, así que
+## a 1080p (letra de 15) un ícono de 9 pasa a 12, que son 18 px reales, el doble exacto.
+static func icon_size_for(pixels: int, font_size: int) -> int:
+	return roundi(pixels * font_size / float(GRID))
+
+
+## El lado de un ícono de `pixels` px junto a la letra común, en la ventana de ahora.
+static func icon_size(pixels: int) -> int:
+	return icon_size_for(pixels, size(GRID))
+
+
 ## El tamaño nítido de `base` en la ventana de ahora: para el texto que se dibuja por código.
 static func size(base: int) -> int:
 	var tree := Engine.get_main_loop() as SceneTree
