@@ -820,3 +820,19 @@ func test_guarda_si_la_respuesta_salio_tapada() -> bool:
 		check_eq(request.can_ask_about(category), answer.lost_information(), "se repite solo si salió tapada: %d" % category)
 	manager.free()
 	return true
+
+
+## La dificultad de la partida (docs/26 §3): de ella salen las noches y si la identificación es guiada. Sin elegirla, la
+## de por defecto (Normal).
+func test_la_dificultad_dice_las_noches_y_si_se_destaca() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var hard := Fixtures.add_hard(catalog)
+	var manager := _make_manager(catalog)
+	check_eq(manager.current_difficulty(), catalog.difficulties[0], "sin elegir, Normal")
+	check(manager.highlights(), "en Normal se destaca")
+	check_eq(manager.night(), catalog.difficulties[0].nights[0], "la noche 1 de Normal")
+	manager.difficulty = hard
+	check(not manager.highlights(), "en Difícil, no")
+	check_eq(manager.night(), hard.nights[0], "la noche 1 de Difícil")
+	manager.free()
+	return true

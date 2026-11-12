@@ -7,6 +7,8 @@ extends MarginContainer
 ## Un audio es otro enlace: se escucha con un clic (decisión de Benja, 7 de noviembre).
 ## Lo decisivo va en azul (decisión de Benja, 11 de noviembre): las observaciones, que deciden la fila de la tabla y no se
 ## clickean, y el audio, que también es una observación. Las características y los señuelos siguen en amarillo.
+## En Difícil no se destaca nada (decisión de Benja, D3): las frases y las observaciones van como el resto del texto, sin
+## enlaces. Solo el audio sigue en azul y con su clic, porque es la forma de oírlo (decisión de Benja, S21i).
 ## Cada letra que aparece se avisa, para la voz del amigo (decisión de Benja, 8 de noviembre).
 
 signal clue_clicked(view: Node, clue_id: StringName)
@@ -44,6 +46,9 @@ var speaker := ""
 var speaker_color := Color.WHITE
 ## Se muestra qué se oye en el audio: la opción "Subtítulos de los audios".
 var show_caption := false
+## Se destaca lo que importa (Normal): las características y los señuelos en amarillo y clickeables, y las observaciones
+## en azul. Sin esto (Difícil), solo el audio.
+var highlights := true
 
 var _label: RichTextLabel
 var _typing: Tween
@@ -57,11 +62,13 @@ var _typed := 0
 var _shaking_clue := &""
 
 
-func _init(chat_message: ChatMessage, speaker_name := "", color := Color.WHITE, caption := false) -> void:
+func _init(chat_message: ChatMessage, speaker_name := "", color := Color.WHITE, caption := false,
+		highlighted := true) -> void:
 	message = chat_message
 	speaker = speaker_name
 	speaker_color = color
 	show_caption = caption
+	highlights = highlighted
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	var from_player := message.sender == ChatMessage.Sender.PLAYER
 	var bubble := PanelContainer.new()
@@ -184,6 +191,8 @@ func _token_bbcode(token: ChatMessage.Token) -> String:
 	var text := token.text.replace("[", "[lb]")
 	if token.is_audio:
 		return _audio_bbcode(text)
+	if not highlights:
+		return text
 	if token.is_observation:
 		return _colored(text, OBSERVATION_COLOR)
 	if not token.is_clue():

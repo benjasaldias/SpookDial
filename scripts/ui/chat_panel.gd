@@ -337,9 +337,12 @@ func _tab_text(index: int) -> String:
 	return text
 
 
-## Sobre las preguntas: cuántas características van marcadas, "Matías piensa…" o el nombre de la entidad.
+## Sobre las preguntas: cuántas características van marcadas, "Matías piensa…" o el nombre de la entidad. En Difícil no
+## hay nada de eso: se lee y se busca la página en el índice del cuaderno (decisión de Benja, D3).
 func _update_identify_bar() -> void:
 	var request := _manager.requests[selected_friend]
+	if not _manager.highlights():
+		request = null
 	var revealed := request != null and request.identification == FriendRequest.Identification.REVEALED
 	_progress.visible = request != null and not revealed
 	_entity_button.visible = revealed
@@ -550,7 +553,7 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 			color = _friend_colors[friend_index]
 		ChatMessage.Sender.PLAYER:
 			speaker = tr(PLAYER_NAME_KEY).to_upper()
-	var view := ChatMessageView.new(message, speaker, color, audio_captions)
+	var view := ChatMessageView.new(message, speaker, color, audio_captions, _manager.highlights())
 	view.clue_clicked.connect(_on_clue_clicked)
 	view.audio_clicked.connect(_on_audio_clicked)
 	if message.sender == ChatMessage.Sender.FRIEND:

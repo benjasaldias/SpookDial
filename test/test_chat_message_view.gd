@@ -269,3 +269,31 @@ func test_el_audio_va_en_azul() -> bool:
 			"en azul y con su enlace: " + text)
 	view.free()
 	return true
+
+
+## En Difícil se identifica leyendo (decisión de Benja, D3): las características, los señuelos y las observaciones van
+## sin color y sin enlace.
+func test_en_dificil_no_se_destaca_nada() -> bool:
+	var request := _make_request()
+	var message := _make_message(request)
+	message.add_fragment("Está enojado.", &"", true)
+	var view := ChatMessageView.new(message, "", Color.WHITE, false, false)
+	(Engine.get_main_loop() as SceneTree).root.add_child(view)
+	var label := _label(view)
+	check_eq(label.get_parsed_text(), "[PROTO] Hay un pelaje y frío. Está enojado.", "el mismo texto")
+	check(not label.text.contains("[url"), "nada se clickea: " + label.text)
+	check(not label.text.contains(ChatMessageView.CLUE_COLOR), "sin amarillo")
+	check(not label.text.contains(ChatMessageView.OBSERVATION_COLOR), "sin azul")
+	view.free()
+	return true
+
+
+## En Difícil, el audio se sigue oyendo con un clic, en azul (decisión de Benja, S21i): es la forma de oírlo.
+func test_en_dificil_el_audio_se_oye() -> bool:
+	var view := ChatMessageView.new(_make_audio_message(_make_request()), "", Color.WHITE, false, false)
+	(Engine.get_main_loop() as SceneTree).root.add_child(view)
+	var text := _label(view).text
+	check(text.contains("[url=%s][color=#%s]" % [ChatMessageView.AUDIO_META, ChatMessageView.OBSERVATION_COLOR]),
+			"en azul y con su enlace: " + text)
+	view.free()
+	return true

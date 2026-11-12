@@ -8,6 +8,7 @@ const QuestionButton := preload("res://scripts/ui/question_button.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
+const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
 var _manager: RequestManager
 var _memory: NotebookMemory
@@ -15,10 +16,12 @@ var _memory: NotebookMemory
 
 ## Panel conectado a un manager con el catálogo de prueba (noche 1, sin solicitudes que lleguen solas)
 ## y a la memoria del cuaderno de los 3 amigos.
-func _make_panel() -> Control:
+func _make_panel(hard := false) -> Control:
 	var root := (Engine.get_main_loop() as SceneTree).root
 	_manager = RequestManager.new()
 	_manager.catalog = Fixtures.make_catalog()
+	if hard:
+		_manager.difficulty = Fixtures.add_hard(_manager.catalog)
 	_manager.night_number = 1
 	_manager.random_seed = 4
 	_manager.requests_arrive = false
@@ -869,5 +872,56 @@ func test_sin_senal_el_boton_parpadea() -> bool:
 func test_el_nombre_lleva_el_cuaderno() -> bool:
 	var panel := _make_panel()
 	check((panel.get_node("%EntityName") as Button).icon != null, "con el ícono del cuaderno")
+	_free(panel)
+	return true
+
+
+## En Difícil no hay barra de identificación: ni el avance, ni "Matías piensa", ni el nombre (decisión de Benja, D3). El
+## botón de sincronizar sigue en su lugar.
+func test_en_dificil_no_hay_barra_de_identificacion() -> bool:
+	var panel := _make_panel(true)
+	_manager.catalog.nights(_manager.difficulty)[0].audio_sync_beats = 4
+	panel.open_for(0)
+	var request := _manager.start_request(0)
+	panel._process(0.0)
+	check(not (panel.get_node("%Progress") as Label).visible, "sin el avance")
+	check(not (panel.get_node("%EntityName") as Button).visible, "sin el nombre")
+	check((panel.get_node("%Sync") as Control).visible, "con el botón de sincronizar")
+	check_eq(request.identification, FriendRequest.Identification.PENDING, "Matías no piensa")
+	_free(panel)
+	return true
+
+
+## Una consulta de Difícil se juega sin clics en el texto: se pregunta, se lee, se abre la página desde el índice del
+## cuaderno y se responde.
+func test_en_dificil_se_responde_sin_marcar_nada() -> bool:
+	var panel := _make_panel(true)
+	_manager.catalog.balance.risky_hurt_chance = 0.0
+	_manager.catalog.balance.wrong_hurt_chance = 0.0
+	panel.open_for(0)
+	var request := _manager.start_request(0)
+	for button: QuestionButton in _question_buttons(panel):
+		button.pressed.emit()
+	# Con el catálogo de prueba, los textos no traen frases entre asteriscos: un mensaje como los del juego.
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
+	message.add_fragment("Veo un *pelaje*", request.traits[0].id)
+	message.add_fragment("y *frío*.", request.decoys[0].id)
+	_manager.message_added.emit(0, message)
+	panel._process(0.0)
+	for view: ChatMessageView in panel.message_views(0):
+		var text := (view.get_node("Bubble/Text") as RichTextLabel).text
+		check(not text.contains("[url") or text.contains("[url=%s]" % ChatMessageView.AUDIO_META),
+				"nada se clickea, salvo un audio: " + text)
+	check(request.marked_count() == 0, "no se marcó nada")
+	# El índice del cuaderno abre la página para este amigo.
+	_memory.open_page(0, request.entity)
+	panel._process(0.0)
+	var correct_id := RuleEvaluator.applicable_rule(request.entity, request.situation).correct_action_id
+	var buttons := _answer_buttons(panel)
+	for index in request.entity.actions.size():
+		if request.entity.actions[index].id == correct_id:
+			(buttons[index] as Button).pressed.emit()
+	check(request.finished and request.answered_by_player, "respondió Matías")
+	check_eq(request.outcome, RuleEvaluator.Outcome.CORRECT, "con la acción correcta")
 	_free(panel)
 	return true
