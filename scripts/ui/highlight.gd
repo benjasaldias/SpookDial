@@ -2,7 +2,8 @@ extends Node2D
 ## El parpadeo (docs/26 §2.3): un borde que se enciende y se apaga alrededor de un control para avisar qué apretar. Lo
 ## usa el botón de la señal del chat cuando el amigo está sin señal y, desde S21j, el tutorial. Con "Reducir destellos"
 ## (diseño §19), el borde queda fijo.
-## Se agrega como hijo del control que rodea, con add_child, y dibuja en su espacio, por encima de sus vecinos.
+## Se agrega como hijo del control que rodea, con add_child, y dibuja en su espacio, por encima de sus vecinos. También
+## rodea un nodo 2D (las entradas del PC), con el tamaño que se le dé.
 
 ## Segundos encendido y apagado.
 const ON_SECONDS := 0.4
@@ -27,6 +28,8 @@ var reduce_flashes := false:
 		reduce_flashes = value
 		queue_redraw()
 var color := DEFAULT_COLOR
+## El tamaño de lo que rodea, si no es un Control.
+var target_size := Vector2.ZERO
 
 ## Segundos desde que se activó.
 var _time := 0.0
@@ -49,9 +52,10 @@ func is_showing() -> bool:
 ## El rectángulo del borde, en el espacio del control: el del control, agrandado por la separación y el grosor.
 func border_rect() -> Rect2:
 	var target := get_parent() as Control
-	if target == null:
+	var size := target.size if target != null else target_size
+	if size == Vector2.ZERO:
 		return Rect2()
-	return Rect2(Vector2.ZERO, target.size).grow(MARGIN + WIDTH)
+	return Rect2(Vector2.ZERO, size).grow(MARGIN + WIDTH)
 
 
 func _process(delta: float) -> void:

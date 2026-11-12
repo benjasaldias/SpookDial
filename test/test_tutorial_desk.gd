@@ -80,6 +80,42 @@ func test_el_cuaderno_solo_tiene_a_gonzalo() -> bool:
 	return true
 
 
+## En la noche 0 solo se usa lo que León va enseñando (observación 4): al empezar, ni el celular, ni las cortinas, ni el
+## cuaderno, ni el mixer, ni las entradas de Gonzalo y Agustín responden. Esc sigue pausando.
+func test_al_empezar_casi_todo_esta_bloqueado() -> bool:
+	var desk := _make_desk()
+	_play(desk, 6.0)
+	desk._process(0.0)
+	for path: String in ["DeskPlane/Phone", "WallPlane/Curtains", "DeskPlane/Notebook", "DeskPlane/Mixer"]:
+		check(not desk.get_node(path).enabled, "%s bloqueado" % path)
+	check(desk.get_node("DeskPlane/Entries/EntryLeon").enabled, "León sí")
+	check(not desk.get_node("DeskPlane/Entries/EntryGonzalo").enabled, "Gonzalo no")
+	check(not desk.get_node("DeskPlane/Entries/EntryAgustin").enabled, "Agustín no")
+	var chat := desk.get_node("UI/ChatPanel")
+	check(not chat.is_tab_enabled(2), "tampoco su pestaña")
+	check(chat.is_tab_enabled(0), "la de León sí")
+	var escape := InputEventAction.new()
+	escape.action = &"ui_cancel"
+	escape.pressed = true
+	desk._unhandled_input(escape)
+	check((Engine.get_main_loop() as SceneTree).paused, "Esc pausa: ahí está «Saltar tutorial»")
+	(Engine.get_main_loop() as SceneTree).paused = false
+	desk.free()
+	return true
+
+
+## Desde la noche 1, todo como siempre.
+func test_en_la_noche_1_todo_responde() -> bool:
+	var desk := _make_desk(1)
+	desk._process(0.0)
+	for path: String in ["DeskPlane/Phone", "WallPlane/Curtains", "DeskPlane/Notebook", "DeskPlane/Mixer",
+			"DeskPlane/Entries/EntryAgustin"]:
+		check(desk.get_node(path).enabled, "%s habilitado" % path)
+	check(desk.get_node("UI/ChatPanel").is_tab_enabled(2), "las pestañas")
+	desk.free()
+	return true
+
+
 ## Lo que escribió el amigo `friend_index` hasta ahora, en orden.
 func _friend_lines(desk: Node2D, friend_index: int) -> Array:
 	var lines := []

@@ -37,6 +37,7 @@ const FLICKER_SECONDS := 0.12
 const DIM_ALPHA := 0.35
 ## Cada cuántos segundos pita en alerta.
 const ALARM_SECONDS := 1.0
+const Highlight := preload("res://scripts/ui/highlight.gd")
 
 @export var display_name := "":
 	set(value):
@@ -58,6 +59,7 @@ var reduce_flashes := false:
 		reduce_flashes = value
 		if is_node_ready():
 			set_state(state)
+			_highlight.reduce_flashes = value
 
 ## El pitido de su amigo, o null.
 var alarm: AudioStream:
@@ -67,11 +69,20 @@ var alarm: AudioStream:
 			_alarm_player.stream = value
 ## No pita: el escritorio la calla durante Audio Sync y mientras suena un audio de un amigo.
 var muted := false
+## Recibe clics. En la noche 0, solo las de los amigos que León va usando (Plan 9.5).
+var enabled := true
+## Parpadea un borde a su alrededor: en la noche 0, la entrada que hay que abrir.
+var highlighted := false:
+	set(value):
+		highlighted = value
+		if _highlight != null:
+			_highlight.active = value
 
 var _flicker_time := 0.0
 ## El segundo del reloj común en que pitó o se miró por última vez; -1 antes de la primera.
 var _alarm_beat := -1
 var _alarm_player: AudioStreamPlayer
+var _highlight: Highlight
 
 @onready var _background: AnimatedSprite2D = $Background
 @onready var _name_label: Label = $NameLabel
@@ -87,6 +98,11 @@ func _ready() -> void:
 	_alarm_player.bus = &"Effects"
 	_alarm_player.stream = alarm
 	add_child(_alarm_player)
+	_highlight = Highlight.new()
+	_highlight.name = "Highlight"
+	_highlight.target_size = SIZE
+	_highlight.active = highlighted
+	add_child(_highlight)
 	set_state(State.IDLE)
 	set_seconds_left(-1)
 
@@ -196,9 +212,14 @@ func set_health(current: int, maximum: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	var mouse := event as InputEventMouseButton
 	if mouse and mouse.pressed and mouse.button_index == MOUSE_BUTTON_LEFT \
-			and Rect2(Vector2.ZERO, SIZE).has_point(get_local_mouse_position()):
+			and accepts_click_at(get_local_mouse_position()):
 		pressed.emit()
 		get_viewport().set_input_as_handled()
+
+
+## Un clic en `local` (en su espacio) la abre: está habilitada y el clic cae sobre ella.
+func accepts_click_at(local: Vector2) -> bool:
+	return enabled and Rect2(Vector2.ZERO, SIZE).has_point(local)
 
 
 static func _pip_style(full: bool) -> StyleBoxFlat:

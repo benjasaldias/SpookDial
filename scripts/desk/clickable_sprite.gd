@@ -1,6 +1,7 @@
 extends AnimatedSprite2D
 ## Objeto del escritorio que se resalta al pasar el mouse y emite `clicked`. Desde el Plan 7, su contorno
-## también puede parpadear para pedir atención (así se enseña el celular, decisión de Benja).
+## también puede parpadear para pedir atención (así se enseña el celular, decisión de Benja). Desde el Plan 9.5 se
+## puede bloquear: en la noche 0 solo responde lo que León va enseñando.
 ## Para sprites de un solo frame con centered = false.
 
 signal clicked
@@ -16,10 +17,18 @@ const BLINK_SECONDS := 0.4
 
 var hovered := false:
 	set(value):
+		value = value and enabled
 		if value == hovered:
 			return
 		hovered = value
 		_refresh_outline()
+
+## Sin habilitar no se resalta ni recibe clics.
+var enabled := true:
+	set(value):
+		enabled = value
+		if not value:
+			hovered = false
 
 ## Pide atención: el contorno parpadea hasta que se apague.
 var blinking := false:

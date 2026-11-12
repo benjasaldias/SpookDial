@@ -183,3 +183,27 @@ func test_cada_amigo_tiene_su_nota() -> bool:
 		check(not streams.has(friend.alarm), "%s no repite la de otro" % friend_id)
 		streams.append(friend.alarm)
 	return true
+
+
+## Bloqueada (en la noche 0, hasta que León la use), no recibe clics (Plan 9.5).
+func test_bloqueada_no_recibe_clics() -> bool:
+	var entry := _make_entry()
+	check(entry.accepts_click_at(Vector2(40, 12)), "habilitada, sí")
+	check(not entry.accepts_click_at(Vector2(300, 12)), "fuera de la entrada, no")
+	entry.enabled = false
+	check(not entry.accepts_click_at(Vector2(40, 12)), "bloqueada, no")
+	entry.free()
+	return true
+
+
+func test_puede_parpadear() -> bool:
+	var entry := _make_entry()
+	entry.highlighted = true
+	var highlight := entry.get_node("Highlight")
+	check(highlight.active, "el borde se enciende")
+	check_eq(highlight.border_rect().size, ChatEntry.SIZE + Vector2.ONE * 2 * (highlight.MARGIN + highlight.WIDTH),
+			"alrededor de la entrada")
+	entry.highlighted = false
+	check(not highlight.active, "y se apaga")
+	entry.free()
+	return true

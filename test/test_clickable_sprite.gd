@@ -76,3 +76,23 @@ func test_el_clic_puede_usar_el_dibujo_de_otra_animacion() -> bool:
 	check(PixelHit.is_opaque(curtains._bitmap, Vector2(170, 200)), "el hueco de la ventana recibe el clic")
 	curtains.free()
 	return true
+
+
+## Bloqueado (en la noche 0, hasta que León lo use), no se resalta ni recibe clics (Plan 9.5).
+func test_bloqueado_no_responde() -> bool:
+	var phone := _make_phone()
+	var received := [false]
+	phone.clicked.connect(func() -> void: received[0] = true)
+	phone.hovered = true
+	phone.enabled = false
+	check(not phone.hovered, "al bloquearse deja de estar resaltado")
+	check_eq((phone.material as ShaderMaterial).get_shader_parameter("enabled"), false, "sin contorno")
+	phone.hovered = true
+	check(not phone.hovered, "no se resalta")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	phone._unhandled_input(click)
+	check(not received[0], "no emite clicked")
+	phone.free()
+	return true

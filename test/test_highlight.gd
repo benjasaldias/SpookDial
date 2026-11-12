@@ -49,3 +49,15 @@ func test_inactivo_no_se_ve() -> bool:
 	check(highlight.is_showing(), "al volver a activarlo empieza encendido")
 	highlight.free()
 	return true
+
+
+## También rodea un nodo 2D, como una entrada del PC, con el tamaño que se le dé (Plan 9.5).
+func test_rodea_un_nodo_2d() -> bool:
+	var target := Node2D.new()
+	var highlight := Highlight.new()
+	highlight.target_size = Vector2(243, 26)
+	target.add_child(highlight)
+	check_eq(highlight.border_rect(), Rect2(Vector2.ZERO, Vector2(243, 26)).grow(Highlight.MARGIN + Highlight.WIDTH),
+			"el tamaño dado, agrandado")
+	target.free()
+	return true

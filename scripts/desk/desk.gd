@@ -45,6 +45,7 @@ const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const Screamer := preload("res://scripts/core/screamer.gd")
 const ScreamerManager := preload("res://scripts/desk/screamer_manager.gd")
 const HandManager := preload("res://scripts/desk/hand_manager.gd")
+const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
 
 ## Videos recibidos, en el PC (ui.csv). Lleva {received} y {quota}. Si ya no alcanzan la cuota, el otro texto, en
 ## rojo (decisión de Benja, 11 de noviembre).
@@ -149,6 +150,7 @@ func _process(delta: float) -> void:
 	_alarm_clock += delta
 	# En el tutorial, qué chat se está mirando: el de Gonzalo echa a andar su demostración (Plan 9.5).
 	_requests.tutorial_view(_chat_panel.selected_friend if _chat_panel.visible else -1)
+	_refresh_locks()
 	_refresh_entries()
 	_refresh_meters()
 	_screamers.advance(delta, _scare_view(), _mixer.is_playing() or _chat_panel.is_audio_playing())
@@ -342,6 +344,24 @@ func _refresh_entries() -> void:
 			entry.show_offline()
 		else:
 			entry.set_seconds_left(-1)
+
+
+## En la noche 0 solo responde lo que León va enseñando (observación 4 del primer testeo): el cuaderno y el mixer cuando
+## se desbloquean, la entrada y la pestaña de León siempre y las de Gonzalo en su parte. El celular, las cortinas y
+## Agustín, nunca. La entrada que hay que abrir parpadea. En las demás noches, todo responde.
+func _refresh_locks() -> void:
+	var tutorial := _requests.is_tutorial()
+	($DeskPlane/Notebook as Node).enabled = _requests.is_unlocked(TutorialChat.Unlock.NOTEBOOK)
+	($DeskPlane/Mixer as Node).enabled = _requests.is_unlocked(TutorialChat.Unlock.MIXER)
+	($DeskPlane/Phone as Node).enabled = not tutorial
+	($WallPlane/Curtains as Node).enabled = not tutorial
+	for index in _entries.size():
+		var unlocked := _requests.is_friend_unlocked(index)
+		_entries[index].enabled = unlocked
+		_chat_panel.set_tab_enabled(index, unlocked)
+		var calls := (_requests.tutorial_wants(TutorialChat.Focus.DEMO_ENTRY) and index == _requests.tutorial_demo_friend()) \
+				or (_requests.tutorial_wants(TutorialChat.Focus.GUIDE_ENTRY) and index == _requests.tutorial_guide())
+		_entries[index].highlighted = calls
 
 
 ## Los diales y las barras (cada uno con su color fijo, decisión de Benja), la hora del celular, los videos del

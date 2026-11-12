@@ -261,6 +261,16 @@ func setup(manager: RequestManager, friends: Array[FriendData], memory: Notebook
 	_select(selected_friend)
 
 
+## Habilita o bloquea la pestaña del amigo `friend_index`: en la noche 0, solo las de los amigos que León va usando
+## (Plan 9.5).
+func set_tab_enabled(friend_index: int, enabled: bool) -> void:
+	_tabs[friend_index].disabled = not enabled
+
+
+func is_tab_enabled(friend_index: int) -> bool:
+	return not _tabs[friend_index].disabled
+
+
 ## Abre el panel en la conversación del amigo `friend_index`.
 func open_for(friend_index: int) -> void:
 	_select(friend_index)
