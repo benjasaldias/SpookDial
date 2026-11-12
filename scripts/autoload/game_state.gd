@@ -49,6 +49,15 @@ func continue_game() -> void:
 	start_night(maxi(save.stored_night(), difficulty.first_night))
 
 
+## Las dificultades que todavía no se pueden elegir: Difícil, mientras no se termine Normal (decisión de Benja, D1).
+func locked_difficulties() -> Array[DifficultyData]:
+	var locked: Array[DifficultyData] = []
+	for each: DifficultyData in catalog.difficulties:
+		if not progress.is_unlocked(each):
+			locked.append(each)
+	return locked
+
+
 ## La dificultad de la partida: la elegida o, si todavía no se eligió, la de por defecto.
 func current_difficulty() -> DifficultyData:
 	return difficulty if difficulty != null else catalog.default_difficulty()

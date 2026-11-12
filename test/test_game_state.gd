@@ -179,3 +179,13 @@ func test_ganar_la_noche_5_termina_la_dificultad() -> bool:
 	desk.free()
 	_free(game)
 	return true
+
+
+## El menú bloquea Difícil mientras no se termine Normal (D1).
+func test_dificil_bloqueada_hasta_terminar_normal() -> bool:
+	var game := _make_game()
+	check_eq(game.locked_difficulties(), [game.catalog.find_difficulty(&"hard")], "Difícil, bloqueada")
+	game.progress.mark_finished(&"normal")
+	check_eq(game.locked_difficulties(), [], "al terminar Normal, ninguna")
+	_free(game)
+	return true
