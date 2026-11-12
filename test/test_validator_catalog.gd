@@ -213,3 +213,31 @@ func test_las_compartidas_tienen_las_mismas_variantes() -> bool:
 	catalog.nights()[1].new_entities[0].traits[0] = shared
 	check_contains(ContentValidator.validate_catalog(catalog), "'beast_trait_1': tiene otro nombre o se dice distinto en 'ghost'")
 	return true
+
+
+## El plan de olas de una noche (docs/26 §3.2): sus videos son los de la cuota, y cada ola trae al menos una consulta.
+func test_los_videos_del_plan_suman_la_cuota() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var night := catalog.nights()[0]
+	night.content_quota = 2
+	var wave := WaveData.new()
+	wave.videos = 1
+	night.wave_plan.append(wave)
+	check_contains(ContentValidator.validate_catalog(catalog),
+			"Dificultad 'normal', noche 1: los videos del plan de olas suman 1 y la cuota es 2")
+	wave.videos = 2
+	check(ContentValidator.validate_catalog(catalog).is_empty(), str(ContentValidator.validate_catalog(catalog)))
+	return true
+
+
+func test_una_ola_sin_consultas() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var night := catalog.nights()[0]
+	night.content_quota = 0
+	var empty := WaveData.new()
+	empty.requests = 0
+	night.wave_plan.assign([WaveData.new(), empty])
+	check_contains(ContentValidator.validate_catalog(catalog), "Dificultad 'normal', noche 1: la ola 2 del plan no tiene consultas")
+	night.wave_plan.append(null)
+	check_contains(ContentValidator.validate_catalog(catalog), "Dificultad 'normal', noche 1: hay un espacio vacío en el plan de olas")
+	return true

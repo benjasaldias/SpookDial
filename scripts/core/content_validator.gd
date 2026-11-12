@@ -115,10 +115,27 @@ static func _check_difficulty(errors: Array[String], catalog: ContentCatalog, di
 			errors.append("%s: la noche en la posición %d tiene el número %d; deben ir en orden desde 1"
 					% [who, index + 1, night.number])
 		_check_scripted_chat(errors, catalog, night)
+		_check_wave_plan(errors, "%s, noche %d" % [who, night.number], night)
 		if difficulty != reference and index < reference.nights.size() \
 				and night.new_entities != reference.nights[index].new_entities:
 			errors.append("%s: la noche %d no trae las mismas entidades nuevas que en '%s'"
 					% [who, index + 1, reference.id])
+
+
+## El plan de olas de una noche, si tiene: sin espacios vacíos, cada ola con al menos una consulta, y sus videos suman la
+## cuota (son los envíos programados).
+static func _check_wave_plan(errors: Array[String], who: String, night: NightData) -> void:
+	if not night.has_wave_plan():
+		return
+	if night.wave_plan.has(null):
+		errors.append("%s: hay un espacio vacío en el plan de olas" % who)
+		return
+	for index in night.wave_plan.size():
+		if night.wave_plan[index].requests < 1:
+			errors.append("%s: la ola %d del plan no tiene consultas" % [who, index + 1])
+	if night.total_videos() != night.content_quota:
+		errors.append("%s: los videos del plan de olas suman %d y la cuota es %d"
+				% [who, night.total_videos(), night.content_quota])
 
 
 ## Todas las noches de todas las dificultades, sin el tutorial.

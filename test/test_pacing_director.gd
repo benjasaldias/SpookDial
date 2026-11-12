@@ -298,3 +298,149 @@ func test_sin_solicitudes_no_hay_olas() -> bool:
 	check_eq(result["arrivals"].size(), 0, "ninguna")
 	check_eq(result["waves"].size(), 0, "sin olas")
 	return true
+
+
+# --- El plan de olas (docs/26 §3.2): olas armadas a mano, como la noche 1 de Normal.
+
+func _wave(requests: int, videos := 0, spacing := Vector2(30, 45), calm_before := Vector2(30, 45)) -> WaveData:
+	var wave := WaveData.new()
+	wave.requests = requests
+	wave.videos = videos
+	wave.spacing = spacing
+	wave.calm_before = calm_before
+	return wave
+
+
+## La noche 1 de Normal: 90 s para responder; la ola 1 trae 1 consulta y su video, a los 45 s; la ola 2, 2 consultas
+## separadas por 30 a 45 s, la Mano y 1 interferencia; y la final, consulta, video y consulta. Un screamer en cada calma.
+func _plan_night() -> NightData:
+	var night := NightData.new()
+	night.base_decision_time = 90.0
+	night.content_quota = 2
+	var first := _wave(1, 1, Vector2(30, 45), Vector2(45, 45))
+	first.calm_scares = 1
+	var second := _wave(2)
+	second.hands = 1
+	second.interferences = 1
+	second.calm_scares = 1
+	night.wave_plan.assign([first, second, _wave(2, 1)])
+	return night
+
+
+func test_el_plan_reemplaza_las_olas_automaticas() -> bool:
+	var director := _director(_plan_night())
+	check_eq(director.waves.size(), 3, "las 3 olas del plan")
+	check_eq(director.waves.map(func(wave: PacingDirector.Wave) -> Array: return wave.arrivals),
+			[[false, true], [false, false], [false, true, false]], "consultas (false) y videos (true), en orden")
+	check(director.waves[-1].finale, "la última es la final")
+	check(not director.waves[0].finale and not director.waves[1].finale, "las otras, no")
+	return true
+
+
+func test_la_primera_ola_del_plan_llega_tras_su_calma() -> bool:
+	for seed_value in 5:
+		var result := _run(_director(_plan_night(), seed_value), _plan_night(), 20.0)
+		check_eq(result["arrivals"][0], 45.0, "semilla %d: a los 45 s" % seed_value)
+	return true
+
+
+## Con la consulta abierta, el video llega cuando le quedan 30 s: 60 s después de que llegó.
+func test_el_video_llega_cuando_a_la_consulta_le_quedan_30_s() -> bool:
+	var result := _run(_director(_plan_night(), 1), _plan_night(), 80.0)
+	check_eq(result["videos"][0], 105.0, "a los 45 + 60 s")
+	return true
+
+
+## Si la consulta ya se respondió, el video llega de 3 a 6 s después.
+func test_el_video_llega_poco_despues_de_responder() -> bool:
+	for seed_value in 5:
+		var result := _run(_director(_plan_night(), seed_value), _plan_night(), 20.0)
+		var delay: float = result["videos"][0] - 65.0
+		check(delay >= 3.0 and delay <= 6.5, "semilla %d: %s s después de responder" % [seed_value, delay])
+	return true
+
+
+func test_las_consultas_de_una_ola_planeada_se_separan() -> bool:
+	for seed_value in 5:
+		var result := _run(_director(_plan_night(), seed_value), _plan_night(), 20.0)
+		var gap: float = result["arrivals"][2] - result["arrivals"][1]
+		check(gap >= 30.0 and gap <= 45.5, "semilla %d: la segunda de la ola 2, %s s después" % [seed_value, gap])
+	return true
+
+
+## La calma empieza cuando llegó todo lo de la ola y se respondió, y dura lo que dice la ola siguiente.
+func test_la_calma_entre_olas_planeadas() -> bool:
+	for seed_value in 5:
+		var result := _run(_director(_plan_night(), seed_value), _plan_night(), 20.0)
+		var calm: float = result["calms"][0]
+		check_eq(calm, result["videos"][0], "semilla %d: la calma empieza con el video" % seed_value)
+		var wait: float = result["arrivals"][1] - calm
+		check(wait >= 30.0 and wait <= 45.5, "semilla %d: %s s de calma" % [seed_value, wait])
+	return true
+
+
+## La final llega lo más tarde posible: su última consulta llega a más tardar 60 + 45 s después de empezar (el video
+## cuando a la primera le quedan 30 s, y la segunda 45 s después) y tiene 90 s, con 10 s de margen para un herido.
+func test_la_final_del_plan_llega_lo_mas_tarde_posible() -> bool:
+	var night := _plan_night()
+	var finale_at := PacingDirector.finale_time(night, BalanceData.new())
+	check_eq(finale_at, NIGHT_SECONDS - (60.0 + 45.0 + 90.0) - 10.0, "a las 03:04")
+	for seed_value in 5:
+		var result := _run(_director(night, seed_value), night, 20.0)
+		var finale: Array = result["waves"][-1]
+		check(finale[2], "semilla %d: es la final" % seed_value)
+		check_eq(finale[0], finale_at, "semilla %d: a su hora" % seed_value)
+		var arrivals: Array = result["arrivals"]
+		check_eq(arrivals.size(), 5, "semilla %d: las 5 consultas" % seed_value)
+		check(arrivals[-1] + 90.0 <= NIGHT_SECONDS, "semilla %d: la última alcanza a terminar" % seed_value)
+	return true
+
+
+## Con la consulta abierta, en la final el video llega a los 60 s y la segunda consulta, de 30 a 45 s después: nunca
+## juntos.
+func test_en_la_final_nada_llega_junto() -> bool:
+	for seed_value in 5:
+		var night := _plan_night()
+		var result := _run(_director(night, seed_value), night, 80.0)
+		var start: float = result["waves"][-1][0]
+		var video: float = result["videos"][1]
+		check_eq(video, start + 60.0, "semilla %d: el video, a los 60 s" % seed_value)
+		var gap: float = result["arrivals"][-1] - video
+		check(gap >= 30.0 and gap <= 45.5, "semilla %d: la segunda consulta, %s s después del video" % [seed_value, gap])
+	return true
+
+
+func test_la_mano_y_las_interferencias_de_una_ola_planeada() -> bool:
+	var director := _director(_plan_night(), 3)
+	var result := _run(director, _plan_night(), 20.0)
+	var second: float = result["waves"][1][0]
+	check_eq(director.hand_times.size(), 1, "una Mano")
+	check_eq(result["interferences"].size(), 1, "una interferencia")
+	for time: float in director.hand_times + result["interferences"]:
+		check(time >= second + 3.0 and time <= second + 15.5, "%s llega con la ola 2" % time)
+	return true
+
+
+func test_screamers_en_la_calma_de_una_ola_planeada() -> bool:
+	var director := _director(_plan_night(), 4)
+	var result := _run(director, _plan_night(), 20.0)
+	var calms: Array = result["calms"]
+	var scares: Array = director.scare_times
+	check_eq(scares.size(), 2, "los 2 screamers")
+	check_eq(calms.size(), 2, "2 calmas")
+	if scares.size() == 2 and calms.size() == 2:
+		check(scares[0] >= calms[0] + 5.0 and scares[0] < result["waves"][1][0] + 25.0, "uno en la primera calma")
+		check(scares[1] >= calms[1] + 5.0, "otro en la segunda")
+	check(not director.scare_creature.has(true), "ninguno es la criatura")
+	return true
+
+
+## Un plan completo pone sus videos dentro de las olas: las calmas no sueltan ninguno.
+func test_un_plan_no_suelta_videos_en_las_calmas() -> bool:
+	var result := _run(_director(_plan_night(), 6), _plan_night(), 20.0)
+	var videos: Array = result["videos"]
+	check_eq(videos.size(), 2, "los 2 de la cuota")
+	if videos.size() == 2:
+		check(videos[0] < result["waves"][1][0], "uno en la ola 1")
+		check(videos[1] > result["waves"][2][0], "otro en la final")
+	return true

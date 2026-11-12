@@ -33,6 +33,13 @@ extends Resource
 ## de noviembre).
 @export var incident_count := 0
 
+@export_group("Plan de olas")
+## Olas armadas a mano, en orden; la última es la final (docs/26 §3.2: la noche 1 de Normal). Si está vacío, el director
+## arma las olas solo, con los valores de arriba. **Con un plan, las solicitudes, las olas, los accidentes, las
+## interferencias, la Mano y los screamers salen del plan**, y esos campos de la noche no se usan. Los videos del plan
+## tienen que sumar la cuota.
+@export var wave_plan: Array[WaveData] = []
+
 @export_group("Señal")
 @export var signal_decays := false
 ## Segundos por cada punto de señal perdido (mínimo y máximo; varía).
@@ -77,3 +84,48 @@ extends Resource
 
 func is_tutorial() -> bool:
 	return number == 0
+
+
+## La noche tiene sus olas armadas a mano.
+func has_wave_plan() -> bool:
+	return not wave_plan.is_empty()
+
+
+## Los totales de la noche: con un plan de olas, sumados del plan; sin plan, los de sus campos.
+func total_requests() -> int:
+	return _plan_sum(func(wave: WaveData) -> int: return wave.requests) if has_wave_plan() else requests_total
+
+
+## Los screamers, sin contar las alucinaciones ni el susto guionado: los ambientales y la criatura.
+func total_scares() -> int:
+	return _plan_sum(func(wave: WaveData) -> int: return wave.calm_scares + wave.calm_creatures) if has_wave_plan() \
+			else scare_count
+
+
+func total_creatures() -> int:
+	return _plan_sum(func(wave: WaveData) -> int: return wave.calm_creatures) if has_wave_plan() else creature_visits
+
+
+func total_hands() -> int:
+	return _plan_sum(func(wave: WaveData) -> int: return wave.hands) if has_wave_plan() else hand_visits
+
+
+func total_interferences() -> int:
+	return _plan_sum(func(wave: WaveData) -> int: return wave.interferences) if has_wave_plan() else interference_count
+
+
+func total_incidents() -> int:
+	return _plan_sum(func(wave: WaveData) -> int: return wave.incidents) if has_wave_plan() else incident_count
+
+
+## Los videos que trae el plan de olas (sin plan, ninguno: los suelta el director en las calmas).
+func total_videos() -> int:
+	return _plan_sum(func(wave: WaveData) -> int: return wave.videos)
+
+
+func _plan_sum(count: Callable) -> int:
+	var total := 0
+	for wave: WaveData in wave_plan:
+		if wave != null:
+			total += int(count.call(wave))
+	return total

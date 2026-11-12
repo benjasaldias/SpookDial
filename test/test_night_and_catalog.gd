@@ -90,3 +90,49 @@ func test_una_dificultad_por_defecto() -> bool:
 	check(difficulty.highlights, "la identificación es guiada")
 	check(difficulty.unlocked_by == null, "no pide nada para desbloquearse")
 	return true
+
+
+## Una ola armada a mano (docs/26 §3.2): sus llegadas se alternan, consulta, video, consulta, y lo que sobra va al final.
+func test_las_llegadas_de_una_ola() -> bool:
+	var wave := WaveData.new()
+	check_eq(wave.arrivals(), [false], "por defecto, una consulta")
+	wave.requests = 2
+	wave.videos = 1
+	check_eq(wave.arrivals(), [false, true, false], "consulta, video, consulta")
+	wave.requests = 1
+	check_eq(wave.arrivals(), [false, true], "consulta y video")
+	wave.videos = 2
+	check_eq(wave.arrivals(), [false, true, true], "los videos que sobran, al final")
+	wave.requests = 3
+	wave.videos = 0
+	check_eq(wave.arrivals(), [false, false, false], "solo consultas")
+	return true
+
+
+## Con un plan de olas, los totales de la noche salen del plan; sin plan, de sus campos.
+func test_los_totales_salen_del_plan() -> bool:
+	var night := NightData.new()
+	night.requests_total = 7
+	night.scare_count = 4
+	night.creature_visits = 2
+	night.hand_visits = 3
+	night.interference_count = 5
+	night.incident_count = 1
+	check(not night.has_wave_plan(), "sin plan")
+	check_eq([night.total_requests(), night.total_scares(), night.total_creatures(), night.total_hands(),
+			night.total_interferences(), night.total_incidents()], [7, 4, 2, 3, 5, 1], "los campos")
+	var first := WaveData.new()
+	first.calm_scares = 1
+	first.calm_creatures = 1
+	var second := WaveData.new()
+	second.requests = 2
+	second.hands = 1
+	second.interferences = 2
+	second.incidents = 1
+	second.calm_scares = 1
+	night.wave_plan.assign([first, second])
+	check(night.has_wave_plan(), "con plan")
+	check_eq([night.total_requests(), night.total_scares(), night.total_creatures(), night.total_hands(),
+			night.total_interferences(), night.total_incidents()], [3, 3, 1, 1, 2, 1], "del plan")
+	check_eq(night.total_videos(), 0, "sin videos en el plan")
+	return true
