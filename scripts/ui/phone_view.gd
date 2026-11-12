@@ -38,7 +38,7 @@ const FLASH_PADDING := 5
 const FLASH_GAP := 3
 ## Dónde va el botón: entre la hora y la batería, en la barra de arriba.
 const CLOCK_LEFT := 22.0
-const FLASH_TOP := 16.0
+const FLASH_TOP := 18.0
 ## Segundos que se ve hundido después del clic.
 const FLASH_PRESS_SECONDS := 0.18
 ## Dónde termina el porcentaje de la batería: antes de las barras de señal.

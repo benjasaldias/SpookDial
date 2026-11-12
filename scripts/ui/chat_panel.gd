@@ -381,7 +381,9 @@ func _update_identify_bar() -> void:
 	var revealed := request != null and request.identification == FriendRequest.Identification.REVEALED
 	_progress.visible = request != null and not revealed
 	_entity_button.visible = revealed
-	_entity_button.disabled = not _allows(TutorialChat.Focus.ENTITY_NAME)
+	# En el tutorial se habilita cuando León lo pide, y después sigue abriendo la página.
+	_entity_button.disabled = not (_allows(TutorialChat.Focus.ENTITY_NAME)
+			or _manager.tutorial_chat.step > TutorialChat.Step.OPEN_PAGE)
 	if request == null:
 		return
 	match request.identification:
