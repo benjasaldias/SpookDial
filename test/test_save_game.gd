@@ -38,3 +38,28 @@ func test_una_noche_que_no_existe_no_cuenta() -> bool:
 	check(not save.has_game(), "la noche 9 no existe")
 	save.clear()
 	return true
+
+
+## La partida guarda también su dificultad (docs/26 §3.1). Sin decirla, Normal.
+func test_guarda_la_dificultad() -> bool:
+	var save := _make_save()
+	check_eq(save.store(3, &"hard"), OK, "se guarda")
+	check_eq(SaveGame.new(TEST_PATH).stored_difficulty(), &"hard", "otra lectura ve Difícil")
+	check_eq(save.stored_night(), 3, "y la noche 3")
+	save.store(2)
+	check_eq(save.stored_difficulty(), &"normal", "sin decirla, Normal")
+	save.clear()
+	return true
+
+
+## Una partida guardada antes de que existieran las dificultades se lee como Normal.
+func test_una_partida_vieja_es_normal() -> bool:
+	var save := _make_save()
+	check_eq(save.stored_difficulty(), &"normal", "sin partida, Normal")
+	var file := ConfigFile.new()
+	file.set_value(SaveGame.SECTION, "night", 2)
+	file.save(TEST_PATH)
+	check_eq(save.stored_night(), 2, "la noche se lee igual")
+	check_eq(save.stored_difficulty(), &"normal", "la dificultad, Normal")
+	save.clear()
+	return true

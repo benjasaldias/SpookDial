@@ -5,18 +5,35 @@ extends "res://test/test_case.gd"
 const GameStateScript := preload("res://scripts/autoload/game_state.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const SaveGame := preload("res://scripts/core/save_game.gd")
+const GameProgress := preload("res://scripts/core/game_progress.gd")
 const TEST_SAVE := "user://test_game_save.cfg"
+const TEST_PROGRESS := "user://test_game_progress.cfg"
+
+
+## GameState sin cambiar de escena: guarda el escritorio que iba a mostrar.
+class ShownGame extends "res://scripts/autoload/game_state.gd":
+	var shown: Node
+
+	func _show(scene: Node) -> void:
+		if shown != null:
+			shown.free()
+		shown = scene
 
 
 func _make_game() -> Node:
-	var game := GameStateScript.new()
+	var game := ShownGame.new()
 	game.save = SaveGame.new(TEST_SAVE)
 	game.save.clear()
+	game.progress = GameProgress.new(TEST_PROGRESS)
+	game.progress.clear()
 	return game
 
 
 func _free(game: Node) -> void:
 	game.save.clear()
+	game.progress.clear()
+	if game.shown != null:
+		game.shown.free()
 	game.free()
 
 
@@ -96,6 +113,69 @@ func test_las_opciones_de_la_pausa_se_guardan() -> bool:
 	var game := _make_game()
 	var desk: Node = game.prepare_night(1)
 	check_eq(desk.settings_changed.get_connections().size(), 1, "GameState las guarda")
+	desk.free()
+	_free(game)
+	return true
+
+
+## Una partida nueva empieza en la noche de su dificultad: Normal en el tutorial y Difícil en la noche 1 (D5).
+func test_nueva_partida_empieza_en_la_noche_de_su_dificultad() -> bool:
+	var game := _make_game()
+	var hard: DifficultyData = game.catalog.find_difficulty(&"hard")
+	game.new_game(hard)
+	check_eq(game.difficulty, hard, "la partida es en Difícil")
+	check_eq(game.night_number, 1, "Difícil empieza en la noche 1")
+	var manager: Node = game.shown.get_node("RequestManager")
+	check_eq(manager.night_number, 1, "el escritorio juega la noche 1")
+	check_eq(manager.difficulty, hard, "en Difícil")
+	game.new_game(game.catalog.find_difficulty(&"normal"))
+	check_eq(game.night_number, 0, "Normal empieza en el tutorial")
+	_free(game)
+	return true
+
+
+## Continuar vuelve a la noche y a la dificultad guardadas.
+func test_continuar_vuelve_a_la_dificultad_guardada() -> bool:
+	var game := _make_game()
+	game.save.store(3, &"hard")
+	game.continue_game()
+	check_eq(game.difficulty.id, &"hard", "Difícil")
+	check_eq(game.night_number, 3, "la noche 3")
+	check_eq(game.shown.get_node("RequestManager").difficulty, game.difficulty, "el escritorio, en Difícil")
+	_free(game)
+	return true
+
+
+## Cada noche se guarda con su dificultad.
+func test_preparar_una_noche_guarda_su_dificultad() -> bool:
+	var game := _make_game()
+	game.difficulty = game.catalog.find_difficulty(&"hard")
+	var desk: Node = game.prepare_night(2)
+	check_eq(game.save.stored_difficulty(), &"hard", "guardada en Difícil")
+	check_eq(desk.get_node("RequestManager").difficulty, game.difficulty, "el escritorio la juega")
+	desk.free()
+	game.difficulty = null
+	desk = game.prepare_night(2)
+	check_eq(game.save.stored_difficulty(), &"normal", "sin elegir, Normal")
+	desk.free()
+	_free(game)
+	return true
+
+
+## Al ganar la noche 5, la dificultad queda terminada: así se desbloquea Difícil (D1).
+func test_ganar_la_noche_5_termina_la_dificultad() -> bool:
+	var game := _make_game()
+	game.difficulty = game.catalog.find_difficulty(&"normal")
+	var desk: Node = game.prepare_night(4)
+	game._on_night_ended(NightState.Ending.WON, null)
+	check(not game.progress.has_finished(&"normal"), "la noche 4 no termina nada")
+	desk.free()
+	desk = game.prepare_night(5)
+	game._on_night_ended(NightState.Ending.QUOTA, null)
+	check(not game.progress.has_finished(&"normal"), "perder la noche 5, tampoco")
+	game._on_night_ended(NightState.Ending.WON, null)
+	check(game.progress.has_finished(&"normal"), "ganarla termina Normal")
+	check(game.progress.is_unlocked(game.catalog.find_difficulty(&"hard")), "y desbloquea Difícil")
 	desk.free()
 	_free(game)
 	return true
