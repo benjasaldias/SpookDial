@@ -76,6 +76,14 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.76, 0.79, 1)
 vertical_alignment = 1
 
+[node name="CallSync" type="HBoxContainer" parent="Panel/Layout"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
 [node name="Conversations" type="Control" parent="Panel/Layout"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -143,14 +151,6 @@ unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"ChatIconButton"
-
-[node name="CallSync" type="HBoxContainer" parent="Panel/Layout/IdentifyBar"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_constants/separation = 6
 
 [node name="AskTitle" type="Label" parent="Panel/Layout"]
 unique_name_in_owner = true

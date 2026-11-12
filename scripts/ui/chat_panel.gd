@@ -20,9 +20,9 @@ extends Control
 ## eso parpadea: la pregunta, las frases y el audio (laten), el nombre, las hojas, la barra de descarga y las barritas.
 ## En la demostración de Gonzalo, las respuestas dicen que hay que mirar qué pasa.
 ## Desde el Plan 9.7 (la historia, docs/21 y docs/31), con los 3 amigos juntos y nada que jugar, el chat es una llamada
-## grupal (idea de Benja): en lugar de las pestañas, un encabezado con su ícono; una conversación aparte, donde cada línea
-## lleva el nombre de quien habla, en su color, y suena con su voz; y arriba, las barritas de los 3, que abren el mixer en
-## su canal. Sin preguntas ni respuestas. Si llega algo que jugar, la llamada se corta y se abre el chat de quien lo tiene.
+## grupal (idea de Benja): en lugar de las pestañas, un encabezado con su ícono y, debajo, las barritas de los 3, que
+## abren el mixer en su canal; una conversación aparte, donde cada línea lleva el nombre de quien habla, en su color, y
+## suena con su voz. Sin identificación, preguntas ni respuestas. Si llega algo que jugar, la llamada se corta y se abre el chat de quien lo tiene.
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
 ## Clic en el nombre de la entidad: el cuaderno abre su página.
@@ -428,11 +428,10 @@ func _update_call_mode() -> void:
 	_tab_bar.visible = not call
 	_call_header.visible = call
 	_call_sync.visible = call
-	for control: Control in [_ask_title, _questions, _answer_title, _answer_area]:
+	for control: Control in [%IdentifyBar as Control, _ask_title, _questions, _answer_title, _answer_area]:
 		control.visible = not call
 	if call:
-		for control: Control in [_download, _progress, _entity_button, _sync_button]:
-			control.visible = false
+		_download.visible = false
 	_show_conversation()
 	var playing := _first_playing_friend()
 	if not call and visible and playing >= 0:
@@ -733,7 +732,7 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 		view.wait_for = _last_typed[friend_index]
 		_last_typed[friend_index] = view
 	_lists[friend_index].add_child(view)
-	if message.sender != ChatMessage.Sender.PLAYER and not (visible and friend_index == selected_friend):
+	if message.sender != ChatMessage.Sender.PLAYER and not (visible and not _call_mode and friend_index == selected_friend):
 		_unread[friend_index] = true
 
 

@@ -957,13 +957,17 @@ func test_en_llamada_no_hay_pestanas() -> bool:
 	check(not (panel.get_node("%Tabs") as Control).visible, "sin pestañas")
 	check((panel.get_node("%CallHeader") as Control).visible, "con el encabezado de la llamada")
 	check_eq((panel.get_node("%CallHeader/Title") as Label).text, tr("CHAT_CALL_TITLE").to_upper(), "dice que es una llamada")
-	for path: String in ["%AskTitle", "%Questions", "%AnswerTitle", "%AnswerArea", "%Download", "%Progress", "%Sync"]:
+	for path: String in ["%IdentifyBar", "%AskTitle", "%Questions", "%AnswerTitle", "%AnswerArea", "%Download"]:
 		check(not (panel.get_node(path) as Control).visible, path + ": no se ve en la llamada")
+	var layout := panel.get_node("Panel/Layout")
+	check_eq(panel.get_node("%CallSync").get_index(), panel.get_node("%CallHeader").get_index() + 1,
+			"las barritas, arriba, debajo del encabezado")
+	check(layout.get_node("Conversations").get_index() > panel.get_node("%CallSync").get_index(), "antes de la conversación")
 	_manager.start_request(0)
 	panel._process(0.0)
 	check(not panel.is_call_mode(), "con algo que jugar, se corta")
 	check((panel.get_node("%Tabs") as Control).visible, "vuelven las pestañas")
-	for path: String in ["%AskTitle", "%Questions", "%AnswerTitle", "%AnswerArea"]:
+	for path: String in ["%IdentifyBar", "%AskTitle", "%Questions", "%AnswerTitle", "%AnswerArea"]:
 		check((panel.get_node(path) as Control).visible, path + ": vuelve")
 	_free(panel)
 	return true
@@ -1043,5 +1047,18 @@ func test_las_voces_de_la_llamada() -> bool:
 	for _letter in 8:
 		view.letter_typed.emit("H")
 	check(not voice.playing, "con el chat cerrado, no suena")
+	_free(panel)
+	return true
+
+
+## Mientras se ve la llamada, lo que escribe un amigo en su chat queda sin leer, aunque sea el amigo elegido.
+func test_en_llamada_el_chat_de_un_amigo_queda_sin_leer() -> bool:
+	var panel := _make_call_panel()
+	panel.open_for(0)
+	panel._process(0.0)
+	_friend_view(panel, 0)
+	_manager.start_request(1)
+	panel._process(0.0)
+	check(panel.get_node("%Tabs").get_child(0).text.ends_with(ChatPanelScript.UNREAD_MARK), "León tiene un mensaje sin leer")
 	_free(panel)
 	return true
