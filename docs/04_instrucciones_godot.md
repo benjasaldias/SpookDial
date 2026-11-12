@@ -27,6 +27,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **T.** Probar el chat nuevo, la descarga y el guardado (Plan 9.3) | ⬜ Pendiente (unos 15 minutos) |
 | **U.** Probar Normal y Difícil (Plan 9.4) | ⬜ Pendiente (unos 20 minutos) |
 | **V.** Probar la noche 0 nueva y los pedidos del 12 de noviembre (Plan 9.5) | ⬜ Pendiente (unos 20 minutos) |
+| **W.** Probar Extremo (Plan 9.6) | ⬜ Pendiente (unos 30 minutos, o más si quieres ganarlo) |
 | Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
@@ -800,3 +801,41 @@ Ya no existen `TUTORIAL_LEON_ASK_SIGHT_AGAIN`, `TUTORIAL_LEON_NAME_OPEN` ni `TUT
 - El botón del flash es pixel art de Claude (`art/ui/phone_flash_button.png`, 3 cuadros de 14×14), en `arte_pendiente.md`.
 - Las tripas (`audio/clues/tutorial_stomach_yes.wav`) y las alarmas (`audio/sfx/alarm_*.wav`) están en `sonidos_pendiente.md`.
 
+## W. Probar Extremo (Plan 9.6)
+
+Del 12 de noviembre (sesión S21k). Avísale a Claude antes de abrir Godot. Son unos 30 minutos para verlo, o más si quieres ganarlo.
+
+### Desbloquearlo sin terminar Difícil
+
+1. Cierra el juego.
+2. En el Explorador de Windows, abre `%APPDATA%\Godot\app_userdata\Spook Dial\`.
+3. Abre (o crea) `progress.cfg` con el Bloc de notas y deja estas dos líneas:
+
+   ```
+   [progress]
+   finished=PackedStringArray("normal", "hard")
+   ```
+
+4. **Verifica:** en **Nueva partida** aparecen **Normal**, **Difícil** y **Extremo**, los 3 sin candado. Sin ese archivo, Extremo dice **Termina Difícil para desbloquearla.**
+
+### Jugarlo
+
+1. Elige **Extremo** y **Empezar**: arranca la noche 1, sin tutorial.
+2. **Verifica:**
+   - al empezar, el chat de un amigo dice en rojo que **empieza herido: 1/3**, y su entrada del PC muestra 1 de vida;
+   - nada va en amarillo ni en azul, como en Difícil, salvo el audio;
+   - las olas son de 2 consultas, con calmas cortas (20 a 30 s), y la final de 3;
+   - una respuesta incorrecta baja Trust 22,5 (en Difícil, 15);
+   - al herido no le pasan accidentes.
+3. **Dime:**
+   - si la noche 1 se siente como el paso siguiente después de Difícil;
+   - hasta qué noche llegas;
+   - si el amigo herido se siente justo o injusto.
+
+**Qué esperar:** según el modelo, la noche 1 se gana al ritmo de Difícil (unos 14 s por consulta), y desde la noche 2 hace falta jugar como experto: unos 11 s por consulta para llegar a la noche 5. Si la noche 5 se siente imposible, se afloja primero esa (más tiempo o 13 consultas).
+
+Los valores están en `data/nights/extreme/night_N.tres` y en `data/difficulty/extreme.tres` (grupo **Castigos**: **Error Trust Scale**, **Wounded Friends** y **Wounded Health**).
+
+### Los textos nuevos para corregir (antes del 25 de noviembre)
+
+Todos en `data/text/ui.csv`: `DIFFICULTY_EXTREME`, `DIFFICULTY_EXTREME_INFO` y `CHAT_WOUNDED_START` (lleva `{friend}`, `{health}` y `{max}`).

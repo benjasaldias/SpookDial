@@ -30,6 +30,37 @@
 
 **Punto de partida:** 748 pruebas OK.
 
+**Resultado (12-nov, S21k):** ejecutado completo, en 5 commits. **763 pruebas OK.** Las capturas se revisaron a 1280×720 y 1920×1080 (`C:\dev\capturas\plan96_*.png`, con la curva de la noche 5 en `plan96_curva_extremo_5.png`), y el juego abre sin errores nuevos.
+
+| Tarea | Commit | Pruebas |
+| --- | --- | --- |
+| 1. La atención de cada modo y la holgura | `753e05c` | 752 |
+| 2. La calma de cada noche | `dd30447` | 754 |
+| 3. Los castigos de la dificultad y el amigo herido | `fad38dc` | 760 |
+| 4. Extremo | `f700024` | 763 |
+| 5. El menú con 3 dificultades y la revisión | `3789140` | 763 |
+
+**Cómo se llegó a los valores** (antes de escribir el plan, con una sonda que ya no está en el proyecto):
+
+- **Primero se probó sumar las sincronizaciones al modelo como tareas.** Con eso, Difícil 4 y 5 dejaban de poder ganarse, aunque Benja las ganó. El modelo resultaba demasiado pesimista, y se reemplazó por la holgura.
+- **Una primera propuesta con olas de 3 y 55 s** quedaba igual de exigente que Difícil 5. Benja pidió menos tiempo, menos tiempo libre que Difícil y olas de 2.
+- **Con calmas de 40 a 60 s**, las 13 o 15 consultas no cabían: el director se saltaba olas. Por eso cada noche puede traer su calma (Tarea 2).
+- **El margen del experto:**
+
+  | Segundos por consulta | Qué noches de Extremo se ganan |
+  | --- | --- |
+  | 11 | las 5 |
+  | 12 | la 1, la 2 y la 3 (la 4 y la 5 pierden tareas) |
+  | 14 (el ritmo de Difícil) | solo la 1 |
+
+  La holgura de la noche 5 es 1,01 con 11 s, y 0,79 con 14 s (Difícil 5 tiene 1,24).
+
+**Lo que cambió al ejecutar:**
+
+- **La calma se prueba en el director,** con una ola que se resuelve después de la hora planeada de la siguiente: con muchas olas, la hora planeada manda y la calma no se ve.
+- **El aviso del amigo herido** sale en el primer paso de la noche, no al crear el manager, porque el chat todavía no estaba conectado.
+- **La prueba de que Difícil desbloquea Extremo** quedó en `test_game_state.gd`, en las 2 pruebas del desbloqueo que ya existían.
+
 ---
 
 ## Decisiones de Benja (S21k, 12 de noviembre)
@@ -67,15 +98,15 @@
 - `sync_seconds(night, balance)`: lo que dura sincronizar a un amigo (sus rondas de Audio Sync, más 2 s).
 - `free_time_ratio(night, balance, attention, seeds)`: el menor tiempo libre desde la primera ola, entre las semillas, dividido por lo que piden las sincronizaciones y el scroll.
 
-- [ ] **Paso 1:** pruebas en `test_balance.gd`:
+- [x] **Paso 1:** pruebas en `test_balance.gd`:
   - `test_la_atencion_de_cada_modo`;
   - `test_toda_noche_tiene_holgura` (los 3 modos, holgura de 1 o más);
   - `test_dificil_5_es_la_referencia` (su holgura queda entre 1 y 1,5);
   - las que ya corren el modelo, con `attention_for`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La prueba de equilibrio mide la holgura para sincronizar y scrollear".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La prueba de equilibrio mide la holgura para sincronizar y scrollear".
 
 ### Tarea 2: La calma de cada noche
 
@@ -84,11 +115,11 @@
 - `NightData.wave_calm := Vector2.ZERO`: con (0, 0) se usa la de `balance.tres`.
 - El director la usa en las calmas y en la regla que salta una ola que ya no cabe antes de la final.
 
-- [ ] **Paso 1:** pruebas: `test_la_noche_puede_traer_su_calma` y `test_sin_calma_propia_se_usa_la_del_equilibrio`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Cada noche puede traer su propia calma entre olas".
+- [x] **Paso 1:** pruebas: `test_la_noche_puede_traer_su_calma` y `test_sin_calma_propia_se_usa_la_del_equilibrio`.
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Cada noche puede traer su propia calma entre olas".
 
 ### Tarea 3: Los castigos de la dificultad y el amigo herido
 
@@ -101,13 +132,13 @@
   - `balance` es el de la dificultad: lo usan el estado de la noche y las consecuencias;
   - al empezar una noche que no es el tutorial, hiere a `wounded_friends` amigos distintos al azar (su vida baja a `wounded_health`, y la máxima sigue en 3) y avisa en su chat (`CHAT_WOUNDED_START`, en rojo).
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_night_and_catalog.gd`: `test_los_castigos_de_la_dificultad`;
   - `test_request_manager.gd`: `test_en_extremo_un_error_cuesta_mas_trust`, `test_un_amigo_empieza_herido`, `test_el_herido_cambia_de_noche_en_noche`, `test_sin_heridos_en_normal` y `test_el_herido_no_tiene_accidentes`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar y reimportar los textos.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Los castigos de la dificultad: Trust por error y un amigo herido".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar y reimportar los textos.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Los castigos de la dificultad: Trust por error y un amigo herido".
 
 ### Tarea 4: Extremo
 
@@ -130,14 +161,14 @@
 
 Además: olas de 2, la final de 3, 3 a la vez, sin pista, Audio Sync de 8 aplausos, Sanity −1 cada 6 s y las mismas entidades en las mismas noches. La dificultad: `id` `extreme`, empieza en la noche 1, se lee, se desbloquea con Difícil, Trust por error ×1,5 y 1 amigo herido con 1 de vida.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_catalog.gd`: `test_extremo` (tercera dificultad, desbloqueada por Difícil, noche 1, se lee, ×1,5 y 1 herido);
   - `test_balance.gd`: `test_valores_de_extremo` (la tabla) y `test_extremo_es_mas_duro_que_dificil` (noche a noche: más consultas, menos tiempo, calma más corta y más obstrucciones; nunca más pista ni más lugar);
   - las pruebas del modelo ya corren en las 3 dificultades.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** los `.tres`, el catálogo y los textos (`DIFFICULTY_EXTREME` y `DIFFICULTY_EXTREME_INFO`).
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Extremo: más olas, más obstrucciones, castigos más duros y un amigo herido".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** los `.tres`, el catálogo y los textos (`DIFFICULTY_EXTREME` y `DIFFICULTY_EXTREME_INFO`).
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Extremo: más olas, más obstrucciones, castigos más duros y un amigo herido".
 
 ### Tarea 5: El menú con 3 dificultades y la revisión
 
@@ -146,10 +177,10 @@ Además: olas de 2, la final de 3, 3 a la vez, sin pista, Audio Sync de 8 aplaus
 - `test_dificil_desbloquea_extremo`: ganar la noche 5 de Difícil desbloquea Extremo y lo avisa; Extremo bloqueado dice "Termina Difícil para desbloquearla.".
 - **Capturas a 1280×720 y 1920×1080:** la elección con Difícil y Extremo bloqueados, y con los 3 libres; el chat del amigo herido al empezar una noche de Extremo.
 
-- [ ] **Paso 1:** la prueba y verla pasar (el menú y `GameState` ya son genéricos); si falla, corregir.
-- [ ] **Paso 2:** sacar las capturas, revisarlas y corregir lo que haga falta.
-- [ ] **Paso 3:** correr todas las pruebas: OK. Abrir el juego sin errores nuevos.
-- [ ] **Paso 4:** commit "Revisión del menú con Extremo y del amigo herido".
+- [x] **Paso 1:** la prueba y verla pasar (el menú y `GameState` ya son genéricos); si falla, corregir.
+- [x] **Paso 2:** sacar las capturas, revisarlas y corregir lo que haga falta.
+- [x] **Paso 3:** correr todas las pruebas: OK. Abrir el juego sin errores nuevos.
+- [x] **Paso 4:** commit "Revisión del menú con Extremo y del amigo herido".
 
 ---
 

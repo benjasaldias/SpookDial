@@ -206,6 +206,33 @@ Es una curva más suave (decisiones de Benja tras el primer testeo, 11 de noviem
 
 Lo demás (olas de 2, 3 solicitudes a la vez, la señal que baja y Sanity) es igual que en Difícil.
 
+### Por noche, en Extremo
+
+Más exigente que Difícil en cada noche (pedido de Benja, 12 de noviembre; `docs/30`). Se desbloquea al terminar Difícil y se gana jugando como experto (11 s por consulta en el modelo de "jugar bien").
+
+| Parámetro | N1 | N2 | N3 | N4 | N5 |
+| --- | --- | --- | --- | --- | --- |
+| Solicitudes por noche | 11 | 13 | 13 | 15 | 15 |
+| Tiempo base para responder (s) | 45 | 42 | 40 | 40 | 38 |
+| Calma entre olas (`wave_calm`) | 20 a 30 s | 20 a 30 s | 20 a 30 s | 20 a 30 s | 20 a 30 s |
+| Probabilidad de que diga el lugar | 40 % | 35 % | 30 % | 25 % | 20 % |
+| Probabilidad de pista | 0 % | 0 % | 0 % | 0 % | 0 % |
+| Señuelos por solicitud | 3 | 3 | 4 | 4 | 4 |
+| Accidentes | 2 | 2 | 3 | 3 | 4 |
+| Interferencias | 4 | 5 | 6 | 7 | 8 |
+| Audio Sync (aplausos) | 8 | 8 | 8 | 8 | 8 |
+| Audio Sync (golpes por minuto) | 115 | 125 | 135 | 145 | 150 |
+| Cuota de videos | 3 | 3 | 4 | 4 | 4 |
+| Screamers | 4 | 5 | 5 | 6 | 6 |
+| Visitas de la criatura | 1 | 2 | 2 | 3 | 3 |
+| Visitas de la Mano | 2 | 2 | 2 | 3 | 3 |
+| Batería que pide jugando bien | 41 % | 61 % | 61 % | 90 % | 90 % |
+
+Lo demás: olas de 2 y la final de 3, 3 solicitudes a la vez, la señal que baja y Sanity −1 cada 6 s. Además, los castigos de la dificultad (`DifficultyData`, grupo **Castigos**):
+
+- **Trust por error ×1,5** (`error_trust_scale`): incorrecta −22,5, mayor riesgo −30, sin respuesta −22,5 más y video perdido −15. Tardar en contestar no cambia.
+- **Un amigo al azar empieza cada noche con 1 de vida** (`wounded_friends` y `wounded_health`), y su chat lo avisa al empezar (`CHAT_WOUNDED_START`). Los accidentes no le tocan.
+
 **La noche 1 de Normal va armada a mano** con un plan de olas (`NightData.wave_plan`, una lista de `WaveData`; decisión de Benja, `docs/26` §3.2). Con un plan, las solicitudes, las olas, los accidentes, las interferencias, la Mano y los screamers salen del plan, y esos campos de la noche no se usan:
 
 | Ola | Llegadas | Separación | Calma antes | En la ola | Screamers en la calma que sigue |
@@ -247,7 +274,8 @@ Lo demás (olas de 2, 3 solicitudes a la vez, la señal que baja y Sanity) es ig
   - la criatura de la ventana (el antiguo jumpscare) solo se arma con el chat o el mixer abiertos, que tapan la ventana, y no mientras la Mano está en la pared; se ve apenas se cierran y se queda entre 15 y 40 s al azar desde que llega (`creature_stay`), aunque se cierren las cortinas. No tapa nada ni pausa la noche (decisiones de Benja, 4, 7 y 11 de noviembre).
 - La Mano (decisión de Benja, 11 de noviembre): tarda 12 s en llegar al dial (`hand_approach_seconds`), a tirones de 0,5 a 0,7 s (`hand_step_seconds`); agarrado, el dial baja 6 por segundo (`hand_drain`) hasta 15 (`hand_floor`); cada flash gasta 10 % de la batería (`flash_cost`). No llega mientras la criatura está cerca.
 - Videos que ya no alcanzan la cuota (decisión de Benja, 11 de noviembre): aviso en rojo en el chat, una vez por video perdido, y los videos del PC en rojo.
-- **Toda noche se puede ganar** (requisito de Benja, 11 de noviembre): `test/test_balance.gd` lo comprueba con un modelo de "jugar bien" (`test/balance_model.gd`: 12 s y 2 preguntas por solicitud, 14 s en Difícil, donde se lee y se busca la página; la Mano espantada antes de que agarre, la cortina cerrada a los 3 s de llegar la criatura). La batería alcanza, nada vence y Trust termina sobre 75 en las 5 noches de cada modo. Con 15 s por solicitud en Difícil, la noche 5 ya no se puede ganar: está en el límite.
+- **Toda noche se puede ganar** (requisito de Benja, 11 de noviembre): `test/test_balance.gd` lo comprueba con un modelo de "jugar bien" (`test/balance_model.gd`: 12 s y 2 preguntas por solicitud, 14 s en Difícil, donde se lee y se busca la página, y 11 s en Extremo, donde juega un experto; la Mano espantada antes de que agarre, la cortina cerrada a los 3 s de llegar la criatura). La batería alcanza, nada vence y Trust termina sobre 75 en las 5 noches de cada modo. Con 15 s por solicitud en Difícil, la noche 5 ya no se puede ganar, y en Extremo, con 12 s, las noches 4 y 5: están en el límite.
+- **La holgura** (Plan 9.6): el modelo no cuenta como tareas las sincronizaciones ni el scroll del celular. En toda noche, el tiempo libre (sin tareas abiertas, desde la primera ola) tiene que alcanzar para sincronizar a los amigos (lo que pierden de señal con el tiempo y las interferencias, 70 por sincronización, más 2 s por abrir el mixer) y para reponer Sanity. La referencia es Difícil 5, que Benja probó: su holgura es 1,24. En Extremo, la noche 5 queda en 1,01.
 - Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync, un audio de un amigo ni un screamer.
 - Accidentes (decisión de Benja, 7 de noviembre): se reparten en la noche como los screamers, 15 s para responder (22,5 s con "Temporizadores ×1,5"). Solo le pasan a un amigo libre, con señal y con más de 1 PV; si la ola está llena, esperan.
 - El chat guionado: cada línea del amigo llega 2,5 s después de la anterior; las de Matías esperan su botón.

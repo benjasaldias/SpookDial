@@ -24,6 +24,7 @@
 - 11 de noviembre, tras el primer testeo (S21h, `docs/26` y `docs/27`): las preguntas muestran su costo y no se repiten, lo decisivo va en azul (también en el cuaderno), el chat se ordena en bloques con las respuestas como hojas del cuaderno y la señal en barritas, "Matías piensa" dura 2 s, los señuelos ya no cuestan, y la noche ganada se guarda.
 - 11 de noviembre, tras el primer testeo (S21i, `docs/26` §3 y `docs/28`): **dos modos, Normal y Difícil**, que se eligen al empezar una partida. Difícil se desbloquea al terminar Normal. La noche 1 de Normal va armada a mano, las noches 2 a 5 de Normal son algo más fáciles, y en Difícil se identifica leyendo, sin nada destacado.
 - 12 de noviembre, tras el primer testeo (S21j, `docs/26` §4 y `docs/29`): **la noche 0 de nuevo**, donde solo funciona lo que León va enseñando y eso parpadea, con lo que cuesta preguntar, lo azul, un audio, la estática y Gonzalo mostrando qué pasa si nadie contesta; el flash es un botón con relieve y las tarjetas van con colores y viñetas. Y 5 pedidos de Benja: el feed más lento, las fotos perturbadoras desde Sanity 50, el ambiente que no baja antes de un screamer y una alarma en cada entrada del PC.
+- 12 de noviembre (S21k, `docs/30`): **un tercer modo, Extremo**, que se desbloquea al terminar Difícil: olas más seguidas, menos tiempo, más obstrucciones, Trust por error ×1,5 y un amigo al azar que empieza cada noche con 1 de vida. Se gana jugando como experto.
 
 ---
 
@@ -74,6 +75,13 @@ Durante cinco noches tiene que hacer cuatro cosas:
   - **Normal empieza en la noche 0 (el tutorial) y Difícil en la noche 1**, sin tutorial;
   - **cada modo tiene sus 5 noches** (§14), con las mismas entidades en las mismas noches;
   - **en Difícil se identifica leyendo** (§8.3).
+- **Un tercer modo, Extremo** (pedido de Benja, 12 de noviembre; `docs/30`), más exigente que Difícil, pero que se puede ganar de verdad:
+  - **se desbloquea al terminar Difícil**, empieza en la noche 1 y se identifica leyendo, como Difícil;
+  - **olas más seguidas:** más consultas, en olas de 2 con calmas de 20 a 30 s (en vez de 40 a 60), y menos tiempo para responder que Difícil en cada noche;
+  - **más obstrucciones:** más interferencias, Manos, visitas de la criatura, screamers, accidentes y señuelos; sin pista, y Audio Sync de 8 aplausos más rápido;
+  - **cada error baja Trust ×1,5:** una respuesta incorrecta −22,5, la de mayor riesgo −30, sin respuesta −22,5 más y un video perdido −15. Tardar en contestar no cambia;
+  - **cada noche, un amigo al azar empieza con 1 de vida** (de 3), y su chat lo avisa en rojo al empezar. Con él no se puede fallar, y la acción de mayor riesgo es una apuesta mortal. Los accidentes no le tocan, porque nunca matan;
+  - **se gana jugando como experto:** a Extremo solo llega quien terminó Difícil, y la prueba de equilibrio comprueba que cada noche se gana resolviendo cada consulta en unos 11 s (Difícil pide 14), con tiempo libre para sincronizar y scrollear (§14).
 - **Noche 0 (tutorial)** antes de la noche 1 (decisión de Benja, sesión 16), **sin perder** (sesión 18). Desde el 11 de noviembre no es un onboarding con un aviso arriba: **León enseña en su chat**, de forma natural, con chistes y sin entidades reales. Desde el 12 de noviembre (S21j, tras el primer testeo), **solo funciona lo que León va enseñando**, cuando terminó de escribir, y **eso parpadea** hasta que se aprieta. Al empezar solo responden su entrada y la pausa; el cuaderno se desbloquea con el nombre, Gonzalo en su parte y el mixer cuando hay que sincronizar; el celular, las cortinas y Agustín, nunca. Los pasos:
   - **describe a Gonzalo** ("usa lentes", "huele mal"), y el cuaderno tiene una sola página, la suya, con su tabla de decisiones;
   - hay que preguntarle qué ve, y León explica que **cada pregunta cuesta 5 s**; después, marcar lo amarillo (un señuelo, "un polerón rojo", no sirve);
@@ -412,6 +420,10 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 
   Hay 90 s para responder, la cuota es de 2 y no hay accidente: los accidentes empiezan en la noche 2.
 - **Las noches 2 a 5 de Normal** tienen más tiempo para responder, menos consultas, menos señuelos, accidentes, interferencias, Manos y visitas de la criatura, y un Audio Sync más lento. Los screamers son los mismos: son el terror, no la dificultad.
+
+**Extremo** (§5; `data/nights/extreme/`) es más duro que Difícil en cada noche: de 11 a 15 consultas en olas de 2 con calmas de 20 a 30 s, de 45 a 38 s para responder, y más interferencias, Manos, visitas de la criatura, screamers, accidentes y señuelos. Su noche 1 se gana al ritmo de Difícil, y desde la noche 2 pide jugar como experto. Los valores están en `docs/02` §6.
+
+**Toda noche se puede ganar** (requisito de Benja): la prueba de equilibrio lo comprueba en los 3 modos con quien juega bien (12 s por consulta en Normal, 14 en Difícil y 11 en Extremo), y revisa que el tiempo libre alcance para sincronizar a los amigos y reponer Sanity con el celular. La referencia es Difícil 5, que Benja probó: difícil pero ganable.
 
 ## 15. Historia (fuera del juego)
 

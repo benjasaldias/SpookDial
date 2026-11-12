@@ -15,7 +15,7 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 | **Modelo** | **Opus 5.5** |
 | **Esfuerzo** | **high** |
 | **Qué escribirle a Claude** | `Lee docs/19_prompt_lore.md y sigue sus instrucciones.` |
-| **Tu parte** | Contestar las preguntas del lore y corregir los borradores. Si alcanzas antes, prueba la noche 0 nueva (`docs/04`, V) y Normal y Difícil (`docs/04`, U). |
+| **Tu parte** | Contestar las preguntas del lore y corregir los borradores. Si alcanzas antes, prueba Extremo (`docs/04`, W), la noche 0 nueva (V) y Normal y Difícil (U). |
 | **Está terminada cuando** | El documento del lore por noche está aprobado por Benja y la implementación quedó agendada en este registro. |
 
 **Antes del 25 de noviembre** (congelamiento del contenido). Después: S22, las pruebas con personas.
@@ -24,11 +24,12 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Los planes del feedback del primer testeo (9.3, 9.4 y 9.5) los escribieron y ejecutaron S21h, S21i y S21j, a partir de `docs/26`. Ya ejecutados: el **Plan 9.1: ajustes de mecánicas y la Mano** (`docs/24`) y el **Plan 9.2: la letra, el cuaderno y el tutorial con León** (`docs/25`), en S21f; el **Plan 9.3: errores y el chat** (`docs/27`), en S21h, el **Plan 9.4: Normal y Difícil** (`docs/28`), en S21i, y el **Plan 9.5: el tutorial** (`docs/29`), en S21j. Queda 1 documento de sesión listo: `docs/19` (S21b). El siguiente plan numerado es el **Plan 10** (sonido, pulido y versión, el Plan 9 original), que se escribe en S23.
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Los planes del feedback del primer testeo (9.3, 9.4 y 9.5) los escribieron y ejecutaron S21h, S21i y S21j, a partir de `docs/26`. Ya ejecutados: el **Plan 9.6: Extremo** (`docs/30`), en S21k, pedido de Benja fuera de la secuencia; el **Plan 9.1: ajustes de mecánicas y la Mano** (`docs/24`) y el **Plan 9.2: la letra, el cuaderno y el tutorial con León** (`docs/25`), en S21f; el **Plan 9.3: errores y el chat** (`docs/27`), en S21h, el **Plan 9.4: Normal y Difícil** (`docs/28`), en S21i, y el **Plan 9.5: el tutorial** (`docs/29`), en S21j. Queda 1 documento de sesión listo: `docs/19` (S21b). El siguiente plan numerado es el **Plan 10** (sonido, pulido y versión, el Plan 9 original), que se escribe en S23.
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
+| `docs/30_plan_extremo.md` | **Plan 9.6**: Extremo, con cómo se llegó a sus valores y lo que cambió al ejecutarlo | Ya ejecutado (S21k) ✅ |
 | `docs/29_plan_tutorial.md` | **Plan 9.5**: el tutorial y los pedidos del 12-nov, con lo que cambió al ejecutarlo | Ya ejecutado (S21j) ✅ |
 | `docs/28_plan_dificultad.md` | **Plan 9.4**: Normal y Difícil, con lo que cambió al ejecutarlo | Ya ejecutado (S21i) ✅ |
 | `docs/27_plan_errores_chat.md` | **Plan 9.3**: errores y el chat, con lo que cambió al ejecutarlo | Ya ejecutado (S21h) ✅ |
@@ -55,7 +56,7 @@ Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta
 | `docs/05_plan_produccion.md` | Alcance por prioridad y calendario por semana | No |
 | `docs/02_bucle_central.md` | Detalle de la mecánica central y plantilla de entidades | No (referencia) |
 | `docs/03_plan_arte.md` | Reglas del pipeline de arte y arte faltante | No (referencia) |
-| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L, M, O, P, Q, R, S, T, U y V) |
+| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L, M, O, P, Q, R, S, T, U, V y W) |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1 | No (histórico) |
 | `spook_dial_design.md` | Qué es el juego (diseño v2) | No (referencia principal) |
 | `resumen.md` | Detalle de cada sesión: hecho, errores y pendientes | No |
@@ -98,6 +99,7 @@ Hay dos tipos de sesión, que se alternan:
 | S21h | 11 nov | Errores y el chat (`docs/26` §2, Plan 9.3 en `docs/27`) | Diseño corto, plan y ejecución | Opus 5.5 · xhigh (se adelantó) | Probar el chat (`docs/04`, T); corregir los textos nuevos | ✅ |
 | S21i | 11 nov | Normal y Difícil (`docs/26` §3, Plan 9.4 en `docs/28`) | Diseño corto, plan y ejecución | Opus 5.5 · xhigh (se adelantó) | Probar la noche 1 en Normal y Difícil (`docs/04`, U); corregir los textos nuevos | ✅ |
 | S21j | 12 nov | El tutorial (`docs/26` §4, Plan 9.5 en `docs/29`), y 5 pedidos de Benja | Diseño corto, plan y ejecución | Opus 5.5 · xhigh (se adelantó) | Probar la noche 0 (`docs/04`, V); corregir las líneas de León y Gonzalo | ✅ |
+| S21k | 12 nov | Extremo, una tercera dificultad (pedido de Benja, Plan 9.6 en `docs/30`) | Diseño corto, plan y ejecución | Opus 5.5 | Probar Extremo (`docs/04`, W); corregir los textos nuevos | ✅ |
 | **S21b** | Antes del 25 nov | **Planificar el lore por noche** (`docs/19`) | Plan | **Opus 5.5 · high** | Decisiones del lore; corregir borradores | ▶ |
 | S21c | 9 nov | Red social que imita a una real (`docs/20`) | Diseño y ejecución | Opus 5.5 · high (se adelantó a S21b) | Probar (`docs/04`, P); confirmar de dónde son las fotos | ✅ |
 | S21d | 10 nov | Pulir el arte y los sonidos de Claude (pedido de Benja, sin plan aparte) | Diseño y ejecución | Opus 5.5 | Escuchar los sonidos y revisar el arte (`docs/04`, Q); corregir los textos del Imbunche | ✅ |
@@ -114,6 +116,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 12-nov | ✏️ **S21k, nueva y fuera de la secuencia:** Benja pidió una tercera dificultad, Extremo, "realísticamente lograble pero difícil". Contestó 4 preguntas (los commits, el desbloqueo, Trust ×1,5 y que Difícil no cambia, porque lo probó y funciona) y pidió cambios al primer diseño (menos tiempo, menos tiempo libre que Difícil y olas de 2). El Plan 9.6 (`docs/30`) se escribió y se ejecutó en la misma sesión: 5 commits en `main`, de 748 a 763 pruebas OK. **S21b (el lore) sigue siendo la siguiente.** Detalle en `resumen.md`, Sesión 21k. |
 | 12-nov | ✏️ S21j se adelantó al 11 y 12 de noviembre (fecha objetivo: 17 a 20), en Opus 5.5 · xhigh. Benja contestó 3 preguntas (los commits, que en el chat de la noche 0 solo funciona lo que pide León, y el editor cerrado) y, al aprobar el diseño, sumó **5 pedidos que entraron en la misma sesión**: las tarjetas con colores y viñetas, el feed más lento, las fotos perturbadoras desde Sanity 50, el ambiente que no baja y una alarma en las entradas. El Plan 9.5 (`docs/29`) se escribió y se ejecutó: 10 commits en `main`, de 715 a 748 pruebas OK, y los videos de la Mano y del celular se grabaron de nuevo. La sesión se interrumpió una vez, sin pérdidas. **S21b es la siguiente.** Detalle en `resumen.md`, Sesión 21j. |
 | 11-nov | ✏️ S21i se adelantó al mismo 11 de noviembre (fecha objetivo: 14 a 17), en Opus 5.5 · xhigh. Benja contestó 4 preguntas (los commits, el audio y el cuaderno en Difícil, y el orden de la ola final de la noche 1 de Normal) y aprobó el diseño. El Plan 9.4 (`docs/28`) se escribió y se ejecutó en la misma sesión: 11 commits en `main`, de 661 a 715 pruebas OK. **Difícil queda en el límite en la noche 5** (el modelo con 15 s por consulta ya no la gana). **S21j es la siguiente.** Detalle en `resumen.md`, Sesión 21i. |
 | 11-nov | ✏️ S21h se adelantó al mismo 11 de noviembre (fecha objetivo: 12 a 14), en Opus 5.5 · xhigh. Benja contestó 3 preguntas (los commits, el cuaderno con los colores del chat y el diseño) y una más durante el diagnóstico de la descarga. El Plan 9.3 (`docs/27`) se escribió y se ejecutó en la misma sesión: 11 commits en `main`, de 626 a 661 pruebas OK. **La descarga:** la causa era un clic que empieza justo antes de que aparezca la barra. **S21i es la siguiente.** Detalle en `resumen.md`, Sesión 21h. |
