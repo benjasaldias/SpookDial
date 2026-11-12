@@ -133,6 +133,8 @@ No son de dificultad, sino de claridad o errores:
 
 ## 3. Sesión S21i: Normal y Difícil (Plan 9.4, `docs/28`)
 
+**✅ Ejecutada el 11 de noviembre** (S21i, `docs/28`): 11 commits, 715 pruebas OK. Lo que decidió Benja en la sesión (el audio en azul en Difícil, el cuaderno igual y la ola final con consulta, video y consulta) y lo que cambió al ejecutar (14 s por consulta en el modelo de Difícil) están al inicio de `docs/28`.
+
 **Modelo:** Opus 5.5 · xhigh.
 
 ### 3.1 La estructura de la dificultad

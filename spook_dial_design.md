@@ -22,6 +22,7 @@
 - 11 de noviembre, después del Plan 9.1 (`docs/25`): la letra nítida en pantalla completa, el cuaderno con las reglas en una tabla, y la noche 0 en el chat con León, con la página de Gonzalo y unas tarjetas con videos.
 - 11 de noviembre (S21e y S21f, `docs/22` a `docs/24`): el mensaje inicial dice qué le pasa al amigo y el lugar solo a veces, los señuelos cuestan 1 s, las características se dicen con otras palabras, olas de verdad con una ola final, el aviso de videos, la criatura se queda un tiempo al azar, la Mano, Trust sin recuperación y más batería.
 - 11 de noviembre, tras el primer testeo (S21h, `docs/26` y `docs/27`): las preguntas muestran su costo y no se repiten, lo decisivo va en azul (también en el cuaderno), el chat se ordena en bloques con las respuestas como hojas del cuaderno y la señal en barritas, "Matías piensa" dura 2 s, los señuelos ya no cuestan, y la noche ganada se guarda.
+- 11 de noviembre, tras el primer testeo (S21i, `docs/26` §3 y `docs/28`): **dos modos, Normal y Difícil**, que se eligen al empezar una partida. Difícil se desbloquea al terminar Normal. La noche 1 de Normal va armada a mano, las noches 2 a 5 de Normal son algo más fáciles, y en Difícil se identifica leyendo, sin nada destacado.
 
 ---
 
@@ -65,7 +66,13 @@ Durante cinco noches tiene que hacer cuatro cosas:
 
 ## 5. Estructura de una partida
 
-- **Menú principal:** Continuar (solo si hay una partida en curso), Nueva partida, Opciones y Salir.
+- **Menú principal:** Continuar (solo si hay una partida en curso; dice la noche y la dificultad: "Continuar: noche 3 · Normal"), Nueva partida, Opciones y Salir.
+- **Dos modos: Normal y Difícil** (decisiones de Benja tras el primer testeo, 11 de noviembre; `docs/26` §3). Todo lo que baja la dificultad va a Normal, y el juego de antes del testeo es Difícil:
+  - **se eligen solo al empezar una partida nueva:** "Nueva partida" muestra las dos, con Normal marcada y una línea que describe cada una; con una partida guardada, después de elegir pide confirmar que se borra;
+  - **Difícil se desbloquea al terminar Normal** (al ganar su noche 5): mientras tanto aparece con un candado y "Termina Normal para desbloquearla.", y al terminar Normal el resumen de la victoria lo avisa;
+  - **Normal empieza en la noche 0 (el tutorial) y Difícil en la noche 1**, sin tutorial;
+  - **cada modo tiene sus 5 noches** (§14), con las mismas entidades en las mismas noches;
+  - **en Difícil se identifica leyendo** (§8.3).
 - **Noche 0 (tutorial)** antes de la noche 1 (decisión de Benja, sesión 16), **sin perder** (sesión 18). Desde el 11 de noviembre no es un onboarding con un aviso arriba: **León enseña en su chat**, de forma natural, con chistes y sin entidades reales:
   - **describe a Gonzalo** ("usa lentes", "huele mal"), y el cuaderno tiene una sola página, la suya, con su tabla de decisiones;
   - hay que preguntarle qué ve, marcar lo que sirve (un señuelo, "un polerón rojo", no sirve), preguntar por el ambiente y abrir la página de Gonzalo cuando aparece su nombre;
@@ -74,7 +81,7 @@ Durante cinco noches tiene que hacer cuatro cosas:
   - **se le corta la señal** y hay que sincronizarlo con Audio Sync. Al volver, dice que ya estás listo y se despide;
   - después aparecen **4 tarjetas, cada una con un video del juego**: los medidores y cómo baja cada uno, el celular y Sanity, la sombra en la ventana y la cortina, y la Mano con el flash. "Siguiente" pasa de una a otra, y la última empieza la noche 1;
   - el tiempo para responder no corre solo, el plazo del video espera, nadie sale herido y Trust no baja;
-  - "Nueva partida" siempre empieza en la noche 0, y "Saltar tutorial" está en la pausa (`Esc`); las tarjetas tienen su propio "Saltar".
+  - "Nueva partida" en Normal empieza en la noche 0, y "Saltar tutorial" está en la pausa (`Esc`); las tarjetas tienen su propio "Saltar". Difícil no tiene noche 0.
 - **5 noches.** Cada una va de las **00:00 a las 06:00** (formato de 24 horas) en unos **7 minutos reales**.
 - **Ritmo de la noche: olas de verdad** (decisiones de Benja, sesión 16 y 11 de noviembre):
   - **el primer minuto es de silencio;**
@@ -90,7 +97,7 @@ Durante cinco noches tiene que hacer cuatro cosas:
   - un amigo muere;
   - son las 06:00 y no se cumplió la cuota.
 - **Al perder:** una pantalla explica qué pasó y la noche se reinicia desde el comienzo. La noche se vuelve a generar, así que no se repite de memoria.
-- **Guardado:** al comienzo de cada noche y al ganarla, con la noche siguiente, así que volver al menú no hace repetir una noche ganada. Cuando León se despide en la noche 0 se guarda la noche 1, para no repetir el tutorial si se sale en las tarjetas (tras el primer testeo, 11 de noviembre).
+- **Guardado:** al comienzo de cada noche y al ganarla, con la noche siguiente, así que volver al menú no hace repetir una noche ganada. Cuando León se despide en la noche 0 se guarda la noche 1, para no repetir el tutorial si se sale en las tarjetas (tras el primer testeo, 11 de noviembre). La partida guarda también su dificultad; una guardada antes de que existieran los modos se lee como Normal. **El progreso** (qué modos se terminaron) va en su propio archivo, porque la partida se borra al ganar la noche 5.
 - **Pausa** (decisión de Benja, sesión 18): sin ningún panel abierto, `Esc` pausa la noche y abre un menú con Continuar, Opciones y Volver al menú. Volver al menú pierde la noche, que se retoma desde su comienzo.
 - **Entre noches:** un resumen (contenido obtenido y páginas nuevas del cuaderno), y después una cinemática opcional.
 - **Final único:** sobrevivir las 5 noches, como en FNAF.
@@ -166,6 +173,7 @@ Detalles:
 
 - Así se premia a quien memoriza, sin castigar demasiado a quien no.
 - Una característica tapada por la estática no se puede clickear: hay que preguntar (§8.4) para recuperarla.
+- **En Difícil no se destaca nada** (decisión D3 de Benja tras el primer testeo): las características, los señuelos y las observaciones van como el resto del texto, nada se clickea, no hay barra de identificación y Matías no piensa. Se reconoce a la criatura leyendo y se busca su página en el índice del cuaderno. **El audio sigue en azul y se clickea**, porque es la forma de oírlo, y **el cuaderno no cambia**: es el manual (decisiones de Benja en S21i).
 - El amigo cuenta, al preguntar, **2 características** que distinguen a la entidad entre las conocidas, mezcladas con señuelos: 1 en la noche 1 y hasta 4 en la noche 5. **Un señuelo no cuesta tiempo:** solo vibra y se pone rojo (decisión D4 de Benja tras el primer testeo, que reemplaza el "−1 s" del 11 de noviembre, porque castigaba demasiado).
 - Cada solicitud elige al azar con qué forma dice el amigo cada característica, y la usa siempre, también en la pista. El clic la marca igual.
 - El mensaje inicial puede traer **una pista**: una de las 2 características (siempre en la noche 1 y cada vez menos hasta la noche 5).
@@ -382,6 +390,22 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 | 3 | Bosque | El Trauco | Sin pista en el mensaje inicial: preguntar es necesario. El Trauco comparte 2 características con La Calchona. |
 | 4 | Casa abandonada y cueva | El Basilisco, El Imbunche | Audio Sync de 8 aplausos (2 rondas de 4) y varias solicitudes a la vez. |
 | 5 | Todos los lugares | — | Todo a la vez, al máximo. |
+
+**Normal y Difícil** (§5) tienen las mismas entidades en las mismas noches, pero cada modo tiene sus valores (`docs/02` §6; `data/nights/normal/` y `data/nights/hard/`). La tabla de arriba describe Difícil, que es el juego de antes del primer testeo. Normal es una curva más suave:
+
+- **La noche 1 de Normal va armada a mano** (pedido de Benja tras el primer testeo; `docs/26` §3.2), para que lo que llega no llegue junto:
+
+  | Momento | Qué pasa |
+  | --- | --- |
+  | Silencio | 45 s |
+  | Ola 1 | 1 consulta, y su video cuando se responde o cuando le quedan 30 s |
+  | Calma | 1 screamer |
+  | Ola 2 | 2 consultas separadas por 30 a 45 s, la Mano y 1 interferencia |
+  | Calma | 1 screamer |
+  | Ola final (hacia las 03:04) | consulta, video y consulta, sin llegar juntos |
+
+  Hay 90 s para responder, la cuota es de 2 y no hay accidente: los accidentes empiezan en la noche 2.
+- **Las noches 2 a 5 de Normal** tienen más tiempo para responder, menos consultas, menos señuelos, accidentes, interferencias, Manos y visitas de la criatura, y un Audio Sync más lento. Los screamers son los mismos: son el terror, no la dificultad.
 
 ## 15. Historia (fuera del juego)
 

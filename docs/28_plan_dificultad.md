@@ -27,6 +27,33 @@
 
 **Punto de partida:** 661 pruebas OK.
 
+**Resultado (11-nov, S21i):** ejecutado completo, en 11 commits. **715 pruebas OK.** Las capturas se revisaron a 1280×720 y a 1920×1080 (`C:\dev\capturas\plan94_*.png`, con la curva de la noche 1 de Normal en `plan94_curva_normal_1.png`), y el juego abre sin errores nuevos.
+
+| Tarea | Commit | Pruebas |
+| --- | --- | --- |
+| 1. Las dificultades y el catálogo | `1082abf` | 671 |
+| 2. La dificultad en la partida y el progreso | `d102b47` | 680 |
+| 3. El plan de olas | `2fb4458` | 695 |
+| 4. El modelo de "jugar bien" en los 2 modos | `51062e5` | 696 |
+| 5. La noche 1 de Normal | `d2adb99` | 697 |
+| 6. Las noches 2 a 5 de Normal | `5a87b0a` | 698 |
+| 7. Difícil se identifica leyendo | `7c7743d` | 703 |
+| 8. El candado | `c9f76b3` | 704 |
+| 9. El menú con la dificultad | `f48e51a` | 711 |
+| 10. El aviso de Difícil desbloqueado | `f4c1d34` | 715 |
+| 11. Revisión con capturas | `79f9d6c` | 715 |
+
+**Lo que cambió al ejecutar:**
+
+- **14 s y no 15 en Difícil:** antes de escribir el plan se probó el modelo con 13, 14 y 15 s por consulta. Con 15, la noche 5 de Difícil deja de poder ganarse en 9 de 20 semillas: la ola final de 3, con 45 s para responder, no alcanza.
+- **La prueba de Difícil sin clics** quedó en `test_chat_panel.gd` (`test_en_dificil_se_responde_sin_marcar_nada`) y no en `test_request_manager.gd`: así recorre el chat de verdad (las preguntas, el mensaje sin enlaces, la página abierta desde la memoria del cuaderno y la hoja de respuesta). `test_request_manager.gd` revisa que la dificultad diga las noches y si se destaca.
+- **"Continuar" arma su texto en el código:** "Continuar: noche 3" (`MENU_CONTINUE`, como antes) más " · " y el nombre del modo, igual que los títulos del chat ("RESPONDER · EL TRAUCO"). `MENU_CONTINUE` no cambió.
+- **La línea del candado va aparte,** en ámbar, debajo de la descripción del modo, que queda del color normal.
+- **La opción marcada usa el estilo de "pasar el mouse"** (azul claro con borde celeste): con el de "apretado" se confundía con Difícil bloqueada, que también se ve hundida.
+- **El candado va al doble** (`expand_icon`): sin eso se veía de 11 px junto a la letra de 22.
+- **Normal y Difícil se ven en `GameState.locked_difficulties()`,** que también usa el menú, y `unlocked_by_winning()` dice qué desbloquea la última noche.
+- **El script de capturas se colgó una vez** por asignar una lista sin tipo a `unlocks_on_win`. Ahora se corre con `timeout 150`.
+
 ---
 
 ## Decisiones de Benja (S21g y S21i, 11 de noviembre)
@@ -106,14 +133,14 @@
 - `Fixtures.make_catalog()` arma una dificultad Normal con sus 5 noches;
 - `Fixtures.add_hard(catalog)` agrega Difícil, con otras noches y las mismas entidades.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_night_and_catalog.gd`: `test_cada_dificultad_tiene_sus_noches`, `test_sin_dificultad_se_usa_la_de_por_defecto` y `test_buscar_una_dificultad`;
   - `test_validator_catalog.gd`: `test_sin_dificultades`, `test_una_dificultad_con_4_noches`, `test_las_entidades_llegan_en_las_mismas_noches` y `test_desbloqueada_por_una_dificultad_de_afuera`;
   - `test_catalog.gd`: `test_normal_y_dificil`, con Normal primero, Difícil desbloqueada por Normal, noche de inicio 0 y 1, y `highlights` en `true` y `false`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar, mover las noches y armar los `.tres` (`--import` con el editor cerrado).
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Normal y Difícil: cada dificultad con sus noches".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar, mover las noches y armar los `.tres` (`--import` con el editor cerrado).
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Normal y Difícil: cada dificultad con sus noches".
 
 ### Tarea 2: La dificultad en la partida y el progreso
 
@@ -135,14 +162,14 @@
   - al ganar la noche 5, borra la partida y marca la dificultad como terminada;
   - "Saltar tutorial" sigue en la misma dificultad.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_save_game.gd`: `test_guarda_la_dificultad` y `test_una_partida_vieja_es_normal`;
   - `test_game_progress.gd`: `test_sin_progreso`, `test_terminar_una_dificultad` y `test_dificil_se_desbloquea_al_terminar_normal`;
   - `test_game_state.gd`: `test_nueva_partida_empieza_en_la_noche_de_su_dificultad`, `test_continuar_vuelve_a_la_dificultad_guardada`, `test_preparar_una_noche_guarda_su_dificultad` y `test_ganar_la_noche_5_termina_la_dificultad`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La partida guarda su dificultad, y el progreso dice qué dificultades se terminaron".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La partida guarda su dificultad, y el progreso dice qué dificultades se terminaron".
 
 ### Tarea 3: El plan de olas (lógica)
 
@@ -181,7 +208,7 @@
 - en una noche con plan, los videos del plan suman la cuota;
 - cada ola tiene al menos una consulta.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_night_and_catalog.gd`: `test_los_totales_salen_del_plan`;
   - `test_pacing_director.gd`:
     - `test_el_plan_reemplaza_las_olas_automaticas`;
@@ -195,10 +222,10 @@
     - `test_screamers_en_la_calma_de_una_ola_planeada`;
     - `test_un_plan_no_suelta_videos_en_las_calmas`;
   - `test_validator_catalog.gd`: `test_los_videos_del_plan_suman_la_cuota` y `test_una_ola_sin_consultas`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "El plan de olas: olas armadas a mano, con videos dentro de la ola".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "El plan de olas: olas armadas a mano, con videos dentro de la ola".
 
 ### Tarea 4: El modelo de "jugar bien" en los 2 modos
 
@@ -214,10 +241,10 @@
 - **`dump_waves.gd`** recibe la dificultad como cuarto argumento (por defecto, `normal`).
 - **`plot_waves.py`** dice la dificultad en el título.
 
-- [ ] **Paso 1:** cambiar las pruebas y verlas fallar donde corresponde.
-- [ ] **Paso 2:** implementar.
-- [ ] **Paso 3:** correr todas las pruebas: OK.
-- [ ] **Paso 4:** commit "La prueba de equilibrio corre en Normal y en Difícil".
+- [x] **Paso 1:** cambiar las pruebas y verlas fallar donde corresponde.
+- [x] **Paso 2:** implementar.
+- [x] **Paso 3:** correr todas las pruebas: OK.
+- [x] **Paso 4:** commit "La prueba de equilibrio corre en Normal y en Difícil".
 
 ### Tarea 5: La noche 1 de Normal, armada a mano
 
@@ -243,11 +270,11 @@
 - las 2 consultas de la ola 2 llegan con 30 a 45 s de diferencia;
 - en la final, video y consultas nunca llegan a menos de 20 s.
 
-- [ ] **Paso 1:** la prueba, y verla fallar.
-- [ ] **Paso 2:** armar el plan en el `.tres`.
-- [ ] **Paso 3:** correr todas las pruebas: OK.
-- [ ] **Paso 4:** la curva: `dump_waves.gd -- 1 1 … normal` y `plot_waves.py`. Revisarla contra `docs/26` §3.2.
-- [ ] **Paso 5:** commit "La noche 1 de Normal, armada a mano".
+- [x] **Paso 1:** la prueba, y verla fallar.
+- [x] **Paso 2:** armar el plan en el `.tres`.
+- [x] **Paso 3:** correr todas las pruebas: OK.
+- [x] **Paso 4:** la curva: `dump_waves.gd -- 1 1 … normal` y `plot_waves.py`. Revisarla contra `docs/26` §3.2.
+- [x] **Paso 5:** commit "La noche 1 de Normal, armada a mano".
 
 ### Tarea 6: Las noches 2 a 5 de Normal
 
@@ -272,10 +299,10 @@
 
 Lo demás (olas de 2, 3 a la vez y la señal que baja) queda como en Difícil.
 
-- [ ] **Paso 1:** `test_valores_de_normal`, con la tabla, y verla fallar.
-- [ ] **Paso 2:** los valores en los `.tres`.
-- [ ] **Paso 3:** correr todas las pruebas: OK. Si una noche no pasa `test_balance`, preguntarle a Benja antes de cambiar la tabla.
-- [ ] **Paso 4:** commit "Las noches 2 a 5 de Normal, algo más fáciles".
+- [x] **Paso 1:** `test_valores_de_normal`, con la tabla, y verla fallar.
+- [x] **Paso 2:** los valores en los `.tres`.
+- [x] **Paso 3:** correr todas las pruebas: OK. Si una noche no pasa `test_balance`, preguntarle a Benja antes de cambiar la tabla.
+- [x] **Paso 4:** commit "Las noches 2 a 5 de Normal, algo más fáciles".
 
 ### Tarea 7: Difícil se identifica leyendo
 
@@ -290,23 +317,23 @@ Lo demás (olas de 2, 3 a la vez y la señal que baja) queda como en Difícil.
   - el botón de sincronizar sigue en su lugar.
 - **El cuaderno** no cambia: la página se abre desde su índice, y las respuestas ya dependen de la página abierta.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_chat_message_view.gd`: `test_en_dificil_no_se_destaca_nada` (sin `[url` ni colores en las frases y en las observaciones) y `test_en_dificil_el_audio_se_oye` (en azul y con su enlace);
   - `test_chat_panel.gd`: `test_en_dificil_no_hay_barra_de_identificacion`;
-  - `test_request_manager.gd`: `test_una_noche_de_dificil_sin_clics`. Pregunta, abre la página desde la memoria del cuaderno (como el índice) y responde sin marcar nada: la solicitud termina con la acción correcta.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "En Difícil se identifica leyendo: nada se destaca ni se marca".
+  - `test_chat_panel.gd`: `test_en_dificil_se_responde_sin_marcar_nada`. Pregunta, abre la página desde la memoria del cuaderno (como el índice) y responde sin marcar nada: la solicitud termina con la acción correcta (al ejecutar se movió aquí desde `test_request_manager.gd`, que revisa `test_la_dificultad_dice_las_noches_y_si_se_destaca`).
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "En Difícil se identifica leyendo: nada se destaca ni se marca".
 
 ### Tarea 8: El candado
 
 **Archivos:** `tools/make_ui_art.py`, `art/ui/menu_lock.png` (nuevo) y `test/test_ui_art.gd`.
 
 - Un candado de 11×11, con la paleta de los sprites (el metal de los botones del menú y un ojo de la cerradura oscuro), para el botón de Difícil bloqueado.
-- [ ] **Paso 1:** generarlo (`/usr/bin/python3 tools/make_ui_art.py`), importarlo y sumarlo a `test_ui_art.gd`.
-- [ ] **Paso 2:** correr todas las pruebas: OK.
-- [ ] **Paso 3:** commit "El candado de la dificultad bloqueada".
+- [x] **Paso 1:** generarlo (`/usr/bin/python3 tools/make_ui_art.py`), importarlo y sumarlo a `test_ui_art.gd`.
+- [x] **Paso 2:** correr todas las pruebas: OK.
+- [x] **Paso 3:** commit "El candado de la dificultad bloqueada".
 
 ### Tarea 9: El menú con la dificultad
 
@@ -322,9 +349,9 @@ Lo demás (olas de 2, 3 a la vez y la señal que baja) queda como en Difícil.
   - con una, primero pregunta, como hoy.
 - **"Continuar"** dice "Continuar: noche 3 · Normal" (y "Continuar: noche de práctica · Normal").
 - **`setup(saved_night, saved_difficulty, settings, difficulties, locked)`**: `GameState` le pasa todo, y el menú no conoce los archivos.
-- **Textos nuevos en `ui.csv`:** `DIFFICULTY_NORMAL`, `DIFFICULTY_HARD`, `DIFFICULTY_NORMAL_INFO`, `DIFFICULTY_HARD_INFO`, `MENU_DIFFICULTY_TITLE`, `MENU_LOCKED`, `MENU_START` y `MENU_BACK`. Además, `MENU_CONTINUE` y `MENU_CONTINUE_TUTORIAL` llevan `{difficulty}`.
+- **Textos nuevos en `ui.csv`:** `DIFFICULTY_NORMAL`, `DIFFICULTY_HARD`, `DIFFICULTY_NORMAL_INFO`, `DIFFICULTY_HARD_INFO`, `MENU_DIFFICULTY_TITLE`, `MENU_LOCKED`, `MENU_START` y `MENU_BACK`. "Continuar" agrega " · " y el nombre del modo en el código, así que `MENU_CONTINUE` y `MENU_CONTINUE_TUTORIAL` no cambian.
 
-- [ ] **Paso 1:** pruebas en `test_main_menu.gd`:
+- [x] **Paso 1:** pruebas en `test_main_menu.gd`:
   - `test_nueva_partida_pide_la_dificultad`;
   - `test_normal_viene_marcada`;
   - `test_dificil_bloqueada`;
@@ -333,10 +360,10 @@ Lo demás (olas de 2, 3 a la vez y la señal que baja) queda como en Difícil.
   - `test_con_partida_se_confirma_despues_de_elegir`;
   - `test_continuar_dice_la_dificultad`;
   - las de hoy, adaptadas.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar y reimportar los textos.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "El menú: elegir la dificultad, y Continuar dice cuál es".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar y reimportar los textos.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "El menú: elegir la dificultad, y Continuar dice cuál es".
 
 ### Tarea 10: El aviso de Difícil desbloqueado
 
@@ -347,13 +374,13 @@ Lo demás (olas de 2, 3 a la vez y la señal que baja) queda como en Difícil.
   - `GameState.prepare_night()` le dice al escritorio qué dificultades desbloquea ganar esa noche (`desk.unlocks_on_win`). Solo pasa en la última noche y si todavía estaban bloqueadas;
   - el escritorio se lo pasa a la pantalla final.
 
-- [ ] **Paso 1:** pruebas:
+- [x] **Paso 1:** pruebas:
   - `test_ending_text.gd`: `test_la_victoria_avisa_lo_desbloqueado`;
   - `test_game_state.gd`: `test_la_noche_5_de_normal_desbloquea_dificil` y `test_si_ya_estaba_desbloqueada_no_avisa`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "Al terminar Normal, el resumen avisa que se desbloqueó Difícil".
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "Al terminar Normal, el resumen avisa que se desbloqueó Difícil".
 
 ### Tarea 11: Revisión con capturas
 
@@ -371,10 +398,10 @@ Lo demás (olas de 2, 3 a la vez y la señal que baja) queda como en Difícil.
   - el candado se ve parejo;
   - el chat de Difícil no deja nada destacado salvo el audio.
 
-- [ ] **Paso 1:** escribir el script y sacar las capturas.
-- [ ] **Paso 2:** revisarlas y corregir lo que haga falta.
-- [ ] **Paso 3:** correr todas las pruebas: OK. Abrir el juego sin errores nuevos.
-- [ ] **Paso 4:** commit "Revisión del menú y de Difícil con capturas".
+- [x] **Paso 1:** escribir el script y sacar las capturas.
+- [x] **Paso 2:** revisarlas y corregir lo que haga falta.
+- [x] **Paso 3:** correr todas las pruebas: OK. Abrir el juego sin errores nuevos.
+- [x] **Paso 4:** commit "Revisión del menú y de Difícil con capturas".
 
 ---
 

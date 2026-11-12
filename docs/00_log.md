@@ -6,31 +6,32 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ---
 
-## ▶ Siguiente sesión: S21i — Normal y Difícil (feedback del primer testeo, 2 de 3)
+## ▶ Siguiente sesión: S21j — El tutorial (feedback del primer testeo, 3 de 3)
 
 | | |
 | --- | --- |
-| **Qué se hace** | La segunda de 3 sesiones con el feedback del primer testeo (`docs/26` §3). Los modos **Normal y Difícil**: `DifficultyData` con sus 5 noches, la noche 1 de Normal armada a mano con un plan de olas (`WaveData`), la curva Normal de las noches 2 a 5, Difícil sin nada destacado (se identifica leyendo), el progreso aparte de la partida y el menú con la elección. Se escribe el Plan 9.4 (`docs/28`) y se ejecuta en la misma sesión. |
+| **Qué se hace** | La última de 3 sesiones con el feedback del primer testeo (`docs/26` §4). La noche 0 de nuevo: solo responde lo que León va enseñando, parpadea lo que hay que apretar (`Highlight`), León explica el costo de preguntar, lo azul, los audios (con las tripas de Gonzalo) y la estática, Gonzalo muestra qué pasa si se acaba el tiempo (15 s de verdad, sin efecto real), el botón del flash con relieve y su video regrabado, y las tarjetas con colores. Se escribe el Plan 9.5 (`docs/29`) y se ejecuta en la misma sesión. Solo se juega en Normal. |
 | **Tipo** | Diseño corto, plan y ejecución. |
 | **Modelo** | **Opus 5.5** |
 | **Esfuerzo** | **xhigh** |
-| **Qué escribirle a Claude** | `Lee docs/26_feedback_testeo_1.md y haz la sesión S21i.` |
-| **Tu parte** | Contestar las preguntas cortas, autorizar los commits y, al final, probar la noche 1 en Normal (`docs/04`). Si alcanzas antes, prueba el chat nuevo (`docs/04`, T). |
-| **Está terminada cuando** | `test_balance` pasa en los 2 modos con sus 5 noches, la curva de la noche 1 de Normal se ve como `docs/26` §3.2, el menú se revisó con capturas y se puede jugar una noche de Difícil sin clics. |
+| **Qué escribirle a Claude** | `Lee docs/26_feedback_testeo_1.md y haz la sesión S21j.` |
+| **Tu parte** | Contestar las preguntas cortas, autorizar los commits, cerrar el editor de Godot mientras se regraban los videos y, al final, probar la noche 0 y corregir las líneas nuevas de León. Si alcanzas antes, prueba Normal y Difícil (`docs/04`, U). |
+| **Está terminada cuando** | La noche 0 se juega completa en una prueba automática que sigue los pasos, los videos se volvieron a grabar, las capturas de cada paso se revisaron y `docs/04` tiene la sección para probarla. |
 
-**Después:** S21j (el tutorial) y S21b (el lore), en ese orden, antes del 25 de noviembre.
+**Después:** S21b (el lore), antes del 25 de noviembre.
 
 ---
 
 ## Qué documentos son planes de sesión
 
-Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Los planes del feedback del primer testeo (9.3, 9.4 y 9.5) los escriben y ejecutan S21h, S21i y S21j, a partir de `docs/26`. Ya ejecutados: el **Plan 9.1: ajustes de mecánicas y la Mano** (`docs/24`) y el **Plan 9.2: la letra, el cuaderno y el tutorial con León** (`docs/25`), en S21f, y el **Plan 9.3: errores y el chat** (`docs/27`), en S21h. Quedan 2 documentos de sesión listos: `docs/26` (S21i y S21j) y `docs/19` (S21b). El siguiente plan numerado es el **Plan 10** (sonido, pulido y versión, el Plan 9 original), que se escribe en S23.
+Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta. Los planes del feedback del primer testeo (9.3, 9.4 y 9.5) los escriben y ejecutan S21h, S21i y S21j, a partir de `docs/26`. Ya ejecutados: el **Plan 9.1: ajustes de mecánicas y la Mano** (`docs/24`) y el **Plan 9.2: la letra, el cuaderno y el tutorial con León** (`docs/25`), en S21f; el **Plan 9.3: errores y el chat** (`docs/27`), en S21h, y el **Plan 9.4: Normal y Difícil** (`docs/28`), en S21i. Quedan 2 documentos de sesión listos: `docs/26` (S21j) y `docs/19` (S21b). El siguiente plan numerado es el **Plan 10** (sonido, pulido y versión, el Plan 9 original), que se escribe en S23.
 
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
+| `docs/28_plan_dificultad.md` | **Plan 9.4**: Normal y Difícil, con lo que cambió al ejecutarlo | Ya ejecutado (S21i) ✅ |
 | `docs/27_plan_errores_chat.md` | **Plan 9.3**: errores y el chat, con lo que cambió al ejecutarlo | Ya ejecutado (S21h) ✅ |
-| `docs/26_feedback_testeo_1.md` | Feedback del primer testeo: decisiones de Benja, diseño y las 3 sesiones que lo implementan | **Sí, en S21i y S21j** (§2 ya se ejecutó en S21h ✅) |
+| `docs/26_feedback_testeo_1.md` | Feedback del primer testeo: decisiones de Benja, diseño y las 3 sesiones que lo implementan | **Sí, en S21j** (§2 y §3 ya se ejecutaron en S21h y S21i ✅) |
 | `docs/25_plan_tutorial_cuaderno.md` | **Plan 9.2**: la letra nítida, el cuaderno con tabla y la noche 0 con León, con lo que cambió al ejecutarlo | Ya ejecutado (S21f) ✅ |
 | `docs/24_plan_ajustes_mecanicas.md` | **Plan 9.1**: ajustes de mecánicas y la Mano, con lo que cambió al ejecutarlo | Ya ejecutado (S21f) ✅ |
 | `docs/23_prompt_ajustes_mecanicas.md` | Prompt de la sesión S21f: ajustes de mecánicas y la Mano | Ya ejecutado (S21f) ✅ |
@@ -53,7 +54,7 @@ Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta
 | `docs/05_plan_produccion.md` | Alcance por prioridad y calendario por semana | No |
 | `docs/02_bucle_central.md` | Detalle de la mecánica central y plantilla de entidades | No (referencia) |
 | `docs/03_plan_arte.md` | Reglas del pipeline de arte y arte faltante | No (referencia) |
-| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L, M, O, P, Q, R, S y T) |
+| `docs/04_instrucciones_godot.md` | Lo que tú haces en Godot | Tú, cuando haya pasos pendientes (hoy: L, M, O, P, Q, R, S, T y U) |
 | `docs/01_analisis_diseno.md` | Análisis de la sesión 1 | No (histórico) |
 | `spook_dial_design.md` | Qué es el juego (diseño v2) | No (referencia principal) |
 | `resumen.md` | Detalle de cada sesión: hecho, errores y pendientes | No |
@@ -94,8 +95,8 @@ Hay dos tipos de sesión, que se alternan:
 | S21f | 11 nov | Ajustes de mecánicas y la Mano (`docs/23`, Plan 9.1 en `docs/24`); después, la letra, el cuaderno y el tutorial con León (Plan 9.2, `docs/25`) | Diseño, plan y ejecución | Opus 5.5 · xhigh | Probar (`docs/04`, R y S); corregir los textos nuevos; decir desde cuándo se ve la Mano | ✅ |
 | S21g | 11 nov | Planificar el feedback del primer testeo (`docs/26`) | Diseño | Opus 5.5 | 8 decisiones de la dificultad y el tutorial | ✅ |
 | S21h | 11 nov | Errores y el chat (`docs/26` §2, Plan 9.3 en `docs/27`) | Diseño corto, plan y ejecución | Opus 5.5 · xhigh (se adelantó) | Probar el chat (`docs/04`, T); corregir los textos nuevos | ✅ |
-| **S21i** | 14–17 nov | **Normal y Difícil** (`docs/26` §3, Plan 9.4 en `docs/28`) | Diseño corto, plan y ejecución | **Opus 5.5 · xhigh** | Autorizar commits; probar la noche 1 en Normal | ▶ |
-| S21j | 17–20 nov | El tutorial (`docs/26` §4, Plan 9.5 en `docs/29`) | Diseño corto, plan y ejecución | Opus 5.5 · xhigh | Autorizar commits; probar la noche 0; corregir las líneas de León | ⏳ |
+| S21i | 11 nov | Normal y Difícil (`docs/26` §3, Plan 9.4 en `docs/28`) | Diseño corto, plan y ejecución | Opus 5.5 · xhigh (se adelantó) | Probar la noche 1 en Normal y Difícil (`docs/04`, U); corregir los textos nuevos | ✅ |
+| **S21j** | 17–20 nov | **El tutorial** (`docs/26` §4, Plan 9.5 en `docs/29`) | Diseño corto, plan y ejecución | **Opus 5.5 · xhigh** | Autorizar commits; probar la noche 0; corregir las líneas de León | ▶ |
 | S21b | Antes del 25 nov | Planificar el lore por noche (`docs/19`) | Plan | Opus 5.5 · high | Decisiones del lore; corregir borradores | ⏳ |
 | S21c | 9 nov | Red social que imita a una real (`docs/20`) | Diseño y ejecución | Opus 5.5 · high (se adelantó a S21b) | Probar (`docs/04`, P); confirmar de dónde son las fotos | ✅ |
 | S21d | 10 nov | Pulir el arte y los sonidos de Claude (pedido de Benja, sin plan aparte) | Diseño y ejecución | Opus 5.5 | Escuchar los sonidos y revisar el arte (`docs/04`, Q); corregir los textos del Imbunche | ✅ |
@@ -112,6 +113,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 11-nov | ✏️ S21i se adelantó al mismo 11 de noviembre (fecha objetivo: 14 a 17), en Opus 5.5 · xhigh. Benja contestó 4 preguntas (los commits, el audio y el cuaderno en Difícil, y el orden de la ola final de la noche 1 de Normal) y aprobó el diseño. El Plan 9.4 (`docs/28`) se escribió y se ejecutó en la misma sesión: 11 commits en `main`, de 661 a 715 pruebas OK. **Difícil queda en el límite en la noche 5** (el modelo con 15 s por consulta ya no la gana). **S21j es la siguiente.** Detalle en `resumen.md`, Sesión 21i. |
 | 11-nov | ✏️ S21h se adelantó al mismo 11 de noviembre (fecha objetivo: 12 a 14), en Opus 5.5 · xhigh. Benja contestó 3 preguntas (los commits, el cuaderno con los colores del chat y el diseño) y una más durante el diagnóstico de la descarga. El Plan 9.3 (`docs/27`) se escribió y se ejecutó en la misma sesión: 11 commits en `main`, de 626 a 661 pruebas OK. **La descarga:** la causa era un clic que empieza justo antes de que aparezca la barra. **S21i es la siguiente.** Detalle en `resumen.md`, Sesión 21h. |
 | 11-nov | ✏️ **S21g, nueva:** Benja hizo la primera prueba con un tester que nunca había visto el juego y trajo 16 observaciones. Claude las ordenó en `docs/26` y Benja tomó 8 decisiones: un **modo Normal** (la dificultad de hoy pasa a ser **Difícil**, que se desbloquea al terminar Normal y empieza en la noche 1), una curva suave en las 5 noches de Normal, Difícil sin nada destacado, señuelos sin costo en los dos modos, Gonzalo en el tutorial como demostración guiada y la noche 1 de Normal sin accidente. **Tres sesiones nuevas antes del lore:** S21h (errores y el chat), S21i (Normal y Difícil) y S21j (el tutorial), todas en Opus 5.5 · xhigh. **S21b pasa a ir después de S21j.** Detalle en `resumen.md`, Sesión 21g. |
 | 11-nov | ✏️ **S21f siguió con el Plan 9.2** (`docs/25`): Benja pidió que la letra se viera bien en pantalla completa, el cuaderno con las reglas en una tabla y una noche 0 que no se sienta como un onboarding (León enseña en su chat, y después unas tarjetas con videos). Contestó 4 preguntas y aprobó el diseño; el plan se escribió y se ejecutó en la misma sesión: 6 commits más en `main`, 625 pruebas OK. S21b sigue siendo la siguiente. Detalle en `resumen.md`, Sesión 21f (continuación). |

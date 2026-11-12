@@ -76,6 +76,7 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 - Con **las 2** marcadas (en cualquier mensaje de esa solicitud), la barra dice "Matías piensa…" durante **2 segundos** (`thinking_seconds` en `BalanceData`; eran 3 hasta el primer testeo) y aparece el nombre de la entidad. Clickear el nombre abre su página en el cuaderno.
 - Si una característica está tapada por la estática, no se puede marcar: hay que volver a preguntar su categoría (§3.2) para que vuelva a aparecer.
 - Quien reconoce a la entidad de memoria puede saltarse todo esto y abrir la página desde el índice.
+- **En Difícil no hay nada de esto** (decisión D3 de Benja tras el primer testeo): las características, los señuelos, la pista y las observaciones van como el resto del texto y sin enlaces, y no hay barra ni "Matías piensa". Se lee y se abre la página desde el índice. El audio sigue en azul y se clickea, y el cuaderno no cambia (decisiones de Benja en S21i). Lo decide `DifficultyData.highlights`, que el chat lee con `RequestManager.highlights()`.
 
 ### 3.2 Preguntas
 
@@ -153,9 +154,11 @@ Con la señal en 0, el amigo queda desconectado:
 
 ## 6. Valores iniciales para el prototipo
 
-Los valores que valen para todas las noches están en `data/balance.tres` (`BalanceData`), y los de cada noche, en `data/nights/night_N.tres` (`NightData`). Se ajustan en el Inspector.
+Los valores que valen para todas las noches y los dos modos están en `data/balance.tres` (`BalanceData`). Los de cada noche están en `data/nights/hard/night_N.tres` (Difícil) y `data/nights/normal/night_N.tres` (Normal), y la noche 0 en `data/nights/night_0.tres` (`NightData`). Cada modo es un `DifficultyData` (`data/difficulty/normal.tres` y `hard.tres`) con sus 5 noches. Se ajustan en el Inspector.
 
-### Por noche
+### Por noche, en Difícil
+
+Son los valores de antes del primer testeo.
 
 | Parámetro | N1 | N2 | N3 | N4 | N5 |
 | --- | --- | --- | --- | --- | --- |
@@ -178,6 +181,43 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 | Visitas de la Mano (la noche 0 la enseña aparte) | 1 | 1 | 2 | 2 | 3 |
 | Batería que pide jugando bien (flashes y Sanity; `test_balance.gd`) | 10 % | 31 % | 57 % | 61 % | 90 % |
 | Susto guionado (va en la noche 0 cuando exista) | A los 60 s | — | — | — | — |
+
+### Por noche, en Normal
+
+Es una curva más suave (decisiones de Benja tras el primer testeo, 11 de noviembre; `docs/26` §3.3). Son valores de partida que propuso Claude: `test_balance.gd` comprueba que toda noche de los dos modos se puede ganar, y Benja los ajusta en las pruebas (S22).
+
+| Parámetro | N1 | N2 | N3 | N4 | N5 |
+| --- | --- | --- | --- | --- | --- |
+| Solicitudes por noche | 5 (plan) | 6 | 7 | 8 | 9 |
+| Tiempo base para responder (s) | 90 | 80 | 70 | 65 | 60 |
+| Probabilidad de que diga el lugar | 80 % | 75 % | 70 % | 65 % | 60 % |
+| Probabilidad de pista en el mensaje inicial | 100 % | 100 % | 75 % | 50 % | 35 % |
+| Señuelos por solicitud | 1 | 1 | 2 | 2 | 3 |
+| Accidentes por noche | 0 | 1 | 1 | 2 | 2 |
+| Interferencias | 1 (plan) | 2 | 2 | 3 | 4 |
+| Audio Sync (aplausos) | 4 | 4 | 4 | 4 | 8 |
+| Audio Sync (golpes por minuto) | 90 | 95 | 105 | 115 | 125 |
+| Cuota de videos | 2 | 2 | 3 | 3 | 4 |
+| Solicitudes de la ola final | 2 (plan) | 2 | 2 | 3 | 3 |
+| Screamers | 2 | 4 | 4 | 5 | 6 |
+| Visitas de la criatura | 0 | 1 | 1 | 2 | 2 |
+| Visitas de la Mano | 1 (plan) | 1 | 1 | 2 | 2 |
+| Batería que pide jugando bien (`test_balance.gd`) | 10 % | 31 % | 31 % | 61 % | 65 % |
+
+Lo demás (olas de 2, 3 solicitudes a la vez, la señal que baja y Sanity) es igual que en Difícil.
+
+**La noche 1 de Normal va armada a mano** con un plan de olas (`NightData.wave_plan`, una lista de `WaveData`; decisión de Benja, `docs/26` §3.2). Con un plan, las solicitudes, las olas, los accidentes, las interferencias, la Mano y los screamers salen del plan, y esos campos de la noche no se usan:
+
+| Ola | Llegadas | Separación | Calma antes | En la ola | Screamers en la calma que sigue |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 1 consulta y 1 video | — | 45 s (desde las 00:00) | — | 1 |
+| 2 | 2 consultas | 30 a 45 s | 30 a 45 s | 1 Mano y 1 interferencia | 1 |
+| Final | consulta, video y consulta | 30 a 45 s | — | — | — |
+
+- Las llegadas de una ola se alternan: consulta, video, consulta.
+- Un video llega cuando a la consulta anterior le quedan 30 s (`video_time_left`) o, si ya no queda ninguna abierta, 3 a 6 s después (`video_after_answer`).
+- La última ola del plan es la final y llega lo más tarde posible para que su última consulta termine antes de las 06:00: en la noche 1 de Normal, a las 03:04.
+- Los videos del plan tienen que sumar la cuota (lo revisa `test_catalog.gd`).
 
 ### Medidores
 
@@ -207,7 +247,7 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
   - la criatura de la ventana (el antiguo jumpscare) solo se arma con el chat o el mixer abiertos, que tapan la ventana, y no mientras la Mano está en la pared; se ve apenas se cierran y se queda entre 15 y 40 s al azar desde que llega (`creature_stay`), aunque se cierren las cortinas. No tapa nada ni pausa la noche (decisiones de Benja, 4, 7 y 11 de noviembre).
 - La Mano (decisión de Benja, 11 de noviembre): tarda 12 s en llegar al dial (`hand_approach_seconds`), a tirones de 0,5 a 0,7 s (`hand_step_seconds`); agarrado, el dial baja 6 por segundo (`hand_drain`) hasta 15 (`hand_floor`); cada flash gasta 10 % de la batería (`flash_cost`). No llega mientras la criatura está cerca.
 - Videos que ya no alcanzan la cuota (decisión de Benja, 11 de noviembre): aviso en rojo en el chat, una vez por video perdido, y los videos del PC en rojo.
-- **Toda noche se puede ganar** (requisito de Benja, 11 de noviembre): `test/test_balance.gd` lo comprueba con un modelo de "jugar bien" (`test/balance_model.gd`: 12 s y 2 preguntas por solicitud, la Mano espantada antes de que agarre, la cortina cerrada a los 3 s de llegar la criatura). La batería alcanza, nada vence y Trust termina sobre 75 en las 5 noches.
+- **Toda noche se puede ganar** (requisito de Benja, 11 de noviembre): `test/test_balance.gd` lo comprueba con un modelo de "jugar bien" (`test/balance_model.gd`: 12 s y 2 preguntas por solicitud, 14 s en Difícil, donde se lee y se busca la página; la Mano espantada antes de que agarre, la cortina cerrada a los 3 s de llegar la criatura). La batería alcanza, nada vence y Trust termina sobre 75 en las 5 noches de cada modo. Con 15 s por solicitud en Difícil, la noche 5 ya no se puede ganar: está en el límite.
 - Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync, un audio de un amigo ni un screamer.
 - Accidentes (decisión de Benja, 7 de noviembre): se reparten en la noche como los screamers, 15 s para responder (22,5 s con "Temporizadores ×1,5"). Solo le pasan a un amigo libre, con señal y con más de 1 PV; si la ola está llena, esperan.
 - El chat guionado: cada línea del amigo llega 2,5 s después de la anterior; las de Matías esperan su botón.

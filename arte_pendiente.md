@@ -62,6 +62,7 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 10 de noviem
 | El cuaderno junto al nombre de la entidad ✅ Claude | Plan 9.3 | 11×11 (`art/ui/chat_icon_notebook.png`): la tapa verde, la etiqueta, la espiral y el canto de las hojas. |
 | La señal del botón de sincronizar ✅ Claude | Plan 9.3 | `art/ui/chat_signal.png`: 5 cuadros de 15×12 (de 0 a 4 barritas) en 3 filas (verde, ámbar y rojo); sin señal, una ×. Si la redibujas, con la misma grilla. |
 | Las hojas de respuesta ✅ Claude | Plan 9.3 | Texturas 9-slice de 19×19 con márgenes de 4 (`art/ui/chat_answer_normal`, `_hover`, `_pressed` y `_disabled`): el papel del cuaderno, con un cuadro de 11 que se repite, el borde y la sombra. La nota adhesiva del número es la de las pestañas del cuaderno (`notebook_tab.png`). Ver `C:\dev\capturas\plan93_1280_chat.png`. |
+| El candado de la dificultad bloqueada ✅ Claude | Plan 9.4 | 11×11 (`art/ui/menu_lock.png`): un candado de acero gris con su arco y el ojo de la cerradura, que el menú muestra al doble junto a "Difícil" mientras no se termine Normal. Si lo redibujas, del mismo tamaño. Ver `C:\dev\capturas\plan94_1280_choice_locked.png`. |
 
 ## 4. Opcional (pulido, si sobra tiempo)
 

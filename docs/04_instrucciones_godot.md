@@ -25,6 +25,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **R.** Probar los ajustes de mecánicas y la Mano (Plan 9.1) | ⬜ Pendiente (unos 15 minutos) |
 | **S.** Probar la letra en pantalla completa, el cuaderno y la noche 0 con León (Plan 9.2) | ⬜ Pendiente (unos 15 minutos) |
 | **T.** Probar el chat nuevo, la descarga y el guardado (Plan 9.3) | ⬜ Pendiente (unos 15 minutos) |
+| **U.** Probar Normal y Difícil (Plan 9.4) | ⬜ Pendiente (unos 20 minutos) |
 | Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
@@ -659,3 +660,80 @@ Se borraron `CHAT_DECOY_COST` y `ANSWER_FROM_PAGE`.
 
 Los íconos del chat, la señal y las hojas son pixel art de Claude (`art/ui/chat_*.png`, lo genera `tools/make_ui_art.py`). Está en `arte_pendiente.md`. Si dejas un archivo tuyo con el mismo nombre, Claude no vuelve a correr el script.
 
+## U. Probar Normal y Difícil (Plan 9.4)
+
+Del 11 de noviembre (sesión S21i), con el feedback del primer testeo. Avísale a Claude antes de abrir Godot. Son unos 20 minutos.
+
+### El menú
+
+1. Presiona **F5** (el juego completo). En el menú, **Nueva partida**.
+2. **Verifica:**
+   - aparece **Elige la dificultad**, con **Normal** marcada (iluminada, con borde celeste) y una línea que describe cada modo;
+   - **Difícil** está hundida, con un candado, y abajo dice en ámbar **Termina Normal para desbloquearla.**;
+   - **Volver** regresa a los botones del menú;
+   - si tienes una partida guardada, **Empezar** primero pregunta si quieres borrarla.
+3. Empieza en Normal: arranca la noche 0, con León. Sal con **Esc** y **Volver al menú**.
+4. **Verifica:** **Continuar** dice **Continuar: noche de práctica · Normal**.
+
+### La noche 1 de Normal (lo más importante)
+
+1. En el menú, **Continuar** (o salta el tutorial con **Esc** y **Saltar tutorial**) hasta la noche 1.
+2. **Verifica, con el reloj del celular:**
+   - el silencio dura unos 45 s (hasta las 00:38);
+   - llega **una** consulta sola, con 90 s para responder;
+   - cuando la respondes (o cuando le quedan 30 s), llega un video, no antes;
+   - después hay una calma, con un susto;
+   - después llegan 2 consultas separadas por 30 a 45 s, con la Mano y una interferencia entre medio;
+   - otra calma, con otro susto;
+   - hacia las 03:04 empieza la ola final: una consulta, después el video y después la otra consulta, nunca juntas;
+   - no hay accidentes.
+3. **Dime:**
+   - si la noche se siente tranquila para aprender o aburrida;
+   - si la calma antes de la ola final se hace larga (si respondes rápido dura cerca de un minuto);
+   - si después de la última consulta sobra mucho tiempo hasta las 06:00.
+
+Los valores están en `data/nights/normal/night_1.tres`: en el **Inspector**, el grupo **Plan de olas** tiene las 3 olas. Abre cada una con un clic. Por ejemplo, para dejar la ola 2 en una consulta, cambia su **Requests** de **2** a **1**.
+
+### Difícil
+
+Para jugar Difícil sin terminar Normal, usa el escritorio suelto:
+
+1. En el panel **FileSystem** (abajo a la izquierda), haz doble clic en `scenes/desk/desk.tscn`.
+2. En el panel **Scene** (arriba a la izquierda), haz clic en el nodo **RequestManager**.
+3. En el **Inspector** (a la derecha), arrastra el archivo `data/difficulty/hard.tres` desde **FileSystem** hasta la propiedad **Difficulty**. Deja **Night Number** en **1**.
+4. Presiona **F6** y espera la primera consulta (llega al minuto). Abre su chat y pregunta.
+5. **Verifica:**
+   - nada va en amarillo ni en azul, y no se puede clickear ninguna frase;
+   - el audio (**▶ Escuchar audio**) sí va en azul y se escucha con un clic;
+   - no hay barra de características ni "Matías piensa": junto al botón de las barritas no aparece nada;
+   - abres el cuaderno, buscas la página en el índice (las pestañas amarillas) y las respuestas del chat son las de esa página;
+   - el cuaderno se ve igual que en Normal.
+6. Al terminar, haz clic con el botón derecho sobre **Difficulty** en el Inspector y elige **Clear** (Limpiar), para dejarla vacía. No guardes la escena.
+
+### Desbloquear Difícil (opcional)
+
+Para ver el aviso y el menú con Difícil libre, sin jugar las 5 noches:
+
+1. Cierra el juego.
+2. En el Explorador de Windows, abre `%APPDATA%\Godot\app_userdata\Spook Dial\`.
+3. Crea un archivo de texto `progress.cfg` con estas dos líneas:
+
+   ```
+   [progress]
+   finished=PackedStringArray("normal")
+   ```
+
+4. **Verifica:** en **Nueva partida**, Difícil ya no tiene candado, y al elegirla empieza en la noche 1.
+5. Para volver a bloquearla, borra `progress.cfg`.
+
+### Los textos nuevos para corregir (antes del 25 de noviembre)
+
+Todos en `data/text/ui.csv`:
+
+- los modos: `DIFFICULTY_NORMAL`, `DIFFICULTY_HARD`, `DIFFICULTY_NORMAL_INFO` y `DIFFICULTY_HARD_INFO`;
+- el menú: `MENU_DIFFICULTY_TITLE`, `MENU_LOCKED` (lleva `{difficulty}`), `MENU_START` y `MENU_BACK`;
+- el aviso al terminar Normal: `END_UNLOCKED` (lleva `{difficulty}`).
+
+### Si quieres redibujar
+
+El candado es pixel art de Claude (`art/ui/menu_lock.png`, de 11×11, lo genera `tools/make_ui_art.py`). Está en `arte_pendiente.md`.
