@@ -13,12 +13,13 @@ func _initialize() -> void:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	var difficulty := catalog.find_difficulty(StringName(args[3]) if args.size() > 3 else &"normal")
 	var night: NightData = catalog.night(int(args[0]), difficulty)
-	var result := BalanceModel.simulate(night, catalog.balance, int(args[1]), difficulty.highlights)
+	var result := BalanceModel.simulate(night, catalog.balance, int(args[1]), BalanceModel.attention_for(difficulty))
 	result["night"] = night.number
 	result["difficulty"] = String(difficulty.id)
 	result["seed"] = int(args[1])
 	result["night_seconds"] = catalog.balance.night_seconds
 	result["battery"] = BalanceModel.battery_needed(night, catalog.balance)
+	result["free_time_needed"] = BalanceModel.free_time_needed(night, catalog.balance)
 	var file := FileAccess.open(args[2], FileAccess.WRITE)
 	file.store_string(JSON.stringify(result))
 	file.close()

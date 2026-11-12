@@ -243,7 +243,8 @@ func test_jugando_bien_nada_vence() -> bool:
 		for night: NightData in difficulty.nights:
 			for seed_value in SEEDS:
 				var who := "%s, noche %d, semilla %d" % [difficulty.id, night.number, seed_value + 1]
-				var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1, difficulty.highlights)
+				var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1,
+						BalanceModel.attention_for(difficulty))
 				check_eq(result["missed"], 0, who + ": tareas vencidas")
 				check(result["requests"] >= night.total_requests() - 2, "%s: llegan casi todas: %d"
 						% [who, result["requests"]])
@@ -257,7 +258,7 @@ func test_jugando_bien_trust_queda_sobre_75() -> bool:
 		for night: NightData in difficulty.nights:
 			for seed_value in SEEDS:
 				var trust: float = BalanceModel.simulate(night, catalog.balance, seed_value + 1,
-						difficulty.highlights)["trust"]
+						BalanceModel.attention_for(difficulty))["trust"]
 				check(trust >= 75.0, "%s, noche %d, semilla %d: Trust %.1f"
 						% [difficulty.id, night.number, seed_value + 1, trust])
 	return true
@@ -365,4 +366,56 @@ func test_valores_de_normal() -> bool:
 		check_eq(night.wave_size, 2, "noche %d: olas de 2" % night.number)
 		check_eq(night.max_simultaneous, 3, "noche %d: 3 a la vez" % night.number)
 		check(night.signal_decays, "noche %d: la señal baja" % night.number)
+	return true
+
+
+
+# --- La holgura (Plan 9.6, docs/30): el modelo de "jugar bien" no cuenta las sincronizaciones ni el scroll como tareas.
+# Esta prueba revisa que quepan en el tiempo libre de la noche.
+
+## Cada modo con la atención de quien juega bien: 12 s por consulta en Normal (guiado), 14 en Difícil (leyendo) y 11 en
+## Extremo, adonde solo llega un experto que terminó Difícil.
+func test_la_atencion_de_cada_modo() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	check_eq(BalanceModel.attention_for(catalog.find_difficulty(&"normal")), 12.0, "Normal")
+	check_eq(BalanceModel.attention_for(catalog.find_difficulty(&"hard")), 14.0, "Difícil")
+	var extreme := DifficultyData.new()
+	extreme.id = &"extreme"
+	extreme.highlights = false
+	check_eq(BalanceModel.attention_for(extreme), 11.0, "Extremo: un experto")
+	return true
+
+
+## Lo que dura sincronizar a un amigo: sus rondas de Audio Sync (cuenta, aplausos y respuesta: 24 corcheas por ronda,
+## cada una más rápida) más 2 s para abrir el mixer.
+func test_lo_que_dura_sincronizar() -> bool:
+	var balance := BalanceData.new()
+	var night := NightData.new()
+	night.audio_sync_beats = 4
+	night.audio_sync_bpm = 120.0
+	check(is_equal_approx(BalanceModel.sync_seconds(night, balance), 2.0 + 24 * 0.25), "una ronda a 120: 8 s")
+	night.audio_sync_beats = 8
+	var second_round := 24 * 30.0 / (120.0 * balance.audio_sync_round_speedup)
+	check(is_equal_approx(BalanceModel.sync_seconds(night, balance), 2.0 + 24 * 0.25 + second_round), "dos rondas")
+	return true
+
+
+## En toda noche de los 3 modos, el tiempo libre (sin tareas abiertas, desde la primera ola) alcanza para sincronizar a
+## los amigos y reponer Sanity con el celular.
+func test_toda_noche_tiene_holgura() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	for difficulty: DifficultyData in catalog.difficulties:
+		var attention := BalanceModel.attention_for(difficulty)
+		for night: NightData in difficulty.nights:
+			var ratio := BalanceModel.free_time_ratio(night, catalog.balance, attention, SEEDS)
+			check(ratio >= 1.0, "%s, noche %d: holgura %.2f" % [difficulty.id, night.number, ratio])
+	return true
+
+
+## Difícil 5 es la referencia: Benja la probó y es difícil pero ganable (12 de noviembre). Su holgura queda entre 1 y 1,5.
+func test_dificil_5_es_la_referencia() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var hard := catalog.find_difficulty(&"hard")
+	var ratio := BalanceModel.free_time_ratio(hard.nights[4], catalog.balance, BalanceModel.attention_for(hard), SEEDS)
+	check(ratio >= 1.0 and ratio <= 1.5, "holgura de Difícil 5: %.2f" % ratio)
 	return true

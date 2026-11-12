@@ -7,6 +7,9 @@ extends RefCounted
 ## video 10 s. Atiende de a una tarea, la que vence primero. Cuando llega la criatura, cierra la cortina a los 3 s y la
 ## revisa 2 veces, 1 s cada vez. Nunca se equivoca ni pierde un video, y quiere terminar con Sanity sobre 10.
 ## Los valores al azar se toman en su peor caso: la criatura se queda lo más posible.
+## En Extremo (Plan 9.6, docs/30) solo llega quien terminó Difícil: un experto que resuelve cada consulta en 11 s.
+## El modelo no cuenta como tareas las sincronizaciones ni el scroll del celular: la holgura (free_time_ratio) revisa que
+## quepan en el tiempo libre de la noche.
 
 const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
@@ -14,6 +17,14 @@ const RequestGenerator := preload("res://scripts/core/request_generator.gd")
 const REQUEST_ATTENTION := 12.0
 ## En Difícil se identifica leyendo (decisión de Benja, D3). Con 15 s, la noche 5 de Difícil ya no se puede ganar.
 const READING_ATTENTION := 14.0
+## En Extremo juega un experto (docs/30). Con 12 s, las noches 4 y 5 de Extremo ya no se pueden ganar.
+const EXPERT_ATTENTION := 11.0
+## Se sincroniza a un amigo cuando su señal baja de 30 (mucha estática), y se recupera hasta 100.
+const SYNC_RECOVERY := 70.0
+## Lo que toma abrir el mixer y empezar la ronda, además de la ronda.
+const SYNC_OVERHEAD := 2.0
+## Corcheas de una ronda de Audio Sync: la cuenta (8), los 4 aplausos del amigo (8) y la respuesta (8).
+const SYNC_ROUND_STEPS := 24
 const QUESTIONS := 2
 const INCIDENT_ATTENTION := 4.0
 const HAND_ATTENTION := 4.0
@@ -25,6 +36,51 @@ const SANITY_MARGIN := 10.0
 const FRIENDS := 3
 ## Cada cuánto avanza la simulación.
 const STEP := 0.1
+
+
+## Los segundos por consulta de quien juega bien en `difficulty`: guiado (Normal), leyendo (Difícil) o un experto que
+## lee (Extremo).
+static func attention_for(difficulty: DifficultyData) -> float:
+	if difficulty.highlights:
+		return REQUEST_ATTENTION
+	return EXPERT_ATTENTION if difficulty.id == &"extreme" else READING_ATTENTION
+
+
+## Lo que dura sincronizar a un amigo: sus rondas de Audio Sync (4 aplausos cada una, cada ronda más rápida) más lo que
+## toma abrir el mixer.
+static func sync_seconds(night: NightData, balance: BalanceData) -> float:
+	var total := SYNC_OVERHEAD
+	for index in maxi(night.audio_sync_beats / 4, 1):
+		var bpm := night.audio_sync_bpm * pow(balance.audio_sync_round_speedup, index)
+		total += SYNC_ROUND_STEPS * 30.0 / bpm
+	return total
+
+
+## Los segundos que quien juega bien necesita fuera de las tareas: sincronizar a los amigos (lo que pierden de señal con
+## el tiempo, a su ritmo promedio, y con las interferencias) y scrollear para reponer Sanity.
+static func free_time_needed(night: NightData, balance: BalanceData) -> float:
+	var loss := night.total_interferences() * balance.interference_damage
+	if night.signal_decays:
+		var decay := (night.signal_decay_interval.x + night.signal_decay_interval.y) / 2.0
+		loss += FRIENDS * balance.night_seconds / decay
+	var scroll := scroll_battery(night, balance) / 100.0 * balance.phone_battery_seconds
+	return loss / SYNC_RECOVERY * sync_seconds(night, balance) + scroll
+
+
+## La holgura de la noche con `attention` segundos por consulta: el menor tiempo libre (sin tareas abiertas, desde la
+## primera ola) entre `seeds` semillas, dividido por lo que se necesita fuera de las tareas. Con 1 o más, cabe.
+static func free_time_ratio(night: NightData, balance: BalanceData, attention: float, seeds: int) -> float:
+	var free := INF
+	for seed_value in seeds:
+		var result := simulate(night, balance, seed_value + 1, attention)
+		var first: float = result["waves"][0][0] if not result["waves"].is_empty() else 0.0
+		var idle := 0.0
+		for second in result["load"].size():
+			if second >= first and result["load"][second] == 0:
+				idle += 1.0
+		free = minf(free, idle)
+	var needed := free_time_needed(night, balance)
+	return INF if needed <= 0.0 else free / needed
 
 
 ## La batería que gasta quien juega bien en la noche, en %: la que hace falta para reponer Sanity, más un flash por
@@ -50,13 +106,13 @@ static func sanity_loss(night: NightData, balance: BalanceData) -> float:
 	return loss
 
 
-## Corre la noche con el director real y quien juega bien, que identifica guiado (`guided`, Normal) o leyendo (Difícil).
-## Devuelve "missed" (las tareas que vencieron sin atender),
+## Corre la noche con el director real y quien juega bien, que dedica `attention` segundos a cada consulta
+## (attention_for). Devuelve "missed" (las tareas que vencieron sin atender),
 ## "trust" (Trust al final: solo baja por las solicitudes que esperan más de la cuenta), "requests" (cuántas llegaron),
 ## "tasks" (cada una con su tipo, su llegada, su fin y su plazo), "waves" y "calms" (las horas en que empezó cada una),
 ## "interferences", "videos", "scares" ([hora, es la criatura]) y "load" (cuántas tareas había abiertas, cada segundo).
-static func simulate(night: NightData, balance: BalanceData, seed_value: int, guided := true) -> Dictionary:
-	var attention := REQUEST_ATTENTION if guided else READING_ATTENTION
+static func simulate(night: NightData, balance: BalanceData, seed_value: int,
+		attention := REQUEST_ATTENTION) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var director := PacingDirector.new(night, balance, rng)
