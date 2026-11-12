@@ -98,7 +98,8 @@ func _ready() -> void:
 	notebook_memory = NotebookMemory.new(friends.size())
 	_night.setup(_requests)
 	_chat_panel.setup(_requests, friends, notebook_memory)
-	_notebook_panel.setup(notebook_memory, _requests.catalog.known_entities(_requests.night_number), friends)
+	_notebook_panel.setup(notebook_memory, _requests.catalog.known_entities(_requests.night_number,
+			_requests.difficulty), friends)
 	_mixer.setup(_requests, friends)
 	_phone.setup(_requests.state, _requests.catalog.phone_posts, _requests.catalog.phone_disturbing_posts)
 	_screamers.setup(_requests, _night)
@@ -266,8 +267,8 @@ func _on_night_ended(ending: NightState.Ending, fatal_request: FriendRequest) ->
 		names.append(tr(friend.name_key))
 	var night_number := _requests.night_number
 	var pages: Array[String] = []
-	if ending == NightState.Ending.WON and night_number < _requests.catalog.nights.size():
-		for entity: EntityData in _requests.catalog.new_pages(night_number + 1):
+	if ending == NightState.Ending.WON and night_number < _requests.catalog.nights(_requests.difficulty).size():
+		for entity: EntityData in _requests.catalog.new_pages(night_number + 1, _requests.difficulty):
 			pages.append(tr(entity.name_key))
 	_end_screen.show_ending(ending, _requests.state, fatal_request, names, night_number, pages)
 

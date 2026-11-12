@@ -66,7 +66,7 @@ func _answer_buttons(panel: Control) -> Array[Node]:
 
 ## La única entidad de la noche 1 del catálogo de prueba.
 func _beast() -> EntityData:
-	return _manager.catalog.nights[0].new_entities[0]
+	return _manager.catalog.nights()[0].new_entities[0]
 
 
 func test_empieza_oculto_y_se_abre_en_un_amigo() -> bool:
@@ -493,7 +493,7 @@ func test_el_boton_sincronizar() -> bool:
 	panel._process(0.0)
 	var sync := panel.get_node("%Sync") as Button
 	check(not sync.visible, "en la noche 1 del catálogo de prueba no hay Audio Sync")
-	_manager.catalog.nights[0].audio_sync_beats = 4
+	_manager.catalog.nights()[0].audio_sync_beats = 4
 	panel._process(0.0)
 	check(sync.visible, "con Audio Sync, se ve")
 	check_eq(sync.text, "", "sin texto: el ícono de la señal")
@@ -848,7 +848,7 @@ func test_la_senal_en_barritas() -> bool:
 ## Sin señal, el botón de sincronizar parpadea con un borde rojo; con "Reducir destellos", el borde queda fijo.
 func test_sin_senal_el_boton_parpadea() -> bool:
 	var panel := _make_panel()
-	_manager.catalog.nights[0].audio_sync_beats = 4
+	_manager.catalog.nights()[0].audio_sync_beats = 4
 	panel.open_for(0)
 	panel._process(0.0)
 	var highlight := panel.get_node("%Sync/Highlight")

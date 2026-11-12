@@ -12,7 +12,7 @@ func _make_state() -> NightState:
 	var catalog := Fixtures.make_catalog()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
-	var state := NightState.new(catalog.nights[0], catalog.balance, catalog.friends.size(), rng)
+	var state := NightState.new(catalog.nights()[0], catalog.balance, catalog.friends.size(), rng)
 	state.videos.release(0, 140.0)
 	state.videos.release(1, 280.0)
 	return state
@@ -199,7 +199,7 @@ func test_la_vineta_aparece_bajo_60() -> bool:
 
 func test_cada_amigo_pierde_senal_a_su_ritmo() -> bool:
 	var catalog := Fixtures.make_catalog()
-	var night := catalog.nights[0]
+	var night := catalog.nights()[0]
 	night.signal_decays = true
 	night.signal_decay_interval = Vector2(4, 6)
 	var state := NightState.new(night, catalog.balance, 3, RandomNumberGenerator.new())
@@ -214,7 +214,7 @@ func test_cada_amigo_pierde_senal_a_su_ritmo() -> bool:
 
 func test_las_interferencias_se_anuncian_y_golpean() -> bool:
 	var catalog := Fixtures.make_catalog()
-	var state := NightState.new(catalog.nights[0], catalog.balance, 3, RandomNumberGenerator.new())
+	var state := NightState.new(catalog.nights()[0], catalog.balance, 3, RandomNumberGenerator.new())
 	state.interferences.add(1, 100.0)
 	var friend_index: int = state.interferences.pending[0].friend_index
 	var time: float = state.interferences.pending[0].time
@@ -298,7 +298,7 @@ func test_en_el_tutorial_no_se_pierde() -> bool:
 ## recupera (decisión de Benja, 4 de noviembre).
 func test_la_espera_baja_trust() -> bool:
 	var catalog := Fixtures.make_catalog()
-	var state := NightState.new(catalog.nights[0], catalog.balance, 3, RandomNumberGenerator.new())
+	var state := NightState.new(catalog.nights()[0], catalog.balance, 3, RandomNumberGenerator.new())
 	state.impatient = 2
 	state.advance(10.0)
 	check_eq(state.trust, 95.0, "2 solicitudes × 0,25 por segundo × 10 s")

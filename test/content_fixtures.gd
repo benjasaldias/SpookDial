@@ -67,8 +67,9 @@ static func make_decoy(decoy_id: StringName, category := ClueCategory.Kind.SIGHT
 	return decoy
 
 
-## Catálogo válido: 3 amigos, 5 noches, 2 señuelos que sirven en cualquier lugar ("decoy_sight" y
-## "decoy_sound"), un saludo ("K_CALL_1"), una frase de lo que le pasa ("K_LOST") y los valores de equilibrio por defecto; "beast" aparece la noche 1 y "ghost" la noche 2.
+## Catálogo válido: 3 amigos, una dificultad (Normal, con sus 5 noches), 2 señuelos que sirven en cualquier lugar
+## ("decoy_sight" y "decoy_sound"), un saludo ("K_CALL_1"), una frase de lo que le pasa ("K_LOST") y los valores de
+## equilibrio por defecto; "beast" aparece la noche 1 y "ghost" la noche 2.
 ## La noche 0 (el tutorial) tiene 2 solicitudes de "beast": la de León (o1 = yes, con pista y con un video al
 ## terminar) y la de Gonzalo (o1 = no y o2 = yes, sin pista).
 static func make_catalog() -> ContentCatalog:
@@ -80,19 +81,44 @@ static func make_catalog() -> ContentCatalog:
 		friend.name_key = "K_FRIEND_%s" % friend_id
 		friend.voice = make_audio(0.05)
 		catalog.friends.append(friend)
+	var normal := DifficultyData.new()
+	normal.id = &"normal"
+	normal.name_key = "K_NORMAL"
+	normal.description_key = "K_NORMAL_INFO"
 	for number in range(1, 6):
 		var night := NightData.new()
 		night.number = number
 		night.place_key = "K_NIGHT_%d" % number
-		catalog.nights.append(night)
-	catalog.nights[0].new_entities.append(make_entity(&"beast"))
-	catalog.nights[1].new_entities.append(make_entity(&"ghost"))
+		normal.nights.append(night)
+	catalog.difficulties.append(normal)
+	normal.nights[0].new_entities.append(make_entity(&"beast"))
+	normal.nights[1].new_entities.append(make_entity(&"ghost"))
 	catalog.decoys.append(make_decoy(&"decoy_sight"))
 	catalog.decoys.append(make_decoy(&"decoy_sound", ClueCategory.Kind.SOUND))
 	catalog.greeting_keys.assign(["K_CALL_1"])
 	catalog.predicament_keys.assign(["K_LOST"])
 	catalog.tutorial = make_tutorial(catalog)
 	return catalog
+
+
+## Agrega Difícil al catálogo de prueba: otras 5 noches, con las mismas entidades nuevas en cada una, que empiezan en
+## la noche 1, se identifican leyendo y se desbloquean al terminar Normal.
+static func add_hard(catalog: ContentCatalog) -> DifficultyData:
+	var hard := DifficultyData.new()
+	hard.id = &"hard"
+	hard.name_key = "K_HARD"
+	hard.description_key = "K_HARD_INFO"
+	hard.first_night = 1
+	hard.highlights = false
+	hard.unlocked_by = catalog.difficulties[0]
+	for normal_night: NightData in catalog.nights():
+		var night := NightData.new()
+		night.number = normal_night.number
+		night.place_key = normal_night.place_key
+		night.new_entities.assign(normal_night.new_entities)
+		hard.nights.append(night)
+	catalog.difficulties.append(hard)
+	return hard
 
 
 ## La noche 0 del catálogo de prueba: una solicitud de "beast" para León (o1 = yes, sin pista), como la de León en el
@@ -103,7 +129,7 @@ static func make_tutorial(catalog: ContentCatalog) -> NightData:
 	tutorial.place_key = "K_NIGHT_0"
 	tutorial.content_quota = 1
 	tutorial.audio_sync_beats = 4
-	var beast: EntityData = catalog.nights[0].new_entities[0]
+	var beast: EntityData = catalog.nights()[0].new_entities[0]
 	tutorial.tutorial_requests.append(make_tutorial_request(catalog.friends[0], beast, {&"o1": &"yes"}, false))
 	return tutorial
 

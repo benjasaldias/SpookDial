@@ -22,7 +22,7 @@ func _make_posts(count: int) -> Array[PhonePostData]:
 ## Celular con el estado de la noche 1 del catálogo de prueba, 3 publicaciones y 2 perturbadoras.
 func _make_phone() -> Control:
 	var catalog := Fixtures.make_catalog()
-	_state = NightState.new(catalog.nights[0], catalog.balance, 3, RandomNumberGenerator.new())
+	_state = NightState.new(catalog.nights()[0], catalog.balance, 3, RandomNumberGenerator.new())
 	_posts = _make_posts(3)
 	_disturbing = _make_posts(2)
 	var phone := PHONE.instantiate()

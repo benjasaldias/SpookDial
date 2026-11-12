@@ -13,7 +13,7 @@ func _make_mixer() -> Control:
 	var root := (Engine.get_main_loop() as SceneTree).root
 	_manager = RequestManager.new()
 	_manager.catalog = Fixtures.make_catalog()
-	_manager.catalog.nights[1].audio_sync_beats = 4
+	_manager.catalog.nights()[1].audio_sync_beats = 4
 	_manager.night_number = 2
 	_manager.random_seed = 3
 	_manager.requests_arrive = false
@@ -207,7 +207,7 @@ func test_reducir_destellos() -> bool:
 ## El mixer de la noche 2 con 8 aplausos: 2 rondas de 4 (decisión de Benja, 4 de noviembre).
 func _make_two_round_mixer() -> Control:
 	var mixer := _make_mixer()
-	_manager.catalog.nights[1].audio_sync_beats = 8
+	_manager.catalog.nights()[1].audio_sync_beats = 8
 	return mixer
 
 
@@ -275,7 +275,7 @@ func test_con_4_aplausos_hay_una_sola_ronda() -> bool:
 ## La base de cada noche es la de NightData, y la segunda ronda va más rápida (decisión de Benja, 7 de noviembre).
 func test_la_base_es_la_de_la_noche_y_la_segunda_ronda_va_mas_rapida() -> bool:
 	var mixer := _make_two_round_mixer()
-	_manager.catalog.nights[1].audio_sync_bpm = 120.0
+	_manager.catalog.nights()[1].audio_sync_bpm = 120.0
 	mixer.open()
 	mixer.start_round(0)
 	check_eq(mixer.sync_round.step_seconds, 0.25, "la primera, a 120 golpes por minuto")
@@ -292,10 +292,10 @@ func test_la_base_es_la_de_la_noche_y_la_segunda_ronda_va_mas_rapida() -> bool:
 func test_la_fila_de_luces_es_la_de_una_ronda() -> bool:
 	var mixer := _make_mixer()
 	check_eq(mixer.step_count(), 8, "4 aplausos: 8 luces")
-	_manager.catalog.nights[1].audio_sync_beats = 8
+	_manager.catalog.nights()[1].audio_sync_beats = 8
 	check_eq(mixer.rounds_total(), 2, "8 aplausos son 2 rondas")
 	check_eq(mixer.step_count(), 8, "y siguen siendo 8 luces")
-	_manager.catalog.nights[1].audio_sync_beats = 0
+	_manager.catalog.nights()[1].audio_sync_beats = 0
 	check_eq(mixer.step_count(), 0, "sin Audio Sync, ninguna")
 	_free(mixer)
 	return true

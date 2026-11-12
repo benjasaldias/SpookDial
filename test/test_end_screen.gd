@@ -16,7 +16,7 @@ func _make_screen() -> Control:
 ## Estado de la noche 1 del catálogo de prueba: cuota de 2 videos.
 func _make_state() -> NightState:
 	var catalog := Fixtures.make_catalog()
-	return NightState.new(catalog.nights[0], catalog.balance, 3, RandomNumberGenerator.new())
+	return NightState.new(catalog.nights()[0], catalog.balance, 3, RandomNumberGenerator.new())
 
 
 func _translated(key: String) -> String:

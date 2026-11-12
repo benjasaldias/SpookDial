@@ -62,12 +62,37 @@ func test_cada_entidad_esta_en_una_noche() -> bool:
 	return true
 
 
+## Normal y Difícil (decisiones de Benja, 11 de noviembre): Normal va primero, empieza en el tutorial y guía la
+## identificación; Difícil empieza en la noche 1, se identifica leyendo y se desbloquea al terminar Normal.
+func test_normal_y_dificil() -> bool:
+	var catalog := _load_catalog()
+	check_eq(catalog.difficulties.size(), 2, "2 dificultades")
+	if catalog.difficulties.size() != 2:
+		return true
+	var normal := catalog.difficulties[0]
+	var hard := catalog.difficulties[1]
+	check_eq(normal.id, &"normal", "Normal primero")
+	check_eq(hard.id, &"hard", "después Difícil")
+	check_eq(normal.first_night, 0, "Normal empieza en el tutorial")
+	check_eq(hard.first_night, 1, "Difícil, en la noche 1")
+	check(normal.highlights, "Normal guía la identificación")
+	check(not hard.highlights, "en Difícil se lee")
+	check(normal.unlocked_by == null, "Normal está siempre disponible")
+	check_eq(hard.unlocked_by, normal, "Difícil se desbloquea al terminar Normal")
+	for difficulty: DifficultyData in catalog.difficulties:
+		check_eq(difficulty.nights.size(), 5, "%s: 5 noches" % difficulty.id)
+		for night: NightData in difficulty.nights:
+			check(night.resource_path.begins_with("res://data/nights/%s/" % difficulty.id),
+					"%s: %s está en su carpeta" % [difficulty.id, night.resource_path])
+	return true
+
+
 ## Las 7 entidades y la noche en que aparecen (diseño §13).
 func test_las_7_entidades_y_su_noche() -> bool:
 	var catalog: ContentCatalog = load(CATALOG_PATH)
 	var expected := [[&"tue_tue", &"calchona"], [&"cuero", &"viuda"], [&"trauco"], [&"basilisco", &"imbunche"], []]
-	for index in catalog.nights.size():
-		var ids := catalog.nights[index].new_entities.map(func(entity: EntityData) -> StringName: return entity.id)
+	for index in catalog.nights().size():
+		var ids := catalog.nights()[index].new_entities.map(func(entity: EntityData) -> StringName: return entity.id)
 		check_eq(ids, expected[index], "noche %d" % (index + 1))
 	check_eq(catalog.all_entities().size(), 7, "7 entidades")
 	return true

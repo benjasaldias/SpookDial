@@ -159,8 +159,8 @@ func test_responder_desde_otra_pagina_es_incorrecto() -> bool:
 ## noviembre).
 func test_las_solicitudes_llegan_solas() -> bool:
 	var catalog := Fixtures.make_catalog()
-	catalog.nights[0].max_simultaneous = 3
-	catalog.nights[0].wave_size = 2
+	catalog.nights()[0].max_simultaneous = 3
+	catalog.nights()[0].wave_size = 2
 	var manager := _make_manager(catalog)
 	manager.requests_arrive = true
 	for _step in 599:
@@ -192,7 +192,7 @@ func test_no_pasa_de_las_simultaneas() -> bool:
 
 func test_no_pasa_del_total() -> bool:
 	var catalog := Fixtures.make_catalog()
-	catalog.nights[0].requests_total = 2
+	catalog.nights()[0].requests_total = 2
 	# Sin heridas: un amigo herido atrasaría la segunda hasta que ya no alcanza a terminar.
 	catalog.balance.risky_hurt_chance = 0.0
 	catalog.balance.wrong_hurt_chance = 0.0
@@ -224,12 +224,12 @@ func test_un_amigo_herido_atrasa_las_solicitudes() -> bool:
 ## amigos al azar.
 func test_las_olas_traen_interferencias_y_las_calmas_videos() -> bool:
 	var catalog := Fixtures.make_catalog()
-	catalog.nights[0].interference_count = 2
-	catalog.nights[0].content_quota = 1
-	catalog.nights[0].max_simultaneous = 3
-	catalog.nights[0].wave_size = 2
+	catalog.nights()[0].interference_count = 2
+	catalog.nights()[0].content_quota = 1
+	catalog.nights()[0].max_simultaneous = 3
+	catalog.nights()[0].wave_size = 2
 	# Una ola de 2 y la final: una interferencia en cada una.
-	catalog.nights[0].requests_total = 5
+	catalog.nights()[0].requests_total = 5
 	var manager := _make_manager(catalog)
 	manager.requests_arrive = true
 	manager.advance(60.5)
@@ -488,7 +488,7 @@ func test_restaurar_la_senal_avisa_si_estaba_desconectado() -> bool:
 ## clickeables ni observaciones; las características, los señuelos y las observaciones salen al preguntar.
 func test_la_entidad_se_identifica_preguntando() -> bool:
 	var catalog := Fixtures.make_catalog()
-	catalog.nights[0].first_hint_chance = 0.0
+	catalog.nights()[0].first_hint_chance = 0.0
 	var manager := _make_manager(catalog)
 	var events := []
 	_record(manager, events)

@@ -49,7 +49,7 @@ func test_lineas_del_chat_guionado() -> bool:
 	var chat := ChatScriptData.new()
 	chat.friend = catalog.friends[0]
 	chat.lines.append(line)
-	catalog.nights[0].scripted_chat = chat
+	catalog.nights()[0].scripted_chat = chat
 	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_LINE"]))
 	check_contains(errors, "Noche 1, chat guionado, línea 1: la clave 'K_LINE' no está en ningún CSV")
 	return true

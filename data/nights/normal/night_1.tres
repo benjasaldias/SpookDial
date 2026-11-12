@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="NightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/night_data.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="2_entity"]
+[ext_resource type="Resource" path="res://data/entities/tue_tue.tres" id="3_tue_tue"]
+[ext_resource type="Resource" path="res://data/entities/calchona.tres" id="4_calchona"]
+
+[resource]
+script = ExtResource("1_night")
+number = 1
+place_key = "NIGHT_1_PLACE"
+new_entities = Array[ExtResource("2_entity")]([ExtResource("3_tue_tue"), ExtResource("4_calchona")])
+requests_total = 7
+max_simultaneous = 3
+base_decision_time = 80.0
+first_hint_chance = 1.0
+place_chance = 0.6
+decoys_per_request = 1
+wave_size = 2
+finale_size = 3
+incident_count = 1
+signal_decays = true
+signal_decay_interval = Vector2(3, 6)
+interference_count = 1
+audio_sync_beats = 4
+audio_sync_bpm = 90.0
+sanity_drain_interval = 10.0
+content_quota = 2
+scare_count = 2
+creature_visits = 0
+hand_visits = 1

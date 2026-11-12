@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="DifficultyData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/difficulty_data.gd" id="1_difficulty"]
+[ext_resource type="Script" path="res://scripts/data/night_data.gd" id="2_night"]
+[ext_resource type="Resource" path="res://data/nights/normal/night_1.tres" id="3_night_1"]
+[ext_resource type="Resource" path="res://data/nights/normal/night_2.tres" id="4_night_2"]
+[ext_resource type="Resource" path="res://data/nights/normal/night_3.tres" id="5_night_3"]
+[ext_resource type="Resource" path="res://data/nights/normal/night_4.tres" id="6_night_4"]
+[ext_resource type="Resource" path="res://data/nights/normal/night_5.tres" id="7_night_5"]
+
+[resource]
+script = ExtResource("1_difficulty")
+id = &"normal"
+name_key = "DIFFICULTY_NORMAL"
+description_key = "DIFFICULTY_NORMAL_INFO"
+nights = Array[ExtResource("2_night")]([ExtResource("3_night_1"), ExtResource("4_night_2"), ExtResource("5_night_3"), ExtResource("6_night_4"), ExtResource("7_night_5")])
+first_night = 0
+highlights = true

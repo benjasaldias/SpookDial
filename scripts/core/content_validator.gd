@@ -54,27 +54,27 @@ static func validate_entity(entity: EntityData) -> Array[String]:
 	return errors
 
 
-## Revisa amigos, noches y todas las entidades, también las relaciones entre entidades.
+## Revisa amigos, dificultades con sus noches y todas las entidades, también las relaciones entre entidades.
 static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 	var errors: Array[String] = []
 	var who := "Catálogo"
-	if catalog.friends.has(null) or catalog.nights.has(null):
-		errors.append("%s: hay un espacio vacío en 'friends' o en 'nights'" % who)
+	if catalog.friends.has(null) or catalog.difficulties.has(null):
+		errors.append("%s: hay un espacio vacío en 'friends' o en 'difficulties'" % who)
 		return errors
 	_check_count(errors, who, "amigos", catalog.friends.size(), FRIEND_COUNT)
 	_check_unique_ids(errors, who, "amigos", catalog.friends)
-	_check_count(errors, who, "noches", catalog.nights.size(), NIGHT_COUNT)
+	if catalog.difficulties.is_empty():
+		errors.append("%s: no tiene dificultades" % who)
+		return errors
+	_check_unique_ids(errors, who, "dificultades", catalog.difficulties)
+	for difficulty: DifficultyData in catalog.difficulties:
+		_check_difficulty(errors, catalog, difficulty)
 	if catalog.greeting_keys.is_empty():
 		errors.append("%s: no tiene saludos para el mensaje inicial" % who)
 	if catalog.predicament_keys.is_empty():
 		errors.append("%s: no tiene frases de lo que le pasa al amigo" % who)
 	var entities: Array[EntityData] = []
-	for index in catalog.nights.size():
-		var night: NightData = catalog.nights[index]
-		if night.number != index + 1:
-			errors.append("%s: la noche en la posición %d tiene el número %d; deben ir en orden desde 1"
-					% [who, index + 1, night.number])
-		_check_scripted_chat(errors, catalog, night)
+	for night: NightData in catalog.nights():
 		if night.new_entities.has(null):
 			errors.append("Noche %d: hay un espacio vacío en 'new_entities'" % night.number)
 			continue
@@ -93,6 +93,40 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 	_check_phone_posts(errors, "Publicación", catalog.phone_posts)
 	_check_phone_posts(errors, "Publicación perturbadora", catalog.phone_disturbing_posts)
 	return errors
+
+
+## Una dificultad: 5 noches en orden desde la 1, empieza en la noche 0 o en la 1, se desbloquea con una dificultad del
+## catálogo, y sus noches traen las mismas entidades nuevas que las de la dificultad de por defecto (el cuaderno es uno
+## solo). Revisa también el chat guionado de cada noche.
+static func _check_difficulty(errors: Array[String], catalog: ContentCatalog, difficulty: DifficultyData) -> void:
+	var who := "Dificultad '%s'" % difficulty.id
+	if difficulty.nights.has(null):
+		errors.append("%s: hay un espacio vacío en 'nights'" % who)
+		return
+	_check_count(errors, who, "noches", difficulty.nights.size(), NIGHT_COUNT)
+	if difficulty.first_night < 0 or difficulty.first_night > 1:
+		errors.append("%s: debe empezar en la noche 0 o en la 1" % who)
+	if difficulty.unlocked_by != null and not catalog.difficulties.has(difficulty.unlocked_by):
+		errors.append("%s: se desbloquea con una dificultad que no está en el catálogo" % who)
+	var reference := catalog.default_difficulty()
+	for index in difficulty.nights.size():
+		var night: NightData = difficulty.nights[index]
+		if night.number != index + 1:
+			errors.append("%s: la noche en la posición %d tiene el número %d; deben ir en orden desde 1"
+					% [who, index + 1, night.number])
+		_check_scripted_chat(errors, catalog, night)
+		if difficulty != reference and index < reference.nights.size() \
+				and night.new_entities != reference.nights[index].new_entities:
+			errors.append("%s: la noche %d no trae las mismas entidades nuevas que en '%s'"
+					% [who, index + 1, reference.id])
+
+
+## Todas las noches de todas las dificultades, sin el tutorial.
+static func _all_nights(catalog: ContentCatalog) -> Array[NightData]:
+	var all: Array[NightData] = []
+	for difficulty: DifficultyData in catalog.difficulties:
+		all.append_array(difficulty.nights)
+	return all
 
 
 ## Cada publicación del celular tiene su foto: Godot no tiene con qué reemplazarla.
@@ -115,7 +149,7 @@ static func _check_incidents(errors: Array[String], catalog: ContentCatalog) -> 
 			errors.append("Accidente '%s': necesita 1 o 2 malas ideas" % incident.id)
 	if not catalog.incidents.is_empty():
 		return
-	for night: NightData in catalog.nights:
+	for night: NightData in _all_nights(catalog):
 		if night.incident_count > 0:
 			errors.append("Catálogo: la noche %d pide accidentes y el catálogo no tiene" % night.number)
 
@@ -176,7 +210,10 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 	var keys: Array[Array] = []
 	for friend: FriendData in catalog.friends:
 		keys.append(["Amigo '%s'" % friend.id, friend.name_key])
-	var nights := catalog.nights.duplicate()
+	for difficulty: DifficultyData in catalog.difficulties:
+		keys.append(["Dificultad '%s', nombre" % difficulty.id, difficulty.name_key])
+		keys.append(["Dificultad '%s', descripción" % difficulty.id, difficulty.description_key])
+	var nights := _all_nights(catalog)
 	if catalog.tutorial != null:
 		nights.append(catalog.tutorial)
 	for night: NightData in nights:
@@ -424,14 +461,15 @@ static func _check_decoys(errors: Array[String], catalog: ContentCatalog, entiti
 		for place_key: String in decoy.place_keys:
 			if not places.has(place_key):
 				errors.append("Señuelo '%s': el lugar '%s' no es de ninguna entidad" % [decoy.id, place_key])
-	var known_places := {}  # lugares de las entidades conocidas hasta la noche que se revisa
-	for night: NightData in catalog.nights:
-		for entity: EntityData in night.new_entities:
-			if entity != null:
-				for place_key: String in entity.place_keys:
-					known_places[place_key] = true
-		for place_key: String in known_places:
-			var count := catalog.decoys_for_place(place_key).size()
-			if count < night.decoys_per_request:
-				errors.append("Noche %d: el lugar '%s' tiene %d señuelos y la noche pide %d"
-						% [night.number, place_key, count, night.decoys_per_request])
+	for difficulty: DifficultyData in catalog.difficulties:
+		var known_places := {}  # lugares de las entidades conocidas hasta la noche que se revisa
+		for night: NightData in difficulty.nights:
+			for entity: EntityData in night.new_entities:
+				if entity != null:
+					for place_key: String in entity.place_keys:
+						known_places[place_key] = true
+			for place_key: String in known_places:
+				var count := catalog.decoys_for_place(place_key).size()
+				if count < night.decoys_per_request:
+					errors.append("Dificultad '%s', noche %d: el lugar '%s' tiene %d señuelos y la noche pide %d"
+							% [difficulty.id, night.number, place_key, count, night.decoys_per_request])

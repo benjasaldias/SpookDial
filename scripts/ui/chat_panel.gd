@@ -507,7 +507,7 @@ func _reserve_answer_space() -> void:
 	if _manager == null or _answer_buttons.is_empty():
 		return
 	var needed := 0.0
-	for entity: EntityData in _manager.catalog.known_entities(_manager.night_number):
+	for entity: EntityData in _manager.catalog.known_entities(_manager.night_number, _manager.difficulty):
 		needed = maxf(needed, _stack_height(entity.actions.map(func(action: ActionData) -> String:
 				return tr(action.label_key)), ANSWER_SHEET))
 	for incident: IncidentData in _manager.catalog.incidents:

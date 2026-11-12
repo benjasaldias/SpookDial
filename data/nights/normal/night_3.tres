@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="NightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/night_data.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="2_entity"]
+[ext_resource type="Resource" path="res://data/entities/trauco.tres" id="3_trauco"]
+
+[resource]
+script = ExtResource("1_night")
+number = 3
+place_key = "NIGHT_3_PLACE"
+new_entities = Array[ExtResource("2_entity")]([ExtResource("3_trauco")])
+requests_total = 9
+max_simultaneous = 3
+base_decision_time = 55.0
+first_hint_chance = 0.0
+place_chance = 0.5
+decoys_per_request = 3
+wave_size = 2
+finale_size = 3
+incident_count = 2
+signal_decays = true
+signal_decay_interval = Vector2(3, 6)
+interference_count = 3
+audio_sync_beats = 4
+audio_sync_bpm = 115.0
+sanity_drain_interval = 6.0
+content_quota = 3
+scare_count = 4
+creature_visits = 2
+hand_visits = 2

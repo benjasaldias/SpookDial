@@ -47,6 +47,9 @@ const TUTORIAL_END_PAUSE := 2.5
 ## Noche que se juega (0: el tutorial). En el juego la elige GameState; este valor es el de las pruebas y el de
 ## abrir el escritorio solo, desde el editor.
 @export_range(0, 5) var night_number := 3
+## La dificultad de la partida (docs/26 §3): de ella salen las noches y si la identificación es guiada. La elige
+## GameState; sin dificultad, la de por defecto del catálogo (Normal).
+@export var difficulty: DifficultyData
 ## Señal con la que empiezan los 3 amigos. Bájala para ver la estática; con 0 empiezan desconectados.
 @export_range(0, 100) var test_signal := 100
 ## Si está apagado, las solicitudes no llegan solas (para las pruebas).
@@ -115,7 +118,19 @@ func _process(delta: float) -> void:
 
 
 func night() -> NightData:
-	return catalog.night(night_number)
+	return catalog.night(night_number, difficulty)
+
+
+## La dificultad que se juega: la elegida o, sin elegir, la de por defecto.
+func current_difficulty() -> DifficultyData:
+	return difficulty if difficulty != null else catalog.default_difficulty()
+
+
+## La identificación es guiada (Normal): se destaca lo que importa, se marcan las características y Matías dice el nombre.
+## En Difícil se lee (decisión de Benja, D3).
+func highlights() -> bool:
+	var current := current_difficulty()
+	return current == null or current.highlights
 
 
 func active_count() -> int:

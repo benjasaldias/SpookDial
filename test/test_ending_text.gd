@@ -34,7 +34,7 @@ func _plain(bbcode: String) -> String:
 ## Estado de la noche 1 del catálogo de prueba: cuota de 2 videos.
 func _make_state() -> NightState:
 	var catalog := Fixtures.make_catalog()
-	return NightState.new(catalog.nights[0], catalog.balance, 3, RandomNumberGenerator.new())
+	return NightState.new(catalog.nights()[0], catalog.balance, 3, RandomNumberGenerator.new())
 
 
 ## Gonzalo y "beast", con o1 = no y o2 = yes: se aplica la regla 2 (correcta a3, mayor riesgo a4).

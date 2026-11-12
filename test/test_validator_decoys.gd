@@ -6,7 +6,7 @@ const ContentValidator := preload("res://scripts/core/content_validator.gd")
 
 func test_entidad_con_todas_sus_caracteristicas_en_otra() -> bool:
 	var catalog := Fixtures.make_catalog()
-	var ghost: EntityData = catalog.nights[1].new_entities[0]
+	var ghost: EntityData = catalog.nights()[1].new_entities[0]
 	ghost.traits.append(Fixtures.make_trait(&"beast_trait_1"))
 	ghost.traits.append(Fixtures.make_trait(&"beast_trait_2"))
 	check_contains(ContentValidator.validate_catalog(catalog),
@@ -41,9 +41,9 @@ func test_senuelo_de_un_lugar_que_no_existe() -> bool:
 
 func test_faltan_senuelos_para_un_lugar() -> bool:
 	var catalog := Fixtures.make_catalog()
-	catalog.nights[2].decoys_per_request = 3
+	catalog.nights()[2].decoys_per_request = 3
 	check_contains(ContentValidator.validate_catalog(catalog),
-			"Noche 3: el lugar 'K_PLACE' tiene 2 señuelos y la noche pide 3")
+			"Dificultad 'normal', noche 3: el lugar 'K_PLACE' tiene 2 señuelos y la noche pide 3")
 	return true
 
 
