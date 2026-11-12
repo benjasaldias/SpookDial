@@ -58,6 +58,10 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 10 de noviem
 | Las marcas de la tabla del cuaderno ✅ Claude | Plan 9.2 | ✓, ✗ y la calavera, de 9×9 (`art/ui/mark_*.png`, de `tools/make_ui_art.py`). Si las redibujas, del mismo tamaño. |
 | Un boceto de Gonzalo para su página de la noche 0 | Plan 9.2 | Opcional, como los bocetos de las entidades. |
 | El rayo de la linterna | Plan 9.1 | Opcional. Hoy es un ícono de 11×11 hecho píxel por píxel (`PhoneIcons.FLASHLIGHT`, en `scripts/ui/phone_icons.gd`), en la barra superior del celular ampliado. |
+| Los íconos de las preguntas ✅ Claude | Plan 9.3 | 9×9 y en blanco, porque el botón les da su color (`art/ui/chat_icon_sight`, `_sound`, `_environment` y `_traces`): un ojo, un parlante (la oreja no se leía a ese tamaño), una nube con niebla y la huella de una pata. Más el ✓ verde y la estática (`chat_icon_check` y `chat_icon_static`). Si los redibujas, del mismo tamaño. Ver `C:\dev\capturas\plan93_1920_static.png`. |
+| El cuaderno junto al nombre de la entidad ✅ Claude | Plan 9.3 | 11×11 (`art/ui/chat_icon_notebook.png`): la tapa verde, la etiqueta, la espiral y el canto de las hojas. |
+| La señal del botón de sincronizar ✅ Claude | Plan 9.3 | `art/ui/chat_signal.png`: 5 cuadros de 15×12 (de 0 a 4 barritas) en 3 filas (verde, ámbar y rojo); sin señal, una ×. Si la redibujas, con la misma grilla. |
+| Las hojas de respuesta ✅ Claude | Plan 9.3 | Texturas 9-slice de 19×19 con márgenes de 4 (`art/ui/chat_answer_normal`, `_hover`, `_pressed` y `_disabled`): el papel del cuaderno, con un cuadro de 11 que se repite, el borde y la sombra. La nota adhesiva del número es la de las pestañas del cuaderno (`notebook_tab.png`). Ver `C:\dev\capturas\plan93_1280_chat.png`. |
 
 ## 4. Opcional (pulido, si sobra tiempo)
 

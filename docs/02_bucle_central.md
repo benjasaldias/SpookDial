@@ -11,6 +11,7 @@ Detalle de la mecánica central del diseño v2 (`spook_dial_design.md` §8–§1
 - (sesión 14) un amigo sin señal sigue recibiendo situaciones, pero no lee las respuestas y, si se le acaba el tiempo, elige mal; mientras haya amigos sin señal, Trust baja. Los videos se descargan en el chat (15 s para empezar, 20 s para terminar y 10 s de descarga), y Audio Sync se juega en una vista del mixer desde arriba (§4.1 y §6).
 - (sesión 16) el director reparte las solicitudes en olas con respiro (§2), los screamers llegan en cualquier momento con sus reglas de justicia, y con Sanity bajo suenan alucinaciones que no restan Sanity (§6).
 - (sesión 17, a pedido de Benja el 3 de noviembre) **la entidad se identifica preguntando:** el mensaje inicial solo saluda, dice el lugar y a veces trae una pista; las características, los señuelos y las observaciones salen al preguntar. Por eso cada solicitud tiene más tiempo y cada noche trae menos solicitudes (§2, §3 y §6).
+- (S21h, tras el primer testeo, 11 de noviembre) una pregunta ya respondida no se repite, salvo que la estática haya tapado algo que sirve de su respuesta; las observaciones van en azul; "Matías piensa" dura 2 s, y los señuelos ya no cuestan (§3).
 
 Los valores numéricos (§6) son un punto de partida para el prototipo; se ajustan probando.
 
@@ -67,11 +68,12 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
 ### 3.1 Características clickeables
 
 - El mensaje inicial casi no trae nada que clickear: a veces una **pista** (una de las 2 características). Las demás frases clickeables salen **al preguntar** (§3.2).
-- Las características y los señuelos que el amigo cuenta se ven destacados igual. Al clickear una característica, queda marcada; al clickear un señuelo, vibra y se pone rojo, y la primera vez **le quita 1 s al temporizador** (`decoy_cost`; decisión de Benja, 11 de noviembre). Mientras vibra, el chat muestra "−1 s".
+- Las características y los señuelos que el amigo cuenta se ven destacados igual, en amarillo. Al clickear una característica, queda marcada; al clickear un señuelo, vibra y se pone rojo, **sin costo** (decisión D4 de Benja tras el primer testeo, que reemplaza el "−1 s" del 11 de noviembre).
+- Las **observaciones** van en azul y no se clickean: deciden la fila de la tabla. El audio también va en azul (`ChatMessage.Token.is_observation`, que marca `MessageBuilder.answer()`).
 - **Cada característica se dice de varias formas** (decisión de Benja, 11 de noviembre): además de su texto, tiene de 2 a 4 variantes con sinónimos y paráfrasis. Cada solicitud elige una al azar para cada característica y la usa siempre, también en la pista. El clic la marca igual, y el cuaderno muestra un nombre fijo.
 - Los **señuelos** describen el lugar, un olor, un sonido o algo que se ve, y no ayudan a identificar. Viven en el catálogo, cada uno con su categoría y los lugares donde sirve (o en cualquiera).
 - Una barra fija, sobre las preguntas, muestra cuántas características van marcadas ("1 de 2"; desde el principio dice "0 de 2").
-- Con **las 2** marcadas (en cualquier mensaje de esa solicitud), la barra dice "Matías piensa…" durante **3 segundos** y aparece el nombre de la entidad. Clickear el nombre abre su página en el cuaderno.
+- Con **las 2** marcadas (en cualquier mensaje de esa solicitud), la barra dice "Matías piensa…" durante **2 segundos** (`thinking_seconds` en `BalanceData`; eran 3 hasta el primer testeo) y aparece el nombre de la entidad. Clickear el nombre abre su página en el cuaderno.
 - Si una característica está tapada por la estática, no se puede marcar: hay que volver a preguntar su categoría (§3.2) para que vuelva a aparecer.
 - Quien reconoce a la entidad de memoria puede saltarse todo esto y abrir la página desde el índice.
 
@@ -88,9 +90,10 @@ Preguntar es la forma de averiguar casi todo (decisión de Benja, 3-nov). Hay un
 
 - La respuesta trae las características y los señuelos de esa categoría (también la pista del mensaje inicial, si es de esa categoría) y **todas** las observaciones de esa categoría.
 - Qué preguntar es la decisión del jugador. Antes de identificar a la entidad, la pregunta correcta es la categoría donde puede estar una característica; después, la categoría de la observación que pide la regla. Desde el 11 de noviembre, la página del cuaderno ya no dice qué pregunta trae cada característica ni lista las observaciones: la condición de cada fila de la tabla dice qué hay que averiguar, y elegir la pregunta es parte de pensar (decisión de Benja).
-- Cada pregunta descuenta **5 segundos** del temporizador (`question_cost` en `BalanceData`) y se puede repetir. Con 5 s o menos ya no se puede preguntar: los botones se desactivan.
+- Cada pregunta descuenta **5 segundos** del temporizador (`question_cost` en `BalanceData`), y su botón lo muestra ("−5 s"). Con 5 s o menos ya no se puede preguntar: los botones se desactivan.
+- **Una pregunta ya respondida no se repite** (tras el primer testeo): `FriendRequest` guarda cada categoría preguntada y si la estática tapó algo que sirve de su respuesta (`ChatMessage.lost_information()`: una frase clickeable, una observación o el audio; en la respuesta de "nada", cualquier palabra). Solo entonces se puede volver a preguntar.
 - Si no hay nada en esa categoría, el amigo responde "nada", que también es información.
-- Las respuestas pasan por la misma estática que los mensajes, y repetir la pregunta tira la estática de nuevo.
+- Las respuestas pasan por la misma estática que los mensajes, y volver a preguntar tira la estática de nuevo.
 
 ---
 
@@ -188,9 +191,9 @@ Los valores que valen para todas las noches están en `data/balance.tres` (`Bala
 
 ### Otros
 
-- Preguntar: 5 s (`question_cost` en `BalanceData`). Un señuelo: 1 s, la primera vez (`decoy_cost`).
+- Preguntar: 5 s (`question_cost` en `BalanceData`). Un señuelo no cuesta.
 - **Por qué hay menos solicitudes y más tiempo (sesión 17, a probar):** el jugador atiende un chat a la vez, así que lo que cuenta es cuánta atención pide cada solicitud, no cuántas caben a la vez. Antes (todo en el mensaje) una solicitud pedía unos 10 a 15 s de atención; ahora pide unos 25 a 40 s (preguntar, marcar, abrir la página, preguntar las observaciones y responder). Se mantuvo más o menos la misma carga total por noche: de 6 a 18 solicitudes pasaron a 4 a 10, y de 45 a 30 s de tiempo pasaron a 90 a 65 s. Son valores iniciales: se ajustan probando (`data/nights/night_N.tres`, grupo **Solicitudes**).
-- Espera de identificación: 3 s.
+- Espera de identificación: 2 s (`thinking_seconds` en `BalanceData`).
 - Empezar a descargar un video que llegó: 15 s; si no, se pierde. Terminar la descarga: 20 s desde que empezó (decisión de Benja, sesión 14).
 - Descarga: 10 s manteniendo presionada la barra del chat (15 s si la señal de ese amigo está bajo 50; sin señal no avanza). Si se suelta, se pausa.
 - Audio Sync: la base va en los golpes por minuto de cada noche, y cada ronda va un 15 % más rápida que la anterior. Tras un compás de cuenta, el amigo aplaude 4 veces en corcheas (el primer aplauso al comienzo) y Matías lo repite en el compás siguiente. Las noches de 8 aplausos son 2 rondas de 4 seguidas, cada una con su cuenta y su patrón; si se falla la segunda, se vuelve a la primera con patrones nuevos (decisión de Benja, 4 de noviembre). Tolerancia de cada golpe: ±150 ms.
@@ -269,7 +272,7 @@ Este ejemplo muestra **cómo se ve una página**, no cómo debe ser el Trauco. E
 
 1. El jugador no recuerda quién es. Clickea "hombrecito", pero no puede marcar la palabra tapada.
 2. Pregunta **¿Qué ves?** (−5 s). León repite la descripción y ahora "ropa como de paja" llega clara.
-3. La marca. Tras 3 s aparece "El Trauco", y al clickearlo se abre su página.
+3. La marca. Tras 2 s aparece "El Trauco", y al clickearlo se abre su página.
 4. Aplica la regla 1 (el amigo lo vio primero) y responde **Mirarlo fijo**. Si le faltara un video para la cuota, podría arriesgar **Seguirlo de cerca**.
 
 ---
@@ -325,7 +328,7 @@ TutorialRequestData  la solicitud fija de la noche 0: friend, entity, situation 
                  with_hint, decoys[] (fijos; desde el Plan 9.2, León describe a Gonzalo)
 TutorialCardData una tarjeta del final de la noche 0: title_key, text_key, video (VideoStream, video/tutorial/*.ogv)
 ChatScriptData   friend, lines[] (ChatLineData: speaker FRIEND/PLAYER, text_key), highlight_phone
-BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust, también el video perdido), vignette_start, el scroll del celular, las fotos perturbadoras (`disturbing_post_*`), la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`) y de un señuelo (`decoy_cost`), el director (silencio, olas y calmas), los screamers (señal previa, justicia, Sanity, la criatura y la tinta), la Mano y el flash, y las alucinaciones
+BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust, también el video perdido), vignette_start, el scroll del celular, las fotos perturbadoras (`disturbing_post_*`), la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`) y la espera de "Matías piensa" (`thinking_seconds`), el director (silencio, olas y calmas), los screamers (señal previa, justicia, Sanity, la criatura y la tinta), la Mano y el flash, y las alucinaciones
 PhonePostData    picture (la foto, de 232×232; las cuentas no tienen nombre ni texto)
 ContentCatalog   friends[3], nights[5], tutorial (la noche 0), decoys[], greeting_keys[] (saludos),
                  predicament_keys[] (lo que le pasa al amigo), balance,

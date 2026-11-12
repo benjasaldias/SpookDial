@@ -24,6 +24,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **Q.** Escuchar los sonidos nuevos y revisar el arte de Claude | ⬜ Pendiente (unos 20 minutos) |
 | **R.** Probar los ajustes de mecánicas y la Mano (Plan 9.1) | ⬜ Pendiente (unos 15 minutos) |
 | **S.** Probar la letra en pantalla completa, el cuaderno y la noche 0 con León (Plan 9.2) | ⬜ Pendiente (unos 15 minutos) |
+| **T.** Probar el chat nuevo, la descarga y el guardado (Plan 9.3) | ⬜ Pendiente (unos 15 minutos) |
 | Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
@@ -567,11 +568,11 @@ Del 11 de noviembre (sesión S21f, continuación). Avísale a Claude antes de ab
 
 1. En el menú, **Nueva partida**. No hay aviso arriba: León te escribe, y su entrada del PC parpadea.
 2. Sigue lo que dice León:
-   - pregúntale qué ve y marca lo que sirve (prueba a marcar el polerón rojo: León bromea, y te cuesta un segundo);
+   - pregúntale qué ve y marca lo que sirve (prueba a marcar el polerón rojo: León bromea; desde el Plan 9.3 ya no cuesta tiempo);
    - pregúntale por el ambiente y marca la que falta. Cuando aparece **Gonzalo**, haz clic en su nombre: el cuaderno tiene solo su página;
    - elige una acción que no sea la del ✓: León te dice que lo intentes de nuevo. Después, la del ✓, y luego la de la calavera;
    - descarga el video que te manda;
-   - se le corta la señal: aprieta **Sincronizar** en su chat y copia sus aplausos.
+   - se le corta la señal: aprieta el botón de las barritas en su chat (desde el Plan 9.3 ya no dice "Sincronizar") y copia sus aplausos.
 3. León se despide. Salen 4 tarjetas con videos: los medidores, el celular, la ventana y la Mano. **Siguiente** pasa de una a otra, y la última, **Empezar la noche 1**.
 4. **Saltar:** vuelve a **Nueva partida**, presiona **Esc** y elige **Saltar tutorial**: pasa a la noche 1.
 
@@ -586,3 +587,75 @@ Del 11 de noviembre (sesión S21f, continuación). Avísale a Claude antes de ab
 ### Si cambias el arte
 
 Los videos de las tarjetas son grabaciones del juego. Si cambias algo que se ve en ellos (las barras, los diales, la ventana, el celular o la Mano), avísale a Claude: los vuelve a grabar con `tools/make_tutorial_videos.sh`.
+
+---
+
+## T. Probar el chat nuevo, la descarga y el guardado (Plan 9.3)
+
+Del 11 de noviembre (sesión S21h), con el feedback del primer testeo. Avísale a Claude antes de abrir Godot. Son unos 15 minutos. Para las pruebas con una señal fija se usa el escritorio suelto:
+
+1. En el panel **FileSystem** (abajo a la izquierda), haz doble clic en `scenes/desk/desk.tscn`.
+2. En el panel **Scene** (arriba a la izquierda), haz clic en el nodo **RequestManager**.
+3. En el **Inspector** (a la derecha) quedan **Night Number** (la noche que se juega) y **Test Signal** (la señal con que empiezan los 3 amigos).
+4. Para jugar el escritorio, presiona **F6**. Al terminar, vuelve a dejar **Test Signal** en **100** y no guardes la escena.
+
+### El chat en bloques
+
+1. Con **Night Number** en **1**, presiona **F6** y espera la primera solicitud (llega al minuto). Abre su chat.
+2. **Verifica:**
+   - arriba, la conversación; abajo, la identificación y la señal, y los bloques **PREGUNTAR** y **RESPONDER**, cada uno con su título;
+   - cada pregunta tiene su ícono (ojo, parlante, nube y huella) y su costo, **−5 s**;
+   - al preguntar **¿Qué ves?**, sale un **−5 s** rojo sobre la pestaña del amigo, y el botón queda con un ✓, tenue, y no se puede repetir;
+   - lo que describe a la criatura va en **amarillo** y se puede clickear; lo que decide la fila de la tabla (como "Está enojado" o un audio) va en **azul** y no se clickea;
+   - al marcar las 2 características, "Matías piensa…" dura **2 segundos**;
+   - un señuelo solo vibra y se pone rojo: ya no cuesta tiempo;
+   - el nombre de la entidad lleva el ícono del cuaderno; al hacer clic se abre su página;
+   - las respuestas son **hojas del cuaderno**, una debajo de otra, con el número de su columna de la tabla en una nota amarilla. Abrir la página no mueve las preguntas de su lugar.
+
+### El cuaderno con los mismos colores
+
+**Verifica:** en la página abierta, los nombres de las características van con **destacador amarillo** y las condiciones de la tabla, en **lápiz pasta azul**, más vivo que el de los títulos.
+
+### La estática y la señal
+
+1. Pon **Test Signal** en **25** y presiona **F6**. Cuando llegue una solicitud, pregunta **¿Qué ves?**.
+2. **Verifica:**
+   - si la estática tapó algo que sirve (una característica, un señuelo, una observación o el audio), el botón vuelve con un ícono de estática y su **−5 s**: se puede repetir;
+   - el botón cuadrado junto a la identificación muestra la señal del amigo en barritas: verdes con 70 o más, ámbar desde 30 y rojas abajo.
+3. Pon **Test Signal** en **0** y presiona **F6**.
+4. **Verifica:**
+   - el botón de las barritas parpadea con un borde rojo;
+   - los títulos dicen **PREGUNTAR · SIN SEÑAL** y **RESPONDER · SIN SEÑAL: SINCRONÍZALO**;
+   - con **Esc**, **Opciones** y **Reducir destellos**, el borde queda fijo.
+
+### La descarga al primer clic
+
+1. Con **Test Signal** en **100**, juega hasta que un amigo mande un video (llega en una calma, después de la primera ola).
+2. Con su chat abierto, deja el mouse **apretado al final de la conversación**, justo donde aparece la barra, antes de que aparezca.
+3. **Verifica:** cuando aparece la barra, el video se descarga sin soltar el botón. Era el error del tester: antes había que soltar y volver a apretar.
+
+### El accidente
+
+**Verifica:** cuando un amigo tiene un accidente (desde la noche 1, en una ola), sus opciones son botones de terminal, sin número, porque se responden sin cuaderno, y el título dice **RESPONDER · ¿QUÉ LE DICES?**.
+
+### El guardado
+
+1. En el menú, **Nueva partida**, y juega la noche 0 hasta que León se despide. En las tarjetas, presiona **Esc** y **Volver al menú**.
+2. **Verifica:** **Continuar** empieza la noche 1, no el tutorial.
+3. Si ganas una noche y eliges **Volver al menú** en la pantalla final, **Continuar** empieza la noche siguiente.
+
+### Los textos nuevos para corregir (antes del 25 de noviembre)
+
+Todos en `data/text/ui.csv`:
+
+- los títulos: `CHAT_ASK_TITLE`, `CHAT_ANSWER_TITLE`, `CHAT_NO_TIME` y `CHAT_NO_SIGNAL`, y los que se acortaron para caber en un título, `CHAT_OPEN_NOTEBOOK` y `CHAT_OFFLINE`;
+- las preguntas cortas de los botones: `QUESTION_SIGHT_SHORT`, `QUESTION_SOUND_SHORT`, `QUESTION_ENVIRONMENT_SHORT` y `QUESTION_TRACES_SHORT`; Matías sigue preguntando con la frase completa;
+- el costo: `CHAT_QUESTION_COST`;
+- León: `TUTORIAL_LEON_DECOY` (sin "y te costó un segundo") y `TUTORIAL_LEON_SIGNAL_WARN` (el botón de las barritas).
+
+Se borraron `CHAT_DECOY_COST` y `ANSWER_FROM_PAGE`.
+
+### Si quieres redibujar
+
+Los íconos del chat, la señal y las hojas son pixel art de Claude (`art/ui/chat_*.png`, lo genera `tools/make_ui_art.py`). Está en `arte_pendiente.md`. Si dejas un archivo tuyo con el mismo nombre, Claude no vuelve a correr el script.
+

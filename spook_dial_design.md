@@ -21,6 +21,7 @@
 - 10 de noviembre (S21d): sonidos realistas sin palabras, el Imbunche que llora como guagua, las voces que murmuran, el cuaderno universitario y el arte de interfaz de Claude en pixel art.
 - 11 de noviembre, después del Plan 9.1 (`docs/25`): la letra nítida en pantalla completa, el cuaderno con las reglas en una tabla, y la noche 0 en el chat con León, con la página de Gonzalo y unas tarjetas con videos.
 - 11 de noviembre (S21e y S21f, `docs/22` a `docs/24`): el mensaje inicial dice qué le pasa al amigo y el lugar solo a veces, los señuelos cuestan 1 s, las características se dicen con otras palabras, olas de verdad con una ola final, el aviso de videos, la criatura se queda un tiempo al azar, la Mano, Trust sin recuperación y más batería.
+- 11 de noviembre, tras el primer testeo (S21h, `docs/26` y `docs/27`): las preguntas muestran su costo y no se repiten, lo decisivo va en azul (también en el cuaderno), el chat se ordena en bloques con las respuestas como hojas del cuaderno y la señal en barritas, "Matías piensa" dura 2 s, los señuelos ya no cuestan, y la noche ganada se guarda.
 
 ---
 
@@ -89,7 +90,7 @@ Durante cinco noches tiene que hacer cuatro cosas:
   - un amigo muere;
   - son las 06:00 y no se cumplió la cuota.
 - **Al perder:** una pantalla explica qué pasó y la noche se reinicia desde el comienzo. La noche se vuelve a generar, así que no se repite de memoria.
-- **Guardado:** al comienzo de cada noche.
+- **Guardado:** al comienzo de cada noche y al ganarla, con la noche siguiente, así que volver al menú no hace repetir una noche ganada. Cuando León se despide en la noche 0 se guarda la noche 1, para no repetir el tutorial si se sale en las tarjetas (tras el primer testeo, 11 de noviembre).
 - **Pausa** (decisión de Benja, sesión 18): sin ningún panel abierto, `Esc` pausa la noche y abre un menú con Continuar, Opciones y Volver al menú. Volver al menú pierde la noche, que se retoma desde su comienzo.
 - **Entre noches:** un resumen (contenido obtenido y páginas nuevas del cuaderno), y después una cinemática opcional.
 - **Final único:** sobrevivir las 5 noches, como en FNAF.
@@ -112,10 +113,14 @@ Cada objeto cumple una función:
 
 - **Barras arriba de la pantalla** (decisión de Benja, 7 de noviembre): Connection, Sanity y Trust, en el hueco entre el chat y el cuaderno, que no las tapan. Cada una tiene el color de su dial, titila si baja de golpe y prende una luz bajo 25.
 - **El PC siempre muestra la lista** de las 3 entradas. La conversación abierta se ve destacada.
-- **Panel de chat** a la izquierda de la pantalla:
+- **Panel de chat** a la izquierda de la pantalla. Desde el primer testeo (11 de noviembre), cada control tiene su forma y cada bloque, su título:
   - una pestaña por amigo, con aviso y temporizador;
-  - el historial de la conversación, que se scrollea con la rueda del mouse;
-  - los botones de preguntas y de respuesta.
+  - el historial de la conversación, que se scrollea con la rueda del mouse y toma el alto que sobra;
+  - la barra de descarga, cuando el amigo mandó un video;
+  - la identificación: cuántas características van marcadas, "Matías piensa…" o el nombre de la entidad, con el ícono del cuaderno porque abre su página; y al lado, **el botón de sincronizar**, cuadrado, con la señal del amigo en barritas (de 0 a 4; verdes, ámbar o rojas según la estática). **Sin señal parpadea** con un borde rojo, que queda fijo con "Reducir destellos";
+  - **PREGUNTAR:** los 4 botones de pregunta, cada uno con su ícono (ojo, parlante, nube y huella), su etiqueta corta y **lo que cuesta ("−5 s")** o su marca (§8.4). Al preguntar, la pestaña del amigo muestra el "−5 s";
+  - **RESPONDER:** las respuestas son **hojas del cuaderno**, con el número de su columna de la tabla en una nota adhesiva, una debajo de otra (§8.5). Las de un accidente, que se responde sin cuaderno, son botones de terminal.
+  - Los títulos dicen por qué no se puede usar un bloque: "PREGUNTAR · SIN TIEMPO", "RESPONDER · ABRE EL CUADERNO" o "RESPONDER · SIN SEÑAL: SINCRONÍZALO".
 - **Cuaderno** a la derecha, como espejo del chat y del mismo tamaño. Mientras está abierto tapa los diales; el PC queda visible entre los dos paneles.
 - **El chat y el cuaderno son independientes:** abrir uno no abre ni cierra el otro, y son los únicos paneles que pueden estar abiertos a la vez. El clic derecho sobre un panel lo cierra; `Esc`, o un clic en el escritorio fuera de los paneles, cierra los dos.
 - **El celular (redes sociales) y el mixer (Audio Sync) son modos exclusivos:** se usan sin ningún otro panel ni objeto abierto. Ese es el costo de oportunidad.
@@ -150,18 +155,18 @@ Lo que cuenta el amigo, al preguntar, es de tres tipos:
 
 - **Características.** Son fijas de cada entidad (por ejemplo, "un hombrecito" o "huele a azufre"). Aparecen **destacadas** y se pueden clickear. **Cada una se dice de varias formas** (decisión de Benja, 11 de noviembre): "un hombrecito" también puede ser "un enano" o "alguien chiquitito, como un niño viejo", y "neblina helada", "una niebla que te congela los huesos". Así hay que reconocerla de verdad. El cuaderno muestra siempre el mismo nombre (§12).
 - **Señuelos.** Aparecen destacados igual que las características, pero no ayudan a identificar: describen el lugar, un olor, un sonido o algo que se ve. Sirven para camuflar las características.
-- **Observaciones.** Cambian en cada situación y deciden qué regla se aplica. Van como texto normal.
+- **Observaciones.** Cambian en cada situación y deciden qué regla se aplica. **Van en azul** y no se clickean (decisión de Benja, 11 de noviembre, tras el primer testeo): lo amarillo dice qué criatura es y lo azul, qué hacer en la tabla. Un audio también va en azul, porque es una observación.
 
 Hay dos formas de identificar a la entidad:
 
 - **De memoria:** quien la reconoce abre su página directamente.
-- **Con las características:** el jugador clickea las frases destacadas. Una característica queda marcada; un señuelo vibra y se pone rojo. Una barra muestra cuántas características van marcadas (1 de 2). Con las 2 marcadas, tras una breve espera (unos 3 segundos, mientras Matías piensa), aparece el nombre de la entidad, y al clickearlo se abre su página.
+- **Con las características:** el jugador clickea las frases destacadas. Una característica queda marcada; un señuelo vibra y se pone rojo. Una barra muestra cuántas características van marcadas (1 de 2). Con las 2 marcadas, tras una breve espera (**2 segundos**, mientras Matías piensa; eran 3 hasta el primer testeo), aparece el nombre de la entidad, y al clickearlo se abre su página.
 
 Detalles:
 
 - Así se premia a quien memoriza, sin castigar demasiado a quien no.
 - Una característica tapada por la estática no se puede clickear: hay que preguntar (§8.4) para recuperarla.
-- El amigo cuenta, al preguntar, **2 características** que distinguen a la entidad entre las conocidas, mezcladas con señuelos: 1 en la noche 1 y hasta 4 en la noche 5. **Clickear un señuelo cuesta 1 segundo** del temporizador, la primera vez (decisión de Benja, 11 de noviembre): ya no se puede clickear todo gratis. Mientras vibra, el chat muestra "−1 s".
+- El amigo cuenta, al preguntar, **2 características** que distinguen a la entidad entre las conocidas, mezcladas con señuelos: 1 en la noche 1 y hasta 4 en la noche 5. **Un señuelo no cuesta tiempo:** solo vibra y se pone rojo (decisión D4 de Benja tras el primer testeo, que reemplaza el "−1 s" del 11 de noviembre, porque castigaba demasiado).
 - Cada solicitud elige al azar con qué forma dice el amigo cada característica, y la usa siempre, también en la pista. El clic la marca igual.
 - El mensaje inicial puede traer **una pista**: una de las 2 características (siempre en la noche 1 y cada vez menos hasta la noche 5).
 
@@ -172,13 +177,16 @@ Junto a las respuestas hay preguntas: **¿Qué ves? · ¿Qué oyes? · ¿Cómo e
 - **Es la forma de averiguar casi todo** (decisión de Benja, 3-nov): el mensaje inicial no describe nada. Elegir las preguntas correctas es parte del juego, porque cada una cuesta tiempo.
 - Cada pregunta cuesta **5 segundos** del temporizador (el amigo tarda en mirar). Con 5 segundos o menos ya no se puede preguntar.
 - La respuesta trae las características y los señuelos de esa categoría, y todas las observaciones de esa categoría. También puede llegar con estática si la señal sigue baja.
-- Se pueden repetir (la estática se tira de nuevo).
+- **Cada botón muestra lo que cuesta** ("−5 s"), y al preguntar, la pestaña del amigo también (decisión de Benja, 11 de noviembre, tras el primer testeo).
+- **Una pregunta ya respondida no se repite:** queda con ✓, más tenue. **Excepción:** si la estática tapó algo que sirve de su respuesta (una característica, un señuelo, una observación o el audio; en la respuesta de "nada", cualquier palabra), el botón vuelve con un ícono de estática, porque hay que volver a preguntar para recuperarlo, y la estática se tira de nuevo.
+- Los botones dicen la pregunta corta (¿Qué ves?, ¿Qué oyes?, ¿Ambiente? y ¿Rastros?); Matías pregunta con la frase completa.
 - Como identificar lleva más trabajo, cada solicitud tiene más tiempo (de 90 s en la noche 1 a 65 s en la 5) y hay menos solicitudes por noche (`docs/02` §6).
 
 ### 8.5 Responder desde el cuaderno
 
 - Cada entidad tiene **4 acciones propias**, con el sabor de su leyenda.
 - Los botones de respuesta del chat muestran **las acciones de la página que el jugador tiene abierta para ese amigo**. Sin una página abierta, el chat indica que hay que abrir el cuaderno.
+- **Se ven como hojas del cuaderno** (tras el primer testeo): papel cuadriculado, con el número de la columna de la tabla en una nota adhesiva y la acción escrita.
 - **Por qué:**
   - si las opciones vinieran ya puestas en el chat, delatarían a la entidad;
   - obliga a consultar el cuaderno;
@@ -208,7 +216,8 @@ Decisión de Benja, 7 de noviembre.
 - Cada entidad tiene una observación que **el amigo manda como audio** en vez de contarla. Se escucha con un clic en el mensaje, las veces que se quiera: lo único que cuesta es el tiempo que pasa.
 - **Lo que se oye cambia la acción correcta:** que El Tue Tué grite 1 vez, 3 veces o ninguna son casos distintos, y que La Calchona bale o bufe, también. Las reglas del cuaderno lo dicen.
 - Las características que se oyen siguen siendo texto clickeable: el audio no identifica a la entidad.
-- La estática tapa el audio entero o no lo tapa (§8.2). Tapado no se puede escuchar: hay que volver a preguntar.
+- La estática tapa el audio entero o no lo tapa (§8.2). Tapado no se puede escuchar: hay que volver a preguntar, y la pregunta vuelve a habilitarse (§8.4).
+- El audio va en azul, como las demás observaciones (§8.3).
 - La opción "Subtítulos de los audios" (§19) muestra qué se oye.
 
 ### 8.9 Accidentes
@@ -251,7 +260,7 @@ Decisión de Benja, 7 de noviembre.
     - si Matías lo reconecta con Audio Sync antes de que se acabe su tiempo, se pregunta y se responde como siempre. Si no, elige mal (§8.7);
     - mientras haya amigos sin señal, Trust baja, más rápido cuantos más sean;
     - no envía videos hasta que se reconecta.
-- **Audio Sync, individual y cuando el jugador quiera.** En el mixer se elige el canal de un amigo con su fader, o se usa el botón «Sincronizar» del chat de ese amigo, que abre el mixer en su canal (decisión de Benja, sesión 14), y se sincroniza. La entrada del PC siempre abre el chat. Si sale bien, su señal vuelve a 100. Así el jugador puede decidir gastar tiempo en mantener alta la señal antes de que algo falle.
+- **Audio Sync, individual y cuando el jugador quiera.** En el mixer se elige el canal de un amigo con su fader, o se usa el botón de sincronizar del chat de ese amigo (el de las barritas de su señal), que abre el mixer en su canal (decisión de Benja, sesión 14), y se sincroniza. La entrada del PC siempre abre el chat. Si sale bien, su señal vuelve a 100. Así el jugador puede decidir gastar tiempo en mantener alta la señal antes de que algo falle.
 - **El dial de la pared** muestra el promedio de las tres señales. Llega a 0 solo si todos están desconectados.
 - **Si cualquiera de los 3 diales (Connection, Sanity o Trust) llega a 0, se pierde la noche.**
 
@@ -272,7 +281,7 @@ Decisión de Benja, 7 de noviembre.
 ### 10.3 Trust
 
 - Baja al elegir acciones riesgosas (§9), al no contestar a tiempo y mientras haya amigos sin señal (§10.1).
-- **También baja si tardas en contestar** (decisión de Benja, 4 de noviembre): cada solicitud que lleva más de 30 s abierta le quita 0,25 por segundo. Preguntar y los señuelos cuentan como tiempo abierto. Responder rápido no cuesta nada.
+- **También baja si tardas en contestar** (decisión de Benja, 4 de noviembre): cada solicitud que lleva más de 30 s abierta le quita 0,25 por segundo. Preguntar cuenta como tiempo abierto. Responder rápido no cuesta nada.
 - **Baja 10 si se pierde un video** (decisión de Benja, 11 de noviembre): el amigo arriesgó para grabarlo y Matías no lo descargó.
 - **No se recupera durante la noche** (decisión de Benja, 11 de noviembre), así que cada error pesa: una respuesta incorrecta le quita 15, no contestar 15 más, y la acción de mayor riesgo 20. Con 7 respuestas incorrectas se pierde cualquier noche.
 - **Efecto gradual:** mientras más baja, **menos tiempo esperan los amigos tu respuesta** (sus temporizadores se acortan).
@@ -298,7 +307,7 @@ Decisión de Benja, 7 de noviembre.
 ### 10.6 Audio Sync
 
 - La base sube noche a noche (90, 100, 115, 130 y 145 golpes por minuto), y cada ronda va un 15 % más rápida que la anterior (decisión de Benja, 7 de noviembre).
-- Se empieza cuando el jugador quiere, con un clic en el mixer, que se abre visto desde arriba. Se elige el canal del amigo en su fader, o con el botón «Sincronizar» del chat de ese amigo, que abre el mixer en su canal y empieza la ronda enseguida.
+- Se empieza cuando el jugador quiere, con un clic en el mixer, que se abre visto desde arriba. Se elige el canal del amigo en su fader, o con el botón de sincronizar del chat de ese amigo, que abre el mixer en su canal y empieza la ronda enseguida.
 - Una base marca el tiempo, y el amigo marca un ritmo de **4 aplausos**. El mixer parpadea con el ritmo y suena (decisión de Benja, sesión 14). Las noches de 8 aplausos son **2 rondas de 4 seguidas**, cada una con su cuenta y su patrón: si se falla la segunda, se vuelve a la primera (decisión de Benja, 4 de noviembre). La señal solo vuelve a 100 al terminar todas.
 - Después, el jugador lo imita con **clics en el mixer o con la barra espaciadora**.
 - El mixer muestra una fila de **8 luces**, las de una ronda, aunque la noche tenga 2 (decisión de Benja, 8 de noviembre). Junto a la fila, si hay varias rondas, una luz por ronda, visible desde que se abre el mixer: azul la que está en curso y verde las pasadas; al fallar se apagan (decisión de Benja, 9 de noviembre).
@@ -340,8 +349,8 @@ Decisión de Benja, 7 de noviembre.
 - **Índice:** una pestaña con el nombre de cada entidad conocida.
 - **Página de una entidad:**
   - folclore breve y un boceto;
-  - sus características, para quien quiera aprenderlas de memoria, cada una con un nombre fijo, aunque el amigo la diga con otras palabras, y sin decir qué pregunta la trae (decisiones de Benja, 11 de noviembre);
-  - **las reglas en una tabla**, en orden (vale la primera fila que se cumpla): **Condición | 1 | 2 | 3 | 4**, con una marca por acción: ✓ verde la correcta, una **calavera** roja la de mayor riesgo, que da un video extra, y ✗ las otras (decisión de Benja, 11 de noviembre). Las observaciones ya no tienen una lista aparte: la condición de cada fila dice qué hay que averiguar;
+  - sus características, para quien quiera aprenderlas de memoria, cada una con un nombre fijo, aunque el amigo la diga con otras palabras, y sin decir qué pregunta la trae (decisiones de Benja, 11 de noviembre). Van **con destacador amarillo**, como en el chat (decisión de Benja en S21h);
+  - **las reglas en una tabla**, en orden (vale la primera fila que se cumpla): **Condición | 1 | 2 | 3 | 4**, con una marca por acción: ✓ verde la correcta, una **calavera** roja la de mayor riesgo, que da un video extra, y ✗ las otras (decisión de Benja, 11 de noviembre). Las observaciones ya no tienen una lista aparte: la condición de cada fila dice qué hay que averiguar. **Las condiciones van en lápiz pasta azul**, como las observaciones del chat, para conectar lo que cuenta el amigo con la fila (decisión de Benja en S21h);
   - las 4 acciones, numeradas como las columnas.
 - **La hoja**, con la cuadrícula más suave (pedido de Benja, 11 de noviembre).
 - **Memoria por amigo:** el cuaderno recuerda la página abierta de cada amigo y salta a ella al cambiar de chat. Cuando a un amigo le llega una solicitud nueva, su cuaderno vuelve al índice.
@@ -409,7 +418,7 @@ El guion de las cinemáticas lo escribe Benja.
 
 ## 19. Accesibilidad y opciones
 
-- Reducir destellos.
+- Reducir destellos (también el borde del botón de sincronizar, que queda fijo en vez de parpadear).
 - Volumen por canal.
 - Desactivar el parallax.
 - Temporizadores ×1,5: alarga solo el tiempo para responder una solicitud (decisión de Benja, sesión 18).
