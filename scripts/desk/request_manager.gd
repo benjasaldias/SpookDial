@@ -14,6 +14,11 @@ extends Node
 ## llevan estática.
 ## Desde el Plan 9, también los accidentes de los amigos: se responden en el chat, sin cuaderno, y una mala
 ## respuesta los hiere (decisión de Benja, 7 de noviembre).
+## Desde el Plan 9.7 (docs/31), la historia de la noche (StoryRunner, decisiones de Benja en S21b): las líneas de los
+## amigos van a sus chats o, con los 3 juntos, a la llamada grupal, que se ve cuando no hay nada que jugar (call_active).
+## Una decisión de la historia llega como un accidente, y su opción baja Trust (nunca bajo 1), quita segundos a la próxima
+## consulta de un amigo y hiere (nunca mata). Mientras la historia cuenta algo, la próxima ola espera. Además, cada
+## criatura nueva de la noche sale al menos una vez, y con los 3 juntos nadie dice que está solo (docs/21 §1 y §2).
 ## En el escritorio lo avanza NightManager, junto con el estado de la noche.
 
 signal message_added(friend_index: int, message: ChatMessage)
@@ -28,6 +33,8 @@ signal chat_script_finished(chat: ChatScript)
 signal tutorial_finished
 ## En el tutorial, hay que mostrar el chat del amigo `friend_index` (Plan 9.5): León se despide ahí.
 signal tutorial_chat_requested(friend_index: int)
+## Una línea de la historia en la llamada grupal, dicha por el amigo `speaker_index` (Plan 9.7).
+signal call_message_added(speaker_index: int, message: ChatMessage)
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatScript := preload("res://scripts/core/chat_script.gd")
@@ -40,7 +47,13 @@ const NightState := preload("res://scripts/core/night_state.gd")
 const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
+const StoryRunner := preload("res://scripts/core/story_runner.gd")
 const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
+
+## La historia nunca hace perder (decisión de Benja, S21l): Trust no baja de esto por ella.
+const STORY_TRUST_FLOOR := 1.0
+## Los segundos que la historia le quita a la próxima consulta de un amigo nunca la dejan con menos de esto.
+const STORY_MIN_DECISION_TIME := 10.0
 
 ## En el tutorial, León escribe sus líneas de a una: cada una espera lo que tarda en escribirse la anterior (las letras
 ## por segundo del chat) y una pausa para leerla.
@@ -92,6 +105,8 @@ var tutorial_queue: Array[TutorialRequestData] = []
 var tutorial_chat: TutorialChat
 ## En el tutorial, lo que parpadea y es lo único que se puede usar ahora (Plan 9.5).
 var tutorial_focus := TutorialChat.Focus.NONE
+## La historia de la noche en curso, o null si la noche no tiene (Plan 9.7).
+var story: StoryRunner
 
 ## Segundos desde las 00:00, como la hora del estado de la noche: el director cuenta en esa hora.
 var _elapsed := 0.0
@@ -107,6 +122,11 @@ var _tutorial_items: Array[TutorialChat.Item] = []
 var _tutorial_wait := 0.0
 ## Lo que ya se desbloqueó en el tutorial.
 var _unlocked: Array[TutorialChat.Unlock] = []
+## Los segundos que la historia le quita a la próxima consulta de cada amigo.
+var _story_penalty: Array[float] = []
+## Las entidades que ya llegaron esta noche, y cuántas consultas empezaron: para que cada criatura nueva salga.
+var _seen_entities: Array[EntityData] = []
+var _requests_started := 0
 
 
 func _ready() -> void:
@@ -125,7 +145,10 @@ func _ready() -> void:
 	for index in catalog.friends.size():
 		requests.append(null)
 		incidents.append(null)
+		_story_penalty.append(0.0)
 		state.friends[index].signal_level = test_signal
+	if night().story != null and not night().is_tutorial():
+		story = StoryRunner.new(night().story, catalog.friends, tr)
 	if current != null and not night().is_tutorial():
 		_wound_friends(current.wounded_friends, current.wounded_health)
 
@@ -195,27 +218,37 @@ func advance(delta: float) -> void:
 				_decide_alone(index)
 	_advance_incidents(delta)
 	_advance_chat_script(delta)
-	if not requests_arrive:
-		return
-	if night().is_tutorial():
-		_maybe_start_tutorial_request()
-		_advance_tutorial(delta)
-	else:
-		_follow_director()
-		_maybe_start_request()
-		_maybe_start_incident()
+	if requests_arrive:
+		if night().is_tutorial():
+			_maybe_start_tutorial_request()
+			_advance_tutorial(delta)
+		else:
+			_follow_director()
+			_maybe_start_request()
+			_maybe_start_incident()
+	_advance_story(delta)
 
 
 ## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una o un accidente, si no está
 ## disponible (aturdido o muerto) o si no hay entidades. Con Trust bajo, el temporizador es más corto, y con la
-## opción "Temporizadores ×1,5", más largo, pero nunca pasa de las 06:00.
+## opción "Temporizadores ×1,5", más largo, pero nunca pasa de las 06:00. Si la historia le quitó segundos a la próxima
+## consulta del amigo, se los quita a esta. Con los 3 juntos en la historia, el amigo no dice que está solo, y si quedan
+## tantas consultas como criaturas nuevas que todavía no salieron, la entidad es una de ellas.
 func start_request(friend_index: int) -> FriendRequest:
 	if not _is_free(friend_index):
 		return null
-	var request := RequestGenerator.generate(catalog, night(), friend_index, rng, state.trust)
+	var request := RequestGenerator.generate(catalog, night(), friend_index, rng, state.trust, _together(),
+			_forced_entities())
 	if request == null:
 		return null
 	request.time_left = minf(request.time_left * timer_scale, maxf(catalog.balance.night_seconds - _elapsed, 0.0))
+	if _story_penalty[friend_index] > 0.0:
+		request.time_left = minf(request.time_left,
+				maxf(request.time_left - _story_penalty[friend_index], STORY_MIN_DECISION_TIME))
+		_story_penalty[friend_index] = 0.0
+	_requests_started += 1
+	if not _seen_entities.has(request.entity):
+		_seen_entities.append(request.entity)
 	requests[friend_index] = request
 	request_started.emit(friend_index, request)
 	_add_friend_message(friend_index, MessageBuilder.first_message(request, tr))
@@ -240,6 +273,9 @@ func answer_incident(friend_index: int, option: int) -> bool:
 	var incident := incidents[friend_index]
 	if incident == null or not state.friends[friend_index].is_online():
 		return false
+	if incident.decision != null:
+		_resolve_decision(friend_index, incident.decision.options[option], true)
+		return true
 	message_added.emit(friend_index, MessageBuilder.line(ChatMessage.Sender.PLAYER, incident.options[option], tr))
 	if incident.is_correct(option):
 		incidents[friend_index] = null
@@ -376,7 +412,10 @@ func _advance_incidents(delta: float) -> void:
 			continue
 		incident.advance(delta)
 		if incident.is_out_of_time():
-			_incident_hurts(index, MessageBuilder.INCIDENT_NO_ANSWER_KEY)
+			if incident.decision != null:
+				_resolve_decision(index, incident.decision.no_answer, false)
+			else:
+				_incident_hurts(index, MessageBuilder.INCIDENT_NO_ANSWER_KEY)
 
 
 ## Termina el accidente con el amigo herido: lo cuenta y el juego avisa cuánta vida le queda. Las solicitudes que
@@ -476,12 +515,124 @@ func _finish_chat_script_if_done() -> void:
 ## Avanza el director: empiezan las olas y las calmas. Cada interferencia de una ola le toca a un amigo al azar, y cada
 ## video de una calma lo manda un amigo al azar.
 func _follow_director() -> void:
+	director.story_hold = story != null and story.holds()
 	var beat := director.advance(_elapsed, active_count())
 	var friend_count := catalog.friends.size()
 	for time: float in beat.interferences:
 		state.interferences.add(rng.randi_range(0, friend_count - 1), time)
 	for time: float in beat.videos:
 		state.videos.release(rng.randi_range(0, friend_count - 1), time)
+
+
+## La llamada grupal se ve: la historia tiene a los 3 juntos y no hay nada que jugar (docs/21 §2).
+func call_active() -> bool:
+	return _together() and _nothing_to_play()
+
+
+## Los 3 amigos están juntos en la historia.
+func _together() -> bool:
+	return story != null and story.together
+
+
+## Hay consultas, accidentes o decisiones abiertas.
+func _story_busy() -> bool:
+	return active_count() > 0 or incidents.any(func(incident: FriendIncident) -> bool: return incident != null)
+
+
+## No hay consultas, accidentes, decisiones ni videos por descargar: la llamada se puede ver.
+func _nothing_to_play() -> bool:
+	if _story_busy():
+		return false
+	for index in catalog.friends.size():
+		if state.videos.offer_for(index) != null:
+			return false
+	return true
+
+
+## Las criaturas nuevas de la noche que todavía no salieron, si quedan tantas consultas como ellas; si no, ninguna (y la
+## entidad sale al azar entre las conocidas).
+func _forced_entities() -> Array[EntityData]:
+	var missing: Array[EntityData] = []
+	for entity: EntityData in night().new_entities:
+		if not _seen_entities.has(entity):
+			missing.append(entity)
+	if missing.is_empty() or night().total_requests() - _requests_started > missing.size():
+		missing.clear()
+	return missing
+
+
+## Avanza la historia y cumple lo que pide. Un amigo puede decidir si está libre, despierto y con señal.
+func _advance_story(delta: float) -> void:
+	if story == null:
+		return
+	var can_decide := func(friend_index: int) -> bool:
+		return _is_free(friend_index) and state.friends[friend_index].is_online()
+	for item: StoryRunner.Item in story.advance(delta, _elapsed, director, _story_busy(), _nothing_to_play(), can_decide):
+		_do_story(item)
+
+
+## Una línea en el chat de un amigo o en la llamada (con la estática de quien habla), o una decisión, que llega como un
+## accidente: la pregunta en el chat del amigo y sus opciones en las respuestas.
+func _do_story(item: StoryRunner.Item) -> void:
+	match item.command:
+		StoryRunner.Command.LINE:
+			_add_friend_message(item.friend, MessageBuilder.line(ChatMessage.Sender.FRIEND, item.key, tr))
+		StoryRunner.Command.CALL_LINE:
+			var message := MessageBuilder.line(ChatMessage.Sender.FRIEND, item.key, tr)
+			ChatStatic.apply(message, state.friends[item.friend].signal_level, rng)
+			call_message_added.emit(item.friend, message)
+		StoryRunner.Command.DECISION:
+			incidents[item.friend] = FriendIncident.for_decision(item.decision, item.friend,
+					catalog.balance.incident_seconds * timer_scale) as FriendIncident
+			_add_friend_message(item.friend, MessageBuilder.line(ChatMessage.Sender.FRIEND, item.key, tr))
+
+
+## Terminó una decisión de la historia con `option`: Matías la respondió (`answered`) o se acabó el tiempo. El amigo
+## contesta y se aplica la opción.
+func _resolve_decision(friend_index: int, option: StoryOptionData, answered: bool) -> void:
+	incidents[friend_index] = null
+	if answered:
+		message_added.emit(friend_index, MessageBuilder.line(ChatMessage.Sender.PLAYER, option.label_key, tr))
+	if story != null:
+		for item: StoryRunner.Item in story.decided(option):
+			_do_story(item)
+	_apply_story_option(option)
+
+
+## Lo que hace una opción de la historia: Trust (nunca bajo 1), los segundos que pierde la próxima consulta de cada
+## castigado y el daño, al que tenga más vida entre los candidatos y solo si sobrevive, con su aviso (decisiones de
+## Benja, S21b y S21l).
+func _apply_story_option(option: StoryOptionData) -> void:
+	if option == null:
+		return
+	state.trust = clampf(state.trust + option.trust_change, minf(state.trust, STORY_TRUST_FLOOR), NightState.METER_MAX)
+	for friend: FriendData in option.penalized:
+		var index := catalog.friends.find(friend)
+		if index >= 0:
+			_story_penalty[index] += option.penalty_seconds
+	var hurt := _story_damage_target(option)
+	if hurt < 0:
+		return
+	var friend_state := state.friends[hurt]
+	friend_state.hurt(option.damage, balance.stun_seconds)
+	director.friend_hurt()
+	message_added.emit(hurt, MessageBuilder.damage_notice(null, tr(catalog.friends[hurt].name_key), friend_state.health,
+			friend_state.max_health, tr))
+
+
+## A quién hiere la opción: el que tenga más vida entre los candidatos (el primero, si empatan), y solo si sobrevive; si
+## nadie sobrevive al daño, a nadie (-1).
+func _story_damage_target(option: StoryOptionData) -> int:
+	if option.damage <= 0:
+		return -1
+	var best := -1
+	for friend: FriendData in option.damage_candidates:
+		var index := catalog.friends.find(friend)
+		if index < 0 or state.friends[index].health <= option.damage:
+			continue
+		if best < 0 or state.friends[index].health > state.friends[best].health:
+			best = index
+	return best
 
 
 ## Cuando el director lo pide, le da una solicitud a un amigo libre al azar, sin pasar de las simultáneas.

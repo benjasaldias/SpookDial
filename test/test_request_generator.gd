@@ -258,3 +258,36 @@ func test_la_pista_usa_la_misma_forma() -> bool:
 	var request := RequestGenerator.generate(catalog, catalog.nights()[0], 0, _rng(3))
 	check(request.trait_forms.has(request.hint.id), "la pista tiene su forma")
 	return true
+
+
+# --- La historia (Plan 9.7, docs/31).
+
+## Con los 3 juntos, la consulta no dice "Me perdí" ni "Me separé de los demás" (docs/21 §2).
+func test_juntos_no_dice_que_esta_solo() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.predicament_keys.assign(["K_LOST", "K_FINE"])
+	catalog.alone_predicament_keys.assign(["K_LOST"])
+	var night := catalog.nights()[0]
+	var alone := []
+	var together := []
+	for seed_value in 20:
+		alone.append(RequestGenerator.generate(catalog, night, 0, _rng(seed_value)).predicament_key)
+		together.append(RequestGenerator.generate(catalog, night, 0, _rng(seed_value), 100.0, true).predicament_key)
+	check(alone.has("K_LOST"), "solo, a veces se perdió")
+	check(not together.has("K_LOST"), "juntos, nunca")
+	return true
+
+
+## Para que cada criatura nueva salga al menos una vez, se puede pedir que elija entre algunas (docs/21 §1).
+func test_puede_elegir_entre_algunas_entidades() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var night := catalog.nights()[1]
+	var ghost: EntityData = night.new_entities[0]
+	var candidates: Array[EntityData] = [ghost]
+	var any := []
+	for seed_value in 20:
+		var request := RequestGenerator.generate(catalog, night, 0, _rng(seed_value), 100.0, false, candidates)
+		check_eq(request.entity, ghost, "semilla %d: entre las pedidas" % seed_value)
+		any.append(RequestGenerator.generate(catalog, night, 0, _rng(seed_value)).entity.id)
+	check(any.has(&"beast") and any.has(&"ghost"), "sin pedir, cualquiera de las conocidas")
+	return true

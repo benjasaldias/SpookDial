@@ -8,13 +8,16 @@ const FriendRequest := preload("res://scripts/core/friend_request.gd")
 
 
 ## Solicitud de la noche `night` para el amigo `friend_index`, o null si la noche no tiene entidades conocidas.
-## `trust` acorta el temporizador (Plan 5); mientras no exista, es 100.
+## `trust` acorta el temporizador (Plan 5); mientras no exista, es 100. Con `together`, los 3 amigos están juntos en la
+## historia y el amigo no dice que está solo (docs/21 §2). Con `candidates`, la entidad sale de ellas: así cada criatura
+## nueva de la noche sale al menos una vez (docs/21 §1).
 static func generate(catalog: ContentCatalog, night: NightData, friend_index: int,
-		rng: RandomNumberGenerator, trust := 100.0) -> FriendRequest:
-	var known := catalog.known_entities(night.number)
+		rng: RandomNumberGenerator, trust := 100.0, together := false,
+		candidates: Array[EntityData] = []) -> FriendRequest:
+	var known := candidates if not candidates.is_empty() else catalog.known_entities(night.number)
 	if known.is_empty():
 		return null
-	return build(catalog, night, friend_index, known[rng.randi_range(0, known.size() - 1)], rng, trust)
+	return build(catalog, night, friend_index, known[rng.randi_range(0, known.size() - 1)], rng, trust, together)
 
 
 ## La solicitud fija `data` del tutorial (decisión de Benja): su amigo, su entidad, su situación (lo que falte,
@@ -38,7 +41,7 @@ static func generate_tutorial(catalog: ContentCatalog, night: NightData, data: T
 
 ## Arma la solicitud de `entity` para el amigo `friend_index`.
 static func build(catalog: ContentCatalog, night: NightData, friend_index: int, entity: EntityData,
-		rng: RandomNumberGenerator, trust := 100.0) -> FriendRequest:
+		rng: RandomNumberGenerator, trust := 100.0, together := false) -> FriendRequest:
 	var known := catalog.known_entities(night.number)
 	var request := FriendRequest.new()
 	request.friend_index = friend_index
@@ -67,12 +70,22 @@ static func build(catalog: ContentCatalog, night: NightData, friend_index: int, 
 	if hint_roll < night.first_hint_chance:
 		request.hint = request.traits[hint_index]
 	request.says_place = rng.randf() < night.place_chance
-	if not catalog.predicament_keys.is_empty():
-		request.predicament_key = catalog.predicament_keys[rng.randi_range(0, catalog.predicament_keys.size() - 1)]
+	var predicaments := predicament_keys(catalog, together)
+	if not predicaments.is_empty():
+		request.predicament_key = predicaments[rng.randi_range(0, predicaments.size() - 1)]
 	request.question_cost = catalog.balance.question_cost
 	request.thinking_seconds = catalog.balance.thinking_seconds
 	request.time_left = decision_time(night, trust)
 	return request
+
+
+## Lo que le puede pasar al amigo: con los 3 juntos, sin lo que solo dice uno que está solo (si no queda ninguna, todas).
+static func predicament_keys(catalog: ContentCatalog, together: bool) -> Array[String]:
+	if not together:
+		return catalog.predicament_keys
+	var keys: Array[String] = catalog.predicament_keys.filter(func(key: String) -> bool:
+		return not catalog.alone_predicament_keys.has(key))
+	return keys if not keys.is_empty() else catalog.predicament_keys
 
 
 ## Pares de características de `entity` que ninguna otra entidad de `known` tiene juntas.

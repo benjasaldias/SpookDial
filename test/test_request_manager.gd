@@ -9,6 +9,7 @@ const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 const VideoSchedule := preload("res://scripts/core/video_schedule.gd")
 const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
+const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 
 
 ## Manager con el catálogo de prueba (u otro), en la noche 1 (solo "beast"), sin que las solicitudes lleguen
@@ -1061,5 +1062,284 @@ func test_el_herido_no_tiene_accidentes() -> bool:
 	var wounded: int = _wounded(manager)[0]
 	check(manager.start_incident(wounded) == null, "el herido, no")
 	check(manager.start_incident((wounded + 1) % 3) != null, "otro, sí")
+	manager.free()
+	return true
+
+
+# --- La historia (Plan 9.7, docs/31).
+
+const StoryRunner := preload("res://scripts/core/story_runner.gd")
+
+
+## Manager con una historia de un solo momento, al empezar la noche, con estos pasos.
+func _story_manager(steps: Array, together := true, catalog: ContentCatalog = null) -> RequestManager:
+	var manager := RequestManager.new()
+	manager.catalog = catalog if catalog != null else Fixtures.make_catalog()
+	manager.night_number = 1
+	manager.random_seed = 7
+	manager.requests_arrive = false
+	var story := StoryData.new()
+	story.starts_together = together
+	story.beats.append(Fixtures.make_beat(StoryBeatData.Moment.NIGHT_START, steps))
+	manager.night().story = story
+	(Engine.get_main_loop() as SceneTree).root.add_child(manager)
+	return manager
+
+
+## Una decisión de León, como la de Fixtures.make_decision: la buena quita 10 s a la próxima consulta de Agustín; la
+## mala y sin respuesta bajan Trust 20 y hieren a Agustín.
+func _decision_step(catalog: ContentCatalog) -> StoryStepData:
+	var step := Fixtures.make_step(StoryStepData.Kind.DECISION)
+	step.decision = Fixtures.make_decision(catalog.friends[0], catalog.friends[2])
+	return step
+
+
+func _record_call(manager: RequestManager, events: Array) -> void:
+	manager.call_message_added.connect(func(speaker: int, message: ChatMessage) -> void: events.append([speaker, message]))
+
+
+func _texts(messages: Array) -> Array:
+	return messages.map(func(message: ChatMessage) -> String: return message.plain_text())
+
+
+func test_sin_historia_no_hay_llamada() -> bool:
+	var manager := _make_manager()
+	check(manager.story == null, "la noche no tiene historia")
+	check(not manager.call_active(), "sin llamada")
+	manager.free()
+	return true
+
+
+func test_la_historia_escribe_en_la_llamada() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([Fixtures.make_line(catalog.friends[1], "K_A"),
+			Fixtures.make_line(catalog.friends[0], "K_B")], true, catalog)
+	manager.state.friends[0].signal_level = 0.0
+	var calls := []
+	_record_call(manager, calls)
+	var events := []
+	_record(manager, events)
+	check(manager.call_active(), "juntos y sin nada que jugar: la llamada")
+	manager.advance(0.1)
+	manager.advance(5.0)
+	check_eq(calls.size(), 2, "2 líneas en la llamada")
+	check(_messages(events).is_empty(), "ninguna en los chats de cada uno")
+	if calls.size() == 2:
+		check_eq(calls[0][0], 1, "habla Gonzalo")
+		check_eq((calls[0][1] as ChatMessage).plain_text(), tr("K_A"), "con señal, se lee")
+		check_eq(calls[1][0], 0, "después León")
+		check(not (calls[1][1] as ChatMessage).plain_text().contains(tr("K_B")), "sin señal, tapado")
+	manager.free()
+	return true
+
+
+func test_separados_escribe_en_cada_chat() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([Fixtures.make_line(catalog.friends[2], "K_A")], false, catalog)
+	var events := []
+	_record(manager, events)
+	manager.advance(0.1)
+	check(not manager.call_active(), "separados, sin llamada")
+	var messages := events.filter(func(entry: Array) -> bool: return entry[0] == "message_added")
+	check_eq(messages.size(), 1, "una línea")
+	if messages.size() == 1:
+		check_eq(messages[0][1], 2, "en el chat de Agustín")
+		check_eq((messages[0][2] as ChatMessage).sender, ChatMessage.Sender.FRIEND, "la escribe él")
+	manager.free()
+	return true
+
+
+## Si llega una consulta, un accidente, una decisión o un video, la llamada se separa en los 3 chats (docs/21 §2).
+func test_la_llamada_se_corta_con_algo_que_jugar() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.incidents.append(Fixtures.make_incident())
+	var manager := _story_manager([], true, catalog)
+	check(manager.call_active(), "la llamada")
+	manager.start_request(0)
+	check(not manager.call_active(), "con una consulta, se corta")
+	manager.requests[0] = null
+	check(manager.call_active(), "vuelve")
+	manager.start_incident(1)
+	check(not manager.call_active(), "con un accidente, se corta")
+	manager.incidents[1] = null
+	manager.state.videos.add_extra(2, 0.0)
+	manager.state.advance(0.1)
+	check(manager.state.videos.offer_for(2) != null, "un video espera su descarga")
+	check(not manager.call_active(), "con un video, se corta")
+	manager.free()
+	return true
+
+
+## Una decisión llega como un accidente: en el chat de quien pregunta, con el tiempo de un accidente y sus opciones.
+func test_la_decision_llega_como_un_accidente() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([_decision_step(catalog)], false, catalog)
+	var events := []
+	_record(manager, events)
+	manager.advance(0.1)
+	var incident := manager.incidents[0]
+	check(incident != null and incident.decision != null, "León tiene una decisión abierta")
+	if incident != null:
+		check_eq(incident.options, ["K_STORY_GOOD", "K_STORY_BAD"], "sus opciones, en el orden del guion")
+		check_eq(incident.time_left, catalog.balance.incident_seconds, "15 s")
+	check_eq(_texts(_messages(events)), [tr("K_STORY_ASK")], "León pregunta")
+	check(manager.start_request(0) == null, "León está ocupado")
+	manager.free()
+	return true
+
+
+func test_responder_la_decision_aplica_su_opcion() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([_decision_step(catalog)], false, catalog)
+	manager.advance(0.1)
+	var events := []
+	_record(manager, events)
+	check(manager.answer_incident(0, 0), "Matías responde la buena")
+	check(manager.incidents[0] == null, "la decisión terminó")
+	var messages := _messages(events)
+	check_eq(_texts(messages), [tr("K_STORY_GOOD"), tr("K_STORY_GOOD_REPLY")], "Matías responde y León contesta")
+	if messages.size() == 2:
+		check_eq((messages[0] as ChatMessage).sender, ChatMessage.Sender.PLAYER, "la respuesta es de Matías")
+	check_eq(manager.story.flags, [&"with_agustin"], "deja su marca")
+	check_eq(manager.state.trust, 100.0, "la buena no baja Trust")
+	manager.free()
+	return true
+
+
+func test_sin_respuesta_cuenta_como_la_peor() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([_decision_step(catalog)], false, catalog)
+	manager.advance(0.1)
+	var events := []
+	_record(manager, events)
+	manager.advance(catalog.balance.incident_seconds + 0.1)
+	check(manager.incidents[0] == null, "se acabó el tiempo")
+	var agustin := events.filter(func(entry: Array) -> bool: return entry[0] == "message_added" and entry[1] == 2)
+	check_eq(_texts(_messages(events)).slice(0, 1), [tr("K_STORY_NO_ANSWER")], "León cuenta qué pasó")
+	check_eq(manager.state.trust, 80.0, "Trust −20")
+	check_eq(manager.state.friends[2].health, 2, "Agustín herido")
+	check(manager.state.friends[2].is_stunned(), "y aturdido, como en un accidente")
+	check_eq(agustin.size(), 1, "el aviso de daño, en el chat de Agustín")
+	manager.free()
+	return true
+
+
+## La historia nunca hace perder (decisión de Benja, S21l): Trust no baja de 1 por ella.
+func test_la_historia_no_deja_trust_en_0() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([_decision_step(catalog)], false, catalog)
+	manager.advance(0.1)
+	manager.state.trust = 10.0
+	manager.answer_incident(0, 1)
+	check_eq(manager.state.trust, 1.0, "queda en 1")
+	manager.free()
+	return true
+
+
+func test_la_proxima_consulta_tiene_menos_tiempo() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([_decision_step(catalog)], false, catalog)
+	manager.advance(0.1)
+	manager.answer_incident(0, 0)
+	check_eq(manager.start_request(2).time_left, 35.0, "la próxima de Agustín, 10 s menos")
+	manager.requests[2] = null
+	check_eq(manager.start_request(2).time_left, 45.0, "la siguiente, completa")
+	check_eq(manager.start_request(1).time_left, 45.0, "la de Gonzalo, completa")
+	manager.free()
+	return true
+
+
+## Si están juntos, el daño es para el que tenga más vida; si los dos tienen 1, para ninguno (docs/21 §4).
+func test_el_dano_es_para_el_que_tiene_mas_vida() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var step := _decision_step(catalog)
+	step.decision.options[1].damage_candidates.assign([catalog.friends[2], catalog.friends[0]])
+	var manager := _story_manager([step], false, catalog)
+	manager.advance(0.1)
+	manager.state.friends[2].health = 2
+	manager.answer_incident(0, 1)
+	check_eq([manager.state.friends[0].health, manager.state.friends[2].health], [2, 2], "León tenía más: a él")
+	manager.free()
+	manager = _story_manager([step], false, catalog)
+	manager.advance(0.1)
+	manager.answer_incident(0, 1)
+	check_eq([manager.state.friends[0].health, manager.state.friends[2].health], [3, 2], "empatados: al primero, Agustín")
+	manager.free()
+	return true
+
+
+func test_la_historia_nunca_mata() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var step := _decision_step(catalog)
+	step.decision.options[1].damage_candidates.assign([catalog.friends[2], catalog.friends[0]])
+	var manager := _story_manager([step], false, catalog)
+	manager.advance(0.1)
+	manager.state.friends[0].health = 1
+	manager.state.friends[2].health = 1
+	var events := []
+	_record(manager, events)
+	manager.answer_incident(0, 1)
+	check_eq([manager.state.friends[0].health, manager.state.friends[2].health], [1, 1], "con 1 de vida, nadie")
+	check(not _messages(events).any(func(message: ChatMessage) -> bool:
+		return message.sender == ChatMessage.Sender.SYSTEM), "sin aviso de daño")
+	manager.free()
+	return true
+
+
+## Cada criatura nueva de la noche sale al menos una vez: se fuerza solo cuando quedan tantas consultas como criaturas
+## que faltan (docs/21 §1).
+func test_cada_criatura_nueva_sale_al_menos_una_vez() -> bool:
+	var seen := []
+	for seed_value in 10:
+		var manager := _make_manager()
+		manager.night_number = 2
+		manager.night().requests_total = 1
+		manager.rng.seed = seed_value
+		check_eq(manager.start_request(0).entity.id, &"ghost", "semilla %d: la única consulta es la nueva" % seed_value)
+		manager.night().requests_total = 10
+		manager.free()
+		manager = _make_manager()
+		manager.night_number = 2
+		manager.rng.seed = seed_value
+		seen.append(manager.start_request(0).entity.id)
+		manager.free()
+	check(seen.has(&"beast"), "con consultas de sobra, no se fuerza")
+	return true
+
+
+func test_juntos_las_consultas_no_dicen_que_esta_solo() -> bool:
+	for together: bool in [true, false]:
+		var said := []
+		for seed_value in 10:
+			var catalog := Fixtures.make_catalog()
+			catalog.predicament_keys.assign(["K_LOST", "K_FINE"])
+			catalog.alone_predicament_keys.assign(["K_LOST"])
+			var manager := _story_manager([], together, catalog)
+			manager.rng.seed = seed_value
+			said.append(manager.start_request(0).predicament_key)
+			manager.free()
+		check_eq(said.has("K_LOST"), not together, "juntos, nunca 'Me perdí'" if together else "separados, a veces")
+	return true
+
+
+## Mientras la historia cuenta algo antes de la ola (aquí, una decisión sin responder), la ola espera.
+func test_la_ola_espera_a_la_historia() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([_decision_step(catalog)], false, catalog)
+	manager.requests_arrive = true
+	manager.night().requests_total = 4
+	manager.night().finale_size = 0
+	manager.night().wave_size = 2
+	manager.night().max_simultaneous = 3
+	manager.director = PacingDirector.new(manager.night(), manager.balance, manager.rng)
+	for step in 140:
+		manager.advance(0.5)
+		if manager.incidents[0] != null:
+			manager.incidents[0].time_left = 99.0
+	check_eq(manager.director.waves_started, 0, "a los 70 s, la primera ola todavía espera")
+	manager.answer_incident(0, 0)
+	for step in 10:
+		manager.advance(0.5)
+	check_eq(manager.director.waves_started, 1, "terminada la historia, llega")
 	manager.free()
 	return true
