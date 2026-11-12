@@ -241,3 +241,71 @@ func test_una_ola_sin_consultas() -> bool:
 	night.wave_plan.append(null)
 	check_contains(ContentValidator.validate_catalog(catalog), "Dificultad 'normal', noche 1: hay un espacio vacío en el plan de olas")
 	return true
+
+
+# --- La historia de una noche (Plan 9.7, docs/31).
+
+func test_una_historia_valida_no_tiene_errores() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.nights()[0].story = Fixtures.make_story(catalog)
+	var errors := ContentValidator.validate_catalog(catalog)
+	check(errors.is_empty(), str(errors))
+	return true
+
+
+func test_la_historia_habla_con_amigos_del_catalogo() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var story := Fixtures.make_story(catalog)
+	catalog.nights()[0].story = story
+	story.beats[0].steps[0].speaker = FriendData.new()
+	story.beats[2].steps[0].decision.friend = null
+	story.beats[2].steps[0].decision.options[0].penalized.append(FriendData.new())
+	var errors := ContentValidator.validate_catalog(catalog)
+	check_contains(errors, "Dificultad 'normal', noche 1, historia, momento 1, paso 1: quien habla no es un amigo del catálogo")
+	check_contains(errors, "Dificultad 'normal', noche 1, historia, momento 3, paso 1: quien decide no es un amigo del catálogo")
+	check_contains(errors, "Dificultad 'normal', noche 1, historia, momento 3, paso 1, opción 1: castiga a alguien que no es un amigo del catálogo")
+	story.beats[0].steps.append(null)
+	check_contains(ContentValidator.validate_catalog(catalog), "Dificultad 'normal', noche 1, historia, momento 1: hay un espacio vacío en 'steps'")
+	return true
+
+
+func test_una_decision_necesita_una_opcion_buena_y_su_sin_respuesta() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var story := Fixtures.make_story(catalog)
+	catalog.nights()[0].story = story
+	var decision: StoryDecisionData = story.beats[2].steps[0].decision
+	decision.options[0].good = false
+	decision.options[1].label_key = ""
+	decision.no_answer = null
+	var errors := ContentValidator.validate_catalog(catalog)
+	var where := "Dificultad 'normal', noche 1, historia, momento 3, paso 1"
+	check_contains(errors, where + ": la decisión no tiene ninguna opción buena")
+	check_contains(errors, where + ", opción 2: falta lo que responde Matías")
+	check_contains(errors, where + ": falta lo que pasa sin respuesta")
+	story.beats[2].steps[0].decision = null
+	check_contains(ContentValidator.validate_catalog(catalog), where + ": es una decisión sin datos")
+	return true
+
+
+func test_los_momentos_de_la_historia_van_en_orden() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var story := Fixtures.make_story(catalog)
+	catalog.nights()[0].story = story
+	var last: StoryBeatData = story.beats.pop_back()
+	story.beats.insert(1, last)
+	check_contains(ContentValidator.validate_catalog(catalog),
+			"Dificultad 'normal', noche 1, historia: el momento 3 llega antes que el 2; deben ir en orden")
+	story.beats.append(null)
+	check_contains(ContentValidator.validate_catalog(catalog), "Dificultad 'normal', noche 1, historia: hay un espacio vacío en 'beats'")
+	return true
+
+
+## Lo que dice un amigo que está solo (docs/21 §2) tiene que ser una de las frases de lo que le pasa.
+func test_lo_que_le_pasa_a_uno_solo_esta_en_las_frases() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.alone_predicament_keys.assign(["K_LOST"])
+	check(ContentValidator.validate_catalog(catalog).is_empty(), "K_LOST es una de las frases")
+	catalog.alone_predicament_keys.append("K_ALONE")
+	check_contains(ContentValidator.validate_catalog(catalog),
+			"Catálogo: 'K_ALONE' es de un amigo solo, pero no está en las frases de lo que le pasa")
+	return true

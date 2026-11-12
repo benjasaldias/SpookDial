@@ -78,6 +78,11 @@ extends Resource
 ## El chat guionado que sigue al susto guionado (decisión de Benja, sesión 16), o ninguno.
 @export var scripted_chat: ChatScriptData
 
+@export_group("Historia")
+## La historia de la noche (decisiones de Benja en S21b, docs/21; Plan 9.7): lo que los amigos cuentan en el chat y en la
+## llamada grupal. Es la misma en las 3 dificultades. Sin historia, la noche no cambia.
+@export var story: StoryData
+
 @export_group("Tutorial")
 ## Solo en la noche 0: las solicitudes fijas, en orden. León usa la primera para enseñar en su chat.
 @export var tutorial_requests: Array[TutorialRequestData] = []

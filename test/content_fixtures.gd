@@ -169,3 +169,81 @@ static func make_incident(incident_id: StringName = &"trip") -> IncidentData:
 	incident.correct_key = "K_INCIDENT_%s_OK" % incident_id
 	incident.wrong_keys.assign(["K_INCIDENT_%s_BAD_1" % incident_id, "K_INCIDENT_%s_BAD_2" % incident_id])
 	return incident
+
+
+## Una historia de prueba (Plan 9.7) con los amigos de `catalog`:
+## - al empezar, León saluda en la llamada ("K_STORY_HELLO");
+## - 15 s antes de la ola 1, Gonzalo grita en la llamada ("K_STORY_SCARE"), se separan y Agustín escribe en su chat
+##   ("K_STORY_ALONE");
+## - en la calma antes de la final, León decide (make_decision), Agustín dice "K_STORY_DUO" si León fue con él, se reúnen y
+##   Gonzalo dice "K_STORY_TOGETHER" en la llamada;
+## - al cerrar, León se despide ("K_STORY_BYE").
+static func make_story(catalog: ContentCatalog) -> StoryData:
+	var leon := catalog.friends[0]
+	var gonzalo := catalog.friends[1]
+	var agustin := catalog.friends[2]
+	var story := StoryData.new()
+	story.beats.append(make_beat(StoryBeatData.Moment.NIGHT_START, [make_line(leon, "K_STORY_HELLO")]))
+	story.beats.append(make_beat(StoryBeatData.Moment.BEFORE_FIRST_WAVE, [make_line(gonzalo, "K_STORY_SCARE"),
+			make_step(StoryStepData.Kind.SEPARATE), make_line(agustin, "K_STORY_ALONE")]))
+	var decision := make_step(StoryStepData.Kind.DECISION)
+	decision.decision = make_decision(leon, agustin)
+	var duo := make_line(agustin, "K_STORY_DUO")
+	duo.requires_flag = &"with_agustin"
+	story.beats.append(make_beat(StoryBeatData.Moment.AFTER_LAST_WAVE, [decision, duo,
+			make_step(StoryStepData.Kind.JOIN), make_line(gonzalo, "K_STORY_TOGETHER")]))
+	story.beats.append(make_beat(StoryBeatData.Moment.AFTER_FINALE, [make_line(leon, "K_STORY_BYE")]))
+	return story
+
+
+## La decisión de prueba: `friend` pregunta "K_STORY_ASK". La buena ("K_STORY_GOOD") deja la marca "with_agustin" y le
+## quita 10 s a la próxima consulta de `other`; la mala ("K_STORY_BAD") baja Trust 20 y hiere a `other` (1 de vida); sin
+## respuesta, como la mala. Cada una con su respuesta ("K_STORY_<...>_REPLY" y "K_STORY_NO_ANSWER").
+static func make_decision(friend: FriendData, other: FriendData) -> StoryDecisionData:
+	var decision := StoryDecisionData.new()
+	decision.friend = friend
+	decision.message_key = "K_STORY_ASK"
+	var good := make_option("K_STORY_GOOD", true, ["K_STORY_GOOD_REPLY"])
+	good.sets_flag = &"with_agustin"
+	good.penalty_seconds = 10.0
+	good.penalized.append(other)
+	var bad := make_option("K_STORY_BAD", false, ["K_STORY_BAD_REPLY"])
+	bad.trust_change = -20.0
+	bad.damage = 1
+	bad.damage_candidates.append(other)
+	var no_answer := make_option("", false, ["K_STORY_NO_ANSWER"])
+	no_answer.trust_change = -20.0
+	no_answer.damage = 1
+	no_answer.damage_candidates.append(other)
+	decision.options.assign([good, bad])
+	decision.no_answer = no_answer
+	return decision
+
+
+static func make_option(label_key: String, good: bool, reply_keys: Array[String]) -> StoryOptionData:
+	var option := StoryOptionData.new()
+	option.label_key = label_key
+	option.good = good
+	option.reply_keys = reply_keys
+	return option
+
+
+static func make_beat(moment: StoryBeatData.Moment, steps: Array, lead := 15.0) -> StoryBeatData:
+	var beat := StoryBeatData.new()
+	beat.moment = moment
+	beat.lead_seconds = lead
+	beat.steps.assign(steps)
+	return beat
+
+
+static func make_line(speaker: FriendData, key: String) -> StoryStepData:
+	var step := make_step(StoryStepData.Kind.LINE)
+	step.speaker = speaker
+	step.text_key = key
+	return step
+
+
+static func make_step(kind: StoryStepData.Kind) -> StoryStepData:
+	var step := StoryStepData.new()
+	step.kind = kind
+	return step

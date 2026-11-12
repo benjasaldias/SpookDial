@@ -73,6 +73,9 @@ static func validate_catalog(catalog: ContentCatalog) -> Array[String]:
 		errors.append("%s: no tiene saludos para el mensaje inicial" % who)
 	if catalog.predicament_keys.is_empty():
 		errors.append("%s: no tiene frases de lo que le pasa al amigo" % who)
+	for key: String in catalog.alone_predicament_keys:
+		if not catalog.predicament_keys.has(key):
+			errors.append("%s: '%s' es de un amigo solo, pero no está en las frases de lo que le pasa" % [who, key])
 	var entities: Array[EntityData] = []
 	for night: NightData in catalog.nights():
 		if night.new_entities.has(null):
@@ -116,6 +119,7 @@ static func _check_difficulty(errors: Array[String], catalog: ContentCatalog, di
 					% [who, index + 1, night.number])
 		_check_scripted_chat(errors, catalog, night)
 		_check_wave_plan(errors, "%s, noche %d" % [who, night.number], night)
+		_check_story(errors, catalog, "%s, noche %d, historia" % [who, night.number], night.story)
 		if difficulty != reference and index < reference.nights.size() \
 				and night.new_entities != reference.nights[index].new_entities:
 			errors.append("%s: la noche %d no trae las mismas entidades nuevas que en '%s'"
@@ -136,6 +140,67 @@ static func _check_wave_plan(errors: Array[String], who: String, night: NightDat
 	if night.total_videos() != night.content_quota:
 		errors.append("%s: los videos del plan de olas suman %d y la cuota es %d"
 				% [who, night.total_videos(), night.content_quota])
+
+
+## La historia de una noche, si tiene (Plan 9.7): sin espacios vacíos, con los momentos en orden, y cada paso bien armado.
+static func _check_story(errors: Array[String], catalog: ContentCatalog, who: String, story: StoryData) -> void:
+	if story == null:
+		return
+	if story.beats.has(null):
+		errors.append("%s: hay un espacio vacío en 'beats'" % who)
+		return
+	for index in story.beats.size():
+		var beat := story.beats[index]
+		var where := "%s, momento %d" % [who, index + 1]
+		if index > 0 and beat.moment < story.beats[index - 1].moment:
+			errors.append("%s: el momento %d llega antes que el %d; deben ir en orden" % [who, index + 1, index])
+		if beat.steps.has(null):
+			errors.append("%s: hay un espacio vacío en 'steps'" % where)
+			continue
+		for step_index in beat.steps.size():
+			_check_story_step(errors, catalog, "%s, paso %d" % [where, step_index + 1], beat.steps[step_index])
+
+
+## Un paso de la historia: una línea la dice un amigo del catálogo, y una decisión tiene quien la pregunte, al menos una
+## opción buena, lo que responde Matías en cada opción y lo que pasa sin respuesta.
+static func _check_story_step(errors: Array[String], catalog: ContentCatalog, who: String, step: StoryStepData) -> void:
+	match step.kind:
+		StoryStepData.Kind.LINE:
+			if not catalog.friends.has(step.speaker):
+				errors.append(who + ": quien habla no es un amigo del catálogo")
+		StoryStepData.Kind.DECISION:
+			var decision := step.decision
+			if decision == null:
+				errors.append(who + ": es una decisión sin datos")
+				return
+			if not catalog.friends.has(decision.friend):
+				errors.append(who + ": quien decide no es un amigo del catálogo")
+			if decision.options.has(null):
+				errors.append(who + ": hay un espacio vacío en 'options'")
+				return
+			if not decision.options.any(func(option: StoryOptionData) -> bool: return option.good):
+				errors.append(who + ": la decisión no tiene ninguna opción buena")
+			for index in decision.options.size():
+				var option := decision.options[index]
+				var where := "%s, opción %d" % [who, index + 1]
+				if option.label_key.is_empty():
+					errors.append(where + ": falta lo que responde Matías")
+				_check_story_option(errors, catalog, where, option)
+			if decision.no_answer == null:
+				errors.append(who + ": falta lo que pasa sin respuesta")
+			else:
+				_check_story_option(errors, catalog, who + ", sin respuesta", decision.no_answer)
+
+
+## Los castigados y los candidatos al daño de una opción son amigos del catálogo.
+static func _check_story_option(errors: Array[String], catalog: ContentCatalog, who: String,
+		option: StoryOptionData) -> void:
+	for friend: FriendData in option.penalized:
+		if not catalog.friends.has(friend):
+			errors.append(who + ": castiga a alguien que no es un amigo del catálogo")
+	for friend: FriendData in option.damage_candidates:
+		if not catalog.friends.has(friend):
+			errors.append(who + ": hiere a alguien que no es un amigo del catálogo")
 
 
 ## Todas las noches de todas las dificultades, sin el tutorial.
@@ -240,6 +305,10 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 				var line := night.scripted_chat.lines[index]
 				if line != null:
 					keys.append(["Noche %d, chat guionado, línea %d" % [night.number, index + 1], line.text_key])
+	for difficulty: DifficultyData in catalog.difficulties:
+		for night: NightData in difficulty.nights:
+			if night != null:
+				_story_keys(keys, "Dificultad '%s', noche %d, historia" % [difficulty.id, night.number], night.story)
 	for entity: EntityData in _entities_with_tutorial(catalog):
 		var who := "Entidad '%s'" % entity.id
 		keys.append([who + ", nombre", entity.name_key])
@@ -273,6 +342,35 @@ static func _text_keys(catalog: ContentCatalog) -> Array[Array]:
 		for wrong_key: String in incident.wrong_keys:
 			keys.append([where + ", mala idea", wrong_key])
 	return keys
+
+
+## Las claves de texto de una historia: sus líneas, sus preguntas, lo que responde Matías y lo que contesta el amigo.
+static func _story_keys(keys: Array[Array], who: String, story: StoryData) -> void:
+	if story == null or story.beats.has(null):
+		return
+	for index in story.beats.size():
+		var steps := story.beats[index].steps
+		for step_index in steps.size():
+			var step := steps[step_index]
+			var where := "%s, momento %d, paso %d" % [who, index + 1, step_index + 1]
+			if step == null:
+				continue
+			if step.kind == StoryStepData.Kind.LINE:
+				keys.append([where, step.text_key])
+			elif step.kind == StoryStepData.Kind.DECISION and step.decision != null:
+				keys.append([where + ", la pregunta", step.decision.message_key])
+				for option_index in step.decision.options.size():
+					var option := step.decision.options[option_index]
+					if option != null:
+						keys.append(["%s, opción %d" % [where, option_index + 1], option.label_key])
+						_reply_keys(keys, "%s, opción %d" % [where, option_index + 1], option)
+				if step.decision.no_answer != null:
+					_reply_keys(keys, where + ", sin respuesta", step.decision.no_answer)
+
+
+static func _reply_keys(keys: Array[Array], who: String, option: StoryOptionData) -> void:
+	for index in option.reply_keys.size():
+		keys.append(["%s, respuesta %d" % [who, index + 1], option.reply_keys[index]])
 
 
 ## La noche 0, si el catálogo la tiene: su número es 0, y cada solicitud es de un amigo del catálogo, con una

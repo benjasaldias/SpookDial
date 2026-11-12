@@ -78,3 +78,19 @@ func test_cada_variante_con_una_frase_marcada() -> bool:
 	errors = ContentValidator.validate_texts(Fixtures.make_catalog(), _translate_except(["K_LABEL_beast_trait_2"]))
 	check_contains(errors, "Entidad 'beast', característica 'beast_trait_2', nombre: la clave 'K_LABEL_beast_trait_2' no está en ningún CSV")
 	return true
+
+
+## Las líneas, las decisiones y las opciones de la historia (Plan 9.7) tienen su texto.
+func test_las_claves_de_la_historia_se_revisan() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.nights()[0].story = Fixtures.make_story(catalog)
+	check(ContentValidator.validate_texts(catalog, _translate_except([])).is_empty(), "completa")
+	var errors := ContentValidator.validate_texts(catalog, _translate_except(["K_STORY_HELLO", "K_STORY_ASK",
+			"K_STORY_BAD", "K_STORY_GOOD_REPLY", "K_STORY_NO_ANSWER"]))
+	var where := "Dificultad 'normal', noche 1, historia"
+	check_contains(errors, where + ", momento 1, paso 1: la clave 'K_STORY_HELLO' no está en ningún CSV")
+	check_contains(errors, where + ", momento 3, paso 1, la pregunta: la clave 'K_STORY_ASK' no está en ningún CSV")
+	check_contains(errors, where + ", momento 3, paso 1, opción 2: la clave 'K_STORY_BAD' no está en ningún CSV")
+	check_contains(errors, where + ", momento 3, paso 1, opción 1, respuesta 1: la clave 'K_STORY_GOOD_REPLY' no está en ningún CSV")
+	check_contains(errors, where + ", momento 3, paso 1, sin respuesta, respuesta 1: la clave 'K_STORY_NO_ANSWER' no está en ningún CSV")
+	return true

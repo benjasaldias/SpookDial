@@ -17,6 +17,9 @@ extends Resource
 ## Lo que le pasa al amigo ("Me perdí.", "Algo me viene siguiendo."): claves de messages.csv, una al azar por
 ## solicitud. Va después del saludo, y el lugar solo a veces (decisión de Benja, 11 de noviembre).
 @export var predicament_keys: Array[String] = []
+## Las de predicament_keys que solo dice un amigo que está solo ("Me perdí", "Me separé de los demás"): con los 3 juntos
+## en la historia, no se usan (docs/21 §2).
+@export var alone_predicament_keys: Array[String] = []
 ## Los accidentes que les pueden pasar a los amigos (decisión de Benja, 7 de noviembre).
 @export var incidents: Array[IncidentData] = []
 ## Valores de equilibrio de todas las noches (data/balance.tres).
