@@ -555,6 +555,7 @@ func test_aplica_las_opciones() -> bool:
 	check(desk.get_node("DeskPlane/Entries/EntryLeon").reduce_flashes, "entradas sin destellos")
 	check(desk.get_node("UI/MixerView").reduce_flashes, "mixer sin destellos")
 	check(desk.get_node("Screamers").reduce_flashes, "screamers sin destellos")
+	check(desk.get_node("UI/ChatPanel").reduce_flashes, "el chat sin destellos: el botón de la señal queda fijo")
 	check_eq(desk.get_node("RequestManager").timer_scale, 1.5, "temporizadores ×1,5")
 	desk.apply_settings(GameSettings.new())
 	check(camera.get("look_enabled"), "la cámara vuelve a mirar hacia el mouse")

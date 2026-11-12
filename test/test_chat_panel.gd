@@ -53,6 +53,9 @@ func _layout(panel: Control) -> void:
 	(panel.get_node("Panel/Layout") as Container).notification(Container.NOTIFICATION_SORT_CHILDREN)
 
 
+const ChatPanelScript := preload("res://scripts/ui/chat_panel.gd")
+
+
 func _question_buttons(panel: Control) -> Array[Node]:
 	return panel.get_node("%Questions").get_children()
 
@@ -483,17 +486,23 @@ func test_los_textos_de_la_descarga_existen() -> bool:
 	return true
 
 
+## Sincronizar es un botón cuadrado con la señal del amigo en barritas (docs/26 §2.3), y "Sincronizar" como ayuda.
 func test_el_boton_sincronizar() -> bool:
 	var panel := _make_panel()
 	panel.open_for(1)
 	panel._process(0.0)
 	var sync := panel.get_node("%Sync") as Button
-	check(not sync.visible, "en la noche 1 no hay Audio Sync")
+	check(not sync.visible, "en la noche 1 del catálogo de prueba no hay Audio Sync")
 	_manager.catalog.nights[0].audio_sync_beats = 4
 	panel._process(0.0)
 	check(sync.visible, "con Audio Sync, se ve")
-	check_eq(sync.text, tr("CHAT_SYNC").to_upper(), "en mayúsculas")
-	check(sync.text != "CHAT_SYNC", "el texto está en ui.csv")
+	check_eq(sync.text, "", "sin texto: el ícono de la señal")
+	check_eq((sync.icon as AtlasTexture).region, Rect2(60, 0, 15, 12), "la señal llena: 4 barritas verdes")
+	_manager.state.friends[1].signal_level = 40.0
+	panel._process(0.0)
+	check_eq((sync.icon as AtlasTexture).region, Rect2(30, 12, 15, 12), "con 40: 2 barritas ámbar")
+	check_eq(sync.tooltip_text, tr("CHAT_SYNC"), "la ayuda dice qué hace")
+	check(sync.tooltip_text != "CHAT_SYNC", "el texto está en ui.csv")
 	var requested := []
 	panel.sync_requested.connect(func(friend_index: int) -> void: requested.append(friend_index))
 	sync.pressed.emit()
@@ -822,5 +831,43 @@ func test_las_respuestas_son_hojas_numeradas() -> bool:
 		var number := button.get_node("Number") as Control
 		check(number.visible, "con su nota adhesiva")
 		check_eq((number.get_node("Label") as Label).text, str(index + 1), "con el número de su columna")
+	_free(panel)
+	return true
+
+
+## Una barrita por cada 25 de señal; verdes con 70 o más (sin estática), ámbar desde 30 y rojas bajo 30, como los tramos
+## de la estática.
+func test_la_senal_en_barritas() -> bool:
+	var frames := {0.0: Vector2i(0, 2), 10.0: Vector2i(1, 2), 30.0: Vector2i(2, 1), 69.0: Vector2i(3, 1),
+			70.0: Vector2i(3, 0), 100.0: Vector2i(4, 0)}
+	for level: float in frames:
+		check_eq(ChatPanelScript.signal_frame(level), frames[level], "señal %d" % level)
+	return true
+
+
+## Sin señal, el botón de sincronizar parpadea con un borde rojo; con "Reducir destellos", el borde queda fijo.
+func test_sin_senal_el_boton_parpadea() -> bool:
+	var panel := _make_panel()
+	_manager.catalog.nights[0].audio_sync_beats = 4
+	panel.open_for(0)
+	panel._process(0.0)
+	var highlight := panel.get_node("%Sync/Highlight")
+	check(not highlight.active, "con señal, no")
+	_manager.state.friends[0].signal_level = 0.0
+	panel._process(0.0)
+	check(highlight.active, "sin señal, parpadea")
+	check(not highlight.reduce_flashes, "parpadeando")
+	panel.reduce_flashes = true
+	check(highlight.reduce_flashes, "con Reducir destellos, el borde queda fijo")
+	panel.open_for(1)
+	check(not highlight.active, "Gonzalo tiene señal")
+	_free(panel)
+	return true
+
+
+## El nombre de la entidad lleva el ícono del cuaderno: se entiende que abre su página (docs/26 §2.3).
+func test_el_nombre_lleva_el_cuaderno() -> bool:
+	var panel := _make_panel()
+	check((panel.get_node("%EntityName") as Button).icon != null, "con el ícono del cuaderno")
 	_free(panel)
 	return true

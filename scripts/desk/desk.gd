@@ -163,6 +163,7 @@ func apply_settings(settings: GameSettings) -> void:
 	_screamers.reduce_flashes = settings.reduce_flashes
 	_hands.reduce_flashes = settings.reduce_flashes
 	_stat_bars.reduce_flashes = settings.reduce_flashes
+	_chat_panel.reduce_flashes = settings.reduce_flashes
 	$LookCamera.set_look(not settings.still_camera)
 	_requests.timer_scale = settings.timer_scale()
 	_chat_panel.audio_captions = settings.audio_captions

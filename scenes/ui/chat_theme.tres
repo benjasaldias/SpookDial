@@ -228,6 +228,18 @@ texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tooltip"]
+content_margin_left = 6.0
+content_margin_top = 3.0
+content_margin_right = 6.0
+content_margin_bottom = 3.0
+bg_color = Color(0.03, 0.05, 0.09, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.76, 0.79, 1)
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_notice"]
@@ -290,18 +302,20 @@ SectionTitle/base_type = &"Label"
 SectionTitle/colors/font_color = Color(0.36, 0.62, 0.66, 1)
 SystemNotice/base_type = &"PanelContainer"
 SystemNotice/styles/panel = SubResource("StyleBoxEmpty_notice")
-QuestionButton/base_type = &"Button"
-QuestionButton/colors/font_hover_color = Color(0.94, 0.97, 1, 1)
-QuestionButton/colors/font_hover_pressed_color = Color(0.94, 0.97, 1, 1)
-QuestionButton/colors/font_pressed_color = Color(0.94, 0.97, 1, 1)
-QuestionButton/colors/icon_disabled_color = Color(0.22, 0.27, 0.36, 1)
-QuestionButton/colors/icon_hover_color = Color(0.94, 0.97, 1, 1)
-QuestionButton/colors/icon_hover_pressed_color = Color(0.94, 0.97, 1, 1)
-QuestionButton/colors/icon_normal_color = Color(0.79, 0.84, 0.95, 1)
-QuestionButton/colors/icon_pressed_color = Color(0.94, 0.97, 1, 1)
-QuestionButton/constants/h_separation = 6
-QuestionButton/styles/hover = SubResource("StyleBoxFlat_question_hover")
-QuestionButton/styles/hover_pressed = SubResource("StyleBoxFlat_question_pressed")
-QuestionButton/styles/pressed = SubResource("StyleBoxFlat_question_pressed")
+ChatIconButton/base_type = &"Button"
+ChatIconButton/colors/font_hover_color = Color(0.94, 0.97, 1, 1)
+ChatIconButton/colors/font_hover_pressed_color = Color(0.94, 0.97, 1, 1)
+ChatIconButton/colors/font_pressed_color = Color(0.94, 0.97, 1, 1)
+ChatIconButton/colors/icon_disabled_color = Color(0.22, 0.27, 0.36, 1)
+ChatIconButton/colors/icon_hover_color = Color(0.94, 0.97, 1, 1)
+ChatIconButton/colors/icon_hover_pressed_color = Color(0.94, 0.97, 1, 1)
+ChatIconButton/colors/icon_normal_color = Color(0.79, 0.84, 0.95, 1)
+ChatIconButton/colors/icon_pressed_color = Color(0.94, 0.97, 1, 1)
+ChatIconButton/constants/h_separation = 6
+ChatIconButton/styles/hover = SubResource("StyleBoxFlat_question_hover")
+ChatIconButton/styles/hover_pressed = SubResource("StyleBoxFlat_question_pressed")
+ChatIconButton/styles/pressed = SubResource("StyleBoxFlat_question_pressed")
 RichTextLabel/colors/default_color = Color(0.82, 0.87, 0.97, 1)
+TooltipLabel/colors/font_color = Color(0.79, 0.84, 0.95, 1)
+TooltipPanel/styles/panel = SubResource("StyleBoxFlat_tooltip")
 RichTextLabel/constants/line_separation = 3

@@ -29,7 +29,9 @@ const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatMessageView := preload("res://scripts/ui/chat_message_view.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const MessageBuilder := preload("res://scripts/core/message_builder.gd")
+const Highlight := preload("res://scripts/ui/highlight.gd")
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
+const PixelText := preload("res://scripts/ui/pixel_text.gd")
 const QuestionButton := preload("res://scripts/ui/question_button.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 
@@ -92,12 +94,33 @@ const OFFLINE_KEY := "CHAT_OFFLINE"
 ## Sobre las opciones de un accidente (ui.csv).
 const INCIDENT_HINT_KEY := "CHAT_INCIDENT_HINT"
 const ChatVoice := preload("res://scripts/core/chat_voice.gd")
-## El botón que abre el mixer en el canal del amigo (ui.csv).
+## La ayuda del botón que abre el mixer en el canal del amigo (ui.csv).
 const SYNC_KEY := "CHAT_SYNC"
+## El botón de sincronizar muestra la señal del amigo elegido (docs/26 §2.3): 5 cuadros de 0 a 4 barritas, en 3 filas
+## (verde, ámbar y rojo), de art/ui/chat_signal.png.
+const SIGNAL_SHEET := preload("res://art/ui/chat_signal.png")
+const SIGNAL_FRAME_SIZE := Vector2(15, 12)
+## Una barrita por cada tantos puntos de señal.
+const SIGNAL_PER_BAR := 25.0
+## Los colores siguen los tramos de la estática (ChatStatic.COVERAGE): verde sin estática, rojo con mucha.
+const SIGNAL_CLEAR := 70.0
+const SIGNAL_WEAK := 30.0
+## Sin señal, el botón parpadea con un borde rojo.
+const SYNC_ALERT_COLOR := Color(1.0, 0.3, 0.37)
+## El cuaderno junto al nombre de la entidad: se entiende que abre su página (docs/26 §2.3). Crece con la letra del nombre.
+const NOTEBOOK_ICON := preload("res://art/ui/chat_icon_notebook.png")
+const NOTEBOOK_ICON_PIXELS := 11
+const ENTITY_FONT_SIZE := 22
 
 var selected_friend := 0
 ## La opción "Subtítulos de los audios": vale para los mensajes que llegan desde ahora.
 var audio_captions := false
+## La opción "Reducir destellos" (diseño §19): el borde del botón de sincronizar queda fijo en vez de parpadear.
+var reduce_flashes := false:
+	set(value):
+		reduce_flashes = value
+		if _sync_highlight != null:
+			_sync_highlight.reduce_flashes = value
 
 var _manager: RequestManager
 var _memory: NotebookMemory
@@ -112,6 +135,9 @@ var _last_typed: Array[Node] = []
 var _answer_buttons: Array[Button] = []
 ## Los botones de pregunta, por categoría.
 var _question_buttons := {}
+## El cuadro de la señal en el botón de sincronizar, y el borde que parpadea sin señal.
+var _sync_icon := AtlasTexture.new()
+var _sync_highlight: Highlight
 ## La voz de cada amigo y el sonido que usa, en orden.
 var _voices: Array[ChatVoice] = []
 var _voice_streams: Array[AudioStream] = []
@@ -166,9 +192,21 @@ func _ready() -> void:
 		button.add_child(_answer_number(index + 1))
 		_answers.add_child(button)
 		_answer_buttons.append(button)
+	_entity_button.icon = NOTEBOOK_ICON
+	_entity_button.expand_icon = true
 	_entity_button.pressed.connect(_on_entity_pressed)
-	_sync_button.text = tr(SYNC_KEY).to_upper()
+	_sync_icon.atlas = SIGNAL_SHEET
+	_sync_button.icon = _sync_icon
+	_sync_button.expand_icon = true
+	_sync_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_sync_button.tooltip_text = tr(SYNC_KEY)
 	_sync_button.pressed.connect(_on_sync_pressed)
+	_sync_highlight = Highlight.new()
+	_sync_highlight.name = "Highlight"
+	_sync_highlight.color = SYNC_ALERT_COLOR
+	_sync_highlight.reduce_flashes = reduce_flashes
+	_sync_button.add_child(_sync_highlight)
+	_resize_icons()
 	_script_reply.pressed.connect(_on_script_reply_pressed)
 	_panel.gui_input.connect(_on_panel_gui_input)
 	visibility_changed.connect(_audio_clip.stop)
@@ -270,8 +308,7 @@ func _update_status() -> void:
 	for index in _tabs.size():
 		_tabs[index].text = _tab_text(index)
 	_update_identify_bar()
-	# Sin Audio Sync esa noche (la 1), no hay nada que sincronizar.
-	_sync_button.visible = _manager.night().audio_sync_beats > 0
+	_update_sync()
 	_update_questions()
 	_update_answers()
 	_update_download()
@@ -315,6 +352,24 @@ func _update_identify_bar() -> void:
 			_progress.text = tr(THINKING_KEY)
 		FriendRequest.Identification.REVEALED:
 			_entity_button.text = tr(request.entity.name_key)
+
+
+## El botón de sincronizar muestra la señal del amigo elegido y, sin señal, parpadea. Sin Audio Sync esa noche, no hay
+## nada que sincronizar.
+func _update_sync() -> void:
+	_sync_button.visible = _manager.night().audio_sync_beats > 0
+	var level := _manager.state.friends[selected_friend].signal_level
+	var frame := signal_frame(level)
+	_sync_icon.region = Rect2(Vector2(frame) * SIGNAL_FRAME_SIZE, SIGNAL_FRAME_SIZE)
+	_sync_highlight.active = _sync_button.visible and level <= 0.0
+
+
+## El cuadro de la señal para `level`: cuántas barritas (una por cada 25) y en qué fila de color (0 verde, 1 ámbar y
+## 2 rojo).
+static func signal_frame(level: float) -> Vector2i:
+	var bars := ceili(clampf(level, 0.0, 100.0) / SIGNAL_PER_BAR)
+	var row := 0 if level >= SIGNAL_CLEAR else (1 if level >= SIGNAL_WEAK else 2)
+	return Vector2i(bars, row)
 
 
 ## Con 5 s o menos, sin solicitud o con el amigo sin señal, no se puede preguntar, y una pregunta ya respondida no se
@@ -572,7 +627,25 @@ func _cost_text(seconds: float) -> String:
 func _on_text_size_changed() -> void:
 	for button: QuestionButton in _question_buttons.values():
 		button.resize_icons()
+	_resize_icons()
 	_reserve_answer_space()
+
+
+## El cuaderno del nombre y la señal de sincronizar, del tamaño que los deja nítidos junto a su letra (PixelText). El
+## botón de sincronizar es cuadrado y tan ancho como su ícono lo pide.
+func _resize_icons() -> void:
+	var notebook := PixelText.icon_size_for(NOTEBOOK_ICON_PIXELS, PixelText.size(ENTITY_FONT_SIZE))
+	_entity_button.add_theme_constant_override(&"icon_max_width", notebook)
+	var signal_width := PixelText.icon_size(int(SIGNAL_FRAME_SIZE.x))
+	_sync_button.add_theme_constant_override(&"icon_max_width", signal_width)
+	var style := _sync_button.get_theme_stylebox(&"normal")
+	var side := maxf(signal_width + style.get_margin(SIDE_LEFT) + style.get_margin(SIDE_RIGHT), _identify_height())
+	_sync_button.custom_minimum_size = Vector2(side, 0)
+
+
+## El alto mínimo de la barra de identificación.
+func _identify_height() -> float:
+	return (%IdentifyBar as Control).custom_minimum_size.y
 
 
 ## Responde el accidente del amigo o, si no tiene, con la acción `index` de la página abierta para él.

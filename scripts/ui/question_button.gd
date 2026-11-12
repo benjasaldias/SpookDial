@@ -31,7 +31,7 @@ var _cost: Label
 
 
 func _init() -> void:
-	theme_type_variation = &"QuestionButton"
+	theme_type_variation = &"ChatIconButton"
 	focus_mode = Control.FOCUS_NONE
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	alignment = HORIZONTAL_ALIGNMENT_LEFT
