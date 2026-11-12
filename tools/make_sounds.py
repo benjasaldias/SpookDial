@@ -435,6 +435,20 @@ def phone_flash():
     return master(fade(reverb(out, CABIN, 0.1), 0.0, 0.06), -17)
 
 
+# --- La alarma de las entradas del PC (pedido de Benja, 12 de noviembre) -------------------------------------------
+
+def alarm(frequency):
+    """El pitido de una entrada del PC que espera respuesta: agudo pero suave, corto y sin clic, por el parlante del
+    PC. Cada amigo tiene su nota (si, re y fa: juntas, el acorde disminuido de si), así que suenan juntas sin
+    confundirse. Suena una vez por segundo mientras la entrada titila: tiene que poder oírse mucho rato."""
+    seconds = 0.14
+    t = timeline(seconds)
+    tone = np.sin(2 * np.pi * frequency * t) + 0.18 * np.sin(2 * np.pi * 2 * frequency * t)
+    tone *= attack_decay(seconds, 0.006, 0.05)
+    tone = lowpass(highpass(tone, 400), 5000)
+    return master(fade(reverb(pad(tone, 0.12), CABIN, 0.06), 0.0, 0.04), -28)
+
+
 # --- Voces de los amigos --------------------------------------------------------------------------------------------
 
 def murmur(seconds, f0, vowel, nasal, seed):
@@ -734,6 +748,10 @@ SFX_SOUNDS = {
     "hallucination_scratch": hallucination_scratch,
     "hand_creak": hand_creak,
     "phone_flash": phone_flash,
+    # Si, re y fa: el acorde disminuido de si.
+    "alarm_leon": lambda: alarm(987.77),
+    "alarm_gonzalo": lambda: alarm(1174.66),
+    "alarm_agustin": lambda: alarm(1396.91),
     # León: tono medio; Gonzalo: grave y redondo; Agustín: agudo y nasal.
     "voice_leon": lambda: murmur(0.05, 135, VOWELS["a"], 0.3, 1),
     "voice_gonzalo": lambda: murmur(0.066, 100, VOWELS["o"], 0.35, 2),

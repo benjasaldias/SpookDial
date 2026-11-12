@@ -140,3 +140,46 @@ func test_reducir_destellos() -> bool:
 	check(background.is_playing(), "al apagar la opción, vuelve a parpadear")
 	entry.free()
 	return true
+
+
+## La alarma (pedido de Benja, 12 de noviembre): una entrada en alerta pita una vez por segundo, en el segundo justo de
+## un reloj común a las 3, para que suenen juntas y hagan su acorde.
+func test_la_alarma_pita_cada_segundo_en_alerta() -> bool:
+	var entry := _make_entry()
+	entry.alarm = load("res://audio/sfx/alarm_leon.wav")
+	check(not entry.ring(0.2), "la primera vez solo toma el reloj")
+	check(not entry.ring(1.3), "sin alerta no pita")
+	entry.set_state(ChatEntry.State.WARNING)
+	check(not entry.ring(1.8), "dentro del mismo segundo, nada")
+	check(entry.ring(2.05), "al empezar el segundo, pita")
+	check_eq((entry.get_node("Background") as AnimatedSprite2D).frame, 0, "y la entrada se enciende en rojo con el pitido")
+	check(not entry.ring(2.5), "una vez por segundo")
+	check(entry.ring(3.0), "el siguiente")
+	entry.muted = true
+	check(not entry.ring(4.0), "callada no pita")
+	entry.muted = false
+	entry.set_state(ChatEntry.State.SELECTED)
+	check(not entry.ring(5.0), "con su chat abierto no pita")
+	entry.free()
+	return true
+
+
+func test_la_alarma_pita_tambien_sin_destellos() -> bool:
+	var entry := _make_entry()
+	entry.alarm = load("res://audio/sfx/alarm_leon.wav")
+	entry.reduce_flashes = true
+	entry.set_state(ChatEntry.State.WARNING)
+	entry.ring(0.5)
+	check(entry.ring(1.0), "con la alerta fija, el mismo ritmo")
+	entry.free()
+	return true
+
+
+func test_cada_amigo_tiene_su_nota() -> bool:
+	var streams := []
+	for friend_id: String in ["leon", "gonzalo", "agustin"]:
+		var friend: FriendData = load("res://data/friends/%s.tres" % friend_id)
+		check(friend.alarm != null, "%s tiene su alarma" % friend_id)
+		check(not streams.has(friend.alarm), "%s no repite la de otro" % friend_id)
+		streams.append(friend.alarm)
+	return true

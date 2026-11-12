@@ -1,6 +1,6 @@
 # Sonidos
 
-Todos los sonidos del juego, dónde suena cada uno y qué falta. Actualizado el 10 de noviembre de 2026 (sesión S21d).
+Todos los sonidos del juego, dónde suena cada uno y qué falta. Actualizado el 12 de noviembre de 2026 (sesión S21j).
 
 ## Cómo se hacen
 
@@ -68,6 +68,18 @@ Suenan mientras el amigo escribe, como en Undertale. Desde el 10 de noviembre ca
 | `voice_agustin.wav` | Agustín | Agudo y nasal | 0,034 s |
 
 Sin cambiar los archivos, se ajustan en `data/friends/*.tres`, en el Inspector, grupo **Voice**: `Voice Pitch`, `Voice Spread` y `Voice Every`. Su volumen es `Volume Db` del nodo `Voice` en `scenes/ui/chat_panel.tscn` (−8).
+
+## La alarma de las entradas del PC (pedido de Benja, 12 de noviembre)
+
+Una entrada en alerta (una consulta, un accidente o un video que espera) pita **una vez por segundo**, y se enciende en rojo con el pitido. Las 3 entradas usan un reloj común, así que pitan juntas, y sus notas forman **el acorde disminuido de si**. Se callan durante Audio Sync y mientras suena un audio de un amigo.
+
+| Archivo | Quién | Nota | Dura |
+| --- | --- | --- | --- |
+| `alarm_leon.wav` | León | Si (988 Hz) | 0,26 s, con la cola |
+| `alarm_gonzalo.wav` | Gonzalo | Re (1175 Hz) | Ídem |
+| `alarm_agustin.wav` | Agustín | Fa (1397 Hz) | Ídem |
+
+Son un seno con un poco de su octava, de 0,14 s, por el parlante del PC y a −28 LUFS, para que se oigan mucho rato sin cansar. Cada amigo tiene la suya en `data/friends/*.tres` (`Alarm`). Si molestan, se bajan en la receta (`alarm()` en `make_sounds.py`). Si se quiere que pite cada más tiempo, se cambia `ALARM_SECONDS` en `scripts/ui/chat_entry.gd`.
 
 ## La criatura en la ventana
 

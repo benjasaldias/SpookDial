@@ -84,6 +84,10 @@ var unlocks_on_win: Array[DifficultyData] = []
 @onready var _pause_menu: Control = $Overlay/PauseMenu
 @onready var _tutorial_cards: Control = $Overlay/TutorialCards
 
+## El reloj de las alarmas de las entradas: uno para las 3, así pitan juntas (pedido de Benja, 12 de noviembre). No
+## avanza con la noche en pausa.
+var _alarm_clock := 0.0
+
 ## Las opciones del jugador que se aplicaron; el menú de pausa las cambia.
 var _settings := GameSettings.new()
 
@@ -113,6 +117,7 @@ func _ready() -> void:
 	_warned.fill(false)
 	for index in _entries.size():
 		_entries[index].display_name = tr(friends[index].name_key)
+		_entries[index].alarm = friends[index].alarm
 		_entries[index].pressed.connect(_on_entry_pressed.bind(index))
 	_chat_panel.visibility_changed.connect(_refresh_entries)
 	_chat_panel.friend_selected.connect(_notebook_panel.select_friend)
@@ -140,6 +145,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_alarm_clock += delta
 	_refresh_entries()
 	_refresh_meters()
 	_screamers.advance(delta, _scare_view(), _mixer.is_playing() or _chat_panel.is_audio_playing())
@@ -289,10 +295,10 @@ func _on_retry_pressed() -> void:
 		retry_requested.emit()
 
 
-## Seleccionada si su chat está abierto; si no, gris sin señal, en alerta mientras espera respuesta (también en
-## un accidente o un chat guionado) o la descarga de su video, o más oscura si el amigo está aturdido. Muestra el tiempo que le
-## queda para responder, para descargar su video o para recuperarse, o que está sin señal; y su vida, su señal y
-## si viene una interferencia.
+## Seleccionada si su chat está abierto; si no, gris sin señal, en alerta mientras espera respuesta (también en un
+## accidente o un chat guionado) o la descarga de su video, o más oscura si el amigo está aturdido. Muestra el tiempo
+## que le queda para responder, para descargar su video o para recuperarse, o que está sin señal; y su vida, su señal y
+## si viene una interferencia. En alerta pita, salvo durante Audio Sync o un audio de un amigo, que hay que oír.
 func _refresh_entries() -> void:
 	var state := _requests.state
 	for index in _entries.size():
@@ -313,6 +319,8 @@ func _refresh_entries() -> void:
 		if entry.state != entry_state:
 			entry.set_state(entry_state)
 		entry.set_health(friend.health, friend.max_health)
+		entry.muted = _mixer.is_playing() or _chat_panel.is_audio_playing()
+		entry.ring(_alarm_clock)
 		entry.set_signal(friend.signal_level)
 		var warning := state.interference_warning(index)
 		entry.set_interference_warning(warning)

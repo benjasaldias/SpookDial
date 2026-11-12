@@ -169,6 +169,26 @@ func test_una_solicitud_hace_parpadear_su_entrada() -> bool:
 	return true
 
 
+## Las entradas pitan con la nota de su amigo y el reloj del escritorio, y se callan durante Audio Sync (pedido de Benja,
+## 12 de noviembre).
+func test_las_entradas_pitan_y_se_callan_en_audio_sync() -> bool:
+	var desk := _make_desk()
+	var friends: Array = desk.get_node("RequestManager").catalog.friends
+	var gonzalo := desk.get_node("DeskPlane/Entries/EntryGonzalo")
+	check_eq(gonzalo.alarm, friends[1].alarm, "Gonzalo pita con su nota")
+	desk.get_node("RequestManager").start_request(1)
+	desk._process(0.0)
+	check(not gonzalo.muted, "con el escritorio a la vista, suena")
+	desk.open_mixer_for(1)
+	desk._process(0.1)
+	check(gonzalo.muted, "durante una ronda de Audio Sync, callada")
+	desk.close_modes()
+	desk._process(0.1)
+	check(not gonzalo.muted, "después vuelve")
+	desk.free()
+	return true
+
+
 func test_cerrar_el_chat_deselecciona() -> bool:
 	var desk := _make_desk()
 	var leon := desk.get_node("DeskPlane/Entries/EntryLeon")

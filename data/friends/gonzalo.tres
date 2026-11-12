@@ -2,12 +2,14 @@
 
 [ext_resource type="Script" path="res://scripts/data/friend_data.gd" id="1_friend"]
 [ext_resource type="AudioStream" path="res://audio/sfx/voice_gonzalo.wav" id="2_voice"]
+[ext_resource type="AudioStream" path="res://audio/sfx/alarm_gonzalo.wav" id="3_alarm"]
 
 [resource]
 script = ExtResource("1_friend")
 id = &"gonzalo"
 name_key = "FRIEND_GONZALO_NAME"
 color = Color(0.5, 0.65, 1, 1)
+alarm = ExtResource("3_alarm")
 voice = ExtResource("2_voice")
 voice_spread = 0.05
 voice_every = 4

@@ -9,6 +9,10 @@ extends Resource
 ## Color de su nombre y de su pestaña en el chat.
 @export var color := Color.WHITE
 
+## El pitido de su entrada del PC mientras espera respuesta, una vez por segundo (pedido de Benja, 12 de noviembre). Cada
+## amigo tiene su nota: las 3 juntas hacen un acorde disminuido.
+@export var alarm: AudioStream
+
 @export_group("Voice")
 ## El sonido corto que hace mientras escribe, como en Undertale (decisión de Benja, 8 de noviembre).
 @export var voice: AudioStream

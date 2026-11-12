@@ -3,6 +3,8 @@ extends Node2D
 ## El arte pone el fondo; Godot pone el nombre, la señal, la vida, el estado y el temporizador.
 ## Titila mientras se anuncia una interferencia (diseño §10.1). Con "Reducir destellos" (diseño §19), la alerta
 ## queda fija en lugar de parpadear, y el aviso de una interferencia atenúa la entrada en lugar de hacerla titilar.
+## En alerta pita una vez por segundo, con la nota de su amigo (pedido de Benja, 12 de noviembre): el escritorio le da un
+## reloj común a las 3 entradas, así que pitan juntas y hacen su acorde, y la entrada se enciende en rojo con el pitido.
 
 signal pressed
 
@@ -33,6 +35,8 @@ const OFFLINE_KEY := "ENTRY_OFFLINE"
 const FLICKER_SECONDS := 0.12
 ## Qué tan atenuada queda la entrada al titilar, o mientras dura el aviso si se reducen los destellos.
 const DIM_ALPHA := 0.35
+## Cada cuántos segundos pita en alerta.
+const ALARM_SECONDS := 1.0
 
 @export var display_name := "":
 	set(value):
@@ -55,7 +59,19 @@ var reduce_flashes := false:
 		if is_node_ready():
 			set_state(state)
 
+## El pitido de su amigo, o null.
+var alarm: AudioStream:
+	set(value):
+		alarm = value
+		if _alarm_player != null:
+			_alarm_player.stream = value
+## No pita: el escritorio la calla durante Audio Sync y mientras suena un audio de un amigo.
+var muted := false
+
 var _flicker_time := 0.0
+## El segundo del reloj común en que pitó o se miró por última vez; -1 antes de la primera.
+var _alarm_beat := -1
+var _alarm_player: AudioStreamPlayer
 
 @onready var _background: AnimatedSprite2D = $Background
 @onready var _name_label: Label = $NameLabel
@@ -66,6 +82,11 @@ var _flicker_time := 0.0
 
 func _ready() -> void:
 	_name_label.text = display_name
+	_alarm_player = AudioStreamPlayer.new()
+	_alarm_player.name = "Alarm"
+	_alarm_player.bus = &"Effects"
+	_alarm_player.stream = alarm
+	add_child(_alarm_player)
 	set_state(State.IDLE)
 	set_seconds_left(-1)
 
@@ -86,6 +107,21 @@ func set_state(new_state: State) -> void:
 		_background.pause()
 		_background.frame = 0
 	_background.modulate = STATE_MODULATE[new_state]
+
+
+## Mira el reloj común (`clock`, en segundos): al empezar cada segundo, si está en alerta y no está callada, pita y se
+## enciende en rojo. Devuelve si pitó.
+func ring(clock: float) -> bool:
+	var beat := floori(clock / ALARM_SECONDS)
+	var first := _alarm_beat < 0
+	var new_beat := beat != _alarm_beat
+	_alarm_beat = beat
+	if first or not new_beat or state != State.WARNING or muted or alarm == null:
+		return false
+	_alarm_player.play()
+	_background.frame = 0
+	_background.frame_progress = 0.0
+	return true
 
 
 ## Muestra los segundos restantes. Con un valor negativo, oculta el temporizador.
