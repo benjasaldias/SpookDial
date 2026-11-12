@@ -110,6 +110,8 @@ func test_normal_viene_marcada() -> bool:
 	_button(menu, "NewGame").pressed.emit()
 	check((_options(menu)[0] as Button).button_pressed, "Normal, marcada")
 	check(not (_options(menu)[1] as Button).button_pressed, "Difícil, no")
+	var normal := _options(menu)[0] as Button
+	check_eq(normal.get_theme_stylebox(&"pressed"), normal.get_theme_stylebox(&"hover"), "la marcada se ve iluminada")
 	_button(menu, "Difficulty/Buttons/Start").pressed.emit()
 	check_eq(pressed, [["new_game_pressed", &"normal"]], "empieza en Normal")
 	menu.free()
@@ -124,9 +126,10 @@ func test_dificil_bloqueada() -> bool:
 	check(hard.disabled, "no se puede elegir")
 	check(hard.icon != null, "con el candado")
 	check(not (_options(menu)[0] as Button).disabled and (_options(menu)[0] as Button).icon == null, "Normal, libre")
-	var info := menu.get_node("Center/Box/Difficulty/Options").get_child(3) as Label
-	check(info.text.contains(String(tr("MENU_LOCKED")).format({"difficulty": tr(_normal().name_key)})),
-			"dice que hay que terminar Normal: " + info.text)
+	var lock_text := String(tr("MENU_LOCKED")).format({"difficulty": tr(_normal().name_key)})
+	var labels := menu.get_node("Center/Box/Difficulty/Options").get_children().filter(func(node: Node) -> bool:
+		return node is Label and (node as Label).text == lock_text)
+	check_eq(labels.size(), 1, "dice que hay que terminar Normal")
 	menu.free()
 	return true
 

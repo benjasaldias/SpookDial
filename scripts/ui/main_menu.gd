@@ -117,8 +117,8 @@ func setup(saved_night: int, settings: GameSettings, saved_difficulty: Difficult
 	_build_choice(difficulties, locked)
 
 
-## Una opción por dificultad, con su descripción debajo. Una bloqueada no se puede elegir, lleva el candado y dice qué
-## dificultad hay que terminar.
+## Una opción por dificultad, con su descripción debajo. La marcada se ve iluminada (como al pasar el mouse), y una
+## bloqueada, hundida: no se puede elegir, lleva el candado y dice, en ámbar, qué dificultad hay que terminar.
 func _build_choice(difficulties: Array[DifficultyData], locked: Array[DifficultyData]) -> void:
 	for child: Node in _choice_options.get_children():
 		_choice_options.remove_child(child)
@@ -126,6 +126,8 @@ func _build_choice(difficulties: Array[DifficultyData], locked: Array[Difficulty
 	_difficulties = difficulties.duplicate()
 	_difficulty_buttons.clear()
 	var icon_side := PixelText.icon_size_for(LOCK_PIXELS, PixelText.size(OPTION_FONT_SIZE))
+	var marked := get_theme_stylebox(&"hover", &"Button")
+	var marked_color := get_theme_color(&"font_hover_color", &"Button")
 	for difficulty: DifficultyData in difficulties:
 		var is_locked := locked.has(difficulty)
 		var button := Button.new()
@@ -134,8 +136,13 @@ func _build_choice(difficulties: Array[DifficultyData], locked: Array[Difficulty
 		button.text = tr(difficulty.name_key)
 		button.disabled = is_locked
 		button.add_theme_font_size_override(&"font_size", OPTION_FONT_SIZE)
+		for state: StringName in [&"pressed", &"hover_pressed"]:
+			button.add_theme_stylebox_override(state, marked)
+		for state: StringName in [&"font_pressed_color", &"font_hover_pressed_color"]:
+			button.add_theme_color_override(state, marked_color)
 		if is_locked:
 			button.icon = LOCK_ICON
+			button.expand_icon = true
 			button.add_theme_constant_override(&"icon_max_width", icon_side)
 		_choice_options.add_child(button)
 		_difficulty_buttons.append(button)
@@ -145,10 +152,12 @@ func _build_choice(difficulties: Array[DifficultyData], locked: Array[Difficulty
 		info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info.custom_minimum_size = Vector2(440, 0)
 		info.add_theme_font_size_override(&"font_size", INFO_FONT_SIZE)
-		if is_locked and difficulty.unlocked_by != null:
-			info.text += "\n" + tr(TEXT_KEYS["Locked"]).format({"difficulty": tr(difficulty.unlocked_by.name_key)})
-			info.add_theme_color_override(&"font_color", LOCKED_COLOR)
 		_choice_options.add_child(info)
+		if is_locked and difficulty.unlocked_by != null:
+			var lock := info.duplicate() as Label
+			lock.text = tr(TEXT_KEYS["Locked"]).format({"difficulty": tr(difficulty.unlocked_by.name_key)})
+			lock.add_theme_color_override(&"font_color", LOCKED_COLOR)
+			_choice_options.add_child(lock)
 
 
 ## Nueva partida: esconde los botones del menú y muestra la elección, con la primera dificultad libre marcada (Normal).
