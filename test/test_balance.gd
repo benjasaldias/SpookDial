@@ -419,3 +419,62 @@ func test_dificil_5_es_la_referencia() -> bool:
 	var ratio := BalanceModel.free_time_ratio(hard.nights[4], catalog.balance, BalanceModel.attention_for(hard), SEEDS)
 	check(ratio >= 1.0 and ratio <= 1.5, "holgura de Difícil 5: %.2f" % ratio)
 	return true
+
+
+
+# --- Extremo (pedido de Benja, 12 de noviembre; docs/30).
+
+## Los valores de Extremo: olas de 2 más seguidas (calma de 20 a 30 s), menos tiempo y más obstrucciones.
+func test_valores_de_extremo() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	if catalog.find_difficulty(&"extreme").id != &"extreme":
+		check(false, "no hay Extremo")
+		return true
+	var nights := _nights(catalog, &"extreme")
+	var expected := {
+		"requests_total": [11, 13, 13, 15, 15],
+		"base_decision_time": [45.0, 42.0, 40.0, 40.0, 38.0],
+		"interference_count": [4, 5, 6, 7, 8],
+		"hand_visits": [2, 2, 2, 3, 3],
+		"creature_visits": [1, 2, 2, 3, 3],
+		"scare_count": [4, 5, 5, 6, 6],
+		"incident_count": [2, 2, 3, 3, 4],
+		"decoys_per_request": [3, 3, 4, 4, 4],
+		"place_chance": [0.4, 0.35, 0.3, 0.25, 0.2],
+		"audio_sync_bpm": [115.0, 125.0, 135.0, 145.0, 150.0],
+		"content_quota": [3, 3, 4, 4, 4],
+	}
+	for index in nights.size():
+		var night := nights[index]
+		var who := "noche %d" % night.number
+		for property: String in expected:
+			check_eq(night.get(property), expected[property][index], "%s: %s" % [who, property])
+		check_eq(night.wave_calm, Vector2(20, 30), who + ": calma de 20 a 30 s")
+		check_eq([night.wave_size, night.finale_size, night.max_simultaneous], [2, 3, 3], who + ": olas de 2, la final de 3")
+		check_eq(night.first_hint_chance, 0.0, who + ": sin pista")
+		check_eq(night.audio_sync_beats, 8, who + ": 8 aplausos")
+		check_eq(night.sanity_drain_interval, 6.0, who + ": Sanity −1 cada 6 s")
+		check(night.signal_decays, who + ": la señal baja")
+	return true
+
+
+## Extremo es más duro que Difícil en cada noche: más consultas, menos tiempo para responder, calmas más cortas y más
+## obstrucciones, y nunca más pista ni más lugar.
+func test_extremo_es_mas_duro_que_dificil() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var hard := _nights(catalog, &"hard")
+	var extreme := _nights(catalog, &"extreme")
+	if extreme == hard:
+		check(false, "no hay Extremo")
+		return true
+	var calm := catalog.balance.wave_calm
+	for index in hard.size():
+		var who := "noche %d" % (index + 1)
+		for property: String in ["requests_total", "interference_count", "hand_visits", "creature_visits", "scare_count",
+				"incident_count", "decoys_per_request", "audio_sync_bpm", "audio_sync_beats", "content_quota"]:
+			check(extreme[index].get(property) >= hard[index].get(property), "%s: %s, al menos como Difícil" % [who, property])
+		for property: String in ["base_decision_time", "first_hint_chance", "place_chance"]:
+			check(extreme[index].get(property) <= hard[index].get(property), "%s: %s, a lo más como Difícil" % [who, property])
+		check(extreme[index].base_decision_time < hard[index].base_decision_time, who + ": menos tiempo para responder")
+		check(extreme[index].wave_calm.y < calm.x, who + ": calmas más cortas")
+	return true

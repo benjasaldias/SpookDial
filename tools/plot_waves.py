@@ -56,7 +56,7 @@ def main(source, target):
     top.set_yticks([1.5, 5.5, 9.5, 13.5])
     top.set_yticklabels([NAMES[kind] for kind in ("request", "incident", "hand", "video")], color="#c8ccd8")
     top.set_ylim(-1, 17)
-    names = {"normal": "Normal", "hard": "Difícil"}
+    names = {"normal": "Normal", "hard": "Difícil", "extreme": "Extremo"}
     difficulty = names.get(data.get("difficulty", ""), data.get("difficulty", ""))
     title = "%s, noche %d (semilla %d): olas (rojo), calmas, la ola final (rojo fuerte) · batería que pide: %.0f %%" % (
         difficulty, data["night"], data["seed"], data["battery"])

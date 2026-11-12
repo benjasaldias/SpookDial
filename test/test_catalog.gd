@@ -66,8 +66,8 @@ func test_cada_entidad_esta_en_una_noche() -> bool:
 ## identificación; Difícil empieza en la noche 1, se identifica leyendo y se desbloquea al terminar Normal.
 func test_normal_y_dificil() -> bool:
 	var catalog := _load_catalog()
-	check_eq(catalog.difficulties.size(), 2, "2 dificultades")
-	if catalog.difficulties.size() != 2:
+	check(catalog.difficulties.size() >= 2, "Normal y Difícil")
+	if catalog.difficulties.size() < 2:
 		return true
 	var normal := catalog.difficulties[0]
 	var hard := catalog.difficulties[1]
@@ -84,6 +84,25 @@ func test_normal_y_dificil() -> bool:
 		for night: NightData in difficulty.nights:
 			check(night.resource_path.begins_with("res://data/nights/%s/" % difficulty.id),
 					"%s: %s está en su carpeta" % [difficulty.id, night.resource_path])
+	return true
+
+
+## Extremo (pedido de Benja, 12 de noviembre; docs/30): la tercera dificultad, que se desbloquea al terminar Difícil,
+## empieza en la noche 1, se identifica leyendo, cobra ×1,5 de Trust por error y hiere a un amigo cada noche.
+func test_extremo() -> bool:
+	var catalog := _load_catalog()
+	check_eq(catalog.difficulties.size(), 3, "3 dificultades")
+	if catalog.difficulties.size() != 3:
+		return true
+	var extreme := catalog.difficulties[2]
+	check_eq(extreme.id, &"extreme", "Extremo, la tercera")
+	check_eq(extreme.unlocked_by, catalog.find_difficulty(&"hard"), "se desbloquea al terminar Difícil")
+	check_eq(extreme.first_night, 1, "empieza en la noche 1")
+	check(not extreme.highlights, "se lee")
+	check_eq(extreme.error_trust_scale, 1.5, "Trust por error ×1,5")
+	check_eq([extreme.wounded_friends, extreme.wounded_health], [1, 1], "un amigo herido, con 1 de vida")
+	for difficulty: DifficultyData in [catalog.difficulties[0], catalog.difficulties[1]]:
+		check_eq([difficulty.error_trust_scale, difficulty.wounded_friends], [1.0, 0], "%s, sin castigos" % difficulty.id)
 	return true
 
 

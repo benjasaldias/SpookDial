@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="NightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/night_data.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="2_entity"]
+[ext_resource type="Resource" path="res://data/entities/cuero.tres" id="3_cuero"]
+[ext_resource type="Resource" path="res://data/entities/viuda.tres" id="4_viuda"]
+
+[resource]
+script = ExtResource("1_night")
+number = 2
+place_key = "NIGHT_2_PLACE"
+new_entities = Array[ExtResource("2_entity")]([ExtResource("3_cuero"), ExtResource("4_viuda")])
+requests_total = 13
+max_simultaneous = 3
+base_decision_time = 42.0
+first_hint_chance = 0.0
+place_chance = 0.35
+decoys_per_request = 3
+wave_size = 2
+finale_size = 3
+incident_count = 2
+signal_decays = true
+signal_decay_interval = Vector2(3, 6)
+interference_count = 5
+audio_sync_beats = 8
+audio_sync_bpm = 125.0
+sanity_drain_interval = 6.0
+content_quota = 3
+scare_count = 5
+creature_visits = 2
+hand_visits = 2
+wave_calm = Vector2(20, 30)

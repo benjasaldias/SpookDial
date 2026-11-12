@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/data/difficulty_data.gd" id="3_difficulty"]
 [ext_resource type="Resource" path="res://data/difficulty/normal.tres" id="7_normal"]
 [ext_resource type="Resource" path="res://data/difficulty/hard.tres" id="8_hard"]
+[ext_resource type="Resource" path="res://data/difficulty/extreme.tres" id="9_extreme"]
 [ext_resource type="Resource" path="res://data/friends/leon.tres" id="4_leon"]
 [ext_resource type="Resource" path="res://data/friends/gonzalo.tres" id="5_gonzalo"]
 [ext_resource type="Resource" path="res://data/friends/agustin.tres" id="6_agustin"]
@@ -215,7 +216,7 @@ picture = ExtResource("disturbing_4")
 [resource]
 script = ExtResource("1_catalog")
 friends = Array[ExtResource("2_friend")]([ExtResource("4_leon"), ExtResource("5_gonzalo"), ExtResource("6_agustin")])
-difficulties = Array[ExtResource("3_difficulty")]([ExtResource("7_normal"), ExtResource("8_hard")])
+difficulties = Array[ExtResource("3_difficulty")]([ExtResource("7_normal"), ExtResource("8_hard"), ExtResource("9_extreme")])
 decoys = Array[ExtResource("12_decoy")]([SubResource("Decoy_cold_breath"), SubResource("Decoy_distant_dog"), SubResource("Decoy_flickering_light"), SubResource("Decoy_wet_grass"), SubResource("Decoy_trunk_moss"), SubResource("Decoy_creaking_branches"), SubResource("Decoy_hanging_laundry"), SubResource("Decoy_barbed_fence"), SubResource("Decoy_lapping_water"), SubResource("Decoy_creaking_door"), SubResource("Decoy_dripping_water"), SubResource("Decoy_dog_prints"), SubResource("Decoy_smoke_smell")])
 tutorial = ExtResource("15_night_0")
 incidents = Array[ExtResource("16_incident")]([SubResource("Incident_cut"), SubResource("Incident_ankle"), SubResource("Incident_soaked"), SubResource("Incident_bump"), SubResource("Incident_thorn")])

@@ -181,12 +181,17 @@ func test_ganar_la_noche_5_termina_la_dificultad() -> bool:
 	return true
 
 
-## El menú bloquea Difícil mientras no se termine Normal (D1).
+## El menú bloquea Difícil mientras no se termine Normal (D1), y Extremo mientras no se termine Difícil (12 de
+## noviembre).
 func test_dificil_bloqueada_hasta_terminar_normal() -> bool:
 	var game := _make_game()
-	check_eq(game.locked_difficulties(), [game.catalog.find_difficulty(&"hard")], "Difícil, bloqueada")
+	var hard: DifficultyData = game.catalog.find_difficulty(&"hard")
+	var extreme: DifficultyData = game.catalog.find_difficulty(&"extreme")
+	check_eq(game.locked_difficulties(), [hard, extreme], "Difícil y Extremo, bloqueadas")
 	game.progress.mark_finished(&"normal")
-	check_eq(game.locked_difficulties(), [], "al terminar Normal, ninguna")
+	check_eq(game.locked_difficulties(), [extreme], "al terminar Normal, solo Extremo")
+	game.progress.mark_finished(&"hard")
+	check_eq(game.locked_difficulties(), [], "al terminar Difícil, ninguna")
 	_free(game)
 	return true
 
@@ -203,7 +208,11 @@ func test_la_noche_5_de_normal_desbloquea_dificil() -> bool:
 	desk.free()
 	game.difficulty = game.catalog.find_difficulty(&"hard")
 	desk = game.prepare_night(5)
-	check_eq(desk.unlocks_on_win, [], "terminar Difícil no desbloquea nada")
+	check_eq(desk.unlocks_on_win, [game.catalog.find_difficulty(&"extreme")], "terminar Difícil desbloquea Extremo")
+	desk.free()
+	game.difficulty = game.catalog.find_difficulty(&"extreme")
+	desk = game.prepare_night(5)
+	check_eq(desk.unlocks_on_win, [], "terminar Extremo no desbloquea nada")
 	desk.free()
 	_free(game)
 	return true

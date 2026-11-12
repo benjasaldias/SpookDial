@@ -5,7 +5,7 @@ extends Resource
 ## Todo lo que baja la dificultad va a Normal; el juego de antes del testeo pasó a ser Difícil.
 ## La dificultad se elige solo al empezar una partida nueva (data/difficulty/*.tres).
 
-## Con qué se guarda en la partida: "normal" o "hard".
+## Con qué se guarda en la partida: "normal", "hard" o "extreme".
 @export var id: StringName
 ## Su nombre (ui.csv).
 @export var name_key: String
