@@ -243,3 +243,29 @@ func test_avisa_cada_letra_que_se_escribe() -> bool:
 	check_eq(letters, ["H", "o", "l", "a"], "todas, aunque aparezcan juntas")
 	view.free()
 	return true
+
+
+## Las observaciones, lo que decide la fila de la tabla, van en azul y no se clickean; las características, en amarillo y
+## clickeables (decisión de Benja, 11 de noviembre).
+func test_las_observaciones_van_en_azul() -> bool:
+	var request := _make_request()
+	var message := _make_message(request)
+	message.add_fragment("Está enojado.", &"", true)
+	var view := _make_view(message)
+	var text := _label(view).text
+	check(text.contains("[color=#%s]enojado.[/color]" % ChatMessageView.OBSERVATION_COLOR), "la observación, en azul")
+	check(not text.contains("[url=enojado"), "sin enlace")
+	check(text.contains("[color=#%s]pelaje" % ChatMessageView.CLUE_COLOR), "la característica sigue en amarillo")
+	check(ChatMessageView.OBSERVATION_COLOR != ChatMessageView.CLUE_COLOR, "dos colores distintos")
+	view.free()
+	return true
+
+
+## Un audio es una observación: va en azul, y se sigue escuchando con un clic.
+func test_el_audio_va_en_azul() -> bool:
+	var view := _make_view(_make_audio_message(_make_request()))
+	var text := _label(view).text
+	check(text.contains("[url=%s][color=#%s]" % [ChatMessageView.AUDIO_META, ChatMessageView.OBSERVATION_COLOR]),
+			"en azul y con su enlace: " + text)
+	view.free()
+	return true

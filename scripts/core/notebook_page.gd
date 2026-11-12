@@ -3,6 +3,8 @@ extends RefCounted
 ## características con su nombre, las reglas en una tabla y las 4 acciones numeradas (pedido de Benja, 11 de
 ## noviembre). La tabla tiene una fila por regla, en orden, con su condición y una marca por acción: ✓ la correcta,
 ## una calavera la de mayor riesgo y ✗ las otras. Las marcas son íconos, porque la fuente no tiene esos símbolos.
+## Con los colores del chat (pregunta de S21h a Benja): las condiciones en lápiz pasta azul, como las observaciones, que
+## deciden la fila, y los nombres de las características con destacador amarillo, como en el chat: dicen qué página es.
 ## `translate` recibe una clave y devuelve su texto, como TranslationServer.translate.
 
 ## Cómo marca la tabla cada acción de una regla.
@@ -24,8 +26,11 @@ const MARK_TEXTURES := {
 }
 ## El lado de los íconos en el arte, en píxeles.
 const MARK_PIXELS := 9
-## Colores de lápiz pasta sobre la hoja cuadriculada: azul para los encabezados.
+## Colores de lápiz pasta sobre la hoja cuadriculada: azul oscuro para los encabezados y uno más vivo para las condiciones.
 const HEADING_COLOR := "234a8c"
+const CONDITION_COLOR := "1f5fd1"
+## El destacador amarillo de las características.
+const HIGHLIGHT_COLOR := "f0e26a"
 ## El espacio de cada celda: a los lados y arriba y abajo. El borde lo pone el tema del cuaderno (table_border).
 const CELL_PADDING := "5,1,5,1"
 
@@ -36,7 +41,7 @@ static func bbcode(entity: EntityData, translate: Callable, icon_size := MARK_PI
 	var lines := PackedStringArray([_escape(_text(translate, entity.lore_key))])
 	lines.append(_heading(translate, TRAITS_KEY))
 	for trait_data: TraitData in entity.traits:
-		lines.append("• " + _escape(trait_label(trait_data, translate)))
+		lines.append("• [bgcolor=#%s]%s[/bgcolor]" % [HIGHLIGHT_COLOR, _escape(trait_label(trait_data, translate))])
 	lines.append(_heading(translate, RULES_KEY))
 	lines.append(_table(entity, translate, icon_size))
 	lines.append("%s %s" % [_icon(Mark.RISKY, icon_size), _escape(_text(translate, RISK_LEGEND_KEY))])
@@ -79,7 +84,7 @@ static func _table(entity: EntityData, translate: Callable, icon_size: int) -> S
 	for index in entity.actions.size():
 		cells.append(_cell(_colored(str(index + 1), HEADING_COLOR), 1))
 	for rule: RuleData in entity.rules:
-		cells.append(_cell(_escape(_text(translate, rule.text_key)), 6))
+		cells.append(_cell(_colored(_escape(_text(translate, rule.text_key)), CONDITION_COLOR), 6))
 		for mark: Mark in marks(entity, rule):
 			cells.append(_cell(_icon(mark, icon_size), 1))
 	return "[table=%d]%s[/table]" % [entity.actions.size() + 1, "".join(cells)]

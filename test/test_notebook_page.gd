@@ -95,3 +95,21 @@ func test_sus_textos_existen() -> bool:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en notebook.csv" % key)
 	TranslationServer.set_locale(previous)
 	return true
+
+
+## Las condiciones de la tabla van en lápiz pasta azul, como las observaciones del chat: deciden la fila (pregunta de
+## S21h a Benja).
+func test_las_condiciones_van_en_azul() -> bool:
+	var page := NotebookPage.bbcode(Fixtures.make_entity(), _translate)
+	check_eq(page.count("[color=#%s]K_RULE[/color]" % NotebookPage.CONDITION_COLOR), 3, "las 3 condiciones")
+	check(NotebookPage.CONDITION_COLOR != NotebookPage.HEADING_COLOR, "otro azul que el de los títulos")
+	return true
+
+
+## Los nombres de las características van con destacador amarillo, como en el chat: dicen qué página es.
+func test_las_caracteristicas_con_destacador() -> bool:
+	var page := NotebookPage.bbcode(Fixtures.make_entity(), _translate)
+	for trait_id: String in ["beast_trait_1", "beast_trait_2"]:
+		check(page.contains("[bgcolor=#%s]K_LABEL_%s[/bgcolor]" % [NotebookPage.HIGHLIGHT_COLOR, trait_id]),
+				"destacada: %s" % trait_id)
+	return true

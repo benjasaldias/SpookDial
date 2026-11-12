@@ -5,6 +5,8 @@ extends MarginContainer
 ## Características y señuelos se ven iguales hasta que se clickean: la característica queda marcada
 ## y el señuelo vibra y queda rojo. Los avisos del juego, como el de daño, van centrados y en rojo.
 ## Un audio es otro enlace: se escucha con un clic (decisión de Benja, 7 de noviembre).
+## Lo decisivo va en azul (decisión de Benja, 11 de noviembre): las observaciones, que deciden la fila de la tabla y no se
+## clickean, y el audio, que también es una observación. Las características y los señuelos siguen en amarillo.
 ## Cada letra que aparece se avisa, para la voz del amigo (decisión de Benja, 8 de noviembre).
 
 signal clue_clicked(view: Node, clue_id: StringName)
@@ -26,7 +28,8 @@ const SHAKE_SECONDS := 0.6
 const INDENT := 48
 ## El enlace del audio, que no se confunde con el id de una frase clickeable.
 const AUDIO_META := "__audio"
-const AUDIO_COLOR := "40c2c9"
+## El azul de lo decisivo: más saturado que el de Gonzalo (80a6ff) y lejos del cian de Matías (40c2c9).
+const OBSERVATION_COLOR := "4d9dff"
 const CLUE_COLOR := "ffb347"
 const MARKED_COLOR := "7ee08a"
 const DECOY_COLOR := "ff4d5e"
@@ -181,6 +184,8 @@ func _token_bbcode(token: ChatMessage.Token) -> String:
 	var text := token.text.replace("[", "[lb]")
 	if token.is_audio:
 		return _audio_bbcode(text)
+	if token.is_observation:
+		return _colored(text, OBSERVATION_COLOR)
 	if not token.is_clue():
 		return text
 	match message.request.clue_state(token.clue_id):
@@ -198,7 +203,7 @@ func _token_bbcode(token: ChatMessage.Token) -> String:
 
 ## El audio se escucha con un clic, hasta que termina su solicitud. Con la opción, se lee qué se oye.
 func _audio_bbcode(text: String) -> String:
-	var bbcode := _colored(text, AUDIO_COLOR)
+	var bbcode := _colored(text, OBSERVATION_COLOR)
 	if message.request == null or not message.request.finished:
 		bbcode = "[url=%s]%s[/url]" % [AUDIO_META, bbcode]
 	if show_caption:
