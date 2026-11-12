@@ -286,3 +286,51 @@ func test_en_normal_sin_contestar_se_pierde() -> bool:
 		var lost := each * night.total_requests()
 		check(lost >= 100.0, "noche %d: sin contestar baja %.1f de Trust" % [night.number, lost])
 	return true
+
+
+# --- Normal (decisiones de Benja, 11 de noviembre, tras el primer testeo; docs/26 §3).
+
+## La noche 1 de Normal, armada a mano (docs/26 §3.2): la ola 1 trae 1 consulta y, un poco después, su video; la ola 2,
+## 2 consultas separadas, la Mano y 1 interferencia; y la final, consulta, video y consulta, sin llegar juntos. Un
+## screamer en cada calma y ningún accidente (D7).
+func test_la_noche_1_de_normal() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var night := _nights(catalog, &"normal")[0]
+	check(night.has_wave_plan(), "armada a mano")
+	if not night.has_wave_plan():
+		return true
+	var plan := night.wave_plan
+	check_eq(plan.map(func(wave: WaveData) -> Array: return wave.arrivals()),
+			[[false, true], [false, false], [false, true, false]], "las llegadas de cada ola")
+	check_eq(plan.map(func(wave: WaveData) -> int: return wave.hands), [0, 1, 0], "la Mano, en la ola 2")
+	check_eq(plan.map(func(wave: WaveData) -> int: return wave.interferences), [0, 1, 0], "la interferencia, en la ola 2")
+	check_eq(plan.map(func(wave: WaveData) -> int: return wave.calm_scares), [1, 1, 0], "un screamer en cada calma")
+	check_eq(night.total_creatures(), 0, "sin la criatura")
+	check_eq(night.total_incidents(), 0, "sin accidentes")
+	check_eq(night.base_decision_time, 90.0, "90 s para responder")
+	check_eq(night.content_quota, 2, "cuota de 2: los 2 videos del plan")
+	check_eq(night.first_hint_chance, 1.0, "siempre con pista")
+	check_eq(night.place_chance, 0.8, "el lugar, 80 %")
+	check_eq(night.decoys_per_request, 1, "1 señuelo")
+	check_eq([night.audio_sync_beats, night.audio_sync_bpm], [4, 90.0], "Audio Sync de 4 aplausos a 90")
+	for seed_value in SEEDS:
+		var who := "semilla %d" % (seed_value + 1)
+		var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1)
+		var requests: Array = result["tasks"].filter(func(task: Dictionary) -> bool: return task["kind"] == "request")
+		requests.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["arrival"] < b["arrival"])
+		var videos: Array = result["videos"]
+		check_eq(requests.size(), 5, who + ": las 5 consultas")
+		check_eq(videos.size(), 2, who + ": los 2 videos")
+		if requests.size() != 5 or videos.size() != 2:
+			continue
+		check(is_equal_approx(requests[0]["arrival"], 45.0), "%s: la primera, a los 45 s: %s" % [who, requests[0]["arrival"]])
+		check(videos[0] >= requests[0]["end"] and videos[0] - requests[0]["arrival"] <= 60.5,
+				who + ": el video de la ola 1 llega después de responder, y antes de que le queden 30 s")
+		var second_wave: float = requests[2]["arrival"] - requests[1]["arrival"]
+		check(second_wave >= 30.0 and second_wave <= 45.5, "%s: la ola 2, separadas %.1f s" % [who, second_wave])
+		check(videos[1] >= requests[3]["end"], who + ": en la final, el video llega después de responder la primera")
+		var after_video: float = requests[4]["arrival"] - videos[1]
+		check(after_video >= 30.0 and after_video <= 45.5, "%s: la segunda, %.1f s después del video" % [who, after_video])
+		check(requests[4]["arrival"] - requests[3]["arrival"] < night.base_decision_time,
+				who + ": separadas por menos que el tiempo para responder")
+	return true

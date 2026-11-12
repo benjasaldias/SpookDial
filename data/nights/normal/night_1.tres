@@ -4,21 +4,46 @@
 [ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="2_entity"]
 [ext_resource type="Resource" path="res://data/entities/tue_tue.tres" id="3_tue_tue"]
 [ext_resource type="Resource" path="res://data/entities/calchona.tres" id="4_calchona"]
+[ext_resource type="Script" path="res://scripts/data/wave_data.gd" id="5_wave"]
+
+[sub_resource type="Resource" id="Wave_first"]
+script = ExtResource("5_wave")
+requests = 1
+videos = 1
+spacing = Vector2(30, 45)
+calm_before = Vector2(45, 45)
+calm_scares = 1
+
+[sub_resource type="Resource" id="Wave_second"]
+script = ExtResource("5_wave")
+requests = 2
+spacing = Vector2(30, 45)
+calm_before = Vector2(30, 45)
+interferences = 1
+hands = 1
+calm_scares = 1
+
+[sub_resource type="Resource" id="Wave_finale"]
+script = ExtResource("5_wave")
+requests = 2
+videos = 1
+spacing = Vector2(30, 45)
 
 [resource]
 script = ExtResource("1_night")
 number = 1
 place_key = "NIGHT_1_PLACE"
 new_entities = Array[ExtResource("2_entity")]([ExtResource("3_tue_tue"), ExtResource("4_calchona")])
-requests_total = 7
+requests_total = 5
 max_simultaneous = 3
-base_decision_time = 80.0
+base_decision_time = 90.0
 first_hint_chance = 1.0
-place_chance = 0.6
+place_chance = 0.8
 decoys_per_request = 1
 wave_size = 2
-finale_size = 3
-incident_count = 1
+finale_size = 2
+incident_count = 0
+wave_plan = Array[ExtResource("5_wave")]([SubResource("Wave_first"), SubResource("Wave_second"), SubResource("Wave_finale")])
 signal_decays = true
 signal_decay_interval = Vector2(3, 6)
 interference_count = 1
