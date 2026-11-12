@@ -1,6 +1,6 @@
 extends "res://test/test_case.gd"
 ## Qué publicación va en cada lugar del feed de Snapgram: gatitos y, con poca Sanity, fotos perturbadoras
-## (decisión de Benja, 9 de noviembre).
+## (decisión de Benja, 9 de noviembre; desde Sanity 50, pedido del 12 de noviembre).
 
 const PhoneFeed := preload("res://scripts/core/phone_feed.gd")
 
@@ -34,24 +34,51 @@ func _count_disturbing(slots: int, sanity: float) -> int:
 	return count
 
 
-func test_con_sanity_30_o_mas_solo_hay_gatitos_en_orden() -> bool:
+func test_sobre_50_solo_hay_gatitos_en_orden() -> bool:
 	_prepare()
 	for slot in 24:
-		check_eq(_post(slot, 30.0), _posts[slot % 5], "lugar %d" % slot)
+		check_eq(_post(slot, 50.1), _posts[slot % 5], "lugar %d" % slot)
 	return true
 
 
-func test_bajo_30_es_perturbadora_una_de_cada_6() -> bool:
+## Desde Sanity 50, 1 de cada 4, y va subiendo en escalones parejos hasta 4 de cada 4 con 10 o menos (pedido de Benja,
+## 12 de noviembre).
+func test_de_1_a_4_de_cada_4() -> bool:
 	_prepare()
-	check_eq(_count_disturbing(24, 29.9), 4, "en 24 lugares")
-	check_eq(_count_disturbing(24, 15.0), 4, "justo en 15, todavía una de cada 6")
+	check_eq(_count_disturbing(24, 50.0), 6, "con 50, 1 de cada 4")
+	check_eq(_count_disturbing(24, 40.0), 6, "con 40, todavía 1")
+	check_eq(_count_disturbing(24, 30.0), 12, "con 30, 2 de cada 4")
+	check_eq(_count_disturbing(24, 20.0), 18, "con 20, 3 de cada 4")
+	check_eq(_count_disturbing(24, 10.0), 24, "con 10, todas")
+	check_eq(_count_disturbing(24, 0.0), 24, "con 0, todas")
 	return true
 
 
-func test_bajo_15_es_perturbadora_una_de_cada_3() -> bool:
+## En cada grupo de 4 lugares seguidos sale la cantidad justa, no solo en el total.
+func test_cada_grupo_de_4_tiene_su_cantidad() -> bool:
 	_prepare()
-	check_eq(_count_disturbing(24, 14.9), 8, "en 24 lugares")
-	check_eq(_count_disturbing(24, 0.0), 8, "con Sanity en 0")
+	for group in 6:
+		var count := 0
+		for slot in range(group * 4, group * 4 + 4):
+			if _disturbing.has(_post(slot, 30.0)):
+				count += 1
+		check_eq(count, 2, "grupo %d" % group)
+	return true
+
+
+## Un lugar perturbador lo sigue siendo si Sanity baja más: la foto no se "arregla" al empeorar.
+func test_al_bajar_sanity_se_suman_lugares() -> bool:
+	_prepare()
+	for slot in 24:
+		if _disturbing.has(_post(slot, 45.0)):
+			check(_disturbing.has(_post(slot, 25.0)), "lugar %d sigue perturbador" % slot)
+	return true
+
+
+func test_el_mismo_lugar_sale_igual() -> bool:
+	_prepare()
+	for slot in 24:
+		check_eq(_post(slot, 33.0), _post(slot, 33.0), "lugar %d" % slot)
 	return true
 
 
@@ -68,12 +95,18 @@ func test_los_gatitos_no_se_corren() -> bool:
 func test_las_perturbadoras_se_turnan() -> bool:
 	_prepare()
 	var seen: Array[PhonePostData] = []
-	for slot in 12:
-		var post := _post(slot, 10.0)
+	for slot in 16:
+		var post := _post(slot, 45.0)
 		if _disturbing.has(post):
 			check(not seen.has(post), "no se repite antes de mostrar las 4")
 			seen.append(post)
 	check_eq(seen.size(), 4, "se ven las 4")
+	for group in 3:
+		var shown: Array[PhonePostData] = []
+		for slot in range(group * 4, group * 4 + 4):
+			var post := _post(slot, 0.0)
+			check(not shown.has(post), "con todas perturbadoras, no se repiten en un grupo")
+			shown.append(post)
 	return true
 
 
@@ -102,8 +135,7 @@ func test_sin_publicaciones_no_devuelve_nada() -> bool:
 
 func test_los_valores_estan_en_balance() -> bool:
 	var balance: BalanceData = load("res://data/balance.tres")
-	check_eq(balance.disturbing_post_sanity, 30.0, "bajo qué Sanity empiezan")
-	check_eq(balance.disturbing_post_every, 6, "una de cada cuántas")
-	check_eq(balance.disturbing_post_worse_sanity, 15.0, "bajo qué Sanity empeoran")
-	check_eq(balance.disturbing_post_worse_every, 3, "una de cada cuántas, después")
+	check_eq(balance.disturbing_post_start_sanity, 50.0, "desde qué Sanity empiezan")
+	check_eq(balance.disturbing_post_full_sanity, 10.0, "con cuánta son todas")
+	check_eq(balance.disturbing_post_group, 4, "de cada cuántas")
 	return true

@@ -58,15 +58,13 @@ extends Resource
 ## ganar (decisión de Benja, 11 de noviembre).
 @export var phone_battery_seconds := 48.0
 
-## Bajo este valor de Sanity, algunas publicaciones del celular son fotos perturbadoras (decisión de Benja,
-## 9 de noviembre)…
-@export var disturbing_post_sanity := 30.0
-## …una de cada tantas…
-@export var disturbing_post_every := 6
-## …y bajo este valor empeora…
-@export var disturbing_post_worse_sanity := 15.0
-## …a una de cada tantas.
-@export var disturbing_post_worse_every := 3
+## Desde este valor de Sanity hacia abajo, algunas publicaciones del celular son fotos perturbadoras: 1 de cada
+## `disturbing_post_group`… (decisión de Benja, 9 de noviembre; desde 50, pedido del 12 de noviembre)
+@export var disturbing_post_start_sanity := 50.0
+## …y van subiendo en escalones parejos hasta ser todas con este valor o menos.
+@export var disturbing_post_full_sanity := 10.0
+## De cada cuántas publicaciones seguidas se cuentan.
+@export var disturbing_post_group := 4
 
 ## Sanity que se pierde por segundo con las cortinas cerradas: la pieza a oscuras también pesa (decisión de Benja,
 ## 7 de noviembre). Se suma a lo que baja con el tiempo.

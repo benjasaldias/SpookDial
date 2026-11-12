@@ -43,10 +43,11 @@ const PHOTO_SIZE := 232
 const POST_MARGIN := 8.0
 ## Alto de la barra gris que simula una línea de texto.
 const TEXT_BAR_HEIGHT := 5.0
-## Cuántos píxeles avanza el feed con cada movimiento de la rueda.
-const WHEEL_STEP := 60.0
+## Cuántos píxeles avanza el feed con cada movimiento de la rueda: la mitad que antes, para alcanzar a ver las fotos.
+## Sanity sube igual, porque cuenta el tiempo scrolleando (pedido de Benja, 12 de noviembre).
+const WHEEL_STEP := 30.0
 ## Cuánto avanza con el touchpad, por unidad de su gesto.
-const PAN_STEP := 30.0
+const PAN_STEP := 15.0
 ## Qué tan rápido sigue el feed a la rueda.
 const SCROLL_SPEED := 10.0
 ## Colores provisionales: el celular de noche, en modo oscuro.

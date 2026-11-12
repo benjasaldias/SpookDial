@@ -74,14 +74,22 @@ func test_la_rueda_scrollea_y_recupera_sanity() -> bool:
 	return true
 
 
+## La rueda avanza la mitad que antes, para alcanzar a ver las fotos, y Sanity sube igual: cuenta el tiempo scrolleando,
+## no los píxeles (pedido de Benja, 12 de noviembre).
+func test_la_rueda_avanza_lento() -> bool:
+	check_eq(PhoneView.WHEEL_STEP, 30.0, "la mitad de los 60 px de antes")
+	check_eq(PhoneView.PAN_STEP, 15.0, "el touchpad también")
+	return true
+
+
 func test_las_publicaciones_se_repiten_sin_fin() -> bool:
 	var phone := _make_phone()
 	phone.open()
 	check_eq(phone.post_at_top(), 0, "empieza en la primera")
 	for _i in 40:
-		phone.scroll_by(PhoneView.WHEEL_STEP)
+		phone.scroll_by(60.0)
 	phone._process(1.0)
-	check_eq(phone.scroll, 2400.0, "40 movimientos de la rueda")
+	check_eq(phone.scroll, 2400.0, "40 pasos de 60 px")
 	check_eq(phone.post_at_top(), 1, "después de 3 publicaciones vuelve a empezar: arriba está la segunda")
 	phone.scroll_by(-3000.0)
 	phone._process(1.0)
