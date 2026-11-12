@@ -28,7 +28,7 @@ var reduce_flashes := false:
 		reduce_flashes = value
 		queue_redraw()
 var color := DEFAULT_COLOR
-## El tamaño de lo que rodea, si no es un Control.
+## El tamaño de lo que rodea, si no es un Control o si es solo una parte de él (desde su esquina).
 var target_size := Vector2.ZERO
 
 ## Segundos desde que se activó.
@@ -52,7 +52,7 @@ func is_showing() -> bool:
 ## El rectángulo del borde, en el espacio del control: el del control, agrandado por la separación y el grosor.
 func border_rect() -> Rect2:
 	var target := get_parent() as Control
-	var size := target.size if target != null else target_size
+	var size := target_size if target_size != Vector2.ZERO or target == null else target.size
 	if size == Vector2.ZERO:
 		return Rect2()
 	return Rect2(Vector2.ZERO, size).grow(MARGIN + WIDTH)

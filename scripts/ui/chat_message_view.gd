@@ -10,6 +10,8 @@ extends MarginContainer
 ## En Difícil no se destaca nada (decisión de Benja, D3): las frases y las observaciones van como el resto del texto, sin
 ## enlaces. Solo el audio sigue en azul y con su clic, porque es la forma de oírlo (decisión de Benja, S21i).
 ## Cada letra que aparece se avisa, para la voz del amigo (decisión de Benja, 8 de noviembre).
+## En la noche 0 (Plan 9.5), el chat apaga los enlaces de las frases hasta que León pide marcarlas, y entonces las hace
+## latir (subrayadas, con "Reducir destellos"); lo mismo con el audio, que después se puede volver a escuchar.
 
 signal clue_clicked(view: Node, clue_id: StringName)
 ## Clic en el audio del mensaje.
@@ -30,6 +32,10 @@ const SHAKE_SECONDS := 0.6
 const INDENT := 48
 ## El enlace del audio, que no se confunde con el id de una frase clickeable.
 const AUDIO_META := "__audio"
+## Cómo late lo que hay que apretar en el tutorial: al ritmo del borde que parpadea (Highlight), hasta un cuarto de su
+## brillo.
+const ATTENTION_OPEN := "[pulse freq=1.25 color=#ffffff40 ease=-2.0]"
+const ATTENTION_CLOSE := "[/pulse]"
 ## El azul de lo decisivo: más saturado que el de Gonzalo (80a6ff) y lejos del cian de Matías (40c2c9).
 const OBSERVATION_COLOR := "4d9dff"
 const CLUE_COLOR := "ffb347"
@@ -49,6 +55,15 @@ var show_caption := false
 ## Se destaca lo que importa (Normal): las características y los señuelos en amarillo y clickeables, y las observaciones
 ## en azul. Sin esto (Difícil), solo el audio.
 var highlights := true
+## Las frases sin marcar se pueden clickear.
+var links_enabled := true
+## Las frases sin marcar laten: hay que marcarlas.
+var attention := false
+## El audio se puede escuchar, y late.
+var audio_enabled := true
+var audio_attention := false
+## La opción "Reducir destellos": lo que hay que apretar va subrayado en vez de latir.
+var reduce_flashes := false
 
 var _label: RichTextLabel
 var _typing: Tween
@@ -207,17 +222,29 @@ func _token_bbcode(token: ChatMessage.Token) -> String:
 			return "[shake rate=30 level=10]%s[/shake]" % red
 	if message.request.finished:
 		return _colored(text, CLUE_COLOR)
-	return "[url=%s]%s[/url]" % [token.clue_id, _colored(text, CLUE_COLOR)]
+	var clue := _attention(_colored(text, CLUE_COLOR), attention)
+	if not links_enabled:
+		return clue
+	return "[url=%s]%s[/url]" % [token.clue_id, clue]
 
 
 ## El audio se escucha con un clic, hasta que termina su solicitud. Con la opción, se lee qué se oye.
 func _audio_bbcode(text: String) -> String:
-	var bbcode := _colored(text, OBSERVATION_COLOR)
-	if message.request == null or not message.request.finished:
+	var bbcode := _attention(_colored(text, OBSERVATION_COLOR), audio_attention)
+	if audio_enabled and (message.request == null or not message.request.finished):
 		bbcode = "[url=%s]%s[/url]" % [AUDIO_META, bbcode]
 	if show_caption:
 		bbcode += " (%s)" % message.audio_caption.replace("[", "[lb]")
 	return bbcode
+
+
+## `bbcode` late si `wanted`, o va subrayado con "Reducir destellos".
+func _attention(bbcode: String, wanted: bool) -> String:
+	if not wanted:
+		return bbcode
+	if reduce_flashes:
+		return "[u]%s[/u]" % bbcode
+	return ATTENTION_OPEN + bbcode + ATTENTION_CLOSE
 
 
 ## Cuántas letras ocupa "LEÓN: ", que se ven antes de que empiece a escribir.

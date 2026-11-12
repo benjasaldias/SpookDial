@@ -23,6 +23,9 @@ func _play(desk: Node2D, seconds: float) -> void:
 		desk.get_node("UI/ChatPanel")._process(0.5)
 		desk.get_node("NightManager").advance(0.5)
 		desk._process(0.5)
+		# Las pruebas no dejan pasar cuadros: los mensajes se escriben con tweens, que se avanzan a mano.
+		for tween: Tween in (Engine.get_main_loop() as SceneTree).get_processed_tweens():
+			tween.custom_step(0.5)
 
 
 ## Aprieta o suelta el botón izquierdo sobre la barra de descarga, como el jugador: con el mouse encima.
@@ -112,6 +115,38 @@ func test_en_la_noche_1_todo_responde() -> bool:
 			"DeskPlane/Entries/EntryAgustin"]:
 		check(desk.get_node(path).enabled, "%s habilitado" % path)
 	check(desk.get_node("UI/ChatPanel").is_tab_enabled(2), "las pestañas")
+	desk.free()
+	return true
+
+
+## El botón de la pregunta `category` en el chat.
+func _question(desk: Node2D, category: ClueCategory.Kind) -> Button:
+	return desk.get_node("UI/ChatPanel")._question_buttons[category]
+
+
+## En el chat de la noche 0 solo se usa lo que pide León, cuando terminó de escribir, y eso parpadea (Plan 9.5).
+func test_en_el_chat_solo_lo_que_pide_leon() -> bool:
+	var desk := _make_desk()
+	var manager := desk.get_node("RequestManager")
+	desk.get_node("DeskPlane/Entries/EntryLeon").pressed.emit()
+	_play(desk, 5.5)
+	check(_question(desk, ClueCategory.Kind.SIGHT).disabled, "mientras León escribe, nada")
+	_play(desk, 8.0)
+	var sight := _question(desk, ClueCategory.Kind.SIGHT)
+	check(not sight.disabled, "terminó: «¿Qué ves?» se puede apretar")
+	check(sight.get_node("Highlight").active, "y parpadea")
+	check(_question(desk, ClueCategory.Kind.SOUND).disabled, "«¿Qué oyes?» todavía no")
+	check(not _question(desk, ClueCategory.Kind.SOUND).get_node("Highlight").active, "ni parpadea")
+	check((desk.get_node("UI/ChatPanel/%Sync") as Button).disabled, "las barritas, tampoco")
+	sight.pressed.emit()
+	desk.get_node("UI/ChatPanel")._process(0.0)
+	var answer_view: Node = desk.get_node("UI/ChatPanel").message_views(0).filter(func(view: Node) -> bool:
+		return view.message.plain_text().contains("lentes"))[0]
+	check(not answer_view.links_enabled, "las frases no se clickean mientras León explica")
+	_play(desk, 12.0)
+	check(answer_view.links_enabled, "cuando pide marcar, sí")
+	check(answer_view.attention, "y laten")
+	check(not sight.get_node("Highlight").active, "la pregunta ya no parpadea")
 	desk.free()
 	return true
 

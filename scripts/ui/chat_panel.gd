@@ -16,6 +16,9 @@ extends Control
 ## Desde el Plan 9.3 (tras el primer testeo), el chat va en bloques: la conversación toma el alto que sobra, y debajo van
 ## la descarga, la identificación y los bloques PREGUNTAR y RESPONDER, cada uno con un título que dice por qué no se puede
 ## usar. Las respuestas tienen su alto reservado, para que nada se mueva al abrir una página.
+## En la noche 0 (Plan 9.5, tras el primer testeo), solo se puede usar lo que León pide, cuando terminó de escribir, y
+## eso parpadea: la pregunta, las frases y el audio (laten), el nombre, las hojas, la barra de descarga y las barritas.
+## En la demostración de Gonzalo, las respuestas dicen que hay que mirar qué pasa.
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
 ## Clic en el nombre de la entidad: el cuaderno abre su página.
@@ -34,6 +37,13 @@ const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const PixelText := preload("res://scripts/ui/pixel_text.gd")
 const QuestionButton := preload("res://scripts/ui/question_button.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
+const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
+## Lo que pide León para cada pregunta en el tutorial. "¿Huellas?" no se enseña.
+const QUESTION_FOCUS := {
+	ClueCategory.Kind.SIGHT: TutorialChat.Focus.ASK_SIGHT,
+	ClueCategory.Kind.SOUND: TutorialChat.Focus.ASK_SOUND,
+	ClueCategory.Kind.ENVIRONMENT: TutorialChat.Focus.ASK_ENVIRONMENT,
+}
 
 ## Textos del panel (ui.csv). IDENTIFY_PROGRESS lleva {marked} y {total}.
 const PROGRESS_KEY := "IDENTIFY_PROGRESS"
@@ -121,6 +131,9 @@ var reduce_flashes := false:
 		reduce_flashes = value
 		if _sync_highlight != null:
 			_sync_highlight.reduce_flashes = value
+		for highlight: Highlight in _highlights.values():
+			highlight.reduce_flashes = value
+		_view_flags = []
 
 var _manager: RequestManager
 var _memory: NotebookMemory
@@ -148,6 +161,11 @@ var _mouse_held := false
 var _mouse_position := Vector2(-1, -1)
 ## Cómo se ve la barra de descarga: normal, iluminada o apretada.
 var _hold_look := &""
+## En el tutorial, el borde que parpadea en cada control, por lo que pide León (TutorialChat.Focus).
+var _highlights := {}
+## Cómo están las frases y el audio de los mensajes (enlaces, latido y "Reducir destellos"): se vuelven a armar solo
+## cuando cambia.
+var _view_flags := []
 
 @onready var _panel: TextureRect = $Panel
 @onready var _layout: VBoxContainer = $Panel/Layout
@@ -181,6 +199,8 @@ func _ready() -> void:
 		button.pressed.connect(_on_question_pressed.bind(category))
 		_questions.add_child(button)
 		_question_buttons[category] = button
+		if QUESTION_FOCUS.has(category):
+			_add_highlight(button, QUESTION_FOCUS[category])
 	for index in ANSWER_COUNT:
 		var button := Button.new()
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -195,6 +215,10 @@ func _ready() -> void:
 	_entity_button.icon = NOTEBOOK_ICON
 	_entity_button.expand_icon = true
 	_entity_button.pressed.connect(_on_entity_pressed)
+	_add_highlight(_entity_button, TutorialChat.Focus.ENTITY_NAME)
+	# Las hojas cambian de alto: su borde va en el área reservada, con el tamaño de las hojas.
+	_add_highlight(_answer_area, TutorialChat.Focus.ANSWERS)
+	_add_highlight(_download_hold, TutorialChat.Focus.DOWNLOAD)
 	_sync_icon.atlas = SIGNAL_SHEET
 	_sync_button.icon = _sync_icon
 	_sync_button.expand_icon = true
@@ -292,7 +316,7 @@ func message_views(friend_index: int) -> Array[Node]:
 func is_holding_download() -> bool:
 	if not visible or _manager == null or _manager.state.videos.offer_for(selected_friend) == null:
 		return false
-	return _mouse_held and _is_mouse_over(_download_hold)
+	return _mouse_held and _is_mouse_over(_download_hold) and _allows(TutorialChat.Focus.DOWNLOAD)
 
 
 func _process(_delta: float) -> void:
@@ -322,6 +346,7 @@ func _update_status() -> void:
 	_update_questions()
 	_update_answers()
 	_update_download()
+	_update_tutorial()
 
 
 func _select(friend_index: int) -> void:
@@ -356,6 +381,7 @@ func _update_identify_bar() -> void:
 	var revealed := request != null and request.identification == FriendRequest.Identification.REVEALED
 	_progress.visible = request != null and not revealed
 	_entity_button.visible = revealed
+	_entity_button.disabled = not _allows(TutorialChat.Focus.ENTITY_NAME)
 	if request == null:
 		return
 	match request.identification:
@@ -374,7 +400,9 @@ func _update_sync() -> void:
 	var level := _manager.state.friends[selected_friend].signal_level
 	var frame := signal_frame(level)
 	_sync_icon.region = Rect2(Vector2(frame) * SIGNAL_FRAME_SIZE, SIGNAL_FRAME_SIZE)
-	_sync_highlight.active = _sync_button.visible and level <= 0.0
+	_sync_button.disabled = not _allows(TutorialChat.Focus.SYNC)
+	_sync_highlight.active = _sync_button.visible and not _sync_button.disabled \
+			and (level <= 0.0 or _ready_for(TutorialChat.Focus.SYNC))
 
 
 ## El cuadro de la señal para `level`: cuántas barritas (una por cada 25) y en qué fila de color (0 verde, 1 ámbar y
@@ -394,7 +422,8 @@ func _update_questions() -> void:
 		var mark := QuestionButton.Mark.NONE
 		if request != null and request.was_asked(category):
 			mark = QuestionButton.Mark.STATIC if request.answer_covered(category) else QuestionButton.Mark.ASKED
-		var enabled := request != null and online and request.can_ask_about(category)
+		var enabled := request != null and online and request.can_ask_about(category) \
+				and _allows(QUESTION_FOCUS.get(category, TutorialChat.Focus.NONE))
 		(_question_buttons[category] as QuestionButton).show_state(mark, enabled)
 	var detail := ""
 	if request != null and not online:
@@ -423,7 +452,9 @@ func _update_answers() -> void:
 		return
 	var page := _memory.page_for(selected_friend)
 	_answers.visible = page != null
-	if not online:
+	if _is_demo_waiting():
+		_answer_title.text = _title(ANSWER_TITLE_KEY, tr(TutorialChat.GONZALO_WATCH_KEY))
+	elif not online:
 		_answer_title.text = _title(ANSWER_TITLE_KEY, tr(OFFLINE_KEY))
 	elif page == null:
 		_answer_title.text = _title(ANSWER_TITLE_KEY, tr(OPEN_NOTEBOOK_KEY))
@@ -431,7 +462,7 @@ func _update_answers() -> void:
 		_answer_title.text = _title(ANSWER_TITLE_KEY, tr(page.name_key))
 	if page == null:
 		return
-	var waiting := _manager.requests[selected_friend] != null and online
+	var waiting := _manager.requests[selected_friend] != null and online and _allows(TutorialChat.Focus.ANSWERS)
 	for index in _answer_buttons.size():
 		var button := _answer_buttons[index]
 		_set_answer_look(button, true)
@@ -564,6 +595,7 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 		ChatMessage.Sender.PLAYER:
 			speaker = tr(PLAYER_NAME_KEY).to_upper()
 	var view := ChatMessageView.new(message, speaker, color, audio_captions, _manager.highlights())
+	_apply_view_flags(view, _current_view_flags())
 	view.clue_clicked.connect(_on_clue_clicked)
 	view.audio_clicked.connect(_on_audio_clicked)
 	if message.sender == ChatMessage.Sender.FRIEND:
@@ -590,6 +622,8 @@ func _on_letter_typed(letter: String, friend_index: int) -> void:
 func _on_audio_clicked(view: ChatMessageView) -> void:
 	_audio_clip.stream = view.message.audio
 	_audio_clip.play()
+	if view.message.request != null:
+		_manager.tutorial_audio_played(view.message.request.friend_index, view.message.audio)
 
 
 ## Un señuelo vibra y se pone rojo, sin costo (decisión de Benja, 11 de noviembre, tras el primer testeo).
@@ -642,6 +676,70 @@ func _on_text_size_changed() -> void:
 		button.resize_icons()
 	_resize_icons()
 	_reserve_answer_space()
+
+
+## En la noche 0, lo que pide León se puede usar (TutorialChat.Focus). Fuera del tutorial, todo.
+func _allows(focus: TutorialChat.Focus) -> bool:
+	return not _manager.is_tutorial() or _ready_for(focus)
+
+
+## En la noche 0, León pide `focus` y terminó de escribir: se puede usar y parpadea.
+func _ready_for(focus: TutorialChat.Focus) -> bool:
+	if not _manager.tutorial_wants(focus):
+		return false
+	var last: Node = _last_typed[selected_friend]
+	return last == null or not is_instance_valid(last) or last.is_done()
+
+
+## En la demostración de Gonzalo, su chat espera que se acabe el tiempo: las respuestas no se usan.
+func _is_demo_waiting() -> bool:
+	return _manager.is_tutorial() and selected_friend == _manager.tutorial_demo_friend() \
+			and _manager.requests[selected_friend] != null
+
+
+## Un borde que parpadea en `control` cuando León pide `focus`.
+func _add_highlight(control: Control, focus: TutorialChat.Focus) -> void:
+	var highlight := Highlight.new()
+	highlight.name = "Highlight"
+	highlight.reduce_flashes = reduce_flashes
+	control.add_child(highlight)
+	_highlights[focus] = highlight
+
+
+## En la noche 0, parpadea lo que pide León, si se ve; y las frases y el audio de los mensajes laten o se apagan.
+func _update_tutorial() -> void:
+	(_highlights[TutorialChat.Focus.ANSWERS] as Highlight).target_size = _answers.size
+	for focus: TutorialChat.Focus in _highlights:
+		var highlight: Highlight = _highlights[focus]
+		var shown := _answers.visible if focus == TutorialChat.Focus.ANSWERS \
+				else (highlight.get_parent() as Control).is_visible_in_tree()
+		highlight.active = _ready_for(focus) and shown
+	var flags := _current_view_flags()
+	if flags == _view_flags:
+		return
+	_view_flags = flags
+	for list: VBoxContainer in _lists:
+		for view: ChatMessageView in list.get_children():
+			_apply_view_flags(view, flags)
+			view.refresh()
+
+
+## Cómo van ahora las frases y el audio: [enlaces de las frases, frases que laten, audio, audio que late, menos destellos].
+## En el tutorial, el audio se puede volver a escuchar después de su paso.
+func _current_view_flags() -> Array:
+	if _manager == null or not _manager.is_tutorial():
+		return [true, false, true, false, reduce_flashes]
+	var audio_past: bool = _manager.tutorial_chat.step > TutorialChat.Step.LISTEN
+	return [_ready_for(TutorialChat.Focus.CLUES), _ready_for(TutorialChat.Focus.CLUES),
+			_ready_for(TutorialChat.Focus.AUDIO) or audio_past, _ready_for(TutorialChat.Focus.AUDIO), reduce_flashes]
+
+
+func _apply_view_flags(view: ChatMessageView, flags: Array) -> void:
+	view.links_enabled = flags[0]
+	view.attention = flags[1]
+	view.audio_enabled = flags[2]
+	view.audio_attention = flags[3]
+	view.reduce_flashes = flags[4]
 
 
 ## El cuaderno del nombre y la señal de sincronizar, del tamaño que los deja nítidos junto a su letra (PixelText). El

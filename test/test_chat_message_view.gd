@@ -297,3 +297,49 @@ func test_en_dificil_el_audio_se_oye() -> bool:
 			"en azul y con su enlace: " + text)
 	view.free()
 	return true
+
+
+## En la noche 0 (Plan 9.5), las frases no se clickean hasta que León pide marcarlas, y entonces laten.
+func test_las_frases_laten_cuando_hay_que_marcarlas() -> bool:
+	var view := _make_view(_make_message(_make_request()))
+	view.links_enabled = false
+	view.refresh()
+	check(not _label(view).text.contains("[url="), "sin enlaces")
+	check(_label(view).text.contains(ChatMessageView.CLUE_COLOR), "siguen en amarillo")
+	view.links_enabled = true
+	view.attention = true
+	view.refresh()
+	check(_label(view).text.contains("[url=beast_trait_1]"), "con enlaces")
+	check_eq(_label(view).text.count("[pulse"), 2, "las 2 frases laten")
+	view.reduce_flashes = true
+	view.refresh()
+	check(not _label(view).text.contains("[pulse"), "con «Reducir destellos» no laten")
+	check_eq(_label(view).text.count("[u]"), 2, "van subrayadas")
+	view.free()
+	return true
+
+
+## Una frase ya marcada no late: ya cumplió.
+func test_una_frase_marcada_no_late() -> bool:
+	var request := _make_request()
+	var view := _make_view(_make_message(request))
+	request.click_clue(&"beast_trait_1")
+	view.attention = true
+	view.refresh()
+	check_eq(_label(view).text.count("[pulse"), 1, "solo la que falta")
+	view.free()
+	return true
+
+
+func test_el_audio_late_y_se_puede_apagar() -> bool:
+	var view := _make_view(_make_audio_message(_make_request()))
+	view.audio_enabled = false
+	view.refresh()
+	check(not _label(view).text.contains("[url="), "sin poder escucharlo todavía")
+	view.audio_enabled = true
+	view.audio_attention = true
+	view.refresh()
+	check(_label(view).text.contains("[url=%s]" % ChatMessageView.AUDIO_META), "se puede escuchar")
+	check(_label(view).text.contains("[pulse"), "y late")
+	view.free()
+	return true
