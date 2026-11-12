@@ -334,3 +334,35 @@ func test_la_noche_1_de_normal() -> bool:
 		check(requests[4]["arrival"] - requests[3]["arrival"] < night.base_decision_time,
 				who + ": separadas por menos que el tiempo para responder")
 	return true
+
+
+## Las noches 2 a 5 de Normal (docs/26 §3.3): una curva suave, algo más fácil que Difícil. Los screamers no cambian: son
+## el terror, no la dificultad.
+func test_valores_de_normal() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var nights := _nights(catalog, &"normal")
+	var expected := {
+		"base_decision_time": [80.0, 70.0, 65.0, 60.0],
+		"requests_total": [6, 7, 8, 9],
+		"finale_size": [2, 2, 3, 3],
+		"decoys_per_request": [1, 2, 2, 3],
+		"first_hint_chance": [1.0, 0.75, 0.5, 0.35],
+		"place_chance": [0.75, 0.7, 0.65, 0.6],
+		"incident_count": [1, 1, 2, 2],
+		"interference_count": [2, 2, 3, 4],
+		"hand_visits": [1, 1, 2, 2],
+		"creature_visits": [1, 1, 2, 2],
+		"audio_sync_bpm": [95.0, 105.0, 115.0, 125.0],
+		"audio_sync_beats": [4, 4, 4, 8],
+		"content_quota": [2, 3, 3, 4],
+		"scare_count": [4, 4, 5, 6],
+	}
+	for index in range(1, nights.size()):
+		var night := nights[index]
+		check(not night.has_wave_plan(), "noche %d: el director arma sus olas" % night.number)
+		for property: String in expected:
+			check_eq(night.get(property), expected[property][index - 1], "noche %d: %s" % [night.number, property])
+		check_eq(night.wave_size, 2, "noche %d: olas de 2" % night.number)
+		check_eq(night.max_simultaneous, 3, "noche %d: 3 a la vez" % night.number)
+		check(night.signal_decays, "noche %d: la señal baja" % night.number)
+	return true
