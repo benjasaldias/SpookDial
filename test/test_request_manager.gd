@@ -965,3 +965,101 @@ func test_la_dificultad_dice_las_noches_y_si_se_destaca() -> bool:
 	check_eq(manager.night(), hard.nights[0], "la noche 1 de Difícil")
 	manager.free()
 	return true
+
+
+
+# --- Los castigos de la dificultad (Plan 9.6, docs/30).
+
+## Un manager en la noche 1 de una dificultad de prueba ("hard"), con sus castigos.
+func _make_punished_manager(scale: float, wounded: int, seed_value := 7) -> RequestManager:
+	var catalog := Fixtures.make_catalog()
+	var hard := Fixtures.add_hard(catalog)
+	hard.error_trust_scale = scale
+	hard.wounded_friends = wounded
+	var manager := RequestManager.new()
+	manager.catalog = catalog
+	manager.difficulty = hard
+	manager.night_number = 1
+	manager.random_seed = seed_value
+	manager.requests_arrive = false
+	(Engine.get_main_loop() as SceneTree).root.add_child(manager)
+	return manager
+
+
+## Los amigos que empiezan heridos.
+func _wounded(manager: RequestManager) -> Array:
+	return range(manager.state.friends.size()).filter(func(index: int) -> bool:
+		return manager.state.friends[index].health < manager.state.friends[index].max_health)
+
+
+func test_en_extremo_un_error_cuesta_mas_trust() -> bool:
+	var manager := _make_punished_manager(1.5, 0)
+	var request := manager.start_request(0)
+	var wrong: ActionData = null
+	for action: ActionData in request.entity.actions:
+		if RuleEvaluator.outcome(request.entity, request.situation, action) == RuleEvaluator.Outcome.WRONG:
+			wrong = action
+	manager.answer(0, wrong)
+	check_eq(manager.state.trust, 100.0 - 22.5, "una incorrecta: −22,5")
+	check_eq(manager.catalog.balance.wrong_trust, -15.0, "el equilibrio del catálogo no cambia")
+	manager.free()
+	return true
+
+
+## En Extremo, un amigo al azar empieza la noche con 1 de vida (de 3), y su chat lo avisa al empezar.
+func test_un_amigo_empieza_herido() -> bool:
+	var manager := _make_punished_manager(1.0, 1)
+	var wounded := _wounded(manager)
+	check_eq(wounded.size(), 1, "uno solo")
+	if wounded.size() != 1:
+		manager.free()
+		return true
+	var friend: FriendState = manager.state.friends[wounded[0]]
+	check_eq([friend.health, friend.max_health], [1, 3], "con 1 de 3")
+	var events := []
+	_record(manager, events)
+	manager.advance(0.1)
+	var notices := _messages(events).filter(func(message: ChatMessage) -> bool:
+		return message.sender == ChatMessage.Sender.SYSTEM)
+	check_eq(notices.size(), 1, "un aviso")
+	if notices.size() == 1:
+		check_eq(events[0][1], wounded[0], "en su chat")
+		check_eq(notices[0].tone, ChatMessage.Tone.DANGER, "en rojo")
+		check(notices[0].plain_text().contains(tr(manager.catalog.friends[wounded[0]].name_key)), "con su nombre")
+	manager.advance(0.1)
+	check_eq(_messages(events).size(), 1, "una sola vez")
+	manager.free()
+	return true
+
+
+func test_el_herido_cambia_de_noche_en_noche() -> bool:
+	var seen := {}
+	for seed_value in range(1, 13):
+		var manager := _make_punished_manager(1.0, 1, seed_value)
+		for index: int in _wounded(manager):
+			seen[index] = true
+		manager.free()
+	check(seen.size() >= 2, "le toca a distintos amigos: %s" % str(seen.keys()))
+	return true
+
+
+func test_sin_heridos_en_normal() -> bool:
+	var manager := _make_manager()
+	check_eq(_wounded(manager), [], "nadie herido")
+	var events := []
+	_record(manager, events)
+	manager.advance(0.1)
+	check_eq(_messages(events), [], "sin aviso")
+	manager.free()
+	return true
+
+
+## Un accidente nunca mata a un amigo: al herido no le tocan.
+func test_el_herido_no_tiene_accidentes() -> bool:
+	var manager := _make_punished_manager(1.0, 1)
+	manager.catalog.incidents.append(Fixtures.make_incident())
+	var wounded: int = _wounded(manager)[0]
+	check(manager.start_incident(wounded) == null, "el herido, no")
+	check(manager.start_incident((wounded + 1) % 3) != null, "otro, sí")
+	manager.free()
+	return true

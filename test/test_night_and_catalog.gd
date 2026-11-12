@@ -136,3 +136,22 @@ func test_los_totales_salen_del_plan() -> bool:
 			night.total_interferences(), night.total_incidents()], [3, 3, 1, 1, 2, 1], "del plan")
 	check_eq(night.total_videos(), 0, "sin videos en el plan")
 	return true
+
+
+## Los castigos de una dificultad (Plan 9.6, docs/30): en Extremo, Trust por error ×1,5. Tardar en contestar no cambia, y
+## balance.tres tampoco: se usa una copia.
+func test_los_castigos_de_la_dificultad() -> bool:
+	var base := BalanceData.new()
+	var difficulty := DifficultyData.new()
+	check_eq([difficulty.error_trust_scale, difficulty.wounded_friends, difficulty.wounded_health], [1.0, 0, 1],
+			"por defecto, sin castigos")
+	check(difficulty.balance_for(base) == base, "sin escala, el mismo equilibrio")
+	difficulty.error_trust_scale = 1.5
+	var scaled := difficulty.balance_for(base)
+	check(scaled != base, "una copia")
+	check_eq([scaled.wrong_trust, scaled.risky_trust, scaled.no_answer_trust, scaled.lost_video_trust],
+			[-22.5, -30.0, -22.5, -15.0], "los castigos por error, ×1,5")
+	check_eq(scaled.slow_answer_trust, base.slow_answer_trust, "tardar no cambia")
+	check_eq(scaled.question_cost, base.question_cost, "lo demás tampoco")
+	check_eq(base.wrong_trust, -15.0, "el original no cambia")
+	return true

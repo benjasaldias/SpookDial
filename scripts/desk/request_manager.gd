@@ -45,6 +45,8 @@ const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
 ## En el tutorial, León escribe sus líneas de a una: cada una espera lo que tarda en escribirse la anterior (las letras
 ## por segundo del chat) y una pausa para leerla.
 const TUTORIAL_CHARS_PER_SECOND := 60.0
+## El aviso de un amigo que empezó herido (ui.csv). Lleva {friend}, {health} y {max}.
+const WOUNDED_START_KEY := "CHAT_WOUNDED_START"
 const TUTORIAL_LINE_PAUSE := 1.0
 ## Después de un audio, León espera lo que dura y esto más, antes de comentarlo.
 const TUTORIAL_AUDIO_PAUSE := 0.5
@@ -64,6 +66,13 @@ const TUTORIAL_AUDIO_PAUSE := 0.5
 @export var random_seed := 0
 ## Cuánto se alarga el tiempo para responder: 1,5 con la opción "Temporizadores ×1,5" (diseño §19).
 var timer_scale := 1.0
+## El equilibrio de la noche: el de balance.tres con los castigos por error de la dificultad (Extremo: ×1,5; docs/30). Lo
+## usan el estado de la noche y las consecuencias.
+var balance: BalanceData
+## Los amigos que empezaron la noche heridos (Extremo; idea de Benja, 12 de noviembre). Su chat lo avisa al empezar.
+var wounded: Array[int] = []
+## Ya se avisó en el chat qué amigos empezaron heridos.
+var _wounded_announced := false
 
 var rng := RandomNumberGenerator.new()
 ## La solicitud activa de cada amigo, o null si no tiene.
@@ -105,8 +114,10 @@ func _ready() -> void:
 		rng.seed = random_seed
 	else:
 		rng.randomize()
-	state = NightState.new(night(), catalog.balance, catalog.friends.size(), rng)
-	director = PacingDirector.new(night(), catalog.balance, rng)
+	var current := current_difficulty()
+	balance = current.balance_for(catalog.balance) if current != null else catalog.balance
+	state = NightState.new(night(), balance, catalog.friends.size(), rng)
+	director = PacingDirector.new(night(), balance, rng)
 	tutorial_queue.assign(night().tutorial_requests)
 	_next_tutorial_at = catalog.balance.first_request_delay
 	if night().is_tutorial():
@@ -115,6 +126,8 @@ func _ready() -> void:
 		requests.append(null)
 		incidents.append(null)
 		state.friends[index].signal_level = test_signal
+	if current != null and not night().is_tutorial():
+		_wound_friends(current.wounded_friends, current.wounded_health)
 
 
 func _process(delta: float) -> void:
@@ -159,8 +172,13 @@ func impatient_count() -> int:
 	return count
 
 
-## Avanza `delta` segundos: los temporizadores, la espera de identificación y la llegada de solicitudes.
+## Avanza `delta` segundos: los temporizadores, la espera de identificación y la llegada de solicitudes. En el primer paso
+## avisa qué amigos empezaron heridos: el chat ya está conectado.
 func advance(delta: float) -> void:
+	if not _wounded_announced:
+		_wounded_announced = true
+		for friend_index: int in wounded:
+			_add_wounded_notice(friend_index)
 	_elapsed += delta
 	for index in requests.size():
 		var request := requests[index]
@@ -390,7 +408,7 @@ func _decide_alone(friend_index: int) -> void:
 ## depende de si quedó herido. Un amigo herido atrasa las solicitudes que faltan (decisión de Benja).
 ## En el tutorial no hay consecuencias.
 func _resolve(request: FriendRequest) -> void:
-	request.consequence = Consequence.new(request.outcome, request.answered_by_player, catalog.balance, rng,
+	request.consequence = Consequence.new(request.outcome, request.answered_by_player, balance, rng,
 			request.decided_offline, night().is_tutorial())
 	state.apply(request.friend_index, request.consequence)
 	if request.consequence.is_hurt():
@@ -405,6 +423,24 @@ func _add_damage_notice(friend_index: int, request: FriendRequest) -> void:
 	var friend := state.friends[friend_index]
 	var friend_name := tr(catalog.friends[friend_index].name_key)
 	message_added.emit(friend_index, MessageBuilder.damage_notice(request, friend_name, friend.health, friend.max_health, tr))
+
+
+## Hiere a `count` amigos distintos, al azar: empiezan la noche con `health` de vida (Extremo; docs/30).
+func _wound_friends(count: int, health: int) -> void:
+	if count <= 0:
+		return
+	var friends: Array = RequestGenerator.shuffled(range(catalog.friends.size()), rng)
+	for friend_index: int in friends.slice(0, count):
+		state.friends[friend_index].health = mini(health, state.friends[friend_index].max_health)
+		wounded.append(friend_index)
+
+
+## El amigo empezó herido: su chat lo avisa en rojo, con la vida que le queda.
+func _add_wounded_notice(friend_index: int) -> void:
+	var friend := state.friends[friend_index]
+	var values := {"friend": tr(catalog.friends[friend_index].name_key), "health": friend.health,
+			"max": friend.max_health}
+	message_added.emit(friend_index, MessageBuilder.notice(WOUNDED_START_KEY, values, ChatMessage.Tone.DANGER, tr))
 
 
 ## Un aviso del juego en el chat del amigo, con su nombre y los videos de la noche.
