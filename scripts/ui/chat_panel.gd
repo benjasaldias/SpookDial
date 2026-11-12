@@ -58,6 +58,14 @@ const QUESTION_ICONS := {
 	ClueCategory.Kind.ENVIRONMENT: preload("res://art/ui/chat_icon_environment.png"),
 	ClueCategory.Kind.TRACES: preload("res://art/ui/chat_icon_traces.png"),
 }
+## Las respuestas desde el cuaderno son hojas del cuaderno, con el número de su columna en una nota adhesiva; las de un
+## accidente, que se responde sin cuaderno, botones de terminal (docs/26 §2.3).
+const ANSWER_SHEET := &"AnswerSheet"
+const TERMINAL_BUTTON := &"Button"
+## Lo que separa la nota adhesiva del borde izquierdo de la hoja.
+const NUMBER_MARGIN := 4
+## La tinta del número.
+const NUMBER_COLOR := Color(0.12, 0.13, 0.2)
 ## Lo que cuesta una pregunta (ui.csv). Lleva {seconds}.
 const QUESTION_COST_KEY := "CHAT_QUESTION_COST"
 ## Lo que costó una pregunta sube desde la pestaña del amigo y se desvanece en estos segundos, subiendo tantos píxeles.
@@ -150,9 +158,12 @@ func _ready() -> void:
 	for index in ANSWER_COUNT:
 		var button := Button.new()
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.focus_mode = Control.FOCUS_NONE
 		# Las acciones pueden ser largas: el botón crece hacia abajo en vez de salirse del panel.
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.pressed.connect(_on_answer_pressed.bind(index))
+		button.add_child(_answer_number(index + 1))
 		_answers.add_child(button)
 		_answer_buttons.append(button)
 	_entity_button.pressed.connect(_on_entity_pressed)
@@ -355,6 +366,7 @@ func _update_answers() -> void:
 	var waiting := _manager.requests[selected_friend] != null and online
 	for index in _answer_buttons.size():
 		var button := _answer_buttons[index]
+		_set_answer_look(button, true)
 		button.visible = index < page.actions.size()
 		if button.visible:
 			button.text = tr(page.actions[index].label_key)
@@ -367,10 +379,34 @@ func _show_incident_options(options: Array[String], online: bool) -> void:
 	_answer_title.text = _title(ANSWER_TITLE_KEY, tr(INCIDENT_HINT_KEY) if online else tr(OFFLINE_KEY))
 	for index in _answer_buttons.size():
 		var button := _answer_buttons[index]
+		_set_answer_look(button, false)
 		button.visible = index < options.size()
 		if button.visible:
 			button.text = tr(options[index])
 		button.disabled = not online
+
+
+## La nota adhesiva con el número de la columna de la tabla, a la izquierda de una hoja de respuesta.
+func _answer_number(number: int) -> PanelContainer:
+	var note := PanelContainer.new()
+	note.name = "Number"
+	note.theme_type_variation = &"AnswerNumber"
+	note.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var label := Label.new()
+	label.name = "Label"
+	label.text = str(number)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_color_override(&"font_color", NUMBER_COLOR)
+	note.add_child(label)
+	note.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT, Control.PRESET_MODE_MINSIZE, NUMBER_MARGIN)
+	return note
+
+
+## Una hoja del cuaderno con su número, para responder desde la página, o un botón de terminal, para un accidente.
+func _set_answer_look(button: Button, sheet: bool) -> void:
+	button.theme_type_variation = ANSWER_SHEET if sheet else &""
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT if sheet else HORIZONTAL_ALIGNMENT_CENTER
+	(button.get_node("Number") as Control).visible = sheet
 
 
 ## La barra de descarga del video que mandó este amigo, si mandó uno. Mientras el chat esté abierto y la
@@ -418,25 +454,28 @@ func _reserve_answer_space() -> void:
 	var needed := 0.0
 	for entity: EntityData in _manager.catalog.known_entities(_manager.night_number):
 		needed = maxf(needed, _stack_height(entity.actions.map(func(action: ActionData) -> String:
-				return tr(action.label_key))))
+				return tr(action.label_key)), ANSWER_SHEET))
 	for incident: IncidentData in _manager.catalog.incidents:
 		var options: Array[String] = [incident.correct_key]
 		options.append_array(incident.wrong_keys)
-		needed = maxf(needed, _stack_height(options.map(func(key: String) -> String: return tr(key))))
+		needed = maxf(needed, _stack_height(options.map(func(key: String) -> String: return tr(key)), TERMINAL_BUTTON))
 	_answer_area.custom_minimum_size.y = ceilf(needed)
 
 
-## El alto de los botones de respuesta con `labels`, uno debajo del otro, a todo el ancho del chat.
-func _stack_height(labels: Array) -> float:
-	var button := _answer_buttons[0]
-	var style := button.get_theme_stylebox(&"normal")
-	var font := button.get_theme_font(&"font")
-	var font_size := button.get_theme_font_size(&"font_size")
+## El alto de los botones de respuesta con `labels`, con el estilo `variation`, uno debajo del otro, a todo el ancho del
+## chat. Una hoja nunca es más baja que su nota adhesiva.
+func _stack_height(labels: Array, variation: StringName) -> float:
+	var style := get_theme_stylebox(&"normal", variation)
+	var font := get_theme_font(&"font", variation)
+	var font_size := get_theme_font_size(&"font_size", variation)
 	var width := _layout.size.x - style.get_margin(SIDE_LEFT) - style.get_margin(SIDE_RIGHT)
+	var note_height := 0.0
+	if variation == ANSWER_SHEET:
+		note_height = (_answer_buttons[0].get_node("Number") as Control).get_combined_minimum_size().y + 2.0
 	var total := 0.0
 	for label: String in labels:
 		var text_height := font.get_multiline_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, width, font_size).y
-		total += maxf(text_height + style.get_margin(SIDE_TOP) + style.get_margin(SIDE_BOTTOM), button.custom_minimum_size.y)
+		total += maxf(text_height + style.get_margin(SIDE_TOP) + style.get_margin(SIDE_BOTTOM), note_height)
 	return total + _answers.get_theme_constant(&"separation") * maxf(labels.size() - 1, 0.0)
 
 

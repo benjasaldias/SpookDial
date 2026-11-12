@@ -583,6 +583,9 @@ func test_un_accidente_se_responde_desde_el_chat() -> bool:
 		check_eq((buttons[index] as Button).text, tr(incident.options[index]), "su texto")
 		check(not (buttons[index] as Button).disabled, "se puede elegir")
 	check(not (buttons[3] as Button).visible, "la cuarta no se usa")
+	for index in incident.options.size():
+		check_eq((buttons[index] as Button).theme_type_variation, &"", "con sentido común, sin cuaderno: de terminal")
+		check(not (buttons[index].get_node("Number") as Control).visible, "sin número de columna")
 	check_eq((panel.get_node("%AnswerTitle") as Label).text, _title("CHAT_ANSWER_TITLE", tr(panel.INCIDENT_HINT_KEY)),
 			"el título pregunta qué le dices")
 	check(_question_buttons(panel).all(func(button: Button) -> bool: return button.disabled), "no se pregunta")
@@ -802,5 +805,22 @@ func test_al_preguntar_la_pestana_muestra_el_costo() -> bool:
 		check_eq((popups[0] as Label).text, _cost(5), "con lo que costó")
 	(_question_buttons(panel)[0] as Button).pressed.emit()
 	check_eq(panel.find_children("CostPopup*", "Label", true, false).size(), 1, "una pregunta que no se hizo no cuesta")
+	_free(panel)
+	return true
+
+
+## Las respuestas son hojas del cuaderno, con el número de su columna de la tabla en una nota adhesiva (docs/26 §2.3).
+func test_las_respuestas_son_hojas_numeradas() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	_memory.open_page(0, _beast())
+	panel._process(0.0)
+	var buttons := _answer_buttons(panel)
+	for index in buttons.size():
+		var button: Button = buttons[index]
+		check_eq(button.theme_type_variation, &"AnswerSheet", "la hoja %d" % (index + 1))
+		var number := button.get_node("Number") as Control
+		check(number.visible, "con su nota adhesiva")
+		check_eq((number.get_node("Label") as Label).text, str(index + 1), "con el número de su columna")
 	_free(panel)
 	return true

@@ -1,6 +1,11 @@
 [gd_resource type="Theme" format=3]
 
 [ext_resource type="FontFile" path="res://fonts/departure_mono/DepartureMono-Regular.otf" id="font"]
+[ext_resource type="Texture2D" path="res://art/ui/chat_answer_normal.png" id="answer_normal"]
+[ext_resource type="Texture2D" path="res://art/ui/chat_answer_hover.png" id="answer_hover"]
+[ext_resource type="Texture2D" path="res://art/ui/chat_answer_pressed.png" id="answer_pressed"]
+[ext_resource type="Texture2D" path="res://art/ui/chat_answer_disabled.png" id="answer_disabled"]
+[ext_resource type="Texture2D" path="res://art/ui/notebook_tab.png" id="postit"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_friend"]
 content_margin_left = 8.0
@@ -160,6 +165,69 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(1, 0.3, 0.37, 1)
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_answer_normal"]
+content_margin_left = 30.0
+content_margin_top = 5.0
+content_margin_right = 6.0
+content_margin_bottom = 5.0
+texture = ExtResource("answer_normal")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_answer_hover"]
+content_margin_left = 30.0
+content_margin_top = 5.0
+content_margin_right = 6.0
+content_margin_bottom = 5.0
+texture = ExtResource("answer_hover")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_answer_pressed"]
+content_margin_left = 30.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+texture = ExtResource("answer_pressed")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_answer_disabled"]
+content_margin_left = 30.0
+content_margin_top = 5.0
+content_margin_right = 6.0
+content_margin_bottom = 5.0
+texture = ExtResource("answer_disabled")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_postit"]
+content_margin_left = 5.0
+content_margin_top = 2.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+texture = ExtResource("postit")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_notice"]
@@ -180,6 +248,20 @@ Button/styles/focus = SubResource("StyleBoxEmpty_focus")
 Button/styles/hover = SubResource("StyleBoxFlat_button_hover")
 Button/styles/normal = SubResource("StyleBoxFlat_button_normal")
 Button/styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+AnswerNumber/base_type = &"PanelContainer"
+AnswerNumber/styles/panel = SubResource("StyleBoxTexture_postit")
+AnswerSheet/base_type = &"Button"
+AnswerSheet/colors/font_color = Color(0.12, 0.13, 0.2, 1)
+AnswerSheet/colors/font_disabled_color = Color(0.2, 0.19, 0.17, 1)
+AnswerSheet/colors/font_focus_color = Color(0.12, 0.13, 0.2, 1)
+AnswerSheet/colors/font_hover_color = Color(0.06, 0.07, 0.12, 1)
+AnswerSheet/colors/font_hover_pressed_color = Color(0.06, 0.07, 0.12, 1)
+AnswerSheet/colors/font_pressed_color = Color(0.06, 0.07, 0.12, 1)
+AnswerSheet/styles/disabled = SubResource("StyleBoxTexture_answer_disabled")
+AnswerSheet/styles/hover = SubResource("StyleBoxTexture_answer_hover")
+AnswerSheet/styles/hover_pressed = SubResource("StyleBoxTexture_answer_pressed")
+AnswerSheet/styles/normal = SubResource("StyleBoxTexture_answer_normal")
+AnswerSheet/styles/pressed = SubResource("StyleBoxTexture_answer_pressed")
 ChatTab/base_type = &"Button"
 ChatTab/colors/font_color = Color(0.4, 0.46, 0.58, 1)
 ChatTab/colors/font_hover_color = Color(0.79, 0.84, 0.95, 1)
