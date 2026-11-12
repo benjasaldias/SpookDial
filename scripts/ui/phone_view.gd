@@ -6,8 +6,9 @@ extends Control
 ## Las publicaciones se repiten sin fin. Se cierra con clic derecho; Esc y un clic fuera lo cierran desde
 ## el escritorio. La batería alcanza para un rato por noche y, sin ella, no hay nada que mirar (decisión de Benja,
 ## 7 de noviembre).
-## En la barra superior, el rayo de la linterna pide el flash, que espanta a la Mano y gasta batería; sin batería no
-## prende (decisión de Benja, 11 de noviembre).
+## En la barra superior, el botón de la linterna pide el flash, que espanta a la Mano y gasta batería; sin batería no
+## prende (decisión de Benja, 11 de noviembre). Desde el Plan 9.5 es un botón con relieve, con el rayo y "FLASH", que se
+## hunde al apretarlo: el rayo solo no parecía un botón (observación 13 del primer testeo).
 
 ## Clic en la linterna, con batería: el escritorio prende el flash.
 signal flash_pressed
@@ -24,11 +25,22 @@ const FRAME := preload("res://art/ui/phone_frame.png")
 const APP_NAME_KEY := "PHONE_APP_NAME"
 ## Lo que se ve sin batería (phone.csv).
 const NO_BATTERY_KEY := "PHONE_NO_BATTERY"
-## El nombre de la linterna, al pasar el mouse (phone.csv).
+## El nombre de la linterna, al pasar el mouse, y lo que dice su botón (phone.csv).
 const FLASH_KEY := "PHONE_FLASH"
-## Dónde se clickea la linterna, en la barra superior, y dónde se dibuja su rayo.
-const FLASH_RECT := Rect2(112, 16, 24, 18)
-const FLASH_ICON := Vector2(118, 19)
+const FLASH_BUTTON_KEY := "PHONE_FLASH_BUTTON"
+## El botón del flash (pixel art de Claude, art/ui/phone_flash_button.png): 3 cuadros de 14×14 (normal, con el mouse
+## encima y apretado), que se estiran como 9-slice.
+const FLASH_BUTTON := preload("res://art/ui/phone_flash_button.png")
+const FLASH_FRAME := 14
+const FLASH_SLICE := 4
+## Lo que separa el rayo y la palabra de los bordes del botón, y entre sí.
+const FLASH_PADDING := 5
+const FLASH_GAP := 3
+## Dónde va el botón: entre la hora y la batería, en la barra de arriba.
+const CLOCK_LEFT := 22.0
+const FLASH_TOP := 16.0
+## Segundos que se ve hundido después del clic.
+const FLASH_PRESS_SECONDS := 0.18
 ## Dónde termina el porcentaje de la batería: antes de las barras de señal.
 const PERCENT_RIGHT := 192.0
 ## Bajo este porcentaje, la batería se ve en rojo.
@@ -74,12 +86,23 @@ var _disturbing_posts: Array[PhonePostData] = []
 ## que salen: una foto nunca cambia frente al jugador.
 var _slots: Dictionary = {}
 var _rest_position := Vector2.ZERO
+## Segundos que le quedan hundido al botón del flash, y si el mouse está encima.
+var _flash_pressed_left := 0.0
+var _flash_hovered := false
+## Los 3 cuadros del botón del flash.
+var _flash_styles: Array[StyleBoxTexture] = []
 
 @onready var _feed: Control = $Feed
 
 
 func _ready() -> void:
 	hide()
+	for index in 3:
+		var style := StyleBoxTexture.new()
+		style.texture = FLASH_BUTTON
+		style.region_rect = Rect2(index * FLASH_FRAME, 0, FLASH_FRAME, FLASH_FRAME)
+		style.set_texture_margin_all(FLASH_SLICE)
+		_flash_styles.append(style)
 	_rest_position = position
 	_feed.draw.connect(_draw_feed)
 
@@ -128,6 +151,7 @@ func post_in_slot(slot: int) -> PhonePostData:
 
 
 func _process(delta: float) -> void:
+	_flash_pressed_left = maxf(_flash_pressed_left - delta, 0.0)
 	if not visible:
 		return
 	scroll = lerpf(scroll, _target_scroll, minf(delta * SCROLL_SPEED, 1.0))
@@ -148,14 +172,35 @@ func _update_slots() -> void:
 			_slots[slot] = PhoneFeed.post_for_slot(slot, _state.sanity, _posts, _disturbing_posts, _state.balance)
 
 
+## El botón del flash: tan ancho como el rayo y "FLASH" con la letra de ahora, y centrado entre la hora y el porcentaje de
+## la batería, así que también cabe con la letra de 1080p.
+func flash_rect() -> Rect2:
+	var font_size := PixelText.size(FONT_SIZE)
+	var text_width := FONT.get_string_size(tr(FLASH_BUTTON_KEY), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var width := FLASH_PADDING * 2 + PhoneIcons.SIZE + FLASH_GAP + text_width
+	var height := maxf(FONT.get_height(font_size) + 4.0, PhoneIcons.SIZE + 6.0)
+	var clock_right := CLOCK_LEFT + FONT.get_string_size("00:00", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var percent_left := PERCENT_RIGHT - FONT.get_string_size("100%", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var center := (clock_right + percent_left) / 2.0
+	return Rect2(roundf(center - width / 2.0), FLASH_TOP, ceilf(width), ceilf(height))
+
+
+## El botón del flash se ve hundido: se acaba de apretar.
+func is_flash_pressed() -> bool:
+	return _flash_pressed_left > 0.0
+
+
 ## Lo que dice el mouse sobre la linterna.
 func _get_tooltip(at_position: Vector2) -> String:
-	return tr(FLASH_KEY) if FLASH_RECT.has_point(at_position) else ""
+	return tr(FLASH_KEY) if flash_rect().has_point(at_position) else ""
 
 
 ## La rueda del mouse y el touchpad scrollean. El clic izquierdo en la linterna pide el flash. El clic derecho cierra
 ## el celular.
 func _gui_input(event: InputEvent) -> void:
+	var motion := event as InputEventMouseMotion
+	if motion != null:
+		_flash_hovered = flash_rect().has_point(motion.position)
 	var pan := event as InputEventPanGesture
 	if pan != null:
 		scroll_by(pan.delta.y * PAN_STEP)
@@ -171,7 +216,8 @@ func _gui_input(event: InputEvent) -> void:
 		MOUSE_BUTTON_WHEEL_UP:
 			scroll_by(-WHEEL_STEP)
 		MOUSE_BUTTON_LEFT:
-			if FLASH_RECT.has_point(mouse.position) and _state.has_battery():
+			if flash_rect().has_point(mouse.position) and _state.has_battery():
+				_flash_pressed_left = FLASH_PRESS_SECONDS
 				flash_pressed.emit()
 		MOUSE_BUTTON_RIGHT:
 			close()
@@ -186,7 +232,7 @@ func _draw() -> void:
 	_draw_text(self, _state.clock_text(), Vector2(22, 31), TEXT_COLOR)
 	for bar in 4:
 		draw_rect(Rect2(196 + bar * 4, 28 - bar * 2, 3, 3 + bar * 2), TEXT_COLOR)
-	PhoneIcons.draw_icon(self, PhoneIcons.FLASHLIGHT, FLASH_ICON, TEXT_COLOR if has_battery else DIM_COLOR)
+	_draw_flash_button(has_battery)
 	_draw_battery()
 	if has_battery:
 		_draw_app_bars()
@@ -206,6 +252,27 @@ func _draw_app_bars() -> void:
 		var icon: Array[String] = []
 		icon.assign(NAV_ICONS[index])
 		PhoneIcons.draw_icon(self, icon, Vector2(roundf(center - PhoneIcons.SIZE / 2.0), 463), TEXT_COLOR)
+
+
+## El botón del flash: con relieve, iluminado con el mouse encima y hundido un momento al apretarlo. Sin batería se ve
+## apagado.
+func _draw_flash_button(has_battery: bool) -> void:
+	var rect := flash_rect()
+	var pressed := is_flash_pressed()
+	var style := _flash_styles[2 if pressed else (1 if _flash_hovered and has_battery else 0)]
+	draw_style_box(style, rect)
+	if not has_battery:
+		draw_rect(rect, Color(0, 0, 0, 0.45))
+	# El contenido baja un píxel al hundirse, y queda sobre la cara del botón, encima de su sombra.
+	var top := rect.position.y + (rect.size.y - 2.0 - PhoneIcons.SIZE) / 2.0 + (1.0 if pressed else 0.0)
+	var color := TEXT_COLOR if has_battery else DIM_COLOR
+	var icon_left := rect.position.x + FLASH_PADDING
+	PhoneIcons.draw_icon(self, PhoneIcons.FLASHLIGHT, Vector2(icon_left, roundf(top)), color)
+	var font_size := PixelText.size(FONT_SIZE)
+	var baseline := roundf(rect.position.y + (rect.size.y - 2.0 + FONT.get_ascent(font_size) - FONT.get_descent(font_size)) / 2.0
+			+ (1.0 if pressed else 0.0))
+	draw_string(FONT, Vector2(icon_left + PhoneIcons.SIZE + FLASH_GAP, baseline), tr(FLASH_BUTTON_KEY),
+			HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 
 ## La batería: el ícono, que se vacía, y su porcentaje. Con poca, en rojo.

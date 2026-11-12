@@ -587,6 +587,30 @@ def phone_frame():
     return image
 
 
+def phone_flash_button():
+    """El botón del flash en la barra de arriba del celular (Plan 9.5, observación 13 del primer testeo: el rayo solo no
+    parecía un botón). Tres cuadros de 14×14 en fila (normal, con el mouse encima y apretado), para estirarse como
+    9-slice con márgenes de 4: borde negro, luz arriba, sombra gruesa abajo y, apretado, hundido y con la luz abajo."""
+    image = Image.new("RGBA", (42, 14), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    for index, state in enumerate(("normal", "hover", "pressed")):
+        x = index * 14
+        box(draw, x + 1, 0, x + 12, 0, fill=BLACK)
+        box(draw, x + 1, 13, x + 12, 13, fill=BLACK)
+        box(draw, x, 1, x, 12, fill=BLACK)
+        box(draw, x + 13, 1, x + 13, 12, fill=BLACK)
+        if state == "pressed":
+            box(draw, x + 1, 1, x + 12, 12, fill=CASE)
+            box(draw, x + 1, 1, x + 12, 2, fill=CASE_DARK)
+            box(draw, x + 1, 12, x + 12, 12, fill=CASE_LIGHT)
+            continue
+        face = rgb("#5f80bd") if state == "hover" else CASE_LIGHT
+        box(draw, x + 1, 1, x + 12, 10, fill=face)
+        box(draw, x + 2, 1, x + 11, 1, fill=CASE_SHINE)
+        box(draw, x + 1, 11, x + 12, 12, fill=CASE_DARK)
+    return image
+
+
 # --- Las barras de arriba -------------------------------------------------------------------------------------------
 # Miden lo mismo que StatBars (300×54); las medidas de las filas son las de scripts/ui/stat_bars.gd.
 
@@ -950,6 +974,7 @@ def main():
         paint_ink(ink_mask(scale)).save(OUT / f"ink_blot_{index}.png")
     ink_drips().save(OUT / "ink_drips.png")
     phone_frame().save(OUT / "phone_frame.png")
+    phone_flash_button().save(OUT / "phone_flash_button.png")
     hud_bars().save(OUT / "hud_bars.png")
     signal_bars().save(OUT / "signal_bars.png")
     menu_frame().save(OUT / "menu_frame.png")

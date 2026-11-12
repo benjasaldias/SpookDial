@@ -3,6 +3,7 @@ extends "res://test/test_case.gd"
 const Fixtures := preload("res://test/content_fixtures.gd")
 const PHONE := preload("res://scenes/ui/phone_view.tscn")
 const NightState := preload("res://scripts/core/night_state.gd")
+const PhoneIcons := preload("res://scripts/ui/phone_icons.gd")
 const PhoneView := preload("res://scripts/ui/phone_view.gd")
 
 var _state: NightState
@@ -182,13 +183,13 @@ func test_la_linterna_avisa() -> bool:
 	var flashes := []
 	phone.flash_pressed.connect(func() -> void: flashes.append(true))
 	var click := _mouse(MOUSE_BUTTON_LEFT)
-	click.position = PhoneView.FLASH_RECT.get_center()
+	click.position = phone.flash_rect().get_center()
 	phone._gui_input(click)
 	check_eq(flashes.size(), 1, "pidió el flash")
 	click.position = Vector2(130, 300)
 	phone._gui_input(click)
 	check_eq(flashes.size(), 1, "un clic en el feed no")
-	check(String(phone._get_tooltip(PhoneView.FLASH_RECT.get_center())) != "", "tiene su nombre al pasar el mouse")
+	check(String(phone._get_tooltip(phone.flash_rect().get_center())) != "", "tiene su nombre al pasar el mouse")
 	phone.free()
 	return true
 
@@ -199,8 +200,28 @@ func test_sin_bateria_la_linterna_no_prende() -> bool:
 	var flashes := []
 	phone.flash_pressed.connect(func() -> void: flashes.append(true))
 	var click := _mouse(MOUSE_BUTTON_LEFT)
-	click.position = PhoneView.FLASH_RECT.get_center()
+	click.position = phone.flash_rect().get_center()
 	phone._gui_input(click)
 	check(flashes.is_empty(), "sin batería no pide nada")
+	check(not phone.is_flash_pressed(), "ni se hunde")
+	phone.free()
+	return true
+
+
+## El flash es un botón con relieve, con el rayo y "FLASH" (observación 13 del primer testeo): entre la hora y la
+## batería, y se ve apretado un momento al hacer clic.
+func test_el_flash_es_un_boton() -> bool:
+	var phone := _make_phone()
+	var rect: Rect2 = phone.flash_rect()
+	check(rect.size.x > PhoneIcons.SIZE + 20, "cabe el rayo y la palabra: %s" % rect)
+	check(rect.position.x > 60 and rect.end.x < PhoneView.PERCENT_RIGHT - 25, "entre la hora y la batería: %s" % rect)
+	check(rect.position.y >= 14 and rect.end.y <= 40, "en la barra de arriba: %s" % rect)
+	check(not phone.is_flash_pressed(), "empieza sin apretar")
+	var click := _mouse(MOUSE_BUTTON_LEFT)
+	click.position = rect.get_center()
+	phone._gui_input(click)
+	check(phone.is_flash_pressed(), "al hacer clic, se hunde")
+	phone._process(0.3)
+	check(not phone.is_flash_pressed(), "y vuelve")
 	phone.free()
 	return true
