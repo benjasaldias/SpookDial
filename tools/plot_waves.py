@@ -1,7 +1,7 @@
 """Dibuja la curva de olas de una noche (Plan 9.1): lo que guarda test/dump_waves.gd.
 
 Uso, desde la carpeta del proyecto (necesita matplotlib, que está en /usr/bin/python3):
-    ~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/dump_waves.gd -- 3 1 /ruta/noche3.json
+    ~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/dump_waves.gd -- 3 1 /ruta/noche3.json [normal|hard]
     /usr/bin/python3 tools/plot_waves.py /ruta/noche3.json /ruta/noche3.png
 """
 import json
@@ -56,8 +56,10 @@ def main(source, target):
     top.set_yticks([1.5, 5.5, 9.5, 13.5])
     top.set_yticklabels([NAMES[kind] for kind in ("request", "incident", "hand", "video")], color="#c8ccd8")
     top.set_ylim(-1, 17)
-    title = "Noche %d (semilla %d): olas (rojo), calmas, la ola final (rojo fuerte) · batería que pide: %.0f %%" % (
-        data["night"], data["seed"], data["battery"])
+    names = {"normal": "Normal", "hard": "Difícil"}
+    difficulty = names.get(data.get("difficulty", ""), data.get("difficulty", ""))
+    title = "%s, noche %d (semilla %d): olas (rojo), calmas, la ola final (rojo fuerte) · batería que pide: %.0f %%" % (
+        difficulty, data["night"], data["seed"], data["battery"])
     top.set_title(title, color="#e8eaf0", fontsize=11)
     bottom.step(range(len(data["load"])), data["load"], where="post", color="#ffb347", lw=1.6)
     bottom.set_ylabel("Tareas abiertas", color="#c8ccd8")

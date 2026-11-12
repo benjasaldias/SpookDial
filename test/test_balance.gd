@@ -3,6 +3,11 @@ extends "res://test/test_case.gd"
 const BALANCE_PATH := "res://data/balance.tres"
 
 
+## Las noches 1 a 5 de una dificultad del juego. Los valores de antes del primer testeo son los de Difícil.
+func _nights(catalog: ContentCatalog, difficulty_id: StringName) -> Array[NightData]:
+	return catalog.find_difficulty(difficulty_id).nights
+
+
 ## Los valores iniciales de docs/02 §5.2 y §6.
 func test_valores_de_docs_02() -> bool:
 	var balance: BalanceData = load(BALANCE_PATH)
@@ -100,8 +105,9 @@ func test_olas_y_screamers_de_cada_noche() -> bool:
 	var scare_counts := [2, 4, 4, 5, 6]
 	var creature_visits := [0, 1, 2, 2, 3]
 	var hand_visits := [1, 1, 2, 2, 3]
-	for index in catalog.nights().size():
-		var night: NightData = catalog.nights()[index]
+	var nights := _nights(catalog, &"hard")
+	for index in nights.size():
+		var night: NightData = nights[index]
 		var who := "noche %d" % night.number
 		check_eq(night.wave_size, 2, who + ": solicitudes por ola")
 		check_eq(night.finale_size, 3, who + ": la ola final")
@@ -125,8 +131,9 @@ func test_identificacion_por_preguntas() -> bool:
 	var times := [80.0, 65.0, 55.0, 50.0, 45.0]
 	var hints := [1.0, 0.75, 0.0, 0.0, 0.0]
 	var decoys := [1, 2, 3, 3, 4]
-	for index in catalog.nights().size():
-		var night: NightData = catalog.nights()[index]
+	var nights := _nights(catalog, &"hard")
+	for index in nights.size():
+		var night: NightData = nights[index]
 		var who := "noche %d" % night.number
 		check_eq(night.requests_total, requests[index], who + ": solicitudes")
 		check_eq(night.base_decision_time, times[index], who + ": tiempo para responder")
@@ -143,8 +150,9 @@ func test_mantenimiento_de_cada_noche() -> bool:
 	var interferences := [1, 3, 3, 4, 6]
 	var beats := [4, 4, 4, 8, 8]
 	var bpms := [90.0, 100.0, 115.0, 130.0, 145.0]
-	for index in catalog.nights().size():
-		var night: NightData = catalog.nights()[index]
+	var nights := _nights(catalog, &"hard")
+	for index in nights.size():
+		var night: NightData = nights[index]
 		var who := "noche %d" % night.number
 		check_eq(night.max_simultaneous, simultaneous[index], who + ": solicitudes a la vez")
 		check(night.signal_decays, who + ": la señal baja")
@@ -160,8 +168,9 @@ func test_accidentes() -> bool:
 	check_eq(catalog.balance.incident_seconds, 15.0, "15 s para responder un accidente")
 	check_eq(catalog.balance.incident_damage, 1, "una mala respuesta: −1 PV")
 	var counts := [1, 1, 2, 2, 3]
-	for index in catalog.nights().size():
-		check_eq(catalog.nights()[index].incident_count, counts[index], "noche %d: accidentes" % (index + 1))
+	var nights := _nights(catalog, &"hard")
+	for index in nights.size():
+		check_eq(nights[index].incident_count, counts[index], "noche %d: accidentes" % (index + 1))
 	check_eq(catalog.tutorial.incident_count, 0, "en la noche 0 no hay")
 	return true
 
@@ -179,8 +188,9 @@ func test_trust_por_tardar() -> bool:
 func test_el_lugar_solo_a_veces() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	var chances := [0.6, 0.55, 0.5, 0.45, 0.4]
-	for index in catalog.nights().size():
-		check_eq(catalog.nights()[index].place_chance, chances[index], "noche %d" % (index + 1))
+	var nights := _nights(catalog, &"hard")
+	for index in nights.size():
+		check_eq(nights[index].place_chance, chances[index], "noche %d" % (index + 1))
 	check_eq(catalog.tutorial.place_chance, 1.0, "noche 0")
 	check(catalog.predicament_keys.size() >= 6, "varias frases de lo que le pasa: %d" % catalog.predicament_keys.size())
 	return true
@@ -214,43 +224,65 @@ const BalanceModel := preload("res://test/balance_model.gd")
 const SEEDS := 20
 
 
-## La batería de los flashes, más la que hace falta para reponer Sanity jugando bien, no pasa de 100 %.
+## La batería de los flashes, más la que hace falta para reponer Sanity jugando bien, no pasa de 100 %, en las 5 noches
+## de cada dificultad.
 func test_la_bateria_alcanza_en_cada_noche() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
-	for night: NightData in catalog.nights():
-		var needed := BalanceModel.battery_needed(night, catalog.balance)
-		check(needed <= 100.0, "noche %d: pide %.1f %% de batería" % [night.number, needed])
+	for difficulty: DifficultyData in catalog.difficulties:
+		for night: NightData in difficulty.nights:
+			var needed := BalanceModel.battery_needed(night, catalog.balance)
+			check(needed <= 100.0, "%s, noche %d: pide %.1f %% de batería" % [difficulty.id, night.number, needed])
 	return true
 
 
-## Jugando bien, ninguna solicitud, accidente, video ni Mano vence sin atender, ni siquiera en la ola final.
+## Jugando bien, ninguna solicitud, accidente, video ni Mano vence sin atender, ni siquiera en la ola final. En Difícil,
+## quien juega bien identifica leyendo.
 func test_jugando_bien_nada_vence() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
-	for night: NightData in catalog.nights():
-		for seed_value in SEEDS:
-			var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1)
-			check_eq(result["missed"], 0, "noche %d, semilla %d: tareas vencidas" % [night.number, seed_value + 1])
-			check(result["requests"] >= night.requests_total - 2, "noche %d, semilla %d: llegan casi todas: %d"
-					% [night.number, seed_value + 1, result["requests"]])
+	for difficulty: DifficultyData in catalog.difficulties:
+		for night: NightData in difficulty.nights:
+			for seed_value in SEEDS:
+				var who := "%s, noche %d, semilla %d" % [difficulty.id, night.number, seed_value + 1]
+				var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1, difficulty.highlights)
+				check_eq(result["missed"], 0, who + ": tareas vencidas")
+				check(result["requests"] >= night.total_requests() - 2, "%s: llegan casi todas: %d"
+						% [who, result["requests"]])
 	return true
 
 
 ## Jugando bien, Trust termina sobre 75: queda espacio para unos errores.
 func test_jugando_bien_trust_queda_sobre_75() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
-	for night: NightData in catalog.nights():
-		for seed_value in SEEDS:
-			var trust: float = BalanceModel.simulate(night, catalog.balance, seed_value + 1)["trust"]
-			check(trust >= 75.0, "noche %d, semilla %d: Trust %.1f" % [night.number, seed_value + 1, trust])
+	for difficulty: DifficultyData in catalog.difficulties:
+		for night: NightData in difficulty.nights:
+			for seed_value in SEEDS:
+				var trust: float = BalanceModel.simulate(night, catalog.balance, seed_value + 1,
+						difficulty.highlights)["trust"]
+				check(trust >= 75.0, "%s, noche %d, semilla %d: Trust %.1f"
+						% [difficulty.id, night.number, seed_value + 1, trust])
 	return true
 
 
-## Trust amenaza de verdad: como ya no se recupera, 7 respuestas incorrectas bastan para perder cualquier noche, y
-## cada noche tiene al menos esas solicitudes.
+## Trust amenaza de verdad en Difícil: como ya no se recupera, 7 respuestas incorrectas bastan para perder cualquier
+## noche, y cada noche tiene al menos esas solicitudes.
 func test_trust_amenaza() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	var wrong_to_lose := ceili(100.0 / -catalog.balance.wrong_trust)
 	check(wrong_to_lose <= 7, "%d incorrectas pierden la noche" % wrong_to_lose)
-	for night: NightData in catalog.nights():
-		check(night.requests_total >= wrong_to_lose, "noche %d: %d solicitudes" % [night.number, night.requests_total])
+	for night: NightData in _nights(catalog, &"hard"):
+		check(night.total_requests() >= wrong_to_lose, "noche %d: %d solicitudes" % [night.number, night.total_requests()])
+	return true
+
+
+## En Normal hay menos consultas, y las incorrectas solas no alcanzan a vaciar Trust, pero no contestar ninguna pierde
+## cualquier noche: cada una baja no_answer_trust más lo que tardó en vencer (con el temporizador más corto, el de Trust
+## en 0).
+func test_en_normal_sin_contestar_se_pierde() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var balance := catalog.balance
+	for night: NightData in _nights(catalog, &"normal"):
+		var shortest := night.base_decision_time * 0.6
+		var each := -balance.no_answer_trust + maxf(shortest - balance.slow_answer_grace, 0.0) * balance.slow_answer_trust
+		var lost := each * night.total_requests()
+		check(lost >= 100.0, "noche %d: sin contestar baja %.1f de Trust" % [night.number, lost])
 	return true

@@ -1,8 +1,9 @@
 extends RefCounted
 ## El modelo de "jugar bien" para la prueba de equilibrio (Plan 9.1, docs/24): Benja pidió que toda noche se pueda
 ## ganar. No es contenido del juego.
-## Quien juega bien ya conoce a las entidades: a cada solicitud le dedica 12 s de atención y le hace 2 preguntas, que le
-## quitan 10 s al temporizador; un accidente le toma 4 s, espantar a la Mano 4 s (antes de que agarre) y descargar un
+## Quien juega bien ya conoce a las entidades: a cada solicitud le dedica 12 s de atención (14 s en Difícil, donde no
+## marca ni espera a Matías, pero lee y busca la página en el índice; Plan 9.4) y le hace 2 preguntas, que le quitan
+## 10 s al temporizador; un accidente le toma 4 s, espantar a la Mano 4 s (antes de que agarre) y descargar un
 ## video 10 s. Atiende de a una tarea, la que vence primero. Cuando llega la criatura, cierra la cortina a los 3 s y la
 ## revisa 2 veces, 1 s cada vez. Nunca se equivoca ni pierde un video, y quiere terminar con Sanity sobre 10.
 ## Los valores al azar se toman en su peor caso: la criatura se queda lo más posible.
@@ -11,6 +12,8 @@ const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
 
 const REQUEST_ATTENTION := 12.0
+## En Difícil se identifica leyendo (decisión de Benja, D3). Con 15 s, la noche 5 de Difícil ya no se puede ganar.
+const READING_ATTENTION := 14.0
 const QUESTIONS := 2
 const INCIDENT_ATTENTION := 4.0
 const HAND_ATTENTION := 4.0
@@ -27,7 +30,7 @@ const STEP := 0.1
 ## La batería que gasta quien juega bien en la noche, en %: la que hace falta para reponer Sanity, más un flash por
 ## cada visita de la Mano. Tiene que ser 100 o menos.
 static func battery_needed(night: NightData, balance: BalanceData) -> float:
-	return scroll_battery(night, balance) + night.hand_visits * balance.flash_cost
+	return scroll_battery(night, balance) + night.total_hands() * balance.flash_cost
 
 
 ## La batería que hace falta para reponer Sanity, en %.
@@ -40,18 +43,20 @@ static func scroll_battery(night: NightData, balance: BalanceData) -> float:
 ## hasta cerrarla, cerrada mientras se queda y abierta en cada revisión).
 static func sanity_loss(night: NightData, balance: BalanceData) -> float:
 	var loss := balance.night_seconds / night.sanity_drain_interval
-	loss += (night.scare_count - night.creature_visits) * balance.scare_sanity
-	loss += night.creature_visits * balance.jumpscare_sanity
+	loss += (night.total_scares() - night.total_creatures()) * balance.scare_sanity
+	loss += night.total_creatures() * balance.jumpscare_sanity
 	var open := (CREATURE_REACTION + CREATURE_CHECKS * CHECK_SECONDS) * balance.creature_sanity
-	loss += night.creature_visits * (open + balance.creature_stay.y * balance.closed_curtains_sanity)
+	loss += night.total_creatures() * (open + balance.creature_stay.y * balance.closed_curtains_sanity)
 	return loss
 
 
-## Corre la noche con el director real y quien juega bien. Devuelve "missed" (las tareas que vencieron sin atender),
+## Corre la noche con el director real y quien juega bien, que identifica guiado (`guided`, Normal) o leyendo (Difícil).
+## Devuelve "missed" (las tareas que vencieron sin atender),
 ## "trust" (Trust al final: solo baja por las solicitudes que esperan más de la cuenta), "requests" (cuántas llegaron),
 ## "tasks" (cada una con su tipo, su llegada, su fin y su plazo), "waves" y "calms" (las horas en que empezó cada una),
 ## "interferences", "videos", "scares" ([hora, es la criatura]) y "load" (cuántas tareas había abiertas, cada segundo).
-static func simulate(night: NightData, balance: BalanceData, seed_value: int) -> Dictionary:
+static func simulate(night: NightData, balance: BalanceData, seed_value: int, guided := true) -> Dictionary:
+	var attention := REQUEST_ATTENTION if guided else READING_ATTENTION
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var director := PacingDirector.new(night, balance, rng)
@@ -87,7 +92,7 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int) ->
 			active += 1
 			result["requests"] += 1
 			var deadline := time + RequestGenerator.decision_time(night, trust) - QUESTIONS * balance.question_cost
-			open.append(_task("request", time, deadline, REQUEST_ATTENTION, friend))
+			open.append(_task("request", time, deadline, attention, friend))
 		if director.incident_due(time) and busy.has(false):
 			director.incident_started()
 			var friend := busy.find(false)
