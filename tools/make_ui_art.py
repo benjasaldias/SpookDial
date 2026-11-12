@@ -939,6 +939,23 @@ def answer_sheet(state):
     return image
 
 
+# La llamada grupal (Plan 9.7): un auricular que suena, de 11×11 y en blanco (Godot le da el color). Va en el encabezado
+# del chat y en las entradas del PC mientras los 3 amigos están juntos.
+CALL_ICON = [
+    "...........",
+    ".....#.....",
+    ".#...#...#.",
+    "..#..#..#..",
+    "...........",
+    "...........",
+    ".#########.",
+    "###########",
+    "###.....###",
+    "##.......##",
+    "...........",
+]
+
+
 def chat_art():
     """Todo el arte del chat, como {nombre: imagen}."""
     art = {}
@@ -955,6 +972,9 @@ def chat_art():
     stamp(image, 0, 0, rows, palette)
     art["chat_icon_notebook"] = image
     art["chat_signal"] = chat_signal()
+    image = Image.new("RGBA", (11, 11), (0, 0, 0, 0))
+    stamp(image, 0, 0, CALL_ICON, {"#": rgb("#ffffff")})
+    art["chat_call"] = image
     for state in SHEETS:
         art[f"chat_answer_{state}"] = answer_sheet(state)
     return art

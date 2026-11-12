@@ -207,3 +207,18 @@ func test_puede_parpadear() -> bool:
 	check(not highlight.active, "y se apaga")
 	entry.free()
 	return true
+
+
+## Mientras dura la llamada grupal, las entradas muestran su ícono (Plan 9.7).
+func test_en_llamada_muestra_el_icono() -> bool:
+	var entry := _make_entry()
+	var icon := entry.get_node("CallIcon") as Sprite2D
+	check(not icon.visible, "sin llamada, no")
+	entry.set_call(true)
+	check(icon.visible, "en llamada, sí")
+	check(not (entry.get_node("TimerLabel") as Label).visible, "en lugar del temporizador")
+	check(icon.position.x + icon.texture.get_width() <= ChatEntry.SIZE.x - 6, "dentro de la entrada")
+	entry.set_call(false)
+	check(not icon.visible, "se va")
+	entry.free()
+	return true

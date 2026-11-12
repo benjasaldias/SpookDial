@@ -5,6 +5,7 @@ extends Node2D
 ## queda fija en lugar de parpadear, y el aviso de una interferencia atenúa la entrada en lugar de hacerla titilar.
 ## En alerta pita una vez por segundo, con la nota de su amigo (pedido de Benja, 12 de noviembre): el escritorio le da un
 ## reloj común a las 3 entradas, así que pitan juntas y hacen su acorde, y la entrada se enciende en rojo con el pitido.
+## Mientras dura la llamada grupal de la historia (Plan 9.7), muestra su ícono en lugar del temporizador.
 
 signal pressed
 
@@ -37,6 +38,10 @@ const FLICKER_SECONDS := 0.12
 const DIM_ALPHA := 0.35
 ## Cada cuántos segundos pita en alerta.
 const ALARM_SECONDS := 1.0
+## El ícono de la llamada grupal (pixel art de Claude, art/ui/), a la derecha y en el color de la terminal.
+const CALL_ICON := preload("res://art/ui/chat_call.png")
+const CALL_ICON_COLOR := Color(0.25, 0.76, 0.79)
+const CALL_ICON_MARGIN := 6
 const Highlight := preload("res://scripts/ui/highlight.gd")
 
 @export var display_name := "":
@@ -83,6 +88,7 @@ var _flicker_time := 0.0
 var _alarm_beat := -1
 var _alarm_player: AudioStreamPlayer
 var _highlight: Highlight
+var _call_icon: Sprite2D
 
 @onready var _background: AnimatedSprite2D = $Background
 @onready var _name_label: Label = $NameLabel
@@ -103,6 +109,15 @@ func _ready() -> void:
 	_highlight.target_size = SIZE
 	_highlight.active = highlighted
 	add_child(_highlight)
+	_call_icon = Sprite2D.new()
+	_call_icon.name = "CallIcon"
+	_call_icon.texture = CALL_ICON
+	_call_icon.centered = false
+	_call_icon.modulate = CALL_ICON_COLOR
+	_call_icon.position = Vector2(SIZE.x - CALL_ICON_MARGIN - CALL_ICON.get_width(),
+			floorf((SIZE.y - CALL_ICON.get_height()) / 2.0))
+	_call_icon.visible = false
+	add_child(_call_icon)
 	set_state(State.IDLE)
 	set_seconds_left(-1)
 
@@ -156,6 +171,13 @@ func show_stun(seconds: int) -> void:
 func show_video(seconds: int) -> void:
 	_timer_label.visible = true
 	_timer_label.text = tr(VIDEO_KEY).format({"seconds": seconds})
+
+
+## Está en la llamada grupal: su ícono, en lugar del temporizador.
+func set_call(active: bool) -> void:
+	_call_icon.visible = active
+	if active:
+		_timer_label.visible = false
 
 
 ## El amigo está sin señal.

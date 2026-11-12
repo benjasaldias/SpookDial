@@ -925,3 +925,123 @@ func test_en_dificil_se_responde_sin_marcar_nada() -> bool:
 	check_eq(request.outcome, RuleEvaluator.Outcome.CORRECT, "con la acción correcta")
 	_free(panel)
 	return true
+
+
+# --- La llamada grupal (Plan 9.7, docs/31): con los 3 juntos y nada que jugar, el chat es una llamada.
+
+## Un panel cuya noche 1 tiene una historia: al empezar, Gonzalo y León hablan en la llamada.
+func _make_call_panel() -> Control:
+	var root := (Engine.get_main_loop() as SceneTree).root
+	_manager = RequestManager.new()
+	_manager.catalog = Fixtures.make_catalog()
+	_manager.night_number = 1
+	_manager.random_seed = 4
+	_manager.requests_arrive = false
+	var story := StoryData.new()
+	story.beats.append(Fixtures.make_beat(StoryBeatData.Moment.NIGHT_START,
+			[Fixtures.make_line(_manager.catalog.friends[1], "K_A"), Fixtures.make_line(_manager.catalog.friends[0], "K_B")]))
+	_manager.night().story = story
+	root.add_child(_manager)
+	_memory = NotebookMemory.new(_manager.catalog.friends.size())
+	var panel := PANEL.instantiate()
+	root.add_child(panel)
+	panel.setup(_manager, _manager.catalog.friends, _memory)
+	return panel
+
+
+func test_en_llamada_no_hay_pestanas() -> bool:
+	var panel := _make_call_panel()
+	panel.open_for(0)
+	panel._process(0.0)
+	check(panel.is_call_mode(), "en llamada")
+	check(not (panel.get_node("%Tabs") as Control).visible, "sin pestañas")
+	check((panel.get_node("%CallHeader") as Control).visible, "con el encabezado de la llamada")
+	check_eq((panel.get_node("%CallHeader/Title") as Label).text, tr("CHAT_CALL_TITLE").to_upper(), "dice que es una llamada")
+	for path: String in ["%AskTitle", "%Questions", "%AnswerTitle", "%AnswerArea", "%Download", "%Progress", "%Sync"]:
+		check(not (panel.get_node(path) as Control).visible, path + ": no se ve en la llamada")
+	_manager.start_request(0)
+	panel._process(0.0)
+	check(not panel.is_call_mode(), "con algo que jugar, se corta")
+	check((panel.get_node("%Tabs") as Control).visible, "vuelven las pestañas")
+	for path: String in ["%AskTitle", "%Questions", "%AnswerTitle", "%AnswerArea"]:
+		check((panel.get_node(path) as Control).visible, path + ": vuelve")
+	_free(panel)
+	return true
+
+
+func test_la_llamada_muestra_quien_habla() -> bool:
+	var panel := _make_call_panel()
+	panel.open_for(2)
+	_manager.advance(0.1)
+	_manager.advance(5.0)
+	panel._process(0.0)
+	var views: Array[Node] = panel.call_views()
+	check_eq(views.size(), 2, "las 2 líneas, en la llamada")
+	if views.size() == 2:
+		var first := views[0] as ChatMessageView
+		check_eq(first.speaker, tr(_manager.catalog.friends[1].name_key).to_upper(), "habla Gonzalo")
+		check_eq(first.speaker_color, _manager.catalog.friends[1].color, "en su color")
+		check_eq((views[1] as ChatMessageView).speaker, tr(_manager.catalog.friends[0].name_key).to_upper(), "después León")
+		check_eq((views[1] as ChatMessageView).wait_for, first, "se escriben de a una")
+	check(panel.message_views(1).is_empty(), "no van al chat de Gonzalo")
+	var scroll := views[0].get_parent().get_parent() as Control if not views.is_empty() else null
+	check(scroll != null and scroll.visible, "se ve la conversación de la llamada")
+	check(not (panel.message_views(2)[0].get_parent().get_parent() as Control).visible if not panel.message_views(2).is_empty() \
+			else true, "y no la del amigo elegido")
+	_free(panel)
+	return true
+
+
+## Arriba están las barritas de los 3, y cada una abre el mixer en su canal (docs/21 §2).
+func test_en_llamada_hay_una_senal_por_amigo() -> bool:
+	var panel := _make_call_panel()
+	_manager.night().audio_sync_beats = 4
+	panel.open_for(0)
+	panel._process(0.0)
+	var buttons := panel.get_node("%CallSync").get_children()
+	check_eq(buttons.size(), 3, "una por amigo")
+	check((panel.get_node("%CallSync") as Control).visible, "se ven")
+	var requested := []
+	panel.sync_requested.connect(func(friend_index: int) -> void: requested.append(friend_index))
+	if buttons.size() == 3:
+		check_eq((buttons[2] as Button).text, tr(_manager.catalog.friends[2].name_key).to_upper(), "con el nombre")
+		(buttons[2] as Button).pressed.emit()
+		_manager.state.friends[1].signal_level = 0.0
+		panel._process(0.0)
+		check((buttons[1].get_node("Highlight") as Node).active, "sin señal, parpadea")
+		check(not (buttons[0].get_node("Highlight") as Node).active, "con señal, no")
+	check_eq(requested, [2], "abre el mixer en el canal de Agustín")
+	_free(panel)
+	return true
+
+
+func test_la_llamada_se_corta_en_el_chat_del_que_juega() -> bool:
+	var panel := _make_call_panel()
+	panel.open_for(0)
+	panel._process(0.0)
+	_manager.start_request(2)
+	panel._process(0.0)
+	check_eq(panel.selected_friend, 2, "se abre el chat del que tiene algo que jugar")
+	check((panel.message_views(2)[0].get_parent().get_parent() as Control).visible, "con su conversación")
+	_free(panel)
+	return true
+
+
+func test_las_voces_de_la_llamada() -> bool:
+	var panel := _make_call_panel()
+	var voice := panel.get_node("Voice") as AudioStreamPlayer
+	_manager.advance(0.1)
+	var view := panel.call_views()[0] as ChatMessageView
+	panel.open_for(0)
+	panel._process(0.0)
+	view.letter_typed.emit("H")
+	check(voice.playing, "en la llamada, suena")
+	check_eq(voice.stream, _manager.catalog.friends[1].voice, "con la voz de quien habla")
+	panel.hide()
+	voice.stop()
+	# Una vuelta entera de letras: alguna sonaría con el chat abierto.
+	for _letter in 8:
+		view.letter_typed.emit("H")
+	check(not voice.playing, "con el chat cerrado, no suena")
+	_free(panel)
+	return true

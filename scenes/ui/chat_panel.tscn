@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" path="res://art/sprites/screen_sprite.aseprite" id="panel_texture"]
 [ext_resource type="Theme" path="res://scenes/ui/chat_theme.tres" id="chat_theme"]
 [ext_resource type="Shader" path="res://shaders/scanlines.gdshader" id="scanlines_shader"]
+[ext_resource type="Texture2D" path="res://art/ui/chat_call.png" id="call_icon"]
 
 [sub_resource type="ShaderMaterial" id="scanlines_material"]
 shader = ExtResource("scanlines_shader")
@@ -52,6 +53,28 @@ theme_override_constants/separation = 6
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
+
+[node name="CallHeader" type="HBoxContainer" parent="Panel/Layout"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Panel/Layout/CallHeader"]
+self_modulate = Color(0.25, 0.76, 0.79, 1)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("call_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Panel/Layout/CallHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.76, 0.79, 1)
+vertical_alignment = 1
 
 [node name="Conversations" type="Control" parent="Panel/Layout"]
 unique_name_in_owner = true
@@ -120,6 +143,14 @@ unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"ChatIconButton"
+
+[node name="CallSync" type="HBoxContainer" parent="Panel/Layout/IdentifyBar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 6
 
 [node name="AskTitle" type="Label" parent="Panel/Layout"]
 unique_name_in_owner = true

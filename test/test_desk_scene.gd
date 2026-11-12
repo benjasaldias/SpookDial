@@ -611,3 +611,28 @@ func test_al_ganar_el_resumen_dice_las_paginas_nuevas() -> bool:
 	check(body.contains(pages), "la noche 4 suma El Basilisco y El Imbunche: " + body)
 	desk.free()
 	return true
+
+
+# --- La llamada grupal (Plan 9.7).
+
+const StoryRunner := preload("res://scripts/core/story_runner.gd")
+
+
+## Mientras están los 3 juntos y no hay nada que jugar, las entradas muestran el ícono de la llamada, y cualquiera la abre.
+func test_las_entradas_abren_la_llamada() -> bool:
+	var desk := _make_desk()
+	var manager := desk.get_node("RequestManager")
+	manager.story = StoryRunner.new(StoryData.new(), manager.catalog.friends, tr)
+	desk._process(0.0)
+	var entries := desk.get_node("DeskPlane/Entries").get_children()
+	for entry: Node in entries:
+		check((entry.get_node("CallIcon") as Sprite2D).visible, entry.name + ": el ícono")
+	entries[1].pressed.emit()
+	var panel := desk.get_node("UI/ChatPanel")
+	panel._process(0.0)
+	check(panel.visible and panel.is_call_mode(), "abre la llamada")
+	manager.start_request(1)
+	desk._process(0.0)
+	check(not (entries[1].get_node("CallIcon") as Sprite2D).visible, "con algo que jugar, el ícono se va")
+	desk.free()
+	return true

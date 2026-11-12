@@ -19,6 +19,10 @@ extends Control
 ## En la noche 0 (Plan 9.5, tras el primer testeo), solo se puede usar lo que León pide, cuando terminó de escribir, y
 ## eso parpadea: la pregunta, las frases y el audio (laten), el nombre, las hojas, la barra de descarga y las barritas.
 ## En la demostración de Gonzalo, las respuestas dicen que hay que mirar qué pasa.
+## Desde el Plan 9.7 (la historia, docs/21 y docs/31), con los 3 amigos juntos y nada que jugar, el chat es una llamada
+## grupal (idea de Benja): en lugar de las pestañas, un encabezado con su ícono; una conversación aparte, donde cada línea
+## lleva el nombre de quien habla, en su color, y suena con su voz; y arriba, las barritas de los 3, que abren el mixer en
+## su canal. Sin preguntas ni respuestas. Si llega algo que jugar, la llamada se corta y se abre el chat de quien lo tiene.
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
 ## Clic en el nombre de la entidad: el cuaderno abre su página.
@@ -121,6 +125,10 @@ const SYNC_ALERT_COLOR := Color(1.0, 0.3, 0.37)
 const NOTEBOOK_ICON := preload("res://art/ui/chat_icon_notebook.png")
 const NOTEBOOK_ICON_PIXELS := 11
 const ENTITY_FONT_SIZE := 22
+## La llamada grupal (ui.csv): su título y la ayuda de las barritas de cada amigo, que lleva {friend}. Su ícono mide 11 px.
+const CALL_TITLE_KEY := "CHAT_CALL_TITLE"
+const CALL_SYNC_KEY := "CHAT_CALL_SYNC"
+const CALL_ICON_PIXELS := 11
 
 var selected_friend := 0
 ## La opción "Subtítulos de los audios": vale para los mensajes que llegan desde ahora.
@@ -132,6 +140,8 @@ var reduce_flashes := false:
 		if _sync_highlight != null:
 			_sync_highlight.reduce_flashes = value
 		for highlight: Highlight in _highlights.values():
+			highlight.reduce_flashes = value
+		for highlight: Highlight in _call_sync_highlights:
 			highlight.reduce_flashes = value
 		_view_flags = []
 
@@ -166,10 +176,22 @@ var _highlights := {}
 ## Cómo están las frases y el audio de los mensajes (enlaces, latido y "Reducir destellos"): se vuelven a armar solo
 ## cuando cambia.
 var _view_flags := []
+## El chat muestra la llamada grupal (Plan 9.7), con su conversación, su último mensaje que se escribe y las barritas de
+## cada amigo (el botón, su cuadro de la señal y el borde que parpadea sin señal).
+var _call_mode := false
+var _call_scroll: ScrollContainer
+var _call_list: VBoxContainer
+var _call_last_typed: Node
+var _call_sync_buttons: Array[Button] = []
+var _call_sync_icons: Array[AtlasTexture] = []
+var _call_sync_highlights: Array[Highlight] = []
 
 @onready var _panel: TextureRect = $Panel
 @onready var _layout: VBoxContainer = $Panel/Layout
 @onready var _tab_bar: HBoxContainer = %Tabs
+@onready var _call_header: HBoxContainer = %CallHeader
+@onready var _call_icon: TextureRect = %CallHeader/Icon
+@onready var _call_sync: HBoxContainer = %CallSync
 @onready var _conversation_area: Control = %Conversations
 @onready var _download: Control = %Download
 @onready var _download_bar: ProgressBar = %Download/Bar
@@ -192,6 +214,7 @@ func _ready() -> void:
 	hide()
 	_answer_title.text = _title(ANSWER_TITLE_KEY, tr(OPEN_NOTEBOOK_KEY))
 	_ask_title.text = _title(ASK_TITLE_KEY)
+	(%CallHeader/Title as Label).text = tr(CALL_TITLE_KEY).to_upper()
 	for category: ClueCategory.Kind in MessageBuilder.QUESTION_KEYS:
 		var button := QuestionButton.new()
 		button.icon = QUESTION_ICONS[category]
@@ -276,6 +299,20 @@ func setup(manager: RequestManager, friends: Array[FriendData], memory: Notebook
 		_conversation_area.add_child(scroll)
 		_scrolls.append(scroll)
 		_lists.append(list)
+	_call_scroll = ScrollContainer.new()
+	_call_scroll.name = "CallConversation"
+	_call_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_call_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_call_scroll.visible = false
+	_call_list = VBoxContainer.new()
+	_call_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_call_list.add_theme_constant_override(&"separation", 6)
+	_call_scroll.add_child(_call_list)
+	_call_scroll.get_v_scroll_bar().changed.connect(_scroll_to_bottom.bind(_call_scroll))
+	_conversation_area.add_child(_call_scroll)
+	for index in friends.size():
+		_add_call_sync(index)
+	manager.call_message_added.connect(_on_call_message_added)
 	manager.message_added.connect(_on_message_added)
 	manager.request_changed.connect(_on_request_changed)
 	manager.request_finished.connect(_on_request_changed)
@@ -311,6 +348,16 @@ func message_views(friend_index: int) -> Array[Node]:
 	return _lists[friend_index].get_children()
 
 
+## Los mensajes de la llamada grupal, en orden (Plan 9.7).
+func call_views() -> Array[Node]:
+	return _call_list.get_children()
+
+
+## El chat muestra la llamada grupal.
+func is_call_mode() -> bool:
+	return _call_mode
+
+
 ## Matías mantiene apretada la barra del video del amigo elegido: el botón izquierdo apretado, con el mouse sobre la
 ## barra y el chat abierto, sin importar dónde empezó el clic.
 func is_holding_download() -> bool:
@@ -339,6 +386,10 @@ func _input(event: InputEvent) -> void:
 func _update_status() -> void:
 	if _manager == null:
 		return
+	_update_call_mode()
+	if _call_mode:
+		_update_call_sync()
+		return
 	for index in _tabs.size():
 		_tabs[index].text = _tab_text(index)
 	_update_identify_bar()
@@ -352,11 +403,85 @@ func _update_status() -> void:
 func _select(friend_index: int) -> void:
 	selected_friend = friend_index
 	_unread[friend_index] = false
-	for index in _scrolls.size():
-		_scrolls[index].visible = index == friend_index
+	for index in _tabs.size():
 		_tabs[index].set_pressed_no_signal(index == friend_index)
+	_show_conversation()
 	_update_status()
 	friend_selected.emit(friend_index)
+
+
+## Se ve la conversación de la llamada o la del amigo elegido.
+func _show_conversation() -> void:
+	for index in _scrolls.size():
+		_scrolls[index].visible = not _call_mode and index == selected_friend
+	if _call_scroll != null:
+		_call_scroll.visible = _call_mode
+
+
+## Entra o sale de la llamada grupal (Plan 9.7). En la llamada no hay pestañas, descarga, identificación, preguntas ni
+## respuestas: están las barritas de los 3. Al cortarse con el chat abierto, se abre el de quien tiene algo que jugar.
+func _update_call_mode() -> void:
+	var call := _manager.call_active()
+	if call == _call_mode:
+		return
+	_call_mode = call
+	_tab_bar.visible = not call
+	_call_header.visible = call
+	_call_sync.visible = call
+	for control: Control in [_ask_title, _questions, _answer_title, _answer_area]:
+		control.visible = not call
+	if call:
+		for control: Control in [_download, _progress, _entity_button, _sync_button]:
+			control.visible = false
+	_show_conversation()
+	var playing := _first_playing_friend()
+	if not call and visible and playing >= 0:
+		_select(playing)
+
+
+## El primer amigo con una consulta, un accidente, una decisión o un video por descargar, o -1.
+func _first_playing_friend() -> int:
+	for index in _tabs.size():
+		if _manager.requests[index] != null or _manager.incidents[index] != null \
+				or _manager.state.videos.offer_for(index) != null:
+			return index
+	return -1
+
+
+## Un botón de la llamada con el nombre y las barritas del amigo `friend_index`: abre el mixer en su canal.
+func _add_call_sync(friend_index: int) -> void:
+	var button := Button.new()
+	button.theme_type_variation = &"ChatIconButton"
+	button.focus_mode = Control.FOCUS_NONE
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.text = _friend_names[friend_index].to_upper()
+	button.add_theme_color_override(&"font_color", _friend_colors[friend_index])
+	button.tooltip_text = tr(CALL_SYNC_KEY).format({"friend": _friend_names[friend_index]})
+	var icon := AtlasTexture.new()
+	icon.atlas = SIGNAL_SHEET
+	button.icon = icon
+	button.expand_icon = true
+	button.pressed.connect(func() -> void: sync_requested.emit(friend_index))
+	var highlight := Highlight.new()
+	highlight.name = "Highlight"
+	highlight.color = SYNC_ALERT_COLOR
+	highlight.reduce_flashes = reduce_flashes
+	button.add_child(highlight)
+	_call_sync.add_child(button)
+	_call_sync_buttons.append(button)
+	_call_sync_icons.append(icon)
+	_call_sync_highlights.append(highlight)
+	_resize_icons()
+
+
+## Las barritas de cada amigo en la llamada; sin señal, parpadean. Sin Audio Sync esa noche, no hay nada que sincronizar.
+func _update_call_sync() -> void:
+	var shown := _manager.night().audio_sync_beats > 0
+	for index in _call_sync_buttons.size():
+		var level := _manager.state.friends[index].signal_level
+		_call_sync_icons[index].region = Rect2(Vector2(signal_frame(level)) * SIGNAL_FRAME_SIZE, SIGNAL_FRAME_SIZE)
+		_call_sync_buttons[index].visible = shown
+		_call_sync_highlights[index].active = shown and level <= 0.0
 
 
 func _tab_text(index: int) -> String:
@@ -612,6 +737,28 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 		_unread[friend_index] = true
 
 
+## Una línea de la historia en la llamada grupal (Plan 9.7): con el nombre de quien habla, en su color, y su voz. Se
+## escriben de a una, como en un chat.
+func _on_call_message_added(speaker: int, message: ChatMessage) -> void:
+	var view := ChatMessageView.new(message, _friend_names[speaker].to_upper(), _friend_colors[speaker], audio_captions,
+			_manager.highlights())
+	_apply_view_flags(view, _current_view_flags())
+	view.letter_typed.connect(_on_call_letter_typed.bind(speaker))
+	view.wait_for = _call_last_typed
+	_call_last_typed = view
+	_call_list.add_child(view)
+
+
+## Suena la voz de quien habla en la llamada, si se está viendo.
+func _on_call_letter_typed(letter: String, speaker: int) -> void:
+	var pitch := _voices[speaker].next_pitch(letter)
+	if pitch <= 0.0 or not visible or not _call_mode or _audio_clip.playing:
+		return
+	_voice.stream = _voice_streams[speaker]
+	_voice.pitch_scale = pitch
+	_voice.play()
+
+
 ## Suena la voz del amigo que está escribiendo, si se está viendo su chat. No tapa un audio, que hay que oír.
 func _on_letter_typed(letter: String, friend_index: int) -> void:
 	var pitch := _voices[friend_index].next_pitch(letter)
@@ -721,7 +868,7 @@ func _update_tutorial() -> void:
 	if flags == _view_flags:
 		return
 	_view_flags = flags
-	for list: VBoxContainer in _lists:
+	for list: VBoxContainer in _lists + ([_call_list] if _call_list != null else []):
 		for view: ChatMessageView in list.get_children():
 			_apply_view_flags(view, flags)
 			view.refresh()
@@ -755,6 +902,10 @@ func _resize_icons() -> void:
 	var style := _sync_button.get_theme_stylebox(&"normal")
 	var side := maxf(signal_width + style.get_margin(SIDE_LEFT) + style.get_margin(SIDE_RIGHT), _identify_height())
 	_sync_button.custom_minimum_size = Vector2(side, 0)
+	for button: Button in _call_sync_buttons:
+		button.add_theme_constant_override(&"icon_max_width", signal_width)
+	var call_icon := PixelText.icon_size(CALL_ICON_PIXELS)
+	_call_icon.custom_minimum_size = Vector2(call_icon, call_icon)
 
 
 ## El alto mínimo de la barra de identificación.

@@ -23,6 +23,7 @@ extends Node2D
 ## barra.
 ## Desde el Plan 9.1, la Mano (HandManager) asoma por la derecha hacia un dial, y la linterna del celular la espanta
 ## (decisión de Benja, 11 de noviembre).
+## Desde el Plan 9.7, mientras dura la llamada grupal de la historia, las entradas muestran su ícono y cualquiera la abre.
 
 ## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
 signal tutorial_skipped
@@ -303,9 +304,11 @@ func _on_retry_pressed() -> void:
 ## Seleccionada si su chat está abierto; si no, gris sin señal, en alerta mientras espera respuesta (también en un
 ## accidente o un chat guionado) o la descarga de su video, o más oscura si el amigo está aturdido. Muestra el tiempo
 ## que le queda para responder, para descargar su video o para recuperarse, o que está sin señal; y su vida, su señal y
-## si viene una interferencia. En alerta pita, salvo durante Audio Sync o un audio de un amigo, que hay que oír.
+## si viene una interferencia. En alerta pita, salvo durante Audio Sync o un audio de un amigo, que hay que oír. Durante la
+## llamada grupal, el ícono de la llamada, salvo en un amigo sin señal o aturdido, que muestra lo de siempre.
 func _refresh_entries() -> void:
 	var state := _requests.state
+	var call := _requests.call_active()
 	for index in _entries.size():
 		var entry := _entries[index]
 		var request := _requests.requests[index]
@@ -344,6 +347,7 @@ func _refresh_entries() -> void:
 			entry.show_offline()
 		else:
 			entry.set_seconds_left(-1)
+		entry.set_call(call and friend.is_online() and not friend.is_stunned())
 
 
 ## En la noche 0 solo responde lo que León va enseñando (observación 4 del primer testeo): el cuaderno y el mixer cuando
