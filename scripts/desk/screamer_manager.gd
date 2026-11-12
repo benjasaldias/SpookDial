@@ -1,8 +1,8 @@
 extends Node
 ## Los screamers de la noche (Plan 7, diseño §11). El director dice cuándo toca uno y el escritorio, qué se ve;
-## aquí se elige cuál (Screamer), se anuncia con su señal previa (las luces parpadean y baja el sonido
-## ambiente) y se muestra con su sonido. Cada uno resta Sanity. El antiguo jumpscare es ahora la criatura que se
-## asoma por la ventana, con respiración pesada y golpes (decisión de Benja, 4 de noviembre): se arma cuando el
+## aquí se elige cuál (Screamer), se anuncia con su señal previa (las luces parpadean) y se muestra con su sonido.
+## El sonido ambiente nunca baja: bajarlo arruinaba el suspenso (pedido de Benja, 12 de noviembre). Cada uno resta
+## Sanity. El antiguo jumpscare es ahora la criatura que se asoma por la ventana, con respiración pesada y golpes (decisión de Benja, 4 de noviembre): se arma cuando el
 ## chat o el mixer tapan la ventana, y está ahí al cerrarlos. Se queda un tiempo al azar: si las cortinas estaban
 ## cerradas las abre, y cerrarlas no la espanta, pero baja menos Sanity y no se oye, así que hay que abrirlas para
 ## revisar si sigue ahí (decisión de Benja, 7 de noviembre). Después del susto guionado empieza su chat guionado
@@ -31,11 +31,6 @@ const DESK_SHADOW := &"Enemy"
 const DESK_CLEAN := &"NoEnemy"
 ## Cuánto se oscurece el cuarto con las cortinas cerradas.
 const CLOSED_SHADE := 0.35
-## Volumen del sonido ambiente durante la señal previa y el screamer, en decibeles.
-const DUCKED_DB := -40.0
-## Segundos que tarda en bajar el sonido ambiente y, después del screamer, en volver.
-const DUCK_SECONDS := 0.3
-const RETURN_SECONDS := 2.0
 ## Segundos que duran la figura, el celular y las luces.
 const EFFECT_SECONDS := 1.5
 ## Opacidad de la oscuridad con las luces apagadas.
@@ -92,7 +87,6 @@ var _clock: HallucinationClock
 var _pending := Screamer.NONE
 var _pending_scripted := false
 var _warning_left := 0.0
-var _ambient_db := 0.0
 var _phone_rest := Vector2.ZERO
 var _creature := Creature.AWAY
 ## Segundos que se queda la visita de la criatura que está afuera, o la última (decisión de Benja, 11 de noviembre).
@@ -115,7 +109,6 @@ func setup(requests: RequestManager, night: NightManager) -> void:
 	_requests = requests
 	_night = night
 	_clock = HallucinationClock.new(requests.catalog.balance, requests.rng)
-	_ambient_db = ambient.volume_db
 	_phone_rest = phone.position
 	# El sonido ambiente se repite sin fin.
 	ambient.finished.connect(ambient.play)
@@ -199,21 +192,17 @@ func play(kind: ScareKind.Kind, scripted := false) -> void:
 			notebook.splash_ink(balance.ink_seconds)
 		ScareKind.Kind.JUMPSCARE:
 			_creature_arrives()
-	var back := create_tween()
-	back.tween_interval(EFFECT_SECONDS)
-	back.tween_property(ambient, ^"volume_db", _ambient_db, RETURN_SECONDS)
 	if scripted:
 		_requests.start_chat_script(_requests.night().scripted_chat)
 	scare_started.emit(kind)
 
 
-## Anuncia el screamer `kind` con su señal previa: las luces parpadean y baja el sonido ambiente (diseño §11).
+## Anuncia el screamer `kind` con su señal previa: las luces parpadean (diseño §11).
 func _announce(kind: ScareKind.Kind, scripted: bool) -> void:
 	_pending = kind
 	_pending_scripted = scripted
 	_warning_left = _requests.catalog.balance.scare_warning
 	_tween_alphas(darkness, ^"modulate:a", warning_alphas(), GENTLE_STEP if reduce_flashes else 0.08)
-	create_tween().tween_property(ambient, ^"volume_db", DUCKED_DB, DUCK_SECONDS)
 
 
 ## Las cortinas quedan cerradas o abiertas. Cerradas, tapan la ventana y el cuarto se oscurece.

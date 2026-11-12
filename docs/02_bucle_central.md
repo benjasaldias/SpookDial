@@ -241,7 +241,7 @@ Lo demás (olas de 2, 3 solicitudes a la vez, la señal que baja y Sanity) es ig
 - Director de ritmo (decisión de Benja, 11 de noviembre; §2): silencio hasta los 60 s (`first_wave_at`); de 4 a 8 s entre las solicitudes de una ola (`wave_spacing`); calma de 40 a 60 s (`wave_calm`); lo de una ola, de 3 a 15 s después de empezar (`wave_event_delay`), y lo de una calma, de 5 a 15 s (`calm_event_delay`); un amigo herido atrasa 10 s lo que falta. En la noche 0, la primera solicitud llega a los 5 s (`first_request_delay`).
 - Screamers (decisión de Benja, 11 de noviembre: en las calmas, con las reglas de justicia):
   - en las calmas, con al menos 25 s entre dos, y una visita de la criatura en la ola final;
-  - la señal previa dura 1 s: las luces parpadean y baja el sonido ambiente;
+  - la señal previa dura 1 s: las luces parpadean (el sonido ambiente no baja: pedido de Benja, 12-nov);
   - nunca empiezan si a una decisión o a un accidente le quedan 5 s o menos al terminar la señal previa (la mancha de tinta, que tapa las reglas 5 s, necesita 5 s más), ni durante una ronda de Audio Sync o un audio de un amigo;
   - los ambientales se eligen solo si su objeto está a la vista (el chat, el mixer y el celular ampliado tapan la ventana y el celular), y los del cuaderno, si está abierto. Las luces se ven siempre;
   - la criatura de la ventana (el antiguo jumpscare) solo se arma con el chat o el mixer abiertos, que tapan la ventana, y no mientras la Mano está en la pared; se ve apenas se cierran y se queda entre 15 y 40 s al azar desde que llega (`creature_stay`), aunque se cierren las cortinas. No tapa nada ni pausa la noche (decisiones de Benja, 4, 7 y 11 de noviembre).

@@ -68,6 +68,23 @@ func test_un_screamer_se_anuncia_y_resta_sanity() -> bool:
 	return true
 
 
+## El ambiente no baja antes ni durante un screamer: bajarlo arruinaba el suspenso (pedido de Benja, 12 de noviembre).
+func test_el_ambiente_no_baja() -> bool:
+	var desk := _make_desk()
+	var ambient := desk.get_node("Ambient") as AudioStreamPlayer
+	var volume := ambient.volume_db
+	_scare_now(desk)
+	desk._process(0.0)
+	for _step in 8:
+		desk._process(0.5)
+		# Las pruebas no dejan pasar cuadros: los tweens se avanzan a mano.
+		for tween: Tween in (Engine.get_main_loop() as SceneTree).get_processed_tweens():
+			tween.custom_step(0.5)
+		check_eq(ambient.volume_db, volume, "el ambiente sigue igual")
+	desk.free()
+	return true
+
+
 ## La criatura se arma detrás de un panel (el chat o el mixer) y está ahí al cerrarlo (decisión de Benja, 4 de
 ## noviembre), con la respiración y los golpes sonando mientras tanto, sin tapar la pantalla ni pausar la noche.
 func test_la_criatura_se_arma_detras_de_un_panel() -> bool:

@@ -1,6 +1,6 @@
 extends SceneTree
 ## Ejecuta todos los res://test/test_*.gd. Sale con código 1 si alguna prueba falla.
-## Uso: ~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd
+## Uso: ~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/run_tests.gd [-- test_parte_del_nombre ...]
 
 const TEST_DIR := "res://test"
 
@@ -16,7 +16,11 @@ func _initialize() -> void:
 func _run_all() -> void:
 	var files := Array(DirAccess.get_files_at(TEST_DIR))
 	files.sort()
+	# Con nombres después de "--", solo las suites que los contienen: "-- test_chat_panel test_highlight".
+	var only := Array(OS.get_cmdline_user_args())
 	for file_name: String in files:
+		if not only.is_empty() and not only.any(func(part: String) -> bool: return file_name.contains(part)):
+			continue
 		if file_name.begins_with("test_") and file_name.ends_with(".gd") and file_name != "test_case.gd":
 			_run_suite(TEST_DIR.path_join(file_name))
 	print("\n%d pruebas OK, %d fallidas" % [_passed, _failed])
