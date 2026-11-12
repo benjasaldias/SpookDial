@@ -189,3 +189,33 @@ func test_dificil_bloqueada_hasta_terminar_normal() -> bool:
 	check_eq(game.locked_difficulties(), [], "al terminar Normal, ninguna")
 	_free(game)
 	return true
+
+
+## La noche 5 de Normal desbloquea Difícil: el escritorio lo sabe, para avisarlo en el resumen (docs/26 §3.5).
+func test_la_noche_5_de_normal_desbloquea_dificil() -> bool:
+	var game := _make_game()
+	game.difficulty = game.catalog.find_difficulty(&"normal")
+	var desk: Node = game.prepare_night(5)
+	check_eq(desk.unlocks_on_win, [game.catalog.find_difficulty(&"hard")], "ganarla desbloquea Difícil")
+	desk.free()
+	desk = game.prepare_night(4)
+	check_eq(desk.unlocks_on_win, [], "la noche 4 no desbloquea nada")
+	desk.free()
+	game.difficulty = game.catalog.find_difficulty(&"hard")
+	desk = game.prepare_night(5)
+	check_eq(desk.unlocks_on_win, [], "terminar Difícil no desbloquea nada")
+	desk.free()
+	_free(game)
+	return true
+
+
+## Si Difícil ya estaba desbloqueada, volver a terminar Normal no lo avisa.
+func test_si_ya_estaba_desbloqueada_no_avisa() -> bool:
+	var game := _make_game()
+	game.progress.mark_finished(&"normal")
+	game.difficulty = game.catalog.find_difficulty(&"normal")
+	var desk: Node = game.prepare_night(5)
+	check_eq(desk.unlocks_on_win, [], "ya estaba desbloqueada")
+	desk.free()
+	_free(game)
+	return true

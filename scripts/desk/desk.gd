@@ -57,6 +57,9 @@ const BATTERY_BAR_WIDTH := 44.0
 
 ## Qué página del cuaderno tiene abierta cada amigo. La usan el cuaderno y los botones de respuesta del chat.
 var notebook_memory: NotebookMemory
+## Las dificultades que se desbloquean al ganar esta noche (Difícil, en la noche 5 de Normal, si todavía estaba
+## bloqueada): las dice GameState, y el resumen lo avisa (docs/26 §3.5).
+var unlocks_on_win: Array[DifficultyData] = []
 
 @onready var _entries: Array[Node] = $DeskPlane/Entries.get_children()
 @onready var _chat_panel: Control = $UI/ChatPanel
@@ -270,7 +273,11 @@ func _on_night_ended(ending: NightState.Ending, fatal_request: FriendRequest) ->
 	if ending == NightState.Ending.WON and night_number < _requests.catalog.nights(_requests.difficulty).size():
 		for entity: EntityData in _requests.catalog.new_pages(night_number + 1, _requests.difficulty):
 			pages.append(tr(entity.name_key))
-	_end_screen.show_ending(ending, _requests.state, fatal_request, names, night_number, pages)
+	var unlocked: Array[String] = []
+	if ending == NightState.Ending.WON:
+		for difficulty: DifficultyData in unlocks_on_win:
+			unlocked.append(tr(difficulty.name_key))
+	_end_screen.show_ending(ending, _requests.state, fatal_request, names, night_number, pages, unlocked)
 
 
 ## La noche empieza de nuevo y se vuelve a generar, así que no se repite de memoria (diseño §5). La reinicia

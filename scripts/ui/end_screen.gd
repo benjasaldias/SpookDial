@@ -41,13 +41,15 @@ func _ready() -> void:
 
 
 ## Muestra cómo terminó la noche `night_number`. `friend_names` son los nombres de los amigos, en orden, y
-## `new_pages`, los nombres de las páginas que el cuaderno suma la noche siguiente.
+## `new_pages`, los nombres de las páginas que el cuaderno suma la noche siguiente, y `unlocked`, los de las dificultades
+## que se desbloquean al ganar la última noche.
 func show_ending(ending: NightState.Ending, state: NightState, fatal_request: FriendRequest,
-		friend_names: Array[String], night_number := 1, new_pages: Array[String] = []) -> void:
+		friend_names: Array[String], night_number := 1, new_pages: Array[String] = [],
+		unlocked: Array[String] = []) -> void:
 	var won := ending == NightState.Ending.WON
 	if won:
 		_title.text = EndingText.won_title(night_number, tr)
-		_body.text = EndingText.summary(night_number, state, new_pages, tr)
+		_body.text = EndingText.summary(night_number, state, new_pages, tr, unlocked)
 	else:
 		_title.text = EndingText.title(ending, tr)
 		_body.text = EndingText.body(ending, state, fatal_request, friend_names, tr)

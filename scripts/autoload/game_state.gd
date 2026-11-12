@@ -58,6 +58,18 @@ func locked_difficulties() -> Array[DifficultyData]:
 	return locked
 
 
+## Las dificultades que se desbloquean al ganar la noche `number` de la partida: las que piden terminar esta dificultad
+## y todavía estaban bloqueadas. Solo en la última noche.
+func unlocked_by_winning(number: int) -> Array[DifficultyData]:
+	var unlocked: Array[DifficultyData] = []
+	if next_night_number(number) >= 0:
+		return unlocked
+	for each: DifficultyData in locked_difficulties():
+		if each.unlocked_by == current_difficulty():
+			unlocked.append(each)
+	return unlocked
+
+
 ## La dificultad de la partida: la elegida o, si todavía no se eligió, la de por defecto.
 func current_difficulty() -> DifficultyData:
 	return difficulty if difficulty != null else catalog.default_difficulty()
@@ -104,6 +116,7 @@ func prepare_night(number: int) -> Node:
 	var desk := DESK_SCENE.instantiate()
 	desk.get_node("RequestManager").night_number = number
 	desk.get_node("RequestManager").difficulty = current_difficulty()
+	desk.unlocks_on_win = unlocked_by_winning(number)
 	desk.ready.connect(func() -> void: desk.apply_settings(settings), CONNECT_ONE_SHOT)
 	desk.tutorial_skipped.connect(start_night.bind(1))
 	desk.next_night_requested.connect(next_night)

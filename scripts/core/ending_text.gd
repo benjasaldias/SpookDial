@@ -20,6 +20,8 @@ const TUTORIAL_KEY := "END_TUTORIAL"
 const VICTORY_KEY := "END_VICTORY"
 const NEW_PAGES_KEY := "END_NEW_PAGES"
 const NO_NEW_PAGES_KEY := "END_NO_NEW_PAGES"
+## Al terminar una dificultad, la que se desbloqueó (ui.csv; lleva {difficulty}).
+const UNLOCKED_KEY := "END_UNLOCKED"
 ## La última noche: al ganarla, el juego termina (diseño §5).
 const LAST_NIGHT := 5
 ## Por qué terminó la noche (ui.csv). END_WON y END_QUOTA llevan {received} y {quota};
@@ -59,14 +61,19 @@ static func won_title(night_number: int, translate: Callable) -> String:
 
 
 ## El resumen al ganar la noche `night_number`: los videos y las páginas nuevas del cuaderno para la noche
-## siguiente (`new_pages`, sus nombres). Al terminar el tutorial, un texto propio; al ganar la última, la victoria.
-static func summary(night_number: int, state: NightState, new_pages: Array[String], translate: Callable) -> String:
+## siguiente (`new_pages`, sus nombres). Al terminar el tutorial, un texto propio; al ganar la última, la victoria y las
+## dificultades que se desbloquearon (`unlocked`, sus nombres: Difícil al terminar Normal, docs/26 §3.5).
+static func summary(night_number: int, state: NightState, new_pages: Array[String], translate: Callable,
+		unlocked: Array[String] = []) -> String:
 	if night_number == 0:
 		return _line(translate, TUTORIAL_KEY, {})
 	var lines := PackedStringArray([_line(translate, REASON_KEYS[NightState.Ending.WON],
 			{"received": state.videos.received, "quota": state.videos.quota}), ""])
 	if night_number >= LAST_NIGHT:
 		lines.append(_line(translate, VICTORY_KEY, {}))
+		for difficulty: String in unlocked:
+			lines.append("")
+			lines.append(_line(translate, UNLOCKED_KEY, {"difficulty": _escape(difficulty)}))
 	elif new_pages.is_empty():
 		lines.append(_line(translate, NO_NEW_PAGES_KEY, {"night": night_number + 1}))
 	else:

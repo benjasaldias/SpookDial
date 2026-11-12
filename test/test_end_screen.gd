@@ -109,3 +109,15 @@ func test_la_victoria_final() -> bool:
 	check((screen.get_node("Center/Box/Buttons/Menu") as Button).visible, "volver al menú")
 	screen.free()
 	return true
+
+
+## Al terminar Normal, la pantalla final avisa qué se desbloqueó (docs/26 §3.5).
+func test_la_victoria_avisa_lo_desbloqueado() -> bool:
+	var screen := _make_screen()
+	var none: Array[String] = []
+	var unlocked: Array[String] = ["Difícil"]
+	screen.show_ending(NightState.Ending.WON, _make_state(), null, FRIENDS, 5, none, unlocked)
+	var body := (screen.get_node("Center/Box/Body") as RichTextLabel).get_parsed_text()
+	check(body.contains(String(tr("END_UNLOCKED")).format({"difficulty": "Difícil"})), "avisa: " + body)
+	screen.free()
+	return true
