@@ -1343,3 +1343,23 @@ func test_la_ola_espera_a_la_historia() -> bool:
 	check_eq(manager.director.waves_started, 1, "terminada la historia, llega")
 	manager.free()
 	return true
+
+
+## Un chat guionado que espera la respuesta de Matías también es algo que jugar: la llamada se corta (su botón va en el
+## chat del amigo).
+func test_un_chat_guionado_corta_la_llamada() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([], true, catalog)
+	var reply := ChatLineData.new()
+	reply.speaker = ChatLineData.Speaker.PLAYER
+	reply.text_key = "K_REPLY"
+	var chat := ChatScriptData.new()
+	chat.friend = catalog.friends[1]
+	chat.lines.append(reply)
+	check(manager.call_active(), "la llamada")
+	manager.start_chat_script(chat)
+	check(not manager.call_active(), "Matías tiene que responder en el chat de Gonzalo")
+	manager.reply_chat_script()
+	check(manager.call_active(), "respondió: vuelve")
+	manager.free()
+	return true

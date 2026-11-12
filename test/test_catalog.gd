@@ -234,3 +234,124 @@ func _audio_changes_the_action(entity: EntityData, observation: ObservationData)
 			if RuleEvaluator.applicable_rule(entity, other).correct_action_id != correct:
 				return true
 	return false
+
+
+# --- La historia de la noche 1 (aprobada por Benja en S21b, docs/21 §4; Plan 9.7).
+
+const STORY_PATH := "res://data/story/night_1.tres"
+
+
+func _story_1() -> StoryData:
+	return load(STORY_PATH) as StoryData
+
+
+func _friend(catalog: ContentCatalog, friend_id: StringName) -> FriendData:
+	for friend: FriendData in catalog.friends:
+		if friend.id == friend_id:
+			return friend
+	return null
+
+
+## Lo que pasa en un momento: el tipo de cada paso y, en las líneas, quién habla.
+func _steps(beat: StoryBeatData) -> Array:
+	return beat.steps.map(func(step: StoryStepData) -> String:
+		match step.kind:
+			StoryStepData.Kind.LINE:
+				return String(step.speaker.id)
+			StoryStepData.Kind.SEPARATE:
+				return "separarse"
+			StoryStepData.Kind.JOIN:
+				return "reunirse"
+		return "decisión de " + String(step.decision.friend.id))
+
+
+## La misma historia en Normal, Difícil y Extremo (decisión 4 de S21b), solo en la noche 1: la 2 no entra hasta que Benja
+## la apruebe.
+func test_la_noche_1_tiene_su_historia_en_los_3_modos() -> bool:
+	var catalog := _load_catalog()
+	var story := _story_1()
+	check(story != null, "existe " + STORY_PATH)
+	if catalog == null or story == null:
+		return true
+	for difficulty: DifficultyData in catalog.difficulties:
+		check_eq(difficulty.nights[0].story, story, "%s, noche 1" % difficulty.id)
+		for night: NightData in difficulty.nights.slice(1):
+			check(night.story == null, "%s, noche %d: sin historia todavía" % [difficulty.id, night.number])
+	check(catalog.tutorial.story == null, "la noche 0 no tiene")
+	var moment := StoryBeatData.Moment
+	check_eq(story.beats.map(func(beat: StoryBeatData) -> int: return beat.moment), [moment.NIGHT_START,
+			moment.BEFORE_FIRST_WAVE, moment.AFTER_FIRST_WAVE, moment.BEFORE_LAST_WAVE, moment.AFTER_LAST_WAVE,
+			moment.BEFORE_FINALE, moment.AFTER_FINALE], "los 7 momentos, en orden")
+	check_eq([story.beats[1].lead_seconds, story.beats[3].lead_seconds, story.beats[5].lead_seconds], [25.0, 15.0, 15.0],
+			"la anticipación de los momentos 'antes de'")
+	return true
+
+
+func test_la_historia_de_la_noche_1_empieza_juntos_y_se_separa_antes_de_la_ola_1() -> bool:
+	var story := _story_1()
+	if story == null or story.beats.size() != 7:
+		check(false, "falta la historia de la noche 1")
+		return true
+	check(story.starts_together, "empiezan juntos, en la llamada")
+	check_eq(_steps(story.beats[0]), ["leon", "leon", "gonzalo", "agustin", "leon"], "la intro del vlog")
+	check_eq(_steps(story.beats[1]), ["agustin", "leon", "agustin", "gonzalo", "leon", "agustin", "gonzalo", "separarse",
+			"gonzalo", "leon", "agustin"], "el susto y cada uno donde se escondió")
+	check_eq(_steps(story.beats[2]), ["leon", "leon", "gonzalo", "agustin", "leon"], "al terminar la ola 1")
+	check_eq(_steps(story.beats[3]), ["gonzalo", "leon", "agustin"], "antes de la ola 2")
+	check_eq(_steps(story.beats[4]), ["gonzalo", "gonzalo", "decisión de leon", "decisión de agustin",
+			"decisión de agustin", "reunirse", "gonzalo", "agustin", "leon"], "la reunión")
+	check_eq(_steps(story.beats[5]), ["leon", "gonzalo", "agustin"], "antes de la final")
+	check_eq(_steps(story.beats[6]), ["leon", "gonzalo", "agustin", "leon"], "el cierre del vlog")
+	var previous := TranslationServer.get_locale()
+	TranslationServer.set_locale("es")
+	check_eq(TranslationServer.translate(story.beats[0].steps[0].text_key), "Holaaa a todos y bienvenidos a Acá Penan!!",
+			"el texto aprobado")
+	check_eq(TranslationServer.translate(story.beats[6].steps[3].text_key), "Gracias Mati!! Nos vamos a la base",
+			"hasta el final")
+	TranslationServer.set_locale(previous)
+	return true
+
+
+## La decisión de León (diseño de Benja) y la de Agustín, que depende de si León fue con él (docs/21 §4).
+func test_las_decisiones_de_la_noche_1() -> bool:
+	var catalog := _load_catalog()
+	var story := _story_1()
+	if catalog == null or story == null or story.beats.size() != 7 or story.beats[4].steps.size() != 9:
+		check(false, "falta la reunión de la noche 1")
+		return true
+	var leon := _friend(catalog, &"leon")
+	var gonzalo := _friend(catalog, &"gonzalo")
+	var agustin := _friend(catalog, &"agustin")
+	var steps := story.beats[4].steps
+	var decision: StoryDecisionData = steps[2].decision
+	var effect := func(option: StoryOptionData) -> Array:
+		return [option.good, option.trust_change, option.penalty_seconds, option.penalized, option.damage,
+				option.damage_candidates, option.sets_flag]
+	var none: Array[FriendData] = []
+	var all: Array[FriendData] = [leon, gonzalo, agustin]
+	check_eq(decision.options.map(effect), [
+		[true, 0.0, 10.0, [agustin], 0, none, &""],
+		[true, -10.0, 10.0, [leon], 0, none, &"leon_with_agustin"],
+		[false, -20.0, 10.0, all, 0, none, &""],
+		[false, -20.0, 10.0, all, 0, none, &""],
+	], "la amarilla, las blancas, el establo y gritar")
+	check_eq(effect.call(decision.no_answer), [false, -20.0, 10.0, all, 0, none, &""], "sin respuesta, como las malas")
+	var alone: StoryDecisionData = steps[3].decision
+	var duo: StoryDecisionData = steps[4].decision
+	check_eq([steps[3].unless_flag, steps[4].requires_flag], [&"leon_with_agustin", &"leon_with_agustin"],
+			"Agustín decide solo o con León")
+	check_eq(alone.options.map(effect), [[true, 0.0, 0.0, none, 0, none, &""],
+			[false, -10.0, 0.0, none, 1, [agustin], &""]], "esconderse y correr")
+	check_eq(effect.call(alone.no_answer), [false, -10.0, 0.0, none, 1, [agustin], &""], "sin respuesta, como correr")
+	check_eq(duo.options.map(effect), [[true, 0.0, 0.0, none, 0, none, &""],
+			[false, -10.0, 0.0, none, 1, [agustin, leon], &""]], "con León, el daño es para el que tenga más vida")
+	check_eq(alone.no_answer.reply_keys.size(), 2, "sin respuesta, 'No contestaste y corrí' y el texto del error")
+	return true
+
+
+## Con los 3 juntos, nadie dice "Me perdí" ni "Me separé de los demás" (docs/21 §2).
+func test_lo_que_le_pasa_a_uno_solo() -> bool:
+	var catalog := _load_catalog()
+	if catalog != null:
+		check_eq(catalog.alone_predicament_keys, ["PREDICAMENT_1", "PREDICAMENT_4"], "las 2 de uno solo")
+	return true

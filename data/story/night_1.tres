@@ -1,0 +1,354 @@
+[gd_resource type="Resource" script_class="StoryData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/story_beat_data.gd" id="1_bhhmx"]
+[ext_resource type="Script" path="res://scripts/data/story_step_data.gd" id="2_pmsqv"]
+[ext_resource type="Resource" path="res://data/friends/leon.tres" id="3_ksws2"]
+[ext_resource type="Resource" path="res://data/friends/gonzalo.tres" id="4_4f86k"]
+[ext_resource type="Resource" path="res://data/friends/agustin.tres" id="5_60i6t"]
+[ext_resource type="Script" path="res://scripts/data/friend_data.gd" id="6_h6ams"]
+[ext_resource type="Script" path="res://scripts/data/story_option_data.gd" id="7_nm5m7"]
+[ext_resource type="Script" path="res://scripts/data/story_decision_data.gd" id="8_1uuah"]
+[ext_resource type="Script" path="res://scripts/data/story_data.gd" id="9_dqh3g"]
+
+[sub_resource type="Resource" id="Resource_k10yc"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_INTRO_1"
+
+[sub_resource type="Resource" id="Resource_ifkkl"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_INTRO_2"
+
+[sub_resource type="Resource" id="Resource_s46b1"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_INTRO_3"
+
+[sub_resource type="Resource" id="Resource_x73h4"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_INTRO_4"
+
+[sub_resource type="Resource" id="Resource_pbr68"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_INTRO_5"
+
+[sub_resource type="Resource" id="Resource_pqoyg"]
+script = ExtResource("1_bhhmx")
+steps = Array[ExtResource("2_pmsqv")]([SubResource("Resource_k10yc"), SubResource("Resource_ifkkl"), SubResource("Resource_s46b1"), SubResource("Resource_x73h4"), SubResource("Resource_pbr68")])
+
+[sub_resource type="Resource" id="Resource_660vm"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_SCARE_1"
+
+[sub_resource type="Resource" id="Resource_k0ob3"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_SCARE_2"
+
+[sub_resource type="Resource" id="Resource_kuxmu"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_SCARE_3"
+
+[sub_resource type="Resource" id="Resource_743ui"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_SCARE_4"
+
+[sub_resource type="Resource" id="Resource_s165i"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_SCARE_5"
+
+[sub_resource type="Resource" id="Resource_ybnt5"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_SCARE_6"
+
+[sub_resource type="Resource" id="Resource_skfo7"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_SCARE_7"
+
+[sub_resource type="Resource" id="Resource_dkgsl"]
+script = ExtResource("2_pmsqv")
+kind = 1
+
+[sub_resource type="Resource" id="Resource_fqt80"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_HIDE_GONZALO"
+
+[sub_resource type="Resource" id="Resource_p6uqu"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_HIDE_LEON"
+
+[sub_resource type="Resource" id="Resource_h2b74"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_HIDE_AGUSTIN"
+
+[sub_resource type="Resource" id="Resource_h1qn5"]
+script = ExtResource("1_bhhmx")
+moment = 1
+lead_seconds = 25.0
+steps = Array[ExtResource("2_pmsqv")]([SubResource("Resource_660vm"), SubResource("Resource_k0ob3"), SubResource("Resource_kuxmu"), SubResource("Resource_743ui"), SubResource("Resource_s165i"), SubResource("Resource_ybnt5"), SubResource("Resource_skfo7"), SubResource("Resource_dkgsl"), SubResource("Resource_fqt80"), SubResource("Resource_p6uqu"), SubResource("Resource_h2b74")])
+
+[sub_resource type="Resource" id="Resource_p7nri"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_CALM_LEON_1"
+
+[sub_resource type="Resource" id="Resource_dlh3k"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_CALM_LEON_2"
+
+[sub_resource type="Resource" id="Resource_pfqw3"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_CALM_GONZALO"
+
+[sub_resource type="Resource" id="Resource_5r6hd"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_CALM_AGUSTIN"
+
+[sub_resource type="Resource" id="Resource_3bytv"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_CALM_LEON_SEED"
+
+[sub_resource type="Resource" id="Resource_ctiyy"]
+script = ExtResource("1_bhhmx")
+moment = 2
+steps = Array[ExtResource("2_pmsqv")]([SubResource("Resource_p7nri"), SubResource("Resource_dlh3k"), SubResource("Resource_pfqw3"), SubResource("Resource_5r6hd"), SubResource("Resource_3bytv")])
+
+[sub_resource type="Resource" id="Resource_v5068"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_BUILDUP_GONZALO"
+
+[sub_resource type="Resource" id="Resource_u0a0v"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_BUILDUP_LEON"
+
+[sub_resource type="Resource" id="Resource_ujbfq"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_BUILDUP_AGUSTIN"
+
+[sub_resource type="Resource" id="Resource_5p0dx"]
+script = ExtResource("1_bhhmx")
+moment = 3
+steps = Array[ExtResource("2_pmsqv")]([SubResource("Resource_v5068"), SubResource("Resource_u0a0v"), SubResource("Resource_ujbfq")])
+
+[sub_resource type="Resource" id="Resource_dcfw6"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_REUNION_1"
+
+[sub_resource type="Resource" id="Resource_c7acb"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_REUNION_2"
+
+[sub_resource type="Resource" id="Resource_7aaas"]
+script = ExtResource("7_nm5m7")
+reply_keys = Array[String](["STORY_N1_LEON_NO_ANSWER"])
+trust_change = -20.0
+penalty_seconds = 10.0
+penalized = Array[ExtResource("6_h6ams")]([ExtResource("3_ksws2"), ExtResource("4_4f86k"), ExtResource("5_60i6t")])
+
+[sub_resource type="Resource" id="Resource_ac0n7"]
+script = ExtResource("7_nm5m7")
+label_key = "STORY_N1_LEON_YELLOW"
+good = true
+reply_keys = Array[String](["STORY_N1_LEON_YELLOW_REPLY"])
+penalty_seconds = 10.0
+penalized = Array[ExtResource("6_h6ams")]([ExtResource("5_60i6t")])
+
+[sub_resource type="Resource" id="Resource_ocpbw"]
+script = ExtResource("7_nm5m7")
+label_key = "STORY_N1_LEON_WHITE"
+good = true
+reply_keys = Array[String](["STORY_N1_LEON_WHITE_REPLY"])
+trust_change = -10.0
+penalty_seconds = 10.0
+penalized = Array[ExtResource("6_h6ams")]([ExtResource("3_ksws2")])
+sets_flag = &"leon_with_agustin"
+
+[sub_resource type="Resource" id="Resource_1iiif"]
+script = ExtResource("7_nm5m7")
+label_key = "STORY_N1_LEON_STABLE"
+reply_keys = Array[String](["STORY_N1_LEON_STABLE_REPLY"])
+trust_change = -20.0
+penalty_seconds = 10.0
+penalized = Array[ExtResource("6_h6ams")]([ExtResource("3_ksws2"), ExtResource("4_4f86k"), ExtResource("5_60i6t")])
+
+[sub_resource type="Resource" id="Resource_84ako"]
+script = ExtResource("7_nm5m7")
+label_key = "STORY_N1_LEON_SHOUT"
+reply_keys = Array[String](["STORY_N1_LEON_SHOUT_REPLY"])
+trust_change = -20.0
+penalty_seconds = 10.0
+penalized = Array[ExtResource("6_h6ams")]([ExtResource("3_ksws2"), ExtResource("4_4f86k"), ExtResource("5_60i6t")])
+
+[sub_resource type="Resource" id="Resource_cv1r7"]
+script = ExtResource("8_1uuah")
+friend = ExtResource("3_ksws2")
+message_key = "STORY_N1_LEON_ASK"
+options = Array[ExtResource("7_nm5m7")]([SubResource("Resource_ac0n7"), SubResource("Resource_ocpbw"), SubResource("Resource_1iiif"), SubResource("Resource_84ako")])
+no_answer = SubResource("Resource_7aaas")
+
+[sub_resource type="Resource" id="Resource_j4xti"]
+script = ExtResource("2_pmsqv")
+kind = 3
+decision = SubResource("Resource_cv1r7")
+
+[sub_resource type="Resource" id="Resource_d6ujt"]
+script = ExtResource("7_nm5m7")
+reply_keys = Array[String](["STORY_N1_AGUSTIN_NO_ANSWER", "STORY_N1_AGUSTIN_CAUGHT"])
+trust_change = -10.0
+damage = 1
+damage_candidates = Array[ExtResource("6_h6ams")]([ExtResource("5_60i6t")])
+
+[sub_resource type="Resource" id="Resource_wr8mo"]
+script = ExtResource("7_nm5m7")
+label_key = "STORY_N1_AGUSTIN_HIDE"
+good = true
+reply_keys = Array[String](["STORY_N1_AGUSTIN_HIDE_REPLY_1", "STORY_N1_AGUSTIN_HIDE_REPLY_2"])
+
+[sub_resource type="Resource" id="Resource_veal5"]
+script = ExtResource("7_nm5m7")
+label_key = "STORY_N1_AGUSTIN_RUN"
+reply_keys = Array[String](["STORY_N1_AGUSTIN_CAUGHT"])
+trust_change = -10.0
+damage = 1
+damage_candidates = Array[ExtResource("6_h6ams")]([ExtResource("5_60i6t")])
+
+[sub_resource type="Resource" id="Resource_ejrn3"]
+script = ExtResource("8_1uuah")
+friend = ExtResource("5_60i6t")
+message_key = "STORY_N1_AGUSTIN_ASK"
+options = Array[ExtResource("7_nm5m7")]([SubResource("Resource_wr8mo"), SubResource("Resource_veal5")])
+no_answer = SubResource("Resource_d6ujt")
+
+[sub_resource type="Resource" id="Resource_4xaax"]
+script = ExtResource("2_pmsqv")
+kind = 3
+decision = SubResource("Resource_ejrn3")
+unless_flag = &"leon_with_agustin"
+
+[sub_resource type="Resource" id="Resource_enwuh"]
+script = ExtResource("7_nm5m7")
+reply_keys = Array[String](["STORY_N1_DUO_NO_ANSWER", "STORY_N1_DUO_CAUGHT"])
+trust_change = -10.0
+damage = 1
+damage_candidates = Array[ExtResource("6_h6ams")]([ExtResource("5_60i6t"), ExtResource("3_ksws2")])
+
+[sub_resource type="Resource" id="Resource_kmdih"]
+script = ExtResource("7_nm5m7")
+label_key = "STORY_N1_DUO_HIDE"
+good = true
+reply_keys = Array[String](["STORY_N1_DUO_HIDE_REPLY_1", "STORY_N1_DUO_HIDE_REPLY_2"])
+
+[sub_resource type="Resource" id="Resource_ejpug"]
+script = ExtResource("7_nm5m7")
+label_key = "STORY_N1_DUO_RUN"
+reply_keys = Array[String](["STORY_N1_DUO_CAUGHT"])
+trust_change = -10.0
+damage = 1
+damage_candidates = Array[ExtResource("6_h6ams")]([ExtResource("5_60i6t"), ExtResource("3_ksws2")])
+
+[sub_resource type="Resource" id="Resource_h5arr"]
+script = ExtResource("8_1uuah")
+friend = ExtResource("5_60i6t")
+message_key = "STORY_N1_DUO_ASK"
+options = Array[ExtResource("7_nm5m7")]([SubResource("Resource_kmdih"), SubResource("Resource_ejpug")])
+no_answer = SubResource("Resource_enwuh")
+
+[sub_resource type="Resource" id="Resource_7hbrs"]
+script = ExtResource("2_pmsqv")
+kind = 3
+decision = SubResource("Resource_h5arr")
+requires_flag = &"leon_with_agustin"
+
+[sub_resource type="Resource" id="Resource_slc2f"]
+script = ExtResource("2_pmsqv")
+kind = 2
+
+[sub_resource type="Resource" id="Resource_p3fwb"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_TOGETHER_1"
+
+[sub_resource type="Resource" id="Resource_0tlue"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_TOGETHER_2"
+
+[sub_resource type="Resource" id="Resource_cwpb7"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_TOGETHER_3"
+
+[sub_resource type="Resource" id="Resource_kdjji"]
+script = ExtResource("1_bhhmx")
+moment = 4
+steps = Array[ExtResource("2_pmsqv")]([SubResource("Resource_dcfw6"), SubResource("Resource_c7acb"), SubResource("Resource_j4xti"), SubResource("Resource_4xaax"), SubResource("Resource_7hbrs"), SubResource("Resource_slc2f"), SubResource("Resource_p3fwb"), SubResource("Resource_0tlue"), SubResource("Resource_cwpb7")])
+
+[sub_resource type="Resource" id="Resource_ufgtj"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_FINALE_1"
+
+[sub_resource type="Resource" id="Resource_lsmo6"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_FINALE_2"
+
+[sub_resource type="Resource" id="Resource_arraw"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_FINALE_3"
+
+[sub_resource type="Resource" id="Resource_g4l64"]
+script = ExtResource("1_bhhmx")
+moment = 5
+steps = Array[ExtResource("2_pmsqv")]([SubResource("Resource_ufgtj"), SubResource("Resource_lsmo6"), SubResource("Resource_arraw")])
+
+[sub_resource type="Resource" id="Resource_g7xj6"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_OUTRO_1"
+
+[sub_resource type="Resource" id="Resource_0h55x"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("4_4f86k")
+text_key = "STORY_N1_OUTRO_2"
+
+[sub_resource type="Resource" id="Resource_2lwyd"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("5_60i6t")
+text_key = "STORY_N1_OUTRO_3"
+
+[sub_resource type="Resource" id="Resource_8vg3i"]
+script = ExtResource("2_pmsqv")
+speaker = ExtResource("3_ksws2")
+text_key = "STORY_N1_OUTRO_4"
+
+[sub_resource type="Resource" id="Resource_dpvfn"]
+script = ExtResource("1_bhhmx")
+moment = 6
+steps = Array[ExtResource("2_pmsqv")]([SubResource("Resource_g7xj6"), SubResource("Resource_0h55x"), SubResource("Resource_2lwyd"), SubResource("Resource_8vg3i")])
+
+[resource]
+script = ExtResource("9_dqh3g")
+beats = Array[ExtResource("1_bhhmx")]([SubResource("Resource_pqoyg"), SubResource("Resource_h1qn5"), SubResource("Resource_ctiyy"), SubResource("Resource_5p0dx"), SubResource("Resource_kdjji"), SubResource("Resource_g4l64"), SubResource("Resource_dpvfn")])

@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/data/entity_data.gd" id="2_entity"]
 [ext_resource type="Resource" path="res://data/entities/tue_tue.tres" id="3_tue_tue"]
 [ext_resource type="Resource" path="res://data/entities/calchona.tres" id="4_calchona"]
+[ext_resource type="Resource" path="res://data/story/night_1.tres" id="story_1"]
 
 [resource]
 script = ExtResource("1_night")
@@ -30,3 +31,4 @@ scare_count = 4
 creature_visits = 1
 hand_visits = 2
 wave_calm = Vector2(20, 30)
+story = ExtResource("story_1")

@@ -539,9 +539,10 @@ func _story_busy() -> bool:
 	return active_count() > 0 or incidents.any(func(incident: FriendIncident) -> bool: return incident != null)
 
 
-## No hay consultas, accidentes, decisiones ni videos por descargar: la llamada se puede ver.
+## No hay consultas, accidentes, decisiones, videos por descargar ni un chat guionado que espera la respuesta de Matías: la
+## llamada se puede ver.
 func _nothing_to_play() -> bool:
-	if _story_busy():
+	if _story_busy() or (chat_script != null and chat_script.pending_reply() != null):
 		return false
 	for index in catalog.friends.size():
 		if state.videos.offer_for(index) != null:
