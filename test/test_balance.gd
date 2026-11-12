@@ -479,3 +479,40 @@ func test_extremo_es_mas_duro_que_dificil() -> bool:
 		check(extreme[index].base_decision_time < hard[index].base_decision_time, who + ": menos tiempo para responder")
 		check(extreme[index].wave_calm.y < calm.x, who + ": calmas más cortas")
 	return true
+
+
+
+# --- La historia (Plan 9.7, docs/31): el modelo de "jugar bien" la juega, con sus decisiones como tareas.
+
+## Jugando bien, la historia de cada noche que tiene llega entera en los 3 modos: ningún momento se salta ni se corta.
+func test_jugando_bien_la_historia_llega_entera() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var nights := 0
+	for difficulty: DifficultyData in catalog.difficulties:
+		for night: NightData in difficulty.nights:
+			if night.story == null:
+				continue
+			nights += 1
+			for seed_value in SEEDS:
+				var who := "%s, noche %d, semilla %d" % [difficulty.id, night.number, seed_value + 1]
+				var story: Dictionary = BalanceModel.simulate(night, catalog.balance, seed_value + 1,
+						BalanceModel.attention_for(difficulty), catalog.friends)["story"]
+				check_eq([story["skipped"], story["cut"]], [[], []], who + ": momentos saltados y cortados")
+				check_eq(story["finished"].size(), night.story.beats.size(), who + ": momentos enteros")
+	check(nights >= 3, "la noche 1 de los 3 modos tiene historia: %d noches" % nights)
+	return true
+
+
+## Jugando bien, una ola casi no espera a la historia: a lo más 10 s (el límite es 45).
+func test_jugando_bien_la_final_casi_no_espera() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	for difficulty: DifficultyData in catalog.difficulties:
+		for night: NightData in difficulty.nights:
+			if night.story == null:
+				continue
+			for seed_value in SEEDS:
+				var hold: float = BalanceModel.simulate(night, catalog.balance, seed_value + 1,
+						BalanceModel.attention_for(difficulty), catalog.friends)["story_hold"]
+				check(hold <= 10.0, "%s, noche %d, semilla %d: una ola esperó %.1f s" % [difficulty.id, night.number,
+						seed_value + 1, hold])
+	return true

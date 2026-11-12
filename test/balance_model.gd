@@ -10,9 +10,14 @@ extends RefCounted
 ## En Extremo (Plan 9.6, docs/30) solo llega quien terminó Difícil: un experto que resuelve cada consulta en 11 s.
 ## El modelo no cuenta como tareas las sincronizaciones ni el scroll del celular: la holgura (free_time_ratio) revisa que
 ## quepan en el tiempo libre de la noche.
+## Desde el Plan 9.7 (docs/31), juega la historia de la noche con el StoryRunner real: leer las líneas no es una tarea
+## (es opcional), pero cada decisión sí, como un accidente, y ocupa a su amigo. Quien juega bien elige la buena opción que
+## más Trust cuesta, y su castigo vale: Trust y los segundos menos de la próxima consulta de cada castigado. Mientras la
+## historia cuenta algo, la próxima ola espera, como en el juego.
 
 const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
+const StoryRunner := preload("res://scripts/core/story_runner.gd")
 
 const REQUEST_ATTENTION := 12.0
 ## En Difícil se identifica leyendo (decisión de Benja, D3). Con 15 s, la noche 5 de Difícil ya no se puede ganar.
@@ -108,16 +113,30 @@ static func sanity_loss(night: NightData, balance: BalanceData) -> float:
 
 ## Corre la noche con el director real y quien juega bien, que dedica `attention` segundos a cada consulta
 ## (attention_for). Devuelve "missed" (las tareas que vencieron sin atender),
-## "trust" (Trust al final: solo baja por las solicitudes que esperan más de la cuenta), "requests" (cuántas llegaron),
-## "tasks" (cada una con su tipo, su llegada, su fin y su plazo), "waves" y "calms" (las horas en que empezó cada una),
-## "interferences", "videos", "scares" ([hora, es la criatura]) y "load" (cuántas tareas había abiertas, cada segundo).
+## "trust" (Trust al final: baja por las solicitudes que esperan más de la cuenta y por las decisiones de la historia),
+## "requests" (cuántas llegaron), "tasks" (cada una con su tipo, su llegada, su fin y su plazo), "waves" y "calms" (las
+## horas en que empezó cada una), "interferences", "videos", "scares" ([hora, es la criatura]), "load" (cuántas tareas
+## había abiertas, cada segundo), "story" (los índices de los momentos de la historia enteros, saltados y cortados:
+## "finished", "skipped" y "cut") y "story_hold" (lo más que esperó una ola a la historia, en segundos).
+## `friends`: los amigos del catálogo, para la historia (sin ellos, los de data/catalog.tres).
 static func simulate(night: NightData, balance: BalanceData, seed_value: int,
-		attention := REQUEST_ATTENTION) -> Dictionary:
+		attention := REQUEST_ATTENTION, friends: Array[FriendData] = []) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var director := PacingDirector.new(night, balance, rng)
 	var result := {"missed": 0, "trust": 100.0, "requests": 0, "tasks": [], "waves": [], "calms": [],
-			"interferences": [], "videos": [], "scares": [], "load": []}
+			"interferences": [], "videos": [], "scares": [], "load": [],
+			"story": {"finished": [], "skipped": [], "cut": []}, "story_hold": 0.0}
+	var previous_locale := TranslationServer.get_locale()
+	var story: StoryRunner = null
+	if night.story != null:
+		if friends.is_empty():
+			friends = (load("res://data/catalog.tres") as ContentCatalog).friends
+		# Las líneas tardan lo que tarda en escribirse su texto en español.
+		TranslationServer.set_locale("es")
+		story = StoryRunner.new(night.story, friends, Callable(TranslationServer, "translate"))
+	## Los segundos que la historia le quitó a la próxima consulta de cada amigo.
+	var penalty: Array[float] = [0.0, 0.0, 0.0]
 	var open: Array[Dictionary] = []
 	var busy: Array[bool] = []
 	busy.resize(FRIENDS)
@@ -127,6 +146,12 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 	var next_sample := 0.0
 	while time < balance.night_seconds:
 		var active := open.filter(func(task: Dictionary) -> bool: return task["kind"] == "request").size()
+		if story != null:
+			director.story_hold = story.holds()
+			var waiting := director.phase in [PacingDirector.Phase.SILENCE, PacingDirector.Phase.CALM] \
+					and director.wave_index < director.waves.size() and time >= director.next_at
+			if director.story_hold and waiting:
+				result["story_hold"] = maxf(result["story_hold"], time - director.next_at)
 		var beat := director.advance(time, active)
 		if beat.wave_started >= 0:
 			result["waves"].append([time, beat.finale_started])
@@ -148,6 +173,8 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 			active += 1
 			result["requests"] += 1
 			var deadline := time + RequestGenerator.decision_time(night, trust) - QUESTIONS * balance.question_cost
+			deadline -= penalty[friend]
+			penalty[friend] = 0.0
 			open.append(_task("request", time, deadline, attention, friend))
 		if director.incident_due(time) and busy.has(false):
 			director.incident_started()
@@ -160,12 +187,64 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 		while director.scare_due(time):
 			result["scares"].append([time, director.next_is_jumpscare()])
 			director.scare_started(time)
+		if story != null:
+			_advance_story(story, open, busy, time, director)
+		var closed_before: int = result["tasks"].size()
 		_work(open, busy, result, balance, time)
+		if story != null:
+			_resolve_decisions(story, result, closed_before, friends, penalty)
 		if time >= next_sample:
 			result["load"].append(open.size())
 			next_sample += 1.0
 		time += STEP
+	if story != null:
+		TranslationServer.set_locale(previous_locale)
+		result["story"] = {"finished": story.finished_beats, "skipped": story.skipped_beats, "cut": story.cut_beats}
 	return result
+
+
+## La historia avanza: con consultas, accidentes o decisiones abiertas está ocupada; la llamada se ve sin eso y sin videos
+## por descargar. Una decisión llega como un accidente (15 s, 4 s de atención) y ocupa a su amigo.
+static func _advance_story(story: StoryRunner, open: Array[Dictionary], busy: Array[bool], time: float,
+		director: PacingDirector) -> void:
+	var playing := open.filter(func(task: Dictionary) -> bool: return task["kind"] != "hand")
+	var engaged := playing.any(func(task: Dictionary) -> bool: return task["kind"] != "video")
+	var is_free := func(friend: int) -> bool: return not busy[friend]
+	for item: StoryRunner.Item in story.advance(STEP, time, director, engaged, playing.is_empty(), is_free):
+		if item.command != StoryRunner.Command.DECISION:
+			continue
+		busy[item.friend] = true
+		var task := _task("decision", time, time + BalanceData.new().incident_seconds, INCIDENT_ATTENTION, item.friend)
+		task["decision"] = item.decision
+		open.append(task)
+
+
+## Las decisiones que terminaron en este paso: quien juega bien eligió la buena opción que más Trust cuesta; si venció,
+## la de sin respuesta. Su castigo vale (Trust nunca baja de 1 por la historia), y la historia sigue.
+static func _resolve_decisions(story: StoryRunner, result: Dictionary, closed_before: int, friends: Array[FriendData],
+		penalty: Array[float]) -> void:
+	for task: Dictionary in result["tasks"].slice(closed_before):
+		if task["kind"] != "decision":
+			continue
+		var decision: StoryDecisionData = task["decision"]
+		var option := decision.no_answer if task["work"] > 0.0 else worst_good_option(decision)
+		var trust: float = result["trust"]
+		result["trust"] = clampf(trust + option.trust_change, minf(trust, 1.0), 100.0)
+		for friend: FriendData in option.penalized:
+			var index := friends.find(friend)
+			if index >= 0:
+				penalty[index] += option.penalty_seconds
+		story.decided(option)
+
+
+## La buena opción de una decisión que más Trust cuesta (la peor de las buenas): quien juega bien no se equivoca, pero se
+## prueba lo más caro que puede elegir.
+static func worst_good_option(decision: StoryDecisionData) -> StoryOptionData:
+	var worst: StoryOptionData = null
+	for option: StoryOptionData in decision.options:
+		if option.good and (worst == null or option.trust_change < worst.trust_change):
+			worst = option
+	return worst
 
 
 static func _task(kind: String, arrival: float, deadline: float, work: float, friend: int) -> Dictionary:
