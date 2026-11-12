@@ -26,3 +26,12 @@ func test_el_arte_del_chat_existe() -> bool:
 		if texture is Texture2D:
 			check_eq((texture as Texture2D).get_size(), CHAT_ART[art_name], art_name)
 	return true
+
+
+## El candado de la dificultad bloqueada, en el menú (Plan 9.4).
+func test_el_candado_existe() -> bool:
+	var texture: Variant = load("res://art/ui/menu_lock.png")
+	check(texture is Texture2D, "se importa como textura")
+	if texture is Texture2D:
+		check_eq((texture as Texture2D).get_size(), Vector2(11, 11), "11×11")
+	return true

@@ -826,6 +826,33 @@ SIGNAL_COLORS = [
 SIGNAL_EMPTY = rgb("#56637f")
 
 
+# El candado de la dificultad bloqueada, en el menú (Plan 9.4): 11×11, de acero gris con su arco, su brillo y el ojo de
+# la cerradura, para verse sobre el botón azul del menú.
+LOCK_ICON = ({
+    "a": GRAY, "h": GRAY_LIGHT, "b": GRAY_WARM, "d": GRAY_DARKER, "k": NAVY_DEEP,
+}, [
+    "...aaaaa...",
+    "..aa...aa..",
+    "..a.....a..",
+    "..a.....a..",
+    ".hhhhhhhhh.",
+    ".hbbbbbbbd.",
+    ".hbbbkbbbd.",
+    ".hbbbkbbbd.",
+    ".hbbbbbbbd.",
+    ".ddddddddd.",
+    "...........",
+])
+
+
+def menu_lock():
+    """El candado de la dificultad bloqueada."""
+    palette, rows = LOCK_ICON
+    image = Image.new("RGBA", (11, 11), (0, 0, 0, 0))
+    stamp(image, 0, 0, rows, palette)
+    return image
+
+
 def chat_signal():
     """5 cuadros (de 0 a 4 barritas) en 3 filas de color. Las llenas tienen sombra; las vacías, solo el borde. Sin señal
     hay una ×, para que no dependa del color."""
@@ -928,6 +955,7 @@ def main():
     menu_frame().save(OUT / "menu_frame.png")
     for state in ("normal", "hover", "pressed"):
         menu_button(state).save(OUT / f"menu_button_{state}.png")
+    menu_lock().save(OUT / "menu_lock.png")
     for name, image in chat_art().items():
         image.save(OUT / f"{name}.png")
     print("Arte de interfaz en", OUT)
