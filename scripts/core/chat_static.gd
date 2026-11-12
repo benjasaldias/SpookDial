@@ -26,3 +26,15 @@ static func apply(message: ChatMessage, signal_level: float, rng: RandomNumberGe
 	for token: ChatMessage.Token in message.tokens:
 		if token.can_be_covered() and rng.randf() < chance:
 			token.covered = true
+
+
+## Tapa una de cada 3 palabras que se pueden tapar, empezando por la segunda: la estática del tutorial, que siempre se ve
+## igual (docs/26 §4.3).
+static func apply_fixed(message: ChatMessage) -> void:
+	var count := 0
+	for token: ChatMessage.Token in message.tokens:
+		if not token.can_be_covered():
+			continue
+		if count % 3 == 1:
+			token.covered = true
+		count += 1

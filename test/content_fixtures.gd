@@ -122,15 +122,20 @@ static func add_hard(catalog: ContentCatalog) -> DifficultyData:
 
 
 ## La noche 0 del catálogo de prueba: una solicitud de "beast" para León (o1 = yes, sin pista), como la de León en el
-## tutorial, con un video de cuota.
+## tutorial, con un video de cuota, y la demostración de Gonzalo (15 s, Plan 9.5).
 static func make_tutorial(catalog: ContentCatalog) -> NightData:
 	var tutorial := NightData.new()
 	tutorial.number = 0
 	tutorial.place_key = "K_NIGHT_0"
 	tutorial.content_quota = 1
 	tutorial.audio_sync_beats = 4
+	# Como la noche 0 de verdad: la señal no baja sola.
+	tutorial.signal_decays = false
 	var beast: EntityData = catalog.nights()[0].new_entities[0]
 	tutorial.tutorial_requests.append(make_tutorial_request(catalog.friends[0], beast, {&"o1": &"yes"}, false))
+	var demo := make_tutorial_request(catalog.friends[1], beast, {}, false)
+	demo.demo_seconds = 15.0
+	tutorial.tutorial_requests.append(demo)
 	return tutorial
 
 

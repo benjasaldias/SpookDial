@@ -136,6 +136,7 @@ func _ready() -> void:
 	if _requests.night().is_tutorial():
 		notebook_memory.page_changed.connect(_on_tutorial_page_changed)
 		_requests.tutorial_finished.connect(_on_tutorial_finished)
+		_requests.tutorial_chat_requested.connect(_on_tutorial_chat_requested)
 		_tutorial_cards.finished.connect(next_night_requested.emit)
 	_pause_menu.allow_skip_tutorial(_requests.night().is_tutorial())
 	_pause_menu.skip_tutorial_pressed.connect(tutorial_skipped.emit)
@@ -146,6 +147,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_alarm_clock += delta
+	# En el tutorial, qué chat se está mirando: el de Gonzalo echa a andar su demostración (Plan 9.5).
+	_requests.tutorial_view(_chat_panel.selected_friend if _chat_panel.visible else -1)
 	_refresh_entries()
 	_refresh_meters()
 	_screamers.advance(delta, _scare_view(), _mixer.is_playing() or _chat_panel.is_audio_playing())
@@ -374,6 +377,12 @@ func _on_tutorial_finished() -> void:
 		next_night_requested.emit()
 	else:
 		_tutorial_cards.open(cards)
+
+
+## El tutorial pide mostrar el chat de un amigo: León se despide ahí, después de sincronizarlo (Plan 9.5).
+func _on_tutorial_chat_requested(friend_index: int) -> void:
+	close_modes()
+	_on_entry_pressed(friend_index)
 
 
 func _on_pause_settings_changed(settings: GameSettings) -> void:

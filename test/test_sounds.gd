@@ -38,6 +38,7 @@ const LOOPING_SOUNDS: Array[String] = ["ambient_room", "scare_creature_breathing
 
 ## Los audios que mandan los amigos, en audio/clues/ (decisión de Benja, 7 de noviembre). Duran 3 s.
 const CLUE_SOUNDS: Array[String] = [
+	"tutorial_stomach_yes", "tutorial_stomach_no",
 	"tue_tue_cries_one", "tue_tue_cries_three", "tue_tue_cries_none",
 	"calchona_bleat_tone_weeping", "calchona_bleat_tone_snorting",
 	"cuero_whistle_yes", "cuero_whistle_no",

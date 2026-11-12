@@ -655,6 +655,21 @@ def baby_cry():
     return lowpass(cry, 4500)
 
 
+def stomach_growl(seconds, seed):
+    """Unas tripas que suenan (el tutorial, Plan 9.5): un gruñido grave y áspero, como un crujido lento que pasa por un
+    cuerpo blando, con aire que se mueve adentro y gorgoteos que burbujean. Sin palabras."""
+    rng = generator(seed)
+    rate = 18 + 34 * smooth_random(seconds, seed, 3)
+    clicks = friction(seconds, rate, seed + 1, 0.45)
+    creak = formants(clicks, [(170, 5, 1.0), (310, 6, 0.6), (520, 7, 0.25)])
+    air = moving_resonance(brown(seconds, seed + 2), 130 + 170 * smooth_random(seconds, seed + 3, 2), 7)
+    out = 0.7 * creak / (np.abs(creak).max() + 1e-9) + 0.9 * air / (np.abs(air).max() + 1e-9)
+    for _ in range(int(seconds * 9)):
+        place(out, bubble(0.06, rng.uniform(190, 460), rng.uniform(0.012, 0.03)) * rng.uniform(0.25, 0.6),
+              rng.uniform(0.05, seconds - 0.1))
+    return lowpass(out * hump(seconds, 0.35, 1.1), 1600)
+
+
 def clue_groups():
     """Los audios que mandan los amigos, por entidad: {nombre del archivo: muestras}. Los de una misma entidad
     comparten el fondo y la ganancia, así que solo cambia lo que hay que distinguir."""
@@ -667,7 +682,14 @@ def clue_groups():
     cry = tue_tue_cry()
     steps_at = (0.15, 0.85, 1.55, 2.25)
     growls = [(growl(0.3, 2.24), 0.05, 0.9), (growl(22.66, 24.2), 2.0, 0.8)]
+    cabin = reverb(0.1 * lowpass(pink(CLUE_SECONDS, 58), 500), CABIN, 0.3)
     return [
+        {
+            # El tutorial: las tripas de Gonzalo, en la cabaña (o nada, si acaba de comer).
+            "tutorial_stomach_yes": mix(cabin, [(reverb(pad(stomach_growl(1.3, 59), 0.4), CABIN, 0.2), 0.3, 1.0),
+                                                (reverb(pad(stomach_growl(0.9, 61), 0.4), CABIN, 0.2), 1.85, 0.8)]),
+            "tutorial_stomach_no": mix(cabin, []),
+        },
         {
             "tue_tue_cries_one": mix(night_yard(51), [(cry, 1.0, 1.0)]),
             "tue_tue_cries_three": mix(night_yard(51), [(cry, at, 1.0) for at in (0.2, 1.1, 2.0)]),

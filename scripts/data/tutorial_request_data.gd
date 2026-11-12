@@ -14,3 +14,7 @@ extends Resource
 @export var with_hint := true
 ## Los señuelos de la solicitud, fijos. Sin ninguno, salen al azar entre los del lugar.
 @export var decoys: Array[DecoyData] = []
+## Si es más de 0, es una demostración (decisión de Benja, D6): el amigo pide ayuda, no se puede preguntar ni
+## responder, y su tiempo, de estos segundos, corre desde que se abre su chat. Al llegar a 0 cuenta qué hizo solo, sin
+## efecto. Con 0, se responde como la de León, con el temporizador en espera.
+@export var demo_seconds := 0.0

@@ -11,6 +11,7 @@
 [ext_resource type="VideoStream" path="res://video/tutorial/phone.ogv" id="9_phone"]
 [ext_resource type="VideoStream" path="res://video/tutorial/window.ogv" id="10_window"]
 [ext_resource type="VideoStream" path="res://video/tutorial/hand.ogv" id="11_hand"]
+[ext_resource type="Resource" path="res://data/friends/gonzalo.tres" id="12_gonzalo_friend"]
 
 [sub_resource type="Resource" id="Decoy_red_hoodie"]
 script = ExtResource("4_decoy")
@@ -28,6 +29,13 @@ situation = Dictionary[StringName, StringName]({
 })
 with_hint = false
 decoys = Array[ExtResource("4_decoy")]([SubResource("Decoy_red_hoodie")])
+
+[sub_resource type="Resource" id="Tutorial_gonzalo"]
+script = ExtResource("3_tutorial")
+friend = ExtResource("12_gonzalo_friend")
+entity = ExtResource("6_gonzalo")
+with_hint = false
+demo_seconds = 15.0
 
 [sub_resource type="Resource" id="Card_meters"]
 script = ExtResource("7_card")
@@ -72,5 +80,5 @@ sanity_drain_interval = 20.0
 content_quota = 1
 scare_count = 0
 creature_visits = 0
-tutorial_requests = Array[ExtResource("3_tutorial")]([SubResource("Tutorial_leon")])
+tutorial_requests = Array[ExtResource("3_tutorial")]([SubResource("Tutorial_leon"), SubResource("Tutorial_gonzalo")])
 tutorial_cards = Array[ExtResource("7_card")]([SubResource("Card_meters"), SubResource("Card_phone"), SubResource("Card_window"), SubResource("Card_hand")])

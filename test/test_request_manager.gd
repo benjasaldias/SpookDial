@@ -565,17 +565,104 @@ func test_en_el_tutorial_leon_escribe() -> bool:
 	return true
 
 
-## Hasta la mejor decisión y la peor: una respuesta que no cuenta no termina la solicitud, y nadie sale herido.
-func test_en_el_tutorial_una_respuesta_que_no_cuenta() -> bool:
+## Avanza el tutorial hasta que León termine lo pendiente, como mucho `seconds` segundos.
+func _until_idle(manager: RequestManager, seconds := 40.0) -> void:
+	for _step in roundi(seconds * 2.0):
+		if not manager.tutorial_busy():
+			return
+		_run_night(manager, 0.5)
+
+
+## Un clic en la frase `clue_id` de la solicitud del amigo `friend_index`, como desde su mensaje.
+func _click(manager: RequestManager, friend_index: int, clue_id: StringName) -> void:
+	manager.click_clue(ChatMessage.new(ChatMessage.Sender.FRIEND, manager.requests[friend_index]), clue_id)
+
+
+## Lleva el tutorial hasta la mejor decisión, haciendo lo que pide León en cada paso.
+func _tutorial_until_best(manager: RequestManager) -> FriendRequest:
+	_run_night(manager, 5.5)
+	var request := manager.requests[0]
+	manager.ask(0, ClueCategory.Kind.SIGHT)
+	_click(manager, 0, request.traits[0].id)
+	manager.ask(0, ClueCategory.Kind.SOUND)
+	manager.tutorial_audio_played(0, Fixtures.make_audio(1.0))
+	manager.ask(0, ClueCategory.Kind.ENVIRONMENT)
+	_click(manager, 0, request.traits[1].id)
+	_run_night(manager, 3.0)
+	manager.tutorial_page_opened()
+	_until_idle(manager)
+	return request
+
+
+## Lleva el tutorial hasta que Gonzalo pide ayuda: la mejor, la peor y el video descargado.
+func _tutorial_until_demo(manager: RequestManager) -> void:
+	var request := _tutorial_until_best(manager)
+	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
+	manager.answer(0, request.entity.find_action(rule.correct_action_id))
+	manager.answer(0, request.entity.find_action(rule.risky_action_id))
+	_run_night(manager, 30.0)
+	manager.state.holding_download = 0
+	_run_night(manager, 11.0)
+	manager.state.holding_download = -1
+	_run_night(manager, 15.0)
+
+
+## Lo que hay que apretar se puede usar cuando León terminó de escribir, y nada del escritorio está desbloqueado al
+## empezar (Plan 9.5).
+func test_en_el_tutorial_el_foco_llega_cuando_leon_termina() -> bool:
+	var manager := _make_tutorial_manager()
+	manager.advance(5.1)
+	check(manager.tutorial_busy(), "León escribe")
+	check(not manager.tutorial_wants(TutorialChat.Focus.ASK_SIGHT), "todavía no se puede preguntar")
+	_until_idle(manager)
+	check(manager.tutorial_wants(TutorialChat.Focus.ASK_SIGHT), "terminó: «¿Qué ves?»")
+	check(not manager.tutorial_wants(TutorialChat.Focus.ASK_SOUND), "solo esa")
+	check(manager.is_tutorial(), "es el tutorial")
+	check(not manager.is_unlocked(TutorialChat.Unlock.NOTEBOOK), "el cuaderno, bloqueado")
+	check(manager.is_friend_unlocked(0), "León sí")
+	check(not manager.is_friend_unlocked(1), "Gonzalo no")
+	check(not manager.is_friend_unlocked(2), "Agustín no")
+	manager.free()
+	return true
+
+
+## Fuera del tutorial no hay foco ni bloqueos.
+func test_fuera_del_tutorial_todo_se_usa() -> bool:
+	var manager := _make_manager()
+	check(not manager.is_tutorial(), "no es el tutorial")
+	check(manager.is_unlocked(TutorialChat.Unlock.NOTEBOOK), "el cuaderno")
+	check(manager.is_friend_unlocked(2), "Agustín")
+	manager.free()
+	return true
+
+
+## El audio: León espera a que termine antes de comentarlo.
+func test_en_el_tutorial_leon_espera_el_audio() -> bool:
 	var manager := _make_tutorial_manager()
 	manager.advance(5.1)
 	var request := manager.requests[0]
 	manager.ask(0, ClueCategory.Kind.SIGHT)
-	for trait_data: TraitData in request.traits:
-		request.click_clue(trait_data.id)
-	manager.tutorial_page_opened()
-	_run(manager, 4.0)
+	_click(manager, 0, request.traits[0].id)
+	manager.ask(0, ClueCategory.Kind.SOUND)
+	_until_idle(manager)
+	var events := []
+	_record(manager, events)
+	manager.tutorial_audio_played(0, Fixtures.make_audio(3.0))
+	_run(manager, 3.0)
+	check(not _leon_lines(events).has(_line(TutorialChat.HEARD_KEY)), "mientras suena, nada")
+	_run(manager, 1.0)
+	check(_leon_lines(events).has(_line(TutorialChat.HEARD_KEY)), "después lo comenta")
+	manager.free()
+	return true
+
+
+## Hasta la mejor decisión y la peor: una respuesta que no cuenta no termina la solicitud, y nadie sale herido.
+func test_en_el_tutorial_una_respuesta_que_no_cuenta() -> bool:
+	var manager := _make_tutorial_manager()
+	var request := _tutorial_until_best(manager)
 	check_eq(manager.tutorial_chat.step, TutorialChat.Step.BEST, "León pide la mejor")
+	check(manager.is_unlocked(TutorialChat.Unlock.NOTEBOOK), "el cuaderno se desbloqueó con el nombre")
+	check(manager.tutorial_wants(TutorialChat.Focus.ANSWERS), "parpadean las hojas")
 	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
 	var wrong: ActionData = request.entity.actions.filter(func(action: ActionData) -> bool:
 		return action.id != rule.correct_action_id and action.id != rule.risky_action_id)[0]
@@ -596,31 +683,73 @@ func test_en_el_tutorial_una_respuesta_que_no_cuenta() -> bool:
 	return true
 
 
-## Después de la peor, León manda el video; al descargarlo se le corta la señal y, al sincronizarlo, se despide.
-func test_en_el_tutorial_el_video_y_la_senal() -> bool:
+## La demostración de Gonzalo (D6): llega con el video descargado, su tiempo corre desde que se abre su chat, no se
+## puede preguntar ni responder y, a los 15 s, cuenta qué hizo y sale el aviso de daño, sin efecto.
+func test_en_el_tutorial_gonzalo_muestra_que_pasa_sin_respuesta() -> bool:
+	var manager := _make_tutorial_manager()
+	_tutorial_until_demo(manager)
+	var demo := manager.requests[1]
+	check(demo != null, "llegó la solicitud de Gonzalo")
+	if demo == null:
+		manager.free()
+		return true
+	check(manager.is_friend_unlocked(1), "Gonzalo se desbloqueó")
+	check(manager.tutorial_wants(TutorialChat.Focus.DEMO_ENTRY), "parpadea su entrada")
+	check_eq(demo.time_left, 15.0, "su tiempo espera")
+	check(not manager.ask(1, ClueCategory.Kind.SIGHT), "no se le puede preguntar")
+	check(not manager.answer(1, demo.entity.actions[0]), "ni responder")
+	var events := []
+	_record(manager, events)
+	manager.tutorial_view(0)
+	_run(manager, 2.0)
+	check_eq(demo.time_left, 15.0, "mirar a León no lo echa a andar")
+	manager.tutorial_view(1)
+	_run(manager, 10.0)
+	check_eq(demo.time_left, 5.0, "desde que se abre su chat, corre")
+	_run(manager, 6.0)
+	check(manager.requests[1] == null, "a los 15 s, terminó")
+	_until_idle(manager)
+	var notices := _messages(events).filter(func(message: ChatMessage) -> bool: return message.sender == ChatMessage.Sender.SYSTEM)
+	check_eq(notices.size(), 1, "el aviso de daño")
+	if notices.size() == 1:
+		check(notices[0].plain_text().contains("2/3"), "con un punto menos: " + notices[0].plain_text())
+	check_eq(manager.state.friends[1].health, 3, "pero sin efecto")
+	check(manager.tutorial_wants(TutorialChat.Focus.GUIDE_ENTRY), "parpadea la entrada de León")
+	manager.free()
+	return true
+
+
+## De vuelta con León: su señal baja, una línea llega con estática fija y las demás limpias; se le corta la señal, el
+## mixer se desbloquea y, al sincronizarlo, se abre su chat y se despide.
+func test_en_el_tutorial_la_estatica_y_la_senal() -> bool:
 	var manager := _make_tutorial_manager()
 	var finished := []
+	var shown := []
 	manager.tutorial_finished.connect(func() -> void: finished.append(true))
-	manager.advance(5.1)
-	var request := manager.requests[0]
-	var rule := RuleEvaluator.applicable_rule(request.entity, request.situation)
-	for trait_data: TraitData in request.traits:
-		request.click_clue(trait_data.id)
-	manager.tutorial_page_opened()
-	_run(manager, 4.0)
-	manager.answer(0, request.entity.find_action(rule.correct_action_id))
-	manager.answer(0, request.entity.find_action(rule.risky_action_id))
-	_run_night(manager, 30.0)
-	check_eq(manager.state.videos.offers.size(), 1, "León mandó su video")
-	manager.state.holding_download = 0
-	_run_night(manager, 11.0)
-	manager.state.holding_download = -1
-	check_eq(manager.state.videos.received, 1, "descargado")
-	_run_night(manager, 20.0)
-	check(not manager.state.friends[0].is_online(), "a León se le cortó la señal")
+	manager.tutorial_chat_requested.connect(func(friend_index: int) -> void: shown.append(friend_index))
+	_tutorial_until_demo(manager)
+	manager.tutorial_view(1)
+	_run(manager, 16.0)
+	_until_idle(manager)
+	var events := []
+	_record(manager, events)
+	manager.tutorial_view(0)
+	_run(manager, 1.0)
+	check_eq(manager.state.friends[0].signal_level, 100.0, "primero explica, con señal")
+	_until_idle(manager, 60.0)
+	var tapped := _messages(events).filter(func(message: ChatMessage) -> bool:
+		return message.tokens.any(func(token: ChatMessage.Token) -> bool: return token.covered))
+	check_eq(tapped.size(), 1, "solo una línea con estática: las demás se leen")
+	if tapped.size() == 1:
+		var words: Array = tapped[0].tokens.map(func(token: ChatMessage.Token) -> String: return token.text)
+		check_eq("".join(words), _line(TutorialChat.STATIC_KEY), "es la de la estática")
+	check(not manager.state.friends[0].is_online(), "se le cortó la señal")
+	check(manager.is_unlocked(TutorialChat.Unlock.MIXER), "el mixer se desbloqueó")
+	check(manager.tutorial_wants(TutorialChat.Focus.SYNC), "parpadean las barritas")
 	check(finished.is_empty(), "todavía no termina")
 	manager.restore_signal(0)
 	_run_night(manager, 15.0)
+	check_eq(shown, [0], "se abre el chat de León")
 	check_eq(finished.size(), 1, "al volver la señal, se despide y termina")
 	manager.free()
 	return true
@@ -629,9 +758,9 @@ func test_en_el_tutorial_el_video_y_la_senal() -> bool:
 ## El susto guionado espera las solicitudes fijas del tutorial que faltan.
 func test_en_el_tutorial_lo_pendiente_hace_esperar_al_susto() -> bool:
 	var manager := _make_tutorial_manager()
-	check_eq(manager.pending_count(), 1, "al empezar falta la de León")
+	check_eq(manager.pending_count(), 2, "al empezar faltan la de León y la de Gonzalo")
 	manager.advance(5.1)
-	check_eq(manager.pending_count(), 1, "llegó: ahora es una solicitud activa")
+	check_eq(manager.pending_count(), 2, "llegó la de León: ahora es una solicitud activa")
 	manager.free()
 	return true
 

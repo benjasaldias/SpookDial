@@ -110,8 +110,8 @@ func test_las_caracteristicas_de_cada_entidad_salen_en_2_preguntas() -> bool:
 	return true
 
 
-## La noche 0, el tutorial (decisión de Benja): 3 solicitudes fijas, una de cada amigo, con El Tue Tué y La
-## Calchona; un video, y el susto guionado con el chat de Gonzalo, que enseña el celular.
+## La noche 0, el tutorial (Plan 9.5): León describe a Gonzalo, con el hambre en un audio, y Gonzalo muestra qué pasa si
+## nadie contesta.
 func test_el_tutorial() -> bool:
 	var catalog: ContentCatalog = load(CATALOG_PATH)
 	var tutorial := catalog.tutorial
@@ -120,10 +120,18 @@ func test_el_tutorial() -> bool:
 		return true
 	check_eq(tutorial.number, 0, "es la noche 0")
 	# León enseña en su chat describiendo a Gonzalo (decisión de Benja, 11 de noviembre).
-	check_eq(tutorial.tutorial_requests.size(), 1, "una solicitud")
-	if tutorial.tutorial_requests.size() != 1:
+	check_eq(tutorial.tutorial_requests.size(), 2, "la de León y la demostración de Gonzalo")
+	if tutorial.tutorial_requests.size() != 2:
 		return true
 	var data := tutorial.tutorial_requests[0]
+	check_eq(data.demo_seconds, 0.0, "la de León se responde")
+	var demo := tutorial.tutorial_requests[1]
+	check_eq(demo.friend.id, &"gonzalo", "la demostración es de Gonzalo")
+	check_eq(demo.demo_seconds, 15.0, "con 15 s que corren de verdad (D6)")
+	var hungry: ObservationData = data.entity.observations.filter(func(observation: ObservationData) -> bool:
+		return observation.id == &"hungry")[0]
+	check_eq(hungry.category, ClueCategory.Kind.SOUND, "el hambre se oye: las tripas (observación 9)")
+	check(hungry.audio_for(&"yes") != null, "con su audio")
 	check_eq(data.friend.id, &"leon", "la pide León")
 	check_eq(data.entity.id, &"gonzalo", "describe a Gonzalo")
 	check_eq(data.decoys.size(), 1, "con un señuelo fijo")

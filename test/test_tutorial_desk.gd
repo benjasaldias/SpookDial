@@ -80,8 +80,23 @@ func test_el_cuaderno_solo_tiene_a_gonzalo() -> bool:
 	return true
 
 
-## De punta a punta: León saluda, se le pregunta, se marca (con el señuelo), se abre la página, se elige mal, la mejor y
-## la peor, se descarga el video, se sincroniza y León se despide. Después, la noche 1.
+## Lo que escribió el amigo `friend_index` hasta ahora, en orden.
+func _friend_lines(desk: Node2D, friend_index: int) -> Array:
+	var lines := []
+	for view: Node in desk.get_node("UI/ChatPanel").message_views(friend_index):
+		if view.message.sender == ChatMessage.Sender.FRIEND:
+			lines.append(view.message.plain_text())
+	return lines
+
+
+func _says(desk: Node2D, friend_index: int, key: String) -> bool:
+	return _friend_lines(desk, friend_index).has(String(TranslationServer.translate(key)))
+
+
+## De punta a punta (Plan 9.5): León saluda; se le pregunta qué ve, se marca (con el señuelo); explica lo azul; se le
+## pregunta qué oye y se escucha el audio de las tripas; se pregunta el ambiente y se marca la otra; se abre la página;
+## se elige mal, la mejor y la peor; se descarga el video; Gonzalo muestra qué pasa si nadie contesta; León escribe con
+## estática, se le corta la señal, se sincroniza y se despide. Después, las tarjetas y la noche 1.
 func test_el_tutorial_de_punta_a_punta() -> bool:
 	var desk := _make_desk()
 	var manager := desk.get_node("RequestManager")
@@ -100,10 +115,21 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	manager.ask(0, ClueCategory.Kind.SIGHT)
 	var answer: ChatMessage = messages[-1]
 	check(answer.plain_text().contains("lentes") and answer.plain_text().contains("polerón"), "lo que ve: " + answer.plain_text())
+	_play(desk, 8.0)
+	check(_said(desk, TutorialChat.COST_KEY), "explica lo que cuesta preguntar")
 	manager.click_clue(answer, &"red_hoodie")
 	manager.click_clue(answer, &"glasses")
-	_play(desk, 8.0)
+	_play(desk, 12.0)
 	check(_said(desk, TutorialChat.DECOY_KEY), "bromea con el señuelo")
+	check(_said(desk, TutorialChat.BLUE_KEY), "explica lo azul")
+	check(_said(desk, TutorialChat.ASK_SOUND_KEY), "pide preguntar qué oye")
+	manager.ask(0, ClueCategory.Kind.SOUND)
+	var audio: ChatMessage = messages[-1]
+	check(audio.audio != null, "manda un audio: las tripas")
+	_play(desk, 5.0)
+	manager.tutorial_audio_played(0, audio.audio)
+	_play(desk, 10.0)
+	check(_said(desk, TutorialChat.HEARD_KEY), "son sus tripas")
 	check(_said(desk, TutorialChat.AMBIENT_KEY), "pide preguntar por el ambiente")
 	manager.ask(0, ClueCategory.Kind.ENVIRONMENT)
 	manager.click_clue(messages[-1], &"bad_smell")
@@ -127,12 +153,30 @@ func test_el_tutorial_de_punta_a_punta() -> bool:
 	_play_until(desk, func() -> bool: return manager.state.videos.received == 1, 15.0)
 	_hold_download(desk, false)
 	check_eq(manager.state.videos.received, 1, "descargado")
-	_play_until(desk, func() -> bool: return not manager.state.friends[0].is_online())
+	_play_until(desk, func() -> bool: return manager.requests[1] != null)
+	var demo: FriendRequest = manager.requests[1]
+	check(demo != null, "Gonzalo pide ayuda")
+	check(_says(desk, 1, TutorialChat.GONZALO_HELP_KEY), "con su línea")
+	_play(desk, 4.0)
+	check_eq(demo.time_left, 15.0, "su tiempo espera a que se abra su chat")
+	desk.get_node("DeskPlane/Entries/EntryGonzalo").pressed.emit()
+	_play(desk, 16.0)
+	check(manager.requests[1] == null, "se le acabó el tiempo")
+	_play(desk, 6.0)
+	check(_says(desk, 1, TutorialChat.GONZALO_ALONE_KEY), "cuenta qué hizo solo")
+	check_eq(manager.state.friends[1].health, 3, "sin efecto real")
+	desk.get_node("DeskPlane/Entries/EntryLeon").pressed.emit()
+	_play_until(desk, func() -> bool: return not manager.state.friends[0].is_online(), 60.0)
+	check(_said(desk, TutorialChat.NO_ANSWER_KEY), "León explica qué pasó")
+	check(messages.any(func(message: ChatMessage) -> bool:
+		return message.tokens.any(func(token: ChatMessage.Token) -> bool: return token.covered)), "una línea tapada")
 	check(not manager.state.friends[0].is_online(), "se le cortó la señal")
 	check(next.is_empty(), "todavía no termina")
+	desk.open_mixer_for(0)
 	manager.restore_signal(0)
 	var cards := desk.get_node("Overlay/TutorialCards") as Control
 	_play_until(desk, func() -> bool: return cards.visible)
+	check(not (desk.get_node("UI/MixerView") as Control).visible, "el mixer se cerró")
 	check(_said(desk, TutorialChat.READY_KEY), "se despide")
 	check(cards.visible, "aparecen las tarjetas con videos")
 	check(next.is_empty(), "la noche 1 espera las tarjetas")

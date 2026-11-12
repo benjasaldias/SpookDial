@@ -5,6 +5,8 @@
 [ext_resource type="Script" path="res://scripts/data/action_data.gd" id="3_action"]
 [ext_resource type="Script" path="res://scripts/data/observation_data.gd" id="4_observation"]
 [ext_resource type="Script" path="res://scripts/data/rule_data.gd" id="5_rule"]
+[ext_resource type="AudioStream" path="res://audio/clues/tutorial_stomach_yes.wav" id="6_stomach_yes"]
+[ext_resource type="AudioStream" path="res://audio/clues/tutorial_stomach_no.wav" id="7_stomach_no"]
 
 [sub_resource type="Resource" id="Trait_glasses"]
 script = ExtResource("2_trait")
@@ -53,11 +55,15 @@ values = Dictionary[StringName, String]({
 [sub_resource type="Resource" id="Observation_hungry"]
 script = ExtResource("4_observation")
 id = &"hungry"
-category = 2
+category = 1
 question_key = "TUTORIAL_OBS_HUNGRY_Q"
 values = Dictionary[StringName, String]({
 &"yes": "TUTORIAL_OBS_HUNGRY_YES",
 &"no": "TUTORIAL_OBS_HUNGRY_NO"
+})
+audio_values = Dictionary[StringName, AudioStream]({
+&"yes": ExtResource("6_stomach_yes"),
+&"no": ExtResource("7_stomach_no")
 })
 
 [sub_resource type="Resource" id="Rule_angry"]

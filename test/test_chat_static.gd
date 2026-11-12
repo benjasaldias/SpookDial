@@ -76,3 +76,14 @@ func test_sin_senal_se_tapa_todo() -> bool:
 	ChatStatic.apply(message, 0.0, _rng())
 	check_eq(_covered(message), 200, "las 200 palabras")
 	return true
+
+
+## La estática fija del tutorial (docs/26 §4.3): una de cada 3 palabras, empezando por la segunda, siempre igual.
+func test_la_estatica_fija_tapa_una_de_cada_3() -> bool:
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	message.add_fragment("uno dos tres cuatro cinco seis siete.")
+	ChatStatic.apply_fixed(message)
+	var covered := message.tokens.filter(func(token: ChatMessage.Token) -> bool: return token.covered) \
+			.map(func(token: ChatMessage.Token) -> String: return token.text)
+	check_eq(covered, ["dos", "cinco"], "la segunda y la quinta")
+	return true

@@ -7,8 +7,11 @@ extends Node
 ## calmas, videos, que el manager les da a amigos al azar.
 ## En la noche 0 (el tutorial), desde el Plan 9.2, León enseña en su chat (TutorialChat): llega su solicitud fija, sin
 ## mensaje inicial, y él escribe sus líneas de a una. Una respuesta que el tutorial no acepta no termina la solicitud.
-## Después de la peor decisión León manda un video, se le corta la señal y, cuando vuelve, se despide (decisión de
-## Benja, 11 de noviembre). Nadie sale herido.
+## Nadie sale herido. Desde el Plan 9.5 (tras el primer testeo), el manager cumple en orden lo que pide TutorialChat:
+## qué parpadea (y es lo único que se puede usar), qué se desbloquea del escritorio, el video, la demostración de
+## Gonzalo (15 s reales sin poder responder; al llegar a 0 cuenta qué hizo y sale el aviso de daño, sin efecto), la
+## señal que baja con una línea de estática fija, la señal que se corta y la despedida. Las demás líneas de León no
+## llevan estática.
 ## Desde el Plan 9, también los accidentes de los amigos: se responden en el chat, sin cuaderno, y una mala
 ## respuesta los hiere (decisión de Benja, 7 de noviembre).
 ## En el escritorio lo avanza NightManager, junto con el estado de la noche.
@@ -23,6 +26,8 @@ signal request_finished(friend_index: int, request: FriendRequest)
 signal chat_script_finished(chat: ChatScript)
 ## León terminó el tutorial de la noche 0 y se despidió (Plan 9.2).
 signal tutorial_finished
+## En el tutorial, hay que mostrar el chat del amigo `friend_index` (Plan 9.5): León se despide ahí.
+signal tutorial_chat_requested(friend_index: int)
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatScript := preload("res://scripts/core/chat_script.gd")
@@ -38,10 +43,11 @@ const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
 
 ## En el tutorial, León escribe sus líneas de a una: cada una espera lo que tarda en escribirse la anterior (las letras
-## por segundo del chat) y una pausa para leerla. Al despedirse, una pausa más larga antes de terminar.
+## por segundo del chat) y una pausa para leerla.
 const TUTORIAL_CHARS_PER_SECOND := 60.0
 const TUTORIAL_LINE_PAUSE := 1.0
-const TUTORIAL_END_PAUSE := 2.5
+## Después de un audio, León espera lo que dura y esto más, antes de comentarlo.
+const TUTORIAL_AUDIO_PAUSE := 0.5
 
 @export var catalog: ContentCatalog
 ## Noche que se juega (0: el tutorial). En el juego la elige GameState; este valor es el de las pruebas y el de
@@ -75,25 +81,23 @@ var chat_script: ChatScript
 var tutorial_queue: Array[TutorialRequestData] = []
 ## La conversación de León en el tutorial, o null en las demás noches.
 var tutorial_chat: TutorialChat
-## En el tutorial, la página de la entidad de León ya está abierta en el cuaderno.
-var tutorial_page_open := false
+## En el tutorial, lo que parpadea y es lo único que se puede usar ahora (Plan 9.5).
+var tutorial_focus := TutorialChat.Focus.NONE
 
 ## Segundos desde las 00:00, como la hora del estado de la noche: el director cuenta en esa hora.
 var _elapsed := 0.0
 ## En el tutorial, la hora desde la que puede llegar la solicitud de León.
 var _next_tutorial_at := 0.0
-## El amigo que enseña en el tutorial, o -1.
+## El amigo que enseña en el tutorial (el guía), o -1.
 var _tutorial_friend := -1
-## Lo que falta que haga León: sus líneas (claves de ui.csv) y sus órdenes (TUTORIAL_* de abajo), en orden.
-var _tutorial_items: Array = []
-## Segundos hasta lo próximo de León.
+## El amigo de la demostración del tutorial (Gonzalo), o -1 hasta que llega su solicitud.
+var _demo_friend := -1
+## Lo que falta que haga el tutorial, en orden (TutorialChat.Item).
+var _tutorial_items: Array[TutorialChat.Item] = []
+## Segundos hasta lo próximo del tutorial.
 var _tutorial_wait := 0.0
-
-## Las órdenes de León en el tutorial: mandar el video, cortar su señal, esperar y terminar.
-const TUTORIAL_SEND_VIDEO := &"send_video"
-const TUTORIAL_CUT_SIGNAL := &"cut_signal"
-const TUTORIAL_PAUSE := &"pause"
-const TUTORIAL_FINISH := &"finish"
+## Lo que ya se desbloqueó en el tutorial.
+var _unlocked: Array[TutorialChat.Unlock] = []
 
 
 func _ready() -> void:
@@ -165,9 +169,12 @@ func advance(delta: float) -> void:
 		if request.advance(delta):
 			request_changed.emit(index, request)
 			if index == _tutorial_friend:
-				_tutorial(tutorial_chat.identified(tutorial_page_open))
+				_tutorial(tutorial_chat.identified())
 		if request.is_out_of_time():
-			_decide_alone(index)
+			if index == _demo_friend:
+				_end_demo(index)
+			else:
+				_decide_alone(index)
 	_advance_incidents(delta)
 	_advance_chat_script(delta)
 	if not requests_arrive:
@@ -229,8 +236,8 @@ func answer_incident(friend_index: int, option: int) -> bool:
 ## noviembre). La solicitud guarda si la estática tapó algo de la respuesta.
 func ask(friend_index: int, category: ClueCategory.Kind) -> bool:
 	var request := requests[friend_index]
-	if request == null or not state.friends[friend_index].is_online() or not request.can_ask_about(category) \
-			or not request.pay_question():
+	if request == null or friend_index == _demo_friend or not state.friends[friend_index].is_online() \
+			or not request.can_ask_about(category) or not request.pay_question():
 		return false
 	message_added.emit(friend_index, MessageBuilder.question(request, category, tr))
 	var answer := MessageBuilder.answer(request, category, tr)
@@ -259,7 +266,7 @@ func click_clue(message: ChatMessage, clue_id: StringName) -> FriendRequest.Clue
 ## Devuelve false si el amigo no espera respuesta o está sin señal.
 func answer(friend_index: int, action: ActionData) -> bool:
 	var request := requests[friend_index]
-	if request == null or action == null or not state.friends[friend_index].is_online():
+	if request == null or action == null or friend_index == _demo_friend or not state.friends[friend_index].is_online():
 		return false
 	if friend_index == _tutorial_friend:
 		return _answer_tutorial(request, action)
@@ -488,9 +495,82 @@ func _maybe_start_tutorial_request() -> void:
 
 ## En el tutorial, se abrió la página de la entidad de León en el cuaderno: lo avisa el escritorio.
 func tutorial_page_opened() -> void:
-	tutorial_page_open = true
 	if tutorial_chat != null and _tutorial_friend >= 0:
 		_tutorial(tutorial_chat.page_opened())
+
+
+## En el tutorial, el jugador está mirando el chat de `friend_index` (-1: ninguno). El escritorio lo dice en cada cuadro,
+## y solo cuenta cuando el tutorial no tiene nada pendiente: así el chat de Gonzalo echa a andar su tiempo y, después,
+## el de León sigue con la estática.
+func tutorial_view(friend_index: int) -> void:
+	if tutorial_chat == null or friend_index < 0 or tutorial_busy():
+		return
+	if friend_index == _demo_friend:
+		_tutorial(tutorial_chat.chat_opened(true))
+	elif friend_index == _tutorial_friend:
+		_tutorial(tutorial_chat.chat_opened(false))
+
+
+## En el tutorial, se escuchó el audio `stream` que mandó el amigo `friend_index`: León espera a que termine antes de
+## comentarlo.
+func tutorial_audio_played(friend_index: int, stream: AudioStream) -> void:
+	if tutorial_chat == null or friend_index != _tutorial_friend:
+		return
+	var reply := tutorial_chat.audio_played()
+	if not reply.items.is_empty() and stream != null:
+		_tutorial_wait = maxf(_tutorial_wait, stream.get_length() + TUTORIAL_AUDIO_PAUSE)
+	_tutorial(reply)
+
+
+## El tutorial todavía tiene algo pendiente: León escribe o falta una orden.
+func tutorial_busy() -> bool:
+	return not _tutorial_items.is_empty()
+
+
+## En el tutorial, `focus` es lo que hay que apretar ahora y León ya terminó: parpadea y se puede usar.
+func tutorial_wants(focus: TutorialChat.Focus) -> bool:
+	return tutorial_chat != null and tutorial_focus == focus and not tutorial_busy()
+
+
+## Está en la noche 0 (el tutorial): el chat y el escritorio solo dejan usar lo que se va enseñando.
+func is_tutorial() -> bool:
+	return tutorial_chat != null
+
+
+## Se puede usar `unlock`: fuera del tutorial, siempre; en él, desde que se desbloquea.
+func is_unlocked(unlock: TutorialChat.Unlock) -> bool:
+	return tutorial_chat == null or _unlocked.has(unlock)
+
+
+## El amigo que enseña en el tutorial (el guía) y el de la demostración, o -1.
+func tutorial_guide() -> int:
+	return _tutorial_friend
+
+
+func tutorial_demo_friend() -> int:
+	return _demo_friend
+
+
+## En el tutorial, el amigo de la demostración ya puede usarse: su entrada y su pestaña.
+func is_friend_unlocked(friend_index: int) -> bool:
+	if tutorial_chat == null:
+		return true
+	if friend_index == _tutorial_friend or (_tutorial_friend < 0 and friend_index == _guide_index()):
+		return true
+	return friend_index == _demo_index() and is_unlocked(TutorialChat.Unlock.DEMO_FRIEND)
+
+
+## El amigo del guía y el de la demostración, según las solicitudes fijas de la noche, aunque todavía no lleguen.
+func _guide_index() -> int:
+	var data := night().tutorial_requests
+	return catalog.friends.find(data[0].friend) if not data.is_empty() else -1
+
+
+func _demo_index() -> int:
+	for data: TutorialRequestData in night().tutorial_requests:
+		if data.demo_seconds > 0.0:
+			return catalog.friends.find(data.friend)
+	return -1
 
 
 ## Matías le responde a León en el tutorial: se ve su respuesta, y León dice si cuenta. Solo cuando cuenta (la peor
@@ -508,30 +588,84 @@ func _answer_tutorial(request: FriendRequest, action: ActionData) -> bool:
 	return true
 
 
-## Encola lo que hace León después de algo que hizo Matías: sus líneas y, después, sus órdenes.
+## Encola lo que hace el tutorial después de algo que hizo Matías. Lo que vale enseguida se hace ahora: echar a andar el
+## tiempo de la demostración.
 func _tutorial(reply: TutorialChat.Reply) -> void:
-	_tutorial_items.append_array(reply.lines)
-	if reply.send_video:
-		_tutorial_items.append(TUTORIAL_SEND_VIDEO)
-	if reply.cut_signal:
-		_tutorial_items.append(TUTORIAL_CUT_SIGNAL)
-	if reply.finished:
-		_tutorial_items.append_array([TUTORIAL_PAUSE, TUTORIAL_FINISH])
+	_tutorial_items.append_array(reply.items)
+	if reply.run_demo and _demo_friend >= 0 and requests[_demo_friend] != null:
+		requests[_demo_friend].timer_paused = false
 
 
-## León escribe sus líneas de a una y cumple sus órdenes cuando les toca.
+## El tutorial hace lo que le toca, de a una cosa: las líneas esperan lo que tarda en escribirse la anterior.
 func _advance_tutorial(delta: float) -> void:
 	_tutorial_wait -= delta
 	while _tutorial_wait <= 0.0 and not _tutorial_items.is_empty():
-		var item: Variant = _tutorial_items.pop_front()
-		if item is String:
-			_add_friend_message(_tutorial_friend, MessageBuilder.line(ChatMessage.Sender.FRIEND, item, tr))
-			_tutorial_wait = tr(item).length() / TUTORIAL_CHARS_PER_SECOND + TUTORIAL_LINE_PAUSE
-		elif item == TUTORIAL_SEND_VIDEO:
+		_do_tutorial(_tutorial_items.pop_front())
+
+
+func _do_tutorial(item: TutorialChat.Item) -> void:
+	match item.command:
+		TutorialChat.Command.LINE:
+			_tutorial_line(_tutorial_friend, item.value, false)
+		TutorialChat.Command.STATIC_LINE:
+			_tutorial_line(_tutorial_friend, item.value, true)
+		TutorialChat.Command.DEMO_LINE:
+			_tutorial_line(_demo_friend, item.value, false)
+		TutorialChat.Command.FOCUS:
+			tutorial_focus = item.value
+		TutorialChat.Command.UNLOCK:
+			if not _unlocked.has(item.value):
+				_unlocked.append(item.value)
+		TutorialChat.Command.SEND_VIDEO:
 			state.videos.add_extra(_tutorial_friend, _elapsed)
-		elif item == TUTORIAL_CUT_SIGNAL:
+		TutorialChat.Command.START_DEMO:
+			_start_demo()
+		TutorialChat.Command.DEMO_HURT:
+			var friend := state.friends[_demo_friend]
+			var friend_name := tr(catalog.friends[_demo_friend].name_key)
+			# Sin efecto: el aviso muestra un punto menos, pero la vida no cambia (decisión de Benja, D6).
+			message_added.emit(_demo_friend, MessageBuilder.damage_notice(null, friend_name, friend.health - 1,
+					friend.max_health, tr))
+		TutorialChat.Command.SET_SIGNAL:
+			state.friends[_tutorial_friend].signal_level = item.value
+		TutorialChat.Command.CUT_SIGNAL:
 			state.friends[_tutorial_friend].signal_level = 0.0
-		elif item == TUTORIAL_PAUSE:
-			_tutorial_wait = TUTORIAL_END_PAUSE
-		elif item == TUTORIAL_FINISH:
+		TutorialChat.Command.OPEN_GUIDE_CHAT:
+			tutorial_chat_requested.emit(_tutorial_friend)
+		TutorialChat.Command.PAUSE:
+			_tutorial_wait = item.value
+		TutorialChat.Command.FINISH:
 			tutorial_finished.emit()
+
+
+## Una línea del tutorial en el chat de `friend_index`. Sin estática al azar, para que se lea; la de `fixed_static`, con
+## una de cada 3 palabras tapadas, siempre igual (docs/26 §4.3).
+func _tutorial_line(friend_index: int, key: String, fixed_static: bool) -> void:
+	var message := MessageBuilder.line(ChatMessage.Sender.FRIEND, key, tr)
+	if fixed_static:
+		ChatStatic.apply_fixed(message)
+	message_added.emit(friend_index, message)
+	_tutorial_wait = tr(key).length() / TUTORIAL_CHARS_PER_SECOND + TUTORIAL_LINE_PAUSE
+
+
+## Llega la solicitud de la demostración (la siguiente fija), con su tiempo en espera hasta que se abra su chat. El
+## amigo pide ayuda con su línea, sin el mensaje inicial de siempre.
+func _start_demo() -> void:
+	if tutorial_queue.is_empty():
+		return
+	var data: TutorialRequestData = tutorial_queue.pop_front()
+	var request := RequestGenerator.generate_tutorial(catalog, night(), data, rng)
+	request.time_left = data.demo_seconds
+	requests[request.friend_index] = request
+	_demo_friend = request.friend_index
+	request_started.emit(request.friend_index, request)
+	_tutorial_line(_demo_friend, TutorialChat.GONZALO_HELP_KEY, false)
+
+
+## Se le acabó el tiempo a la demostración: la solicitud termina sin consecuencias, y el tutorial cuenta qué pasó.
+func _end_demo(friend_index: int) -> void:
+	var request := requests[friend_index]
+	request.finished = true
+	requests[friend_index] = null
+	request_finished.emit(friend_index, request)
+	_tutorial(tutorial_chat.demo_timed_out())
