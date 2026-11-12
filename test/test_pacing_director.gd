@@ -444,3 +444,37 @@ func test_un_plan_no_suelta_videos_en_las_calmas() -> bool:
 		check(videos[0] < result["waves"][1][0], "uno en la ola 1")
 		check(videos[1] > result["waves"][2][0], "otro en la final")
 	return true
+
+
+## Una noche puede traer su propia calma entre olas (Plan 9.6: Extremo, de 20 a 30 s), en vez de la de balance.tres. La
+## ola se resuelve después de la hora planeada de la siguiente, para que mande la calma.
+func test_la_noche_puede_traer_su_calma() -> bool:
+	for seed_value in 10:
+		var night := _night()
+		night.requests_total = 13
+		night.wave_calm = Vector2(20, 30)
+		var calm := _calm_after_late_wave(night, seed_value)
+		check(calm >= 20.0 and calm <= 30.0, "semilla %d: %.1f s de calma" % [seed_value, calm])
+	return true
+
+
+func test_sin_calma_propia_se_usa_la_del_equilibrio() -> bool:
+	check_eq(NightData.new().wave_calm, Vector2.ZERO, "por defecto, sin calma propia")
+	for seed_value in 10:
+		var night := _night()
+		night.requests_total = 13
+		var calm := _calm_after_late_wave(night, seed_value)
+		check(calm >= 40.0 and calm <= 60.0, "semilla %d: la de balance.tres, %.1f s" % [seed_value, calm])
+	return true
+
+
+## Los segundos de calma después de la primera ola, si se resuelve a las 02:00 (140 s), pasada la hora planeada de la
+## siguiente.
+func _calm_after_late_wave(night: NightData, seed_value: int) -> float:
+	var director := _director(night, seed_value)
+	director.advance(60.0, 0)
+	director.request_started(60.0)
+	director.request_started(65.0)
+	var beat := director.advance(140.0, 0)
+	check(beat.calm_started, "semilla %d: empieza la calma" % seed_value)
+	return director.next_at - 140.0

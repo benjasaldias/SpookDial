@@ -88,12 +88,15 @@ var _rng: RandomNumberGenerator
 var _decision_time := 0.0
 ## Ya no había consultas abiertas cuando el próximo video de la ola esperaba: llega un poco después.
 var _answered := false
+## La calma después de una ola: la de la noche o, si no trae, la de balance.tres.
+var _wave_calm := Vector2.ZERO
 
 
 func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator) -> void:
 	_balance = balance
 	_rng = rng
 	_decision_time = night.base_decision_time
+	_wave_calm = night.wave_calm if night.wave_calm != Vector2.ZERO else balance.wave_calm
 	videos_left = night.content_quota
 	next_at = balance.first_wave_at
 	if night.scripted_scare_time > 0.0:
@@ -348,13 +351,13 @@ func _start_calm(now: float, beat: Beat) -> void:
 	phase = Phase.CALM
 	beat.calm_started = true
 	wave_index += 1
-	var calm := _balance.wave_calm
+	var calm := _wave_calm
 	if wave_index < waves.size() and waves[wave_index].calm_before != Vector2.ZERO:
 		calm = waves[wave_index].calm_before
 	next_at = now + _rng.randf_range(calm.x, calm.y)
 	if wave_index < waves.size() and not waves[wave_index].finale:
 		next_at = maxf(next_at, waves[wave_index].planned)
-		if _has_finale() and next_at > finale_at - _balance.wave_calm.x:
+		if _has_finale() and next_at > finale_at - _wave_calm.x:
 			wave_index = waves.size() - 1
 	if wave_index < waves.size() and waves[wave_index].finale:
 		next_at = finale_at

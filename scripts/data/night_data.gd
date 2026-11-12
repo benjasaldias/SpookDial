@@ -28,6 +28,9 @@ extends Resource
 ## Solicitudes de la ola final, la más grande, que llega lo más tarde posible (decisión de Benja, 11 de noviembre).
 ## Con 3, los 3 amigos piden ayuda a la vez.
 @export var finale_size := 3
+## Segundos de calma después de una ola común (mínimo y máximo, al azar). Con (0, 0), la de balance.tres (40 a 60 s). Extremo
+## los acorta, para que las olas lleguen más seguidas (Plan 9.6, docs/30).
+@export var wave_calm := Vector2.ZERO
 
 ## Accidentes de la noche: un amigo se tropieza o se corta, y se responde con sentido común (decisión de Benja, 7
 ## de noviembre).
