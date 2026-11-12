@@ -129,6 +129,9 @@ extends Resource
 @export var hurt_respite := 10.0
 ## Segundos hasta la primera solicitud de la noche 0, que no tiene olas.
 @export var first_request_delay := 5.0
+## Mientras la historia cuenta algo antes de una ola (unas líneas o una decisión), la ola espera a lo más tantos segundos
+## (decisión de Benja, S21l; docs/31). Jugando bien, casi nunca espera.
+@export var story_hold_limit := 45.0
 
 @export_group("Screamers")
 ## Segundos de la señal previa: las luces parpadean y baja el sonido ambiente (diseño §11).

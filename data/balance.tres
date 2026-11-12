@@ -47,6 +47,7 @@ wave_event_delay = Vector2(3, 15)
 calm_event_delay = Vector2(5, 15)
 hurt_respite = 10.0
 first_request_delay = 5.0
+story_hold_limit = 45.0
 scare_warning = 1.0
 scare_margin = 5.0
 scare_min_gap = 25.0

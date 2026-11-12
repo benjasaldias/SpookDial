@@ -478,3 +478,75 @@ func _calm_after_late_wave(night: NightData, seed_value: int) -> float:
 	var beat := director.advance(140.0, 0)
 	check(beat.calm_started, "semilla %d: empieza la calma" % seed_value)
 	return director.next_at - 140.0
+
+
+# --- La historia (Plan 9.7, docs/31): el director cuenta sus olas y espera a que la historia termine lo que cuenta.
+
+func test_cuenta_las_olas_y_las_calmas() -> bool:
+	var night := _night()
+	var director := _director(night)
+	check_eq([director.waves_started, director.calms_started, director.finale_started()], [0, 0, false], "al empezar")
+	_run(director, night, 10.0)
+	check_eq([director.waves_started, director.calms_started, director.finale_started()], [3, 2, true],
+			"2 olas comunes con sus calmas y la final")
+	return true
+
+
+func test_la_ultima_ola_comun() -> bool:
+	var night := _night()
+	var director := _director(night)
+	check_eq([director.last_regular_index(), director.finale_index()], [1, 2], "2 olas comunes y la final")
+	night.requests_total = 11
+	director = _director(night)
+	check_eq([director.last_regular_index(), director.finale_index()], [3, 4], "4 olas comunes (Extremo)")
+	director = _director(_plan_night())
+	check_eq([director.last_regular_index(), director.finale_index()], [1, 2], "con un plan de olas")
+	night.finale_size = 0
+	night.requests_total = 4
+	director = _director(night)
+	check_eq([director.last_regular_index(), director.finale_index()], [1, -1], "sin ola final")
+	return true
+
+
+func test_la_ola_espera_a_la_historia() -> bool:
+	var director := _director(_night())
+	director.story_hold = true
+	check_eq(director.advance(60.0, 0).wave_started, -1, "a su hora, la historia todavía cuenta algo")
+	check_eq(director.advance(80.0, 0).wave_started, -1, "sigue esperando")
+	director.story_hold = false
+	check_eq(director.advance(80.5, 0).wave_started, 0, "cuando la historia termina, llega")
+	return true
+
+
+## Benja: la ola espera a la historia a lo más 45 s (S21l).
+func test_la_espera_dura_a_lo_mas_45_s() -> bool:
+	var director := _director(_night())
+	check_eq(BalanceData.new().story_hold_limit, 45.0, "45 s")
+	director.story_hold = true
+	var started := -1.0
+	var time := 0.0
+	while started < 0.0 and time < 200.0:
+		if director.advance(time, 0).wave_started >= 0:
+			started = time
+		time += 0.5
+	check_eq(started, 105.0, "la ola 1 llega 45 s tarde")
+	return true
+
+
+func test_la_final_espera_a_la_historia() -> bool:
+	var night := _night()
+	var director := _director(night)
+	var time := 0.0
+	# Las olas comunes se resuelven enseguida, hasta la calma antes de la final.
+	while not (director.phase == PacingDirector.Phase.CALM and director.wave_index == director.finale_index()):
+		director.advance(time, 0)
+		while director.request_due(time, night.base_decision_time):
+			director.request_started(time)
+		time += 0.5
+	var finale_at := director.finale_at
+	director.story_hold = true
+	check_eq(director.advance(finale_at, 0).wave_started, -1, "a su hora, espera")
+	director.story_hold = false
+	var beat := director.advance(finale_at + 20.0, 0)
+	check(beat.wave_started == director.finale_index() and beat.finale_started, "llega cuando la historia termina")
+	return true

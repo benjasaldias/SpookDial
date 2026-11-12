@@ -83,6 +83,7 @@ func test_valores_del_director_y_los_screamers() -> bool:
 	check_eq(balance.wave_event_delay, Vector2(3, 15), "lo de una ola llega de 3 a 15 s después de empezar")
 	check_eq(balance.calm_event_delay, Vector2(5, 15), "lo de una calma llega de 5 a 15 s después de empezar")
 	check_eq(balance.hurt_respite, 10.0, "un amigo herido atrasa las solicitudes 10 s")
+	check_eq(balance.story_hold_limit, 45.0, "una ola espera a la historia a lo más 45 s (decisión de Benja, S21l)")
 	check_eq(balance.scare_warning, 1.0, "señal previa de 1 s")
 	check_eq(balance.scare_margin, 5.0, "nunca en los últimos 5 s de una decisión")
 	check_eq(balance.scare_min_gap, 25.0, "al menos 25 s entre dos screamers")
