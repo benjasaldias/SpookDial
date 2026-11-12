@@ -2,7 +2,8 @@
 # Graba los videos de las tarjetas del tutorial (Plan 9.2) y los deja en video/tutorial/ como Theora.
 # Cada clip se graba con el Movie Maker de Godot (test/record_tutorial_clips.gd) a 1280×720 y 30 cuadros por segundo,
 # y se recorta sin escalar, para que el pixel art se vea igual que en el juego: 640×360, salvo la ventana, que es vertical
-# (420×512) para que se vean la criatura y su sombra en el escritorio.
+# (420×512) para que se vean la criatura y su sombra en el escritorio, y la Mano, que es más alta (640×512) para que quepa
+# el celular con el botón FLASH bajo los diales.
 # Uso, desde la carpeta del proyecto y con el editor de Godot cerrado:
 #     tools/make_tutorial_videos.sh            # todos
 #     tools/make_tutorial_videos.sh hand       # solo los que se nombran
@@ -14,7 +15,7 @@ declare -A CROPS=(
 	[meters]="640:360:460:0"
 	[phone]="640:360:140:0"
 	[window]="420:512:190:160"
-	[hand]="640:360:640:0"
+	[hand]="640:512:640:0"
 )
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT

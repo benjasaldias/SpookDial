@@ -376,7 +376,8 @@ func _tab_text(index: int) -> String:
 ## hay nada de eso: se lee y se busca la página en el índice del cuaderno (decisión de Benja, D3).
 func _update_identify_bar() -> void:
 	var request := _manager.requests[selected_friend]
-	if not _manager.highlights():
+	# En Difícil no hay barra; en la demostración de Gonzalo, tampoco: no se identifica nada.
+	if not _manager.highlights() or _is_demo_waiting():
 		request = null
 	var revealed := request != null and request.identification == FriendRequest.Identification.REVEALED
 	_progress.visible = request != null and not revealed
@@ -687,7 +688,7 @@ func _allows(focus: TutorialChat.Focus) -> bool:
 
 ## En la noche 0, León pide `focus` y terminó de escribir: se puede usar y parpadea.
 func _ready_for(focus: TutorialChat.Focus) -> bool:
-	if not _manager.tutorial_wants(focus):
+	if focus == TutorialChat.Focus.NONE or not _manager.tutorial_wants(focus):
 		return false
 	var last: Node = _last_typed[selected_friend]
 	return last == null or not is_instance_valid(last) or last.is_done()

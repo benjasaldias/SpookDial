@@ -3,11 +3,34 @@ extends SceneTree
 ## tools/make_tutorial_videos.sh, que después los recorta y los convierte a Theora.
 ## Uso: ~/tools/godot-wsl.sh --path "$PWD" --write-movie <archivo.avi> --fixed-fps 30 -s res://test/record_tutorial_clips.gd -- <clip>
 ## Los clips: meters (los 3 medidores bajan), phone (el celular sube Sanity), window (la criatura, su sombra y la
-## cortina) y hand (la Mano y el flash).
+## cortina) y hand (la Mano, el celular y un cursor que aprieta FLASH).
 
 const DESK := preload("res://scenes/desk/desk.tscn")
 const GameSettings := preload("res://scripts/core/game_settings.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
+
+## En el clip de la Mano: dónde sube el celular y desde dónde parte el cursor, en el escritorio de 1280×720.
+const PHONE_IN_CLIP := Vector2(990, 250)
+const CURSOR_START := Vector2(900, 470)
+## La flecha del cursor: # el borde y o el relleno.
+const CURSOR: Array[String] = [
+	"#",
+	"##",
+	"#o#",
+	"#oo#",
+	"#ooo#",
+	"#oooo#",
+	"#ooooo#",
+	"#oooooo#",
+	"#ooooooo#",
+	"#oooo#####",
+	"#oo#oo#",
+	"#o# #oo#",
+	"##  #oo#",
+	"#    #oo#",
+	"     #oo#",
+	"      ##",
+]
 
 
 func _initialize() -> void:
@@ -77,16 +100,56 @@ func _window(desk: Node2D) -> void:
 	await _wait(1.0)
 
 
-## La Mano avanza hacia un dial; se abre el celular y el flash la espanta.
+## La Mano avanza hacia un dial; se abre el celular, un cursor va al botón FLASH, lo aprieta y el flash la espanta (Plan
+## 9.5, observación 13 del primer testeo). Para que todo quepa en el recorte, el celular sube a la derecha, bajo los
+## diales, y no en su lugar de siempre.
 func _hand(desk: Node2D) -> void:
 	var hands := desk.get_node("Hands")
 	hands.start_visit(NightState.Dial.CONNECTION)
 	hands.visit.step = hands.visit.steps - 9
-	await _wait(5.5)
+	var phone := desk.get_node("UI/PhoneView") as Control
+	phone._rest_position = PHONE_IN_CLIP
+	var cursor := _cursor(desk)
+	cursor.position = CURSOR_START
+	await _wait(4.0)
 	desk.open_phone()
-	await _wait(0.8)
-	(desk.get_node("UI/PhoneView") as Control).flash_pressed.emit()
-	await _wait(2.0)
+	cursor.visible = true
+	await _wait(0.7)
+	var target: Vector2 = phone.global_position + phone.flash_rect().get_center()
+	var move := create_tween()
+	move.tween_property(cursor, ^"position", target, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await move.finished
+	var motion := InputEventMouseMotion.new()
+	motion.position = phone.flash_rect().get_center()
+	phone._gui_input(motion)
+	await _wait(0.3)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = phone.flash_rect().get_center()
+	phone._gui_input(click)
+	await _wait(2.2)
+
+
+## Un cursor de mentira, porque el Movie Maker no graba el del sistema: una flecha blanca con borde negro, arriba de todo.
+func _cursor(desk: Node2D) -> Sprite2D:
+	var image := Image.create(CURSOR.size() + 1, CURSOR.size(), false, Image.FORMAT_RGBA8)
+	for row in CURSOR.size():
+		for column in CURSOR[row].length():
+			match CURSOR[row][column]:
+				"#":
+					image.set_pixel(column, row, Color.BLACK)
+				"o":
+					image.set_pixel(column, row, Color.WHITE)
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	desk.add_child(layer)
+	var cursor := Sprite2D.new()
+	cursor.texture = ImageTexture.create_from_image(image)
+	cursor.centered = false
+	cursor.visible = false
+	layer.add_child(cursor)
+	return cursor
 
 
 func _wait(seconds: float) -> void:
