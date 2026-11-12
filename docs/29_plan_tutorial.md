@@ -40,6 +40,34 @@
 
 **Punto de partida:** 715 pruebas OK.
 
+**Resultado (12-nov, S21j):** ejecutado completo, en 10 commits. **748 pruebas OK.** Las capturas de cada paso se revisaron a 1280×720 y a 1920×1080 (`C:\dev\capturas\plan95_*.png`), los clips del celular y de la Mano se grabaron de nuevo y el juego abre sin errores.
+
+| Tarea | Commit | Pruebas |
+| --- | --- | --- |
+| 1. El ambiente no baja | `c84c40d` | 716 |
+| 2. Snapgram más lento y las fotos desde 50 | `8f17636` | 720 |
+| 3. La alarma de las entradas | `9e4a2d4` | 723 |
+| 4 a 6. La conversación nueva, el manager, Gonzalo y las tripas | `59ae67a` | 734 |
+| 7. Los bloqueos del escritorio | `45a88e6` | 740 |
+| 8. El chat en la noche 0 | `a82537a` | 744 |
+| 9. El mixer en la noche 0 | `37a4a55` | 746 |
+| 10. El botón del flash | `4aa0688` | 747 |
+| 11. Las tarjetas | `e5f5348` | 748 |
+| 12. De punta a punta, los videos y la revisión | `78bcbb7` | 748 |
+
+**Lo que cambió al ejecutar:**
+
+- **Las tareas 4, 5 y 6 van en un solo commit:** el manager usaba la forma vieja de `TutorialChat`, y separadas no compilaban.
+- **La alarma pita una vez por segundo y no en cada destello:** la alerta de una entrada alterna rojo y azul 5 veces por segundo, y un pitido por destello habría sido insoportable. Las 3 entradas usan un reloj común (el del escritorio), así que pitan juntas, y la entrada se enciende en rojo con el pitido.
+- **El scroll avanza 30 px por paso de la rueda** (la mitad de los 60 de antes) y no 24: con 24 había que dar unos 14 pasos por foto.
+- **El escritorio dice en cada cuadro qué chat se está mirando** (`RequestManager.tutorial_view`), en vez de una señal al abrirlo: así también cuenta si el jugador ya estaba en el chat de León cuando a Gonzalo se le acaba el tiempo.
+- **Lo destacado de las tarjetas va en ámbar, sin negrita:** con `variation_embolden` la letra casi no cambiaba (captura `plan95_*_17_negrita.png`). Las viñetas son una lista `[ul]`, para que lo que no cabe en una línea quede alineado.
+- **El clip de la Mano mide 640×512 y el celular sube bajo los diales:** el recorte de antes (la mitad derecha) no mostraba el celular. El del celular también se grabó de nuevo, porque se ve el botón.
+- **El nombre de la entidad sigue abriendo la página** después de su paso, y en la demostración de Gonzalo no hay barra de identificación ni preguntas habilitadas (vistos en las capturas).
+- **`run_tests.gd` acepta nombres de suites** después de `--`, para correr solo esas.
+- **Las pruebas avanzan los tweens a mano** (`custom_step`): sin eso, los mensajes nunca terminan de escribirse y en la noche 0 nada se habilita.
+- **La noche 0 de prueba (`content_fixtures.gd`) ya no pierde señal sola,** como la de verdad: con los pasos nuevos, León se quedaba sin señal antes de descargar el video.
+
 ---
 
 ## Decisiones de Benja (S21g, S21j)

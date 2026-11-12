@@ -55,6 +55,13 @@ Duran 3 s, con el lugar de fondo. **Son parte del juego:** lo que se oye cambia 
 | `imbunche_baby_cry_yes.wav` | Gruñidos roncos y, entre ellos, el llanto de una guagua, lejos | La cueva: retumbo, viento y gotas |
 | `imbunche_baby_cry_no.wav` | Solo gruñidos | Ídem |
 
+**El tutorial** (S21j): León manda un audio de las tripas de Gonzalo, para enseñar a escucharlos. Es la observación "¿Tiene hambre?" de su página.
+
+| Archivo | Se oye | Fondo |
+| --- | --- | --- |
+| `tutorial_stomach_yes.wav` | Dos gruñidos de tripas: un crujido grave y lento, aire que se mueve y gorgoteos | La cabaña: un rumor grave |
+| `tutorial_stomach_no.wav` | Nada (no se usa en el tutorial, pero cada valor necesita su audio) | Ídem |
+
 **El Imbunche ya no dice "Matías"** (decisión de Benja, 10 de noviembre): la observación pasó de `called_name` a `baby_cry` ("¿Se oye un llanto?"), con sus textos, su regla y una frase nueva en su lore. Son borradores para corregir.
 
 ## Las voces de los amigos (`audio/sfx/`)

@@ -228,6 +228,8 @@ Son valores de partida que propone Claude. La sesión los confirma con `test_bal
 
 ## 4. Sesión S21j: el tutorial (Plan 9.5, `docs/29`)
 
+**✅ Ejecutada el 12 de noviembre** (S21j, `docs/29`): 10 commits, 748 pruebas OK. Benja decidió que en el chat de la noche 0 solo funciona lo que pide León, y al aprobar el diseño sumó 5 pedidos (las tarjetas en viñetas, el feed más lento, las fotos desde Sanity 50, el ambiente que no baja y la alarma de las entradas). Lo que cambió al ejecutar está al inicio de `docs/29`.
+
 **Modelo:** Opus 5.5 · xhigh. Usa lo de S21h (el parpadeo, el ícono de señal y las respuestas nuevas). Solo se juega en Normal (D5).
 
 ### 4.1 Lo que se puede usar en la noche 0 (observación 4)

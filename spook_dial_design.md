@@ -7,7 +7,7 @@
 - El detalle de la mecánica central (reglas, valores numéricos, modelo de datos) está en `docs/02_bucle_central.md`.
 - El orden de trabajo y el calendario están en `docs/05_plan_produccion.md`.
 
-Última actualización: 11 de noviembre de 2026.
+Última actualización: 12 de noviembre de 2026.
 
 - 26 de octubre: identificación por características, acción de mayor riesgo y cuota cubierta por los envíos. En la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos.
 - 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
@@ -23,6 +23,7 @@
 - 11 de noviembre (S21e y S21f, `docs/22` a `docs/24`): el mensaje inicial dice qué le pasa al amigo y el lugar solo a veces, los señuelos cuestan 1 s, las características se dicen con otras palabras, olas de verdad con una ola final, el aviso de videos, la criatura se queda un tiempo al azar, la Mano, Trust sin recuperación y más batería.
 - 11 de noviembre, tras el primer testeo (S21h, `docs/26` y `docs/27`): las preguntas muestran su costo y no se repiten, lo decisivo va en azul (también en el cuaderno), el chat se ordena en bloques con las respuestas como hojas del cuaderno y la señal en barritas, "Matías piensa" dura 2 s, los señuelos ya no cuestan, y la noche ganada se guarda.
 - 11 de noviembre, tras el primer testeo (S21i, `docs/26` §3 y `docs/28`): **dos modos, Normal y Difícil**, que se eligen al empezar una partida. Difícil se desbloquea al terminar Normal. La noche 1 de Normal va armada a mano, las noches 2 a 5 de Normal son algo más fáciles, y en Difícil se identifica leyendo, sin nada destacado.
+- 12 de noviembre, tras el primer testeo (S21j, `docs/26` §4 y `docs/29`): **la noche 0 de nuevo**, donde solo funciona lo que León va enseñando y eso parpadea, con lo que cuesta preguntar, lo azul, un audio, la estática y Gonzalo mostrando qué pasa si nadie contesta; el flash es un botón con relieve y las tarjetas van con colores y viñetas. Y 5 pedidos de Benja: el feed más lento, las fotos perturbadoras desde Sanity 50, el ambiente que no baja antes de un screamer y una alarma en cada entrada del PC.
 
 ---
 
@@ -73,13 +74,17 @@ Durante cinco noches tiene que hacer cuatro cosas:
   - **Normal empieza en la noche 0 (el tutorial) y Difícil en la noche 1**, sin tutorial;
   - **cada modo tiene sus 5 noches** (§14), con las mismas entidades en las mismas noches;
   - **en Difícil se identifica leyendo** (§8.3).
-- **Noche 0 (tutorial)** antes de la noche 1 (decisión de Benja, sesión 16), **sin perder** (sesión 18). Desde el 11 de noviembre no es un onboarding con un aviso arriba: **León enseña en su chat**, de forma natural, con chistes y sin entidades reales:
+- **Noche 0 (tutorial)** antes de la noche 1 (decisión de Benja, sesión 16), **sin perder** (sesión 18). Desde el 11 de noviembre no es un onboarding con un aviso arriba: **León enseña en su chat**, de forma natural, con chistes y sin entidades reales. Desde el 12 de noviembre (S21j, tras el primer testeo), **solo funciona lo que León va enseñando**, cuando terminó de escribir, y **eso parpadea** hasta que se aprieta. Al empezar solo responden su entrada y la pausa; el cuaderno se desbloquea con el nombre, Gonzalo en su parte y el mixer cuando hay que sincronizar; el celular, las cortinas y Agustín, nunca. Los pasos:
   - **describe a Gonzalo** ("usa lentes", "huele mal"), y el cuaderno tiene una sola página, la suya, con su tabla de decisiones;
-  - hay que preguntarle qué ve, marcar lo que sirve (un señuelo, "un polerón rojo", no sirve), preguntar por el ambiente y abrir la página de Gonzalo cuando aparece su nombre;
+  - hay que preguntarle qué ve, y León explica que **cada pregunta cuesta 5 s**; después, marcar lo amarillo (un señuelo, "un polerón rojo", no sirve);
+  - León explica que **lo azul no se clickea pero decide la fila de la tabla**, y pide preguntarle qué oye: manda **un audio, las tripas de Gonzalo** (tiene hambre), que hay que escuchar;
+  - preguntar por el ambiente, marcar la otra y abrir la página de Gonzalo cuando aparece su nombre;
   - León cuenta que Gonzalo está enojado y con hambre, y pide **la mejor decisión** (la del ✓) y después **la peor** (la de la calavera). Si se elige otra, dice que se intente de nuevo;
   - la peor le cuesta un combo, pero manda un video, que hay que descargar;
-  - **se le corta la señal** y hay que sincronizarlo con Audio Sync. Al volver, dice que ya estás listo y se despide;
-  - después aparecen **4 tarjetas, cada una con un video del juego**: los medidores y cómo baja cada uno, el celular y Sanity, la sombra en la ventana y la cortina, y la Mano con el flash. "Siguiente" pasa de una a otra, y la última empieza la noche 1;
+  - **Gonzalo muestra qué pasa si nadie contesta** (decisión de Benja, D6): pide ayuda en su chat con **15 s reales**, que corren desde que se abre, sin poder preguntar ni responder. Al llegar a 0 decide solo, se pega con la puerta y sale el aviso de daño, sin efecto real. De vuelta con León, explica que si no contestas a tiempo deciden solos, casi siempre mal, y baja Trust;
+  - **la estática:** la señal de León baja y un mensaje llega con una de cada 3 palabras tapadas, siempre igual; León explica que con poca señal sus mensajes llegan tapados;
+  - **se le corta la señal** y hay que sincronizarlo con el botón de las barritas (en el mixer parpadea su canal y, en tu turno, tu VU-metro). Al volver, se abre su chat, dice que ya estás listo y se despide;
+  - después aparecen **4 tarjetas, cada una con un video del juego**: los medidores y cómo baja cada uno, el celular y Sanity, la sombra en la ventana y la cortina, y la Mano con el flash. Desde el 12 de noviembre van **en viñetas, con Connection en verde, Sanity en rojo y Trust en amarillo** (el color de su aguja) y lo importante en ámbar. "Siguiente" pasa de una a otra, y la última empieza la noche 1;
   - el tiempo para responder no corre solo, el plazo del video espera, nadie sale herido y Trust no baja;
   - "Nueva partida" en Normal empieza en la noche 0, y "Saltar tutorial" está en la pausa (`Esc`); las tarjetas tienen su propio "Saltar". Difícil no tiene noche 0.
 - **5 noches.** Cada una va de las **00:00 a las 06:00** (formato de 24 horas) en unos **7 minutos reales**.
@@ -108,7 +113,7 @@ Cada objeto cumple una función:
 
 | Objeto | Función |
 | --- | --- |
-| **PC** | Muestra siempre las 3 entradas de los amigos: estado, señal, temporizador y avisos. Al hacer clic en una se abre su conversación. También muestra el contador de contenido de la noche. |
+| **PC** | Muestra siempre las 3 entradas de los amigos: estado, señal, temporizador y avisos. Al hacer clic en una se abre su conversación. También muestra el contador de contenido de la noche. **Una entrada en alerta pita una vez por segundo** con la nota de su amigo (si, re y fa: juntas, un acorde disminuido), con un reloj común a las 3, y se calla durante Audio Sync y mientras suena un audio (pedido de Benja, 12 de noviembre). |
 | **Cuaderno** | El manual: un índice con el nombre de cada entidad y una página por entidad con sus reglas (§12). |
 | **Mixer** | Audio Sync. Al hacer clic se abre visto desde arriba: sus 3 faders son los canales de los 3 amigos, y sus dos VU-metros azules muestran el ritmo de Matías (el de la izquierda) y el del amigo (el de la derecha) (§10.6). |
 | **Celular** | Muestra la hora y su batería. Al abrirlo se scrollea con la rueda del mouse para recuperar Sanity (§10). |
@@ -278,7 +283,8 @@ Decisión de Benja, 7 de noviembre.
 - Se recupera **scrolleando el celular**: sube mientras el jugador scrollea y deja de subir cuando se detiene.
 - **El celular tiene batería** (decisión de Benja, 7 de noviembre): un tope por noche, sin recarga, que alcanza para **48 s** de scroll (desde el 11 de noviembre; antes 38). Se gasta al scrollear y con **cada flash, que gasta 10 %** (§11, la Mano), así que hay que guardar batería. Sin batería no hay feed ni flash.
 - **Snapgram** (decisión de Benja, 9 de noviembre): la red social del celular imita la forma de Instagram, con barra superior, cabecera, foto cuadrada, íconos y barra de navegación. Todo son **fotos reales de gatitos** (mixed media): las cuentas no tienen nombre, el texto se simula con barras grises y los botones son solo dibujo.
-- **Fotos perturbadoras** (decisión de Benja, 9 de noviembre): con Sanity bajo 30, 1 de cada 6 publicaciones es una foto perturbadora; bajo 15, 1 de cada 3. Solo es un susto: no resta Sanity. Una foto a la vista nunca cambia.
+- **El feed avanza lento** (pedido de Benja, 12 de noviembre): cada paso de la rueda mueve 30 px (antes 60), para que se alcancen a ver las fotos. Sanity sube igual, porque cuenta el tiempo scrolleando.
+- **Fotos perturbadoras** (decisión de Benja, 9 de noviembre; desde el 12 de noviembre, desde Sanity 50): con Sanity 50 o menos, 1 de cada 4 publicaciones es una foto perturbadora, y van subiendo en escalones parejos (2 y 3 de cada 4) hasta **4 de cada 4 con Sanity 10 o menos**. Solo es un susto: no resta Sanity. Una foto a la vista nunca cambia, y un lugar perturbador lo sigue siendo si Sanity baja más.
 - **Las cortinas** (decisión de Benja, 7 de noviembre): se abren y se cierran con un clic. Cerradas, el cuarto se oscurece y Sanity baja de a poco. Abiertas no pasa nada, salvo que la criatura esté afuera (§11): entonces baja rápido.
 - **Toda noche se puede ganar** (requisito de Benja, 11 de noviembre): la batería de los flashes, más la que hace falta para reponer Sanity jugando bien, no pasa de 100 % (en la noche 5 son 90 %). Lo comprueba `test/test_balance.gd`.
 - **Efecto gradual:** mientras más baja, más se oscurece la visión con una viñeta y más **screamers auditivos falsos** aparecen (sonidos que no vienen de nada).
@@ -334,10 +340,10 @@ Decisión de Benja, 7 de noviembre.
   - **Cómo suena:** en cada tirón, un crujido sutil de algo que se retuerce, con o sin el cuaderno abierto.
   - **Dónde se ve:** en la pared, detrás de los paneles: el chat, el mixer y el cuaderno la tapan, y entonces solo la delata el crujido.
   - **Qué hace:** si agarra el dial, lo baja 6 puntos por segundo hasta 15, nunca hasta 0, y se queda hasta que la espantan. En Connection baja las 3 señales parejo, así que también sube la estática.
-  - **Cómo se espanta:** con el **flash del celular**, el rayo de la barra superior del celular abierto, que la hace desaparecer al instante. Cada flash gasta 10 % de la batería, haya o no una Mano.
+  - **Cómo se espanta:** con el **flash del celular**, el botón FLASH de la barra superior del celular abierto (desde el 12 de noviembre, un botón con relieve que se hunde al apretarlo; antes, un rayo que no parecía botón), que la hace desaparecer al instante. Cada flash gasta 10 % de la batería, haya o no una Mano.
   - **Cuándo llega:** en las olas, 1, 1, 2, 2 y 3 veces en las noches 1 a 5. No coincide con la criatura: espera a que se vaya, y la criatura no se arma mientras la Mano está en la pared. La enseña una tarjeta con video al final de la noche 0.
 - **La sombra:** lo que se asoma por la ventana (la criatura y la figura) hace sombra sobre el escritorio. Con la cortina cerrada no hay sombra, para no delatar a la criatura (decisión de Benja, 8 de noviembre).
-- **Señal previa breve:** un parpadeo de luz y una caída del sonido ambiente.
+- **Señal previa breve:** un parpadeo de luz. **El sonido ambiente no baja** (pedido de Benja, 12 de noviembre: bajarlo arruinaba el suspenso).
 - **Reglas de justicia:**
   - los que tapan la pantalla **pausan los temporizadores**;
   - nunca ocurren en los últimos 5 segundos de una decisión;

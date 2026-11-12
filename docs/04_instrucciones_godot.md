@@ -26,6 +26,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **S.** Probar la letra en pantalla completa, el cuaderno y la noche 0 con León (Plan 9.2) | ⬜ Pendiente (unos 15 minutos) |
 | **T.** Probar el chat nuevo, la descarga y el guardado (Plan 9.3) | ⬜ Pendiente (unos 15 minutos) |
 | **U.** Probar Normal y Difícil (Plan 9.4) | ⬜ Pendiente (unos 20 minutos) |
+| **V.** Probar la noche 0 nueva y los pedidos del 12 de noviembre (Plan 9.5) | ⬜ Pendiente (unos 20 minutos) |
 | Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
@@ -737,3 +738,65 @@ Todos en `data/text/ui.csv`:
 ### Si quieres redibujar
 
 El candado es pixel art de Claude (`art/ui/menu_lock.png`, de 11×11, lo genera `tools/make_ui_art.py`). Está en `arte_pendiente.md`.
+
+---
+
+## V. Probar la noche 0 nueva y los pedidos del 12 de noviembre (Plan 9.5)
+
+Del 12 de noviembre (sesión S21j), con el feedback del primer testeo. Avísale a Claude antes de abrir Godot. Son unos 20 minutos.
+
+### La noche 0 (lo más importante)
+
+1. Presiona **F5**. En el menú, **Nueva partida** y **Normal** (si tienes una partida guardada, confirma que se borre).
+2. **Verifica, al empezar:**
+   - el celular, las cortinas, el cuaderno, el mixer y las entradas de Gonzalo y Agustín **no se iluminan al pasar el mouse ni responden al clic**;
+   - **Esc** pausa (ahí está **Saltar tutorial**).
+3. Abre el chat de León y sigue lo que pide. **En cada paso, verifica que lo que hay que apretar parpadea** (un borde ámbar, o la frase que late) **y que se habilita recién cuando León termina de escribir**:
+   1. **¿QUÉ VES?** Después León dice que **cada pregunta cuesta 5 s** (la pestaña muestra "−5 s").
+   2. Las frases amarillas laten. Marca **lentes** (prueba también el polerón: bromea una vez).
+   3. León explica **lo azul** ("Está enojado") y pide **¿QUÉ OYES?**
+   4. Llega **▶ Escuchar audio**, que late: escúchalo. Son **las tripas de Gonzalo**. León espera a que termine y lo comenta.
+   5. **¿AMBIENTE?** y marca **huele mal**. Matías piensa y aparece el nombre, que parpadea: haz clic, y se abre la página (el cuaderno ya responde).
+   6. Las **4 hojas** parpadean juntas: elige mal una vez, después la del ✓ y después la de la calavera.
+   7. La **barra del video** parpadea: mantenla presionada.
+   8. León dice que **Gonzalo te está escribiendo**: su entrada se desbloquea y parpadea, con **15** detenidos.
+   9. Abre su chat: **el tiempo corre** en su pestaña y en su entrada, no se puede preguntar ni responder, y las respuestas dicen **MIRA QUÉ PASA SI NO CONTESTAS**. A los 15 s cuenta qué hizo y sale **Gonzalo recibió daño: 2/3**, pero su entrada sigue con sus 3 marcas.
+   10. Parpadea la entrada de León: ábrela. León explica, su señal baja, un mensaje llega **con palabras tapadas** y después se corta la señal.
+   11. El **botón de las barritas** parpadea en rojo: apriétalo. En el mixer parpadea **"TÚ"** en tu turno (o el canal de León, si fallas).
+   12. Al sincronizar, el mixer se cierra solo, se abre el chat de León y se despide. Después vienen las tarjetas.
+4. **Verifica las tarjetas:** cada idea es una viñeta, **Connection en verde, Sanity en rojo y Trust en amarillo**, y lo importante en ámbar. La de **La Mano** muestra el celular, un cursor que aprieta **FLASH** y la Mano que se va.
+5. **Dime:**
+   - si en algún paso no supiste qué apretar, o algo parpadeó antes de tiempo;
+   - si la demostración de Gonzalo se entiende sin que nadie te explique;
+   - qué líneas de León y de Gonzalo cambiarías.
+
+### Los pedidos del 12 de noviembre
+
+1. Empieza la noche 1 (o abre el escritorio suelto, **F6** sobre `scenes/desk/desk.tscn`).
+2. **Verifica:**
+   - **la alarma:** cuando un amigo pide algo y su chat está cerrado, su entrada pita una vez por segundo, en rojo con cada pitido; con 2 o 3 a la vez suenan juntas (el acorde). Durante Audio Sync y mientras suena un audio, se callan;
+   - **el ambiente:** antes y durante un susto (las luces parpadean), el viento y el cuarto siguen sonando igual;
+   - **el celular:** cada paso de la rueda avanza la mitad que antes, y Sanity sube igual;
+   - **el botón FLASH:** entre la hora y la batería, con relieve; se ilumina con el mouse encima, se hunde al apretarlo y se ve apagado sin batería;
+   - **las fotos perturbadoras:** con Sanity en 50 o menos ya sale alguna (1 de cada 4), y con muy poca, casi todas. Para que Sanity baje rápido, cierra las cortinas un rato (la barra roja de arriba lo muestra) y después abre el celular.
+3. **Dime:**
+   - si la alarma molesta (se puede bajar o espaciar);
+   - si con el feed más lento alcanzas a ver las fotos.
+
+### Los textos nuevos para corregir (antes del 25 de noviembre)
+
+En `data/text/ui.csv`:
+
+- León: `TUTORIAL_LEON_COST`, `TUTORIAL_LEON_BLUE`, `TUTORIAL_LEON_ASK_SOUND`, `TUTORIAL_LEON_LISTEN`, `TUTORIAL_LEON_HEARD`, `TUTORIAL_LEON_GONZALO`, `TUTORIAL_LEON_NO_ANSWER`, `TUTORIAL_LEON_STATIC` (la que llega tapada) y `TUTORIAL_LEON_STATIC_EXPLAIN`;
+- Gonzalo: `TUTORIAL_GONZALO_HELP`, `TUTORIAL_GONZALO_ALONE`, `TUTORIAL_GONZALO_HURT` y `TUTORIAL_GONZALO_WATCH`;
+- las tarjetas: `TUTORIAL_CARD_*_TEXT` (en viñetas: cada línea empieza con "• "; `{connection}`, `{sanity}` y `{trust}` se pintan solos, y lo que va entre `[b]` y `[/b]` sale en ámbar).
+
+En `data/text/phone.csv`: `PHONE_FLASH_BUTTON` ("FLASH").
+
+Ya no existen `TUTORIAL_LEON_ASK_SIGHT_AGAIN`, `TUTORIAL_LEON_NAME_OPEN` ni `TUTORIAL_LEON_WAIT`: con el chat bloqueado, ya no pueden pasar.
+
+### Si quieres redibujar o cambiar sonidos
+
+- El botón del flash es pixel art de Claude (`art/ui/phone_flash_button.png`, 3 cuadros de 14×14), en `arte_pendiente.md`.
+- Las tripas (`audio/clues/tutorial_stomach_yes.wav`) y las alarmas (`audio/sfx/alarm_*.wav`) están en `sonidos_pendiente.md`.
+

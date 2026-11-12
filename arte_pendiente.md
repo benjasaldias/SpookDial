@@ -1,6 +1,6 @@
 # Arte pendiente
 
-Todo el arte que falta para la v1, en un solo lugar. Actualizado el 10 de noviembre de 2026 (sesión S21d).
+Todo el arte que falta para la v1, en un solo lugar. Actualizado el 12 de noviembre de 2026 (sesión S21j).
 
 - **Cómo usar esta lista:** dibuja en el orden que prefieras y avísale a Claude cuando una pieza esté lista. La integración se hace en una sesión aparte.
 - **Mientras tanto:** todo lo marcado "provisional" ya funciona en el juego con un reemplazo hecho en Godot, así que nada bloquea la programación.
@@ -23,6 +23,7 @@ Todo el arte que falta para la v1, en un solo lugar. Actualizado el 10 de noviem
 | --- | --- | --- | --- |
 | ~~**Mixer visto desde arriba**~~ ✅ Claude (`art/ui/mixer_body.png` y `mixer_fader_cap.png`). Si lo redibujas: | 440×430, o 220×215 a ×2 | El cuerpo visto desde arriba; **dos VU-metros azules** (el de la izquierda muestra el ritmo de Matías y el de la derecha, el del amigo), con su aguja aparte o en frames por nivel; la perilla de un fader (Godot la usa en los 3 canales y la sube o baja según la señal); un LED por canal; una fila de luces para el ritmo (8 o 16, encendida y apagada). Las perillas y los botones de adorno, como en tu mixer del escritorio. | Pixel art de Claude; Godot dibuja encima las agujas, las luces, las perillas de los faders y los textos. Ver `C:\dev\capturas\arte_mixer.png`. |
 | ~~**Marco del celular ampliado**~~ ✅ Claude (`art/ui/phone_frame.png`), en el azul de tu celular del escritorio | 260×520, o 130×260 a ×2 | Solo el celular de frente, con la pantalla vacía: el agujero de la pantalla va de (14, 18) a (246, 496). Godot dibuja encima la hora, el feed y las fotos. Las fotos ya están (`art/phone/`). | Pixel art de Claude. Ver `C:\dev\capturas\arte_snapgram.png`. |
+| ~~**Botón del flash**~~ ✅ Claude (`art/ui/phone_flash_button.png`, S21j: el rayo solo no parecía un botón) | 3 cuadros de 14×14 en fila: normal, con el mouse encima y apretado | Un botón con relieve que se estira como 9-slice (márgenes de 4): borde negro, luz arriba y sombra gruesa abajo; apretado, hundido. El rayo y "FLASH" los pone Godot encima. | Pixel art de Claude. Si lo cambias, hay que volver a grabar los videos `hand` y `phone` de las tarjetas (`tools/make_tutorial_videos.sh hand phone`). |
 | ~~**Barras de señal**~~ ✅ Claude (`art/ui/signal_bars.png`; sin señal llevan una x) | 19×12 | 6 estados: de 0 a 5 barras. Que se distingan llenas de vacías sin depender del color. | Pixel art de Claude. |
 | **Diales rediseñados** | Como `dial_sprite` (112×113) | Cara de manómetro con un ícono para cada uno (Connection, Sanity y Trust) y un LED de alerta. La aguja sigue siendo `arrow_sprite`. | `dial_sprite` con cara de reloj. |
 | **Celular del escritorio sin la hora** y **dígitos LCD** | Como `phone_sprite` (86×55); los dígitos, una tira "0123456789:" | El celular sin el "00:00" pintado. Los dígitos, del alto que tiene la hora dibujada hoy. | Un parche azul tapa la hora pintada y Godot escribe encima. |
