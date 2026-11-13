@@ -355,3 +355,14 @@ func test_lo_que_le_pasa_a_uno_solo() -> bool:
 	if catalog != null:
 		check_eq(catalog.alone_predicament_keys, ["PREDICAMENT_1", "PREDICAMENT_4"], "las 2 de uno solo")
 	return true
+
+
+## Las noches con historia terminan a las 06:30 (decisión de Benja, Plan 9.8); las demás, a las 06:00.
+func test_las_noches_con_historia_terminan_a_las_06_30() -> bool:
+	var catalog := _load_catalog()
+	if catalog == null:
+		return true
+	for difficulty: DifficultyData in catalog.difficulties:
+		for night: NightData in difficulty.nights:
+			check_eq(night.overtime_minutes, 30 if night.story != null else 0, "%s, noche %d" % [difficulty.id, night.number])
+	return true

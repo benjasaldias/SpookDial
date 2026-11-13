@@ -92,6 +92,8 @@ var story_hold := false
 
 var _balance: BalanceData
 var _rng: RandomNumberGenerator
+## Cuánto dura la noche (hasta las 06:00 o, con historia, hasta las 06:30).
+var _night_length := 0.0
 ## Segundos para responder de la noche (sin el factor de Trust): un video de una ola llega antes de que se acaben.
 var _decision_time := 0.0
 ## Ya no había consultas abiertas cuando el próximo video de la ola esperaba: llega un poco después.
@@ -105,6 +107,7 @@ var _finale_started := false
 func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator) -> void:
 	_balance = balance
 	_rng = rng
+	_night_length = night.length(balance)
 	_decision_time = night.base_decision_time
 	_wave_calm = night.wave_calm if night.wave_calm != Vector2.ZERO else balance.wave_calm
 	videos_left = night.content_quota
@@ -117,9 +120,10 @@ func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator) -
 		_plan(night)
 
 
-## A qué hora llega la ola final: lo más tarde posible para que lo último que trae alcance a terminar antes de las 06:00
-## (su última consulta, o la descarga de su último video), aunque todo llegue con la mayor demora y aunque un amigo quede
-## herido antes.
+## A qué hora llega la ola final: lo más tarde posible para que lo último que trae alcance a terminar antes del final de
+## la noche (su última consulta, o la descarga de su último video), aunque todo llegue con la mayor demora. Deja libres al
+## final los segundos que atrasa un amigo herido (hurt_respite) o, en una noche con historia, finale_margin (5 s;
+## decisión de Benja en el Plan 9.8: así no cambian las noches que todavía no tienen historia).
 static func finale_time(night: NightData, balance: BalanceData) -> float:
 	var arrivals: Array[bool] = []
 	var spacing := balance.wave_spacing
@@ -141,7 +145,8 @@ static func finale_time(night: NightData, balance: BalanceData) -> float:
 		var lasts := balance.video_accept_seconds + balance.download_seconds if arrivals[index] \
 				else night.base_decision_time
 		end = maxf(end, time + lasts)
-	return balance.night_seconds - end - balance.hurt_respite
+	var margin := balance.finale_margin if night.story != null else balance.hurt_respite
+	return night.length(balance) - end - margin
 
 
 ## Avanza hasta `now`, con `active` solicitudes abiertas. Empieza la ola que toca o, cuando se resuelve la ola en
@@ -196,7 +201,7 @@ func _held_by_story(now: float) -> bool:
 func request_due(now: float, decision_seconds: float) -> bool:
 	if not (phase == Phase.WAVE or phase == Phase.FINALE) or pending.is_empty() or pending[0] or now < next_at:
 		return false
-	if now + decision_seconds > _balance.night_seconds:
+	if now + decision_seconds > _night_length:
 		pending.assign(pending.filter(func(is_video: bool) -> bool: return is_video))
 		return false
 	return true

@@ -48,7 +48,7 @@ func show_ending(ending: NightState.Ending, state: NightState, fatal_request: Fr
 		unlocked: Array[String] = []) -> void:
 	var won := ending == NightState.Ending.WON
 	if won:
-		_title.text = EndingText.won_title(night_number, tr)
+		_title.text = EndingText.won_title(night_number, tr, state.clock_text())
 		_body.text = EndingText.summary(night_number, state, new_pages, tr, unlocked)
 	else:
 		_title.text = EndingText.title(ending, tr)

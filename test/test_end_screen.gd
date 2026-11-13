@@ -37,7 +37,8 @@ func test_al_ganar() -> bool:
 	state.videos.received = 2
 	screen.show_ending(NightState.Ending.WON, state, null, FRIENDS)
 	check(screen.visible, "aparece")
-	check_eq((screen.get_node("Center/Box/Title") as Label).text, _translated("END_WON_TITLE"), "título")
+	check_eq((screen.get_node("Center/Box/Title") as Label).text,
+			_translated("END_WON_TITLE").format({"time": state.clock_text()}), "título, con la hora en que terminó")
 	check((screen.get_node("Center/Box/Body") as RichTextLabel).text.begins_with(
 			_translated("END_WON").format({"received": 2, "quota": 2})), "cuántos videos")
 	var next := screen.get_node("Center/Box/Buttons/Next") as Button

@@ -29,6 +29,8 @@ class Events:
 
 var night: NightData
 var balance: BalanceData
+## Cuánto dura la noche: hasta las 06:00 o, con historia, hasta las 06:30 (Plan 9.8).
+var length := 0.0
 ## Segundos desde las 00:00.
 var elapsed := 0.0
 var sanity := METER_MAX
@@ -56,6 +58,7 @@ var _scroll_left := 0.0
 func _init(night_data: NightData, balance_data: BalanceData, friend_count: int, rng: RandomNumberGenerator) -> void:
 	night = night_data
 	balance = balance_data
+	length = night.length(balance)
 	for _index in friend_count:
 		var friend := FriendState.new(balance.friend_health)
 		if night.signal_decays:
@@ -74,7 +77,7 @@ func _init(night_data: NightData, balance_data: BalanceData, friend_count: int, 
 ## Devuelve lo que pasó, para avisarlo en el chat.
 func advance(delta: float) -> Events:
 	var events := Events.new()
-	elapsed = minf(elapsed + delta, balance.night_seconds)
+	elapsed = minf(elapsed + delta, length)
 	var online: Array[bool] = []
 	for friend: FriendState in friends:
 		online.append(friend.is_online())
@@ -198,7 +201,7 @@ func connection() -> float:
 	return total / friends.size()
 
 
-## La hora del celular, de "00:00" a "06:00".
+## La hora del celular, de "00:00" a "06:00" (o a "06:30", con historia): night_seconds son 6 horas.
 func clock_text() -> String:
 	var minutes := int(elapsed / balance.night_seconds * NIGHT_HOURS * 60)
 	return "%02d:%02d" % [floori(minutes / 60.0), minutes % 60]
@@ -224,7 +227,7 @@ func ending() -> Ending:
 		return Ending.TRUST
 	if connection() <= 0.0:
 		return Ending.CONNECTION
-	if elapsed >= balance.night_seconds:
+	if elapsed >= length:
 		return Ending.WON if videos.is_quota_met() else Ending.QUOTA
 	return Ending.NONE
 

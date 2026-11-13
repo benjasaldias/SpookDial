@@ -67,7 +67,7 @@ static func free_time_needed(night: NightData, balance: BalanceData) -> float:
 	var loss := night.total_interferences() * balance.interference_damage
 	if night.signal_decays:
 		var decay := (night.signal_decay_interval.x + night.signal_decay_interval.y) / 2.0
-		loss += FRIENDS * balance.night_seconds / decay
+		loss += FRIENDS * night.length(balance) / decay
 	var scroll := scroll_battery(night, balance) / 100.0 * balance.phone_battery_seconds
 	return loss / SYNC_RECOVERY * sync_seconds(night, balance) + scroll
 
@@ -103,7 +103,7 @@ static func scroll_battery(night: NightData, balance: BalanceData) -> float:
 ## Cuánta Sanity pierde quien juega bien: con el tiempo, con los screamers y con la criatura (con la cortina abierta
 ## hasta cerrarla, cerrada mientras se queda y abierta en cada revisión).
 static func sanity_loss(night: NightData, balance: BalanceData) -> float:
-	var loss := balance.night_seconds / night.sanity_drain_interval
+	var loss := night.length(balance) / night.sanity_drain_interval
 	loss += (night.total_scares() - night.total_creatures()) * balance.scare_sanity
 	loss += night.total_creatures() * balance.jumpscare_sanity
 	var open := (CREATURE_REACTION + CREATURE_CHECKS * CHECK_SECONDS) * balance.creature_sanity
@@ -144,7 +144,7 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 	var pending_videos: Array[float] = []
 	var time := 0.0
 	var next_sample := 0.0
-	while time < balance.night_seconds:
+	while time < night.length(balance):
 		var active := open.filter(func(task: Dictionary) -> bool: return task["kind"] == "request").size()
 		if story != null:
 			director.story_hold = story.holds()

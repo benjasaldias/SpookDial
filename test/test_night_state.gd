@@ -402,3 +402,21 @@ func test_en_connection_baja_las_3_senales() -> bool:
 	check_eq(state.friends[2].signal_level, 15.0, "Agustín, hasta 15")
 	check_eq(state.dial_value(NightState.Dial.CONNECTION), state.connection(), "el dial es el promedio")
 	return true
+
+
+## Una noche con historia termina a las 06:30 (decisión de Benja, S21l; Plan 9.8): el reloj sigue a la misma velocidad.
+func test_una_noche_con_historia_termina_a_las_06_30() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var night := catalog.nights()[0]
+	check_eq(night.length(catalog.balance), 420.0, "sin minutos de más, hasta las 06:00")
+	night.overtime_minutes = 30
+	check_eq(night.length(catalog.balance), 455.0, "con 30 minutos de juego más, 35 s más")
+	var state := NightState.new(night, catalog.balance, 3, RandomNumberGenerator.new())
+	state.advance(420.0)
+	check_eq(state.clock_text(), "06:00", "a los 420 s, las 06:00")
+	check_eq(state.ending(), NightState.Ending.NONE, "y la noche sigue")
+	state.advance(100.0)
+	check_eq(state.clock_text(), "06:30", "no pasa de las 06:30")
+	check_eq(state.elapsed, 455.0, "segundos")
+	check(state.ending() != NightState.Ending.NONE, "a las 06:30 termina")
+	return true

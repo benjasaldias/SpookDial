@@ -10,7 +10,7 @@ const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
-## Títulos (ui.csv).
+## Títulos (ui.csv). END_WON_TITLE lleva {time}, la hora en que terminó la noche (06:00, o 06:30 con historia).
 const WON_TITLE_KEY := "END_WON_TITLE"
 const LOST_TITLE_KEY := "END_LOST_TITLE"
 const TUTORIAL_TITLE_KEY := "END_TUTORIAL_TITLE"
@@ -24,7 +24,7 @@ const NO_NEW_PAGES_KEY := "END_NO_NEW_PAGES"
 const UNLOCKED_KEY := "END_UNLOCKED"
 ## La última noche: al ganarla, el juego termina (diseño §5).
 const LAST_NIGHT := 5
-## Por qué terminó la noche (ui.csv). END_WON y END_QUOTA llevan {received} y {quota};
+## Por qué terminó la noche (ui.csv). END_WON y END_QUOTA llevan {received} y {quota}, y END_QUOTA también {time};
 ## END_FRIEND_DIED lleva {friend}.
 const REASON_KEYS := {
 	NightState.Ending.WON: "END_WON",
@@ -53,11 +53,12 @@ static func title(ending: NightState.Ending, translate: Callable) -> String:
 	return _text(translate, WON_TITLE_KEY if ending == NightState.Ending.WON else LOST_TITLE_KEY)
 
 
-## El título al ganar la noche `night_number`: el del tutorial, el de una noche o el de la victoria final.
-static func won_title(night_number: int, translate: Callable) -> String:
+## El título al ganar la noche `night_number`: el del tutorial, el de una noche (con la hora en que terminó, `time`) o el
+## de la victoria final.
+static func won_title(night_number: int, translate: Callable, time := "06:00") -> String:
 	if night_number == 0:
 		return _text(translate, TUTORIAL_TITLE_KEY)
-	return _text(translate, VICTORY_TITLE_KEY if night_number >= LAST_NIGHT else WON_TITLE_KEY)
+	return _text(translate, VICTORY_TITLE_KEY if night_number >= LAST_NIGHT else WON_TITLE_KEY).format({"time": time})
 
 
 ## El resumen al ganar la noche `night_number`: los videos y las páginas nuevas del cuaderno para la noche
@@ -88,7 +89,7 @@ static func body(ending: NightState.Ending, state: NightState, fatal_request: Fr
 		friend_names: Array[String], translate: Callable) -> String:
 	var friend := _escape(friend_names[fatal_request.friend_index]) if fatal_request != null else ""
 	var lines := PackedStringArray([_line(translate, REASON_KEYS[ending],
-			{"received": state.videos.received, "quota": state.videos.quota, "friend": friend})])
+			{"received": state.videos.received, "quota": state.videos.quota, "friend": friend, "time": state.clock_text()})])
 	if fatal_request != null:
 		lines.append("")
 		lines.append_array(_request_lines(fatal_request, friend, translate))

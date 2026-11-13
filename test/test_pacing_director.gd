@@ -550,3 +550,36 @@ func test_la_final_espera_a_la_historia() -> bool:
 	var beat := director.advance(finale_at + 20.0, 0)
 	check(beat.wave_started == director.finale_index() and beat.finale_started, "llega cuando la historia termina")
 	return true
+
+
+# --- El horario (Plan 9.8): la noche con historia hasta las 06:30, y la final con 5 s de holgura (decisiones de Benja).
+
+## Con historia, la final deja 5 s libres al final en vez de 10 (decisión de Benja: solo en las noches con historia).
+func test_con_historia_la_final_deja_5_s() -> bool:
+	var night := _night()
+	var without := PacingDirector.finale_time(night, BalanceData.new())
+	night.story = StoryData.new()
+	check_eq(PacingDirector.finale_time(night, BalanceData.new()), without + 5.0, "5 s más tarde")
+	return true
+
+
+func test_en_una_noche_mas_larga_la_final_llega_despues() -> bool:
+	var night := _night()
+	var short := PacingDirector.finale_time(night, BalanceData.new())
+	night.overtime_minutes = 30
+	check_eq(PacingDirector.finale_time(night, BalanceData.new()), short + 35.0, "35 s más tarde")
+	var director := _director(night)
+	check_eq(director.finale_at, short + 35.0, "el director la planea ahí")
+	return true
+
+
+func test_no_empieza_una_consulta_que_no_alcanza_antes_del_final() -> bool:
+	var night := _night()
+	night.overtime_minutes = 30
+	var director := _director(night)
+	director.phase = PacingDirector.Phase.FINALE
+	director.pending.assign([false])
+	director.next_at = 0.0
+	check(director.request_due(430.0, 20.0), "a las 06:00 todavía alcanza, porque termina a las 06:30")
+	check(not director.request_due(440.0, 20.0), "pasadas las 06:30, no")
+	return true

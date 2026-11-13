@@ -4,7 +4,8 @@ extends Resource
 ## la vida y el aturdimiento de los amigos, las consecuencias de cada acción y cómo baja Trust.
 ## Se ajustan probando, en el Inspector de data/balance.tres. Los que cambian por noche están en NightData.
 
-## Segundos reales que dura una noche, de las 00:00 a las 06:00 (diseño §5).
+## Segundos reales que dura una noche, de las 00:00 a las 06:00 (diseño §5). Una noche con historia sigue hasta las
+## 06:30, a la misma velocidad (NightData.length).
 @export var night_seconds := 420.0
 
 @export_group("Amigos")
@@ -129,6 +130,9 @@ extends Resource
 @export var hurt_respite := 10.0
 ## Segundos hasta la primera solicitud de la noche 0, que no tiene olas.
 @export var first_request_delay := 5.0
+## Lo que la ola final deja libre al final de una noche con historia: llega lo más tarde posible para que lo último que
+## trae termine tantos segundos antes (decisión de Benja, Plan 9.8). Las noches sin historia dejan hurt_respite (10 s).
+@export var finale_margin := 5.0
 ## Mientras la historia cuenta algo antes de una ola (unas líneas o una decisión), la ola espera a lo más tantos segundos
 ## (decisión de Benja, S21l; docs/31). Jugando bien, casi nunca espera.
 @export var story_hold_limit := 45.0

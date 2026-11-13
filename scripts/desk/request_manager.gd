@@ -241,7 +241,7 @@ func start_request(friend_index: int) -> FriendRequest:
 			_forced_entities())
 	if request == null:
 		return null
-	request.time_left = minf(request.time_left * timer_scale, maxf(catalog.balance.night_seconds - _elapsed, 0.0))
+	request.time_left = minf(request.time_left * timer_scale, maxf(state.length - _elapsed, 0.0))
 	if _story_penalty[friend_index] > 0.0:
 		request.time_left = minf(request.time_left,
 				maxf(request.time_left - _story_penalty[friend_index], STORY_MIN_DECISION_TIME))

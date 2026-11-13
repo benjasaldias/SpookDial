@@ -122,7 +122,8 @@ func test_sus_textos_existen() -> bool:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en ui.csv" % key)
 	var placeholders := {
 		"END_WON": ["{received}", "{quota}"],
-		"END_QUOTA": ["{received}", "{quota}"],
+		"END_QUOTA": ["{time}", "{received}", "{quota}"],
+		"END_WON_TITLE": ["{time}"],
 		"END_FRIEND_DIED": ["{friend}"],
 		"END_ENTITY": ["{entity}"],
 		"END_RULE": ["{number}", "{rule}"],
@@ -151,6 +152,8 @@ func test_si_el_amigo_estaba_sin_senal() -> bool:
 func test_titulos_al_ganar() -> bool:
 	check_eq(EndingText.won_title(0, _translate), "END_TUTORIAL_TITLE", "tutorial")
 	check_eq(EndingText.won_title(3, _translate), "END_WON_TITLE", "una noche")
+	var with_time := func(key: String) -> String: return "A las {time}" if key == "END_WON_TITLE" else key
+	check_eq(EndingText.won_title(1, with_time, "06:30"), "A las 06:30", "dice la hora en que terminó (Plan 9.8)")
 	check_eq(EndingText.won_title(EndingText.LAST_NIGHT, _translate), "END_VICTORY_TITLE", "la última")
 	return true
 
