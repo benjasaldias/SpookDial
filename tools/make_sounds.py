@@ -435,18 +435,86 @@ def phone_flash():
     return master(fade(reverb(out, CABIN, 0.1), 0.0, 0.06), -17)
 
 
-# --- La alarma de las entradas del PC (pedido de Benja, 12 de noviembre) -------------------------------------------
+# --- La alarma de las entradas del PC (Plan 9.8: pedido de Benja, que suene a alarma) --------------------------------
+# Cada amigo tiene su alarma electrónica, distinta de las otras (ya no hacen un acorde). Una entrada en alerta pita cada
+# medio segundo, con su luz, así que cada pitido dura menos de un cuarto de segundo. Suenan por el parlante del PC, al
+# nivel de los otros sonidos cortos del juego (el aplauso de Audio Sync), mucho más fuerte que la alarma de antes.
+ALARM_RMS = -24
 
-def alarm(frequency):
-    """El pitido de una entrada del PC que espera respuesta: agudo pero suave, corto y sin clic, por el parlante del
-    PC. Cada amigo tiene su nota (si, re y fa: juntas, el acorde disminuido de si), así que suenan juntas sin
-    confundirse. Suena una vez por segundo mientras la entrada titila: tiene que poder oírse mucho rato."""
-    seconds = 0.14
+def square(frequency, seconds, harmonics=9):
+    """Una onda cuadrada de aparato, con sus armónicos impares hasta `harmonics` (así no suena digital ni raspa)."""
     t = timeline(seconds)
-    tone = np.sin(2 * np.pi * frequency * t) + 0.18 * np.sin(2 * np.pi * 2 * frequency * t)
-    tone *= attack_decay(seconds, 0.006, 0.05)
-    tone = lowpass(highpass(tone, 400), 5000)
-    return master(fade(reverb(pad(tone, 0.12), CABIN, 0.06), 0.0, 0.04), -28)
+    return sum(np.sin(2 * np.pi * frequency * k * t) / k for k in range(1, harmonics + 1, 2))
+
+
+def pc_speaker(x):
+    """El parlante chico del PC: sin graves ni agudos extremos, un poco saturado."""
+    return soft_clip(lowpass(highpass(x, 350), 6500), 1.6)
+
+
+def short_master(x, rms_db, ceiling_db=-1.0):
+    """Para los sonidos de menos de 0,4 s, donde la sonoridad en LUFS no sirve: los lleva a un RMS de `rms_db` y limita
+    los picos a `ceiling_db`. Así las 3 alarmas suenan igual de fuerte."""
+    x = x - x.mean()
+    y = x * 10 ** ((rms_db - 20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-12)) / 20)
+    ceiling = 10 ** (ceiling_db / 20)
+    peak = np.abs(y).max()
+    return y if peak <= ceiling else soft_clip(y / peak * 1.2, 1.2) * ceiling
+
+
+def alarm_double_beep():
+    """León: un doble bip agudo, corto y seco, como un monitor."""
+    out = silence(0.22)
+    for at in (0.0, 0.11):
+        beep = square(2350, 0.075) * attack_decay(0.075, 0.003, 0.06)
+        place(out, fade(beep, 0.002, 0.01), at)
+    return short_master(fade(reverb(pad(pc_speaker(out), 0.05), CABIN, 0.05), 0.0, 0.03), ALARM_RMS)
+
+
+def alarm_buzz():
+    """Gonzalo: un zumbido grave y áspero, como un timbre de puerta viejo."""
+    seconds = 0.2
+    t = timeline(seconds)
+    tone = square(392, seconds, 15) * (0.75 + 0.25 * np.sign(np.sin(2 * np.pi * 50 * t)))
+    tone *= attack_decay(seconds, 0.004, 0.25)
+    return short_master(fade(reverb(pad(pc_speaker(fade(tone, 0.002, 0.02)), 0.05), CABIN, 0.05), 0.0, 0.03), ALARM_RMS)
+
+
+def alarm_trill():
+    """Agustín: un trino rápido entre dos notas agudas, nervioso."""
+    seconds = 0.2
+    t = timeline(seconds)
+    frequency = np.where(np.floor(t / 0.025) % 2 == 0, 1650.0, 2150.0)
+    tone = np.sign(np.sin(2 * np.pi * np.cumsum(frequency) / RATE)) * 0.6
+    tone = lowpass(tone, 7000) * attack_decay(seconds, 0.003, 0.3)
+    return short_master(fade(reverb(pad(pc_speaker(fade(tone, 0.002, 0.02)), 0.05), CABIN, 0.05), 0.0, 0.03), ALARM_RMS)
+
+
+# --- El aviso suave y el golpe de la ola (Plan 9.8) ------------------------------------------------------------------
+
+def chat_notify():
+    """El aviso de un mensaje que no es una emergencia: un "pop" suave de dos notas que suben, sin urgencia."""
+    out = silence(0.2)
+    for index, (frequency, at) in enumerate(((784.0, 0.0), (1175.0, 0.055))):
+        t = timeline(0.09)
+        note = np.sin(2 * np.pi * frequency * t) + 0.12 * np.sin(2 * np.pi * 2 * frequency * t)
+        place(out, note * attack_decay(0.09, 0.004, 0.035), at, 1.0 - 0.2 * index)
+    return short_master(fade(reverb(pad(lowpass(out, 5000), 0.1), CABIN, 0.08), 0.0, 0.05), -30)
+
+
+def wave_stinger():
+    """Empieza una ola: un golpe grave con un acorde disonante de cuerdas metálicas que se apaga, tenso y corto."""
+    seconds = 1.6
+    out = silence(seconds)
+    t = timeline(seconds)
+    sub = np.sin(2 * np.pi * np.cumsum(58 - 20 * (t / seconds)) / RATE) * attack_decay(seconds, 0.005, 0.45)
+    place(out, sub, 0.0, 0.9)
+    place(out, lowpass(brown(0.4, 401), 400) * attack_decay(0.4, 0.002, 0.08), 0.0, 0.8)
+    for index, frequency in enumerate((311.1, 329.6, 466.2, 698.5)):
+        voice = np.sin(2 * np.pi * frequency * t + 0.3 * np.sin(2 * np.pi * (5.5 + index) * t))
+        voice += 0.4 * np.sin(2 * np.pi * 2.01 * frequency * t)
+        place(out, voice * attack_decay(seconds, 0.01, 0.5 + 0.1 * index), 0.0, 0.18)
+    return master(fade(reverb(pad(out, 0.6), CABIN, 0.25), 0.0, 0.3), -18)
 
 
 # --- Voces de los amigos --------------------------------------------------------------------------------------------
@@ -770,10 +838,12 @@ SFX_SOUNDS = {
     "hallucination_scratch": hallucination_scratch,
     "hand_creak": hand_creak,
     "phone_flash": phone_flash,
-    # Si, re y fa: el acorde disminuido de si.
-    "alarm_leon": lambda: alarm(987.77),
-    "alarm_gonzalo": lambda: alarm(1174.66),
-    "alarm_agustin": lambda: alarm(1396.91),
+    # Cada amigo con su alarma (Plan 9.8): un doble bip, un zumbido y un trino.
+    "alarm_leon": alarm_double_beep,
+    "alarm_gonzalo": alarm_buzz,
+    "alarm_agustin": alarm_trill,
+    "chat_notify": chat_notify,
+    "wave_stinger": wave_stinger,
     # León: tono medio; Gonzalo: grave y redondo; Agustín: agudo y nasal.
     "voice_leon": lambda: murmur(0.05, 135, VOWELS["a"], 0.3, 1),
     "voice_gonzalo": lambda: murmur(0.066, 100, VOWELS["o"], 0.35, 2),

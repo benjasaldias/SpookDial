@@ -3,6 +3,7 @@ extends "res://test/test_case.gd"
 const DESK := preload("res://scenes/desk/desk.tscn")
 const GameSettings := preload("res://scripts/core/game_settings.gd")
 const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
+const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const InterferenceSchedule := preload("res://scripts/core/interference_schedule.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
@@ -657,5 +658,24 @@ func test_la_noche_espera_que_se_abra_la_llamada() -> bool:
 	check(not entries.any(func(entry: Node) -> bool: return entry.highlighted), "ya no llaman")
 	night.advance(5.0)
 	check_eq(manager.state.elapsed, 5.0, "la noche corre")
+	desk.free()
+	return true
+
+
+## Al empezar una ola, un golpe de sonido (Plan 9.8); y las entradas muestran un punto si su chat tiene algo sin leer.
+func test_el_golpe_de_la_ola_y_los_puntos() -> bool:
+	var desk := _make_desk()
+	var manager := desk.get_node("RequestManager")
+	var stinger := desk.get_node("WaveStinger") as AudioStreamPlayer
+	check(stinger.stream != null, "tiene su sonido")
+	manager.wave_started.emit(false)
+	check(stinger.playing, "suena al empezar la ola")
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	message.add_fragment("Hola")
+	manager.message_added.emit(1, message)
+	desk._process(0.0)
+	var entries := desk.get_node("DeskPlane/Entries").get_children()
+	check((entries[1].get_node("NameLabel") as Label).text.ends_with("•"), "Gonzalo tiene algo sin leer")
+	check(not (entries[0].get_node("NameLabel") as Label).text.ends_with("•"), "León no")
 	desk.free()
 	return true

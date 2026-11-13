@@ -24,7 +24,8 @@ extends Node2D
 ## Desde el Plan 9.1, la Mano (HandManager) asoma por la derecha hacia un dial, y la linterna del celular la espanta
 ## (decisión de Benja, 11 de noviembre).
 ## Desde el Plan 9.7, mientras dura la llamada grupal de la historia, las entradas muestran su ícono y cualquiera la abre.
-## Desde el Plan 9.8, una noche con historia espera congelada a que se abra la llamada, con las 3 entradas parpadeando.
+## Desde el Plan 9.8, una noche con historia espera congelada a que se abra la llamada, con las 3 entradas parpadeando; al
+## empezar una ola suena un golpe, y una entrada muestra un "•" si su chat (o la llamada) tiene algo sin leer.
 
 ## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
 signal tutorial_skipped
@@ -87,10 +88,6 @@ var unlocks_on_win: Array[DifficultyData] = []
 @onready var _pause_menu: Control = $Overlay/PauseMenu
 @onready var _tutorial_cards: Control = $Overlay/TutorialCards
 
-## El reloj de las alarmas de las entradas: uno para las 3, así pitan juntas (pedido de Benja, 12 de noviembre). No
-## avanza con la noche en pausa.
-var _alarm_clock := 0.0
-
 ## Las opciones del jugador que se aplicaron; el menú de pausa las cambia.
 var _settings := GameSettings.new()
 
@@ -127,6 +124,7 @@ func _ready() -> void:
 	_chat_panel.entity_page_requested.connect(_on_entity_page_requested)
 	_chat_panel.sync_requested.connect(open_mixer_for)
 	_requests.request_started.connect(_on_request_started)
+	_requests.wave_started.connect(func(_finale: bool) -> void: ($WaveStinger as AudioStreamPlayer).play())
 	_requests.chat_script_finished.connect(_on_chat_script_finished)
 	_night.night_ended.connect(_on_night_ended)
 	_end_screen.retry_pressed.connect(_on_retry_pressed)
@@ -151,7 +149,6 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _requests.waiting_for_call and _chat_panel.visible and _chat_panel.is_call_mode():
 		_requests.call_opened()
-	_alarm_clock += delta
 	# En el tutorial, qué chat se está mirando: el de Gonzalo echa a andar su demostración (Plan 9.5).
 	_requests.tutorial_view(_chat_panel.selected_friend if _chat_panel.visible else -1)
 	_refresh_locks()
@@ -331,7 +328,7 @@ func _refresh_entries() -> void:
 			entry.set_state(entry_state)
 		entry.set_health(friend.health, friend.max_health)
 		entry.muted = _mixer.is_playing() or _chat_panel.is_audio_playing()
-		entry.ring(_alarm_clock)
+		entry.set_unread(_chat_panel.has_unread(index) or _chat_panel.has_unread_call())
 		entry.set_signal(friend.signal_level)
 		var warning := state.interference_warning(index)
 		entry.set_interference_warning(warning)

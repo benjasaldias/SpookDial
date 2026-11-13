@@ -5,6 +5,7 @@
 [ext_resource type="Theme" path="res://scenes/ui/chat_theme.tres" id="chat_theme"]
 [ext_resource type="Shader" path="res://shaders/scanlines.gdshader" id="scanlines_shader"]
 [ext_resource type="Texture2D" path="res://art/ui/chat_call.png" id="call_icon"]
+[ext_resource type="AudioStream" path="res://audio/sfx/chat_notify.wav" id="notify_sound"]
 
 [sub_resource type="ShaderMaterial" id="scanlines_material"]
 shader = ExtResource("scanlines_shader")
@@ -223,6 +224,10 @@ offset_bottom = 675.0
 mouse_filter = 2
 
 [node name="AudioClip" type="AudioStreamPlayer" parent="."]
+bus = &"Effects"
+
+[node name="Notify" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("notify_sound")
 bus = &"Effects"
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]

@@ -35,6 +35,8 @@ signal tutorial_finished
 signal tutorial_chat_requested(friend_index: int)
 ## Una línea de la historia en la llamada grupal, dicha por el amigo `speaker_index` (Plan 9.7).
 signal call_message_added(speaker_index: int, message: ChatMessage)
+## Empezó una ola (`finale`: la final). El escritorio toca un golpe de sonido (Plan 9.8).
+signal wave_started(finale: bool)
 
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const ChatScript := preload("res://scripts/core/chat_script.gd")
@@ -525,6 +527,8 @@ func _finish_chat_script_if_done() -> void:
 func _follow_director() -> void:
 	director.story_hold = story != null and story.holds()
 	var beat := director.advance(_elapsed, active_count())
+	if beat.wave_started >= 0:
+		wave_started.emit(beat.finale_started)
 	var friend_count := catalog.friends.size()
 	for time: float in beat.interferences:
 		state.interferences.add(rng.randi_range(0, friend_count - 1), time)

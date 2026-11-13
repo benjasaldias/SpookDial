@@ -26,6 +26,8 @@ extends Control
 ## Desde el Plan 9.8 (feedback de Benja: no se distinguía el vlog de una emergencia), un amigo sin nada que jugar está
 ## grabando: su chat no muestra preguntas ni respuestas, y abajo dice "• REC · LEÓN ESTÁ GRABANDO" (salvo en la noche 0).
 ## Lo primero de una emergencia lleva antes una línea roja "▲ LEÓN PIDE AYUDA".
+## Una línea que no es una emergencia y llega a una conversación que no se ve hace un "pop" suave (a lo más uno cada 2 s),
+## y el panel dice qué conversaciones tienen mensajes sin leer, para el punto de las entradas del PC.
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
 ## Clic en el nombre de la entidad: el cuaderno abre su página.
@@ -137,6 +139,8 @@ const VLOG_KEY := "CHAT_VLOG_REC"
 const HELP_DIVIDER_KEY := "CHAT_HELP_DIVIDER"
 ## La línea de la emergencia, en el rojo de los avisos.
 const HELP_DIVIDER_COLOR := Color(1.0, 0.3, 0.37)
+## El "pop" del aviso suave suena a lo más una vez cada tantos segundos.
+const NOTIFY_GAP := 2.0
 
 var selected_friend := 0
 ## La opción "Subtítulos de los audios": vale para los mensajes que llegan desde ahora.
@@ -193,6 +197,9 @@ var _call_last_typed: Node
 var _call_sync_buttons: Array[Button] = []
 var _call_sync_icons: Array[AtlasTexture] = []
 var _call_sync_highlights: Array[Highlight] = []
+## La llamada tiene líneas sin leer, y cuándo sonó el último "pop" (en segundos desde que empezó el juego).
+var _call_unread := false
+var _last_notify := -INF
 
 @onready var _panel: TextureRect = $Panel
 @onready var _layout: VBoxContainer = $Panel/Layout
@@ -218,6 +225,7 @@ var _call_sync_highlights: Array[Highlight] = []
 @onready var _script_reply: Button = %ScriptReply
 @onready var _audio_clip: AudioStreamPlayer = $AudioClip
 @onready var _voice: AudioStreamPlayer = $Voice
+@onready var _notify: AudioStreamPlayer = $Notify
 
 
 func _ready() -> void:
@@ -376,6 +384,16 @@ func is_call_mode() -> bool:
 	return _call_mode
 
 
+## La conversación del amigo `friend_index` tiene mensajes sin leer.
+func has_unread(friend_index: int) -> bool:
+	return _unread[friend_index]
+
+
+## La llamada tiene líneas sin leer.
+func has_unread_call() -> bool:
+	return _call_unread
+
+
 ## Matías mantiene apretada la barra del video del amigo elegido: el botón izquierdo apretado, con el mouse sobre la
 ## barra y el chat abierto, sin importar dónde empezó el clic.
 func is_holding_download() -> bool:
@@ -405,6 +423,12 @@ func _update_status() -> void:
 	if _manager == null:
 		return
 	_update_call_mode()
+	if visible:
+		# Lo que se ve, se leyó.
+		if _call_mode:
+			_call_unread = false
+		else:
+			_unread[selected_friend] = false
 	if _call_mode:
 		_update_call_sync()
 		return
@@ -773,6 +797,8 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 	_lists[friend_index].add_child(view)
 	if message.sender != ChatMessage.Sender.PLAYER and not (visible and not _call_mode and friend_index == selected_friend):
 		_unread[friend_index] = true
+		if message.sender == ChatMessage.Sender.FRIEND and not message.urgent:
+			_play_notify()
 
 
 ## Una línea de la historia en la llamada grupal (Plan 9.7): con el nombre de quien habla, en su color, y su voz. Se
@@ -785,6 +811,18 @@ func _on_call_message_added(speaker: int, message: ChatMessage) -> void:
 	view.wait_for = _call_last_typed
 	_call_last_typed = view
 	_call_list.add_child(view)
+	if not (visible and _call_mode):
+		_call_unread = true
+		_play_notify()
+
+
+## El "pop" del aviso suave, a lo más uno cada NOTIFY_GAP segundos.
+func _play_notify() -> void:
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - _last_notify < NOTIFY_GAP:
+		return
+	_last_notify = now
+	_notify.play()
 
 
 ## Suena la voz de quien habla en la llamada, si se está viendo.

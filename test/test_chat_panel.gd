@@ -1101,3 +1101,45 @@ func test_la_emergencia_se_separa_del_vlog() -> bool:
 	check_eq(panel.message_views(1).size(), 1, "los mensajes no la cuentan")
 	_free(panel)
 	return true
+
+
+# --- El aviso suave (Plan 9.8): un "pop" y los chats con mensajes sin leer.
+
+func test_un_mensaje_que_no_se_ve_suena_suave() -> bool:
+	var panel := _make_panel()
+	var notify := panel.get_node("Notify") as AudioStreamPlayer
+	panel.open_for(0)
+	panel._process(0.0)
+	_friend_view(panel, 0)
+	check(not notify.playing, "en el chat que se ve, no suena")
+	_friend_view(panel, 1)
+	check(notify.playing, "en otro, el pop")
+	check(panel.has_unread(1), "Gonzalo tiene un mensaje sin leer")
+	notify.stop()
+	_friend_view(panel, 2)
+	check(not notify.playing, "a lo más uno cada 2 s")
+	panel._last_notify -= 3.0
+	var urgent := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	urgent.urgent = true
+	urgent.add_fragment("Ayuda")
+	_manager.message_added.emit(2, urgent)
+	check(not notify.playing, "una emergencia no hace pop: ya tiene la alarma")
+	_friend_view(panel, 2)
+	check(notify.playing, "pasados 2 s, sí")
+	panel.open_for(1)
+	panel._process(0.0)
+	check(not panel.has_unread(1), "al verlo, se leyó")
+	_free(panel)
+	return true
+
+
+func test_la_llamada_sin_leer() -> bool:
+	var panel := _make_call_panel()
+	_manager.advance(0.1)
+	check(panel.has_unread_call(), "con el chat cerrado, la llamada queda sin leer")
+	check((panel.get_node("Notify") as AudioStreamPlayer).playing, "y suena el pop")
+	panel.open_for(0)
+	panel._process(0.0)
+	check(not panel.has_unread_call(), "al verla, se leyó")
+	_free(panel)
+	return true

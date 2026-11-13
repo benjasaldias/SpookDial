@@ -3,8 +3,9 @@ extends Node2D
 ## El arte pone el fondo; Godot pone el nombre, la señal, la vida, el estado y el temporizador.
 ## Titila mientras se anuncia una interferencia (diseño §10.1). Con "Reducir destellos" (diseño §19), la alerta
 ## queda fija en lugar de parpadear, y el aviso de una interferencia atenúa la entrada en lugar de hacerla titilar.
-## En alerta pita una vez por segundo, con la nota de su amigo (pedido de Benja, 12 de noviembre): el escritorio le da un
-## reloj común a las 3 entradas, así que pitan juntas y hacen su acorde, y la entrada se enciende en rojo con el pitido.
+## En alerta pita con la alarma de su amigo, cada una con su propio ritmo desde el instante en que entra en alerta
+## (pedido de Benja, Plan 9.8): la luz se enciende en rojo la primera mitad de cada medio segundo, y pita al encenderse.
+## Un "•" junto al nombre dice que su chat tiene mensajes sin leer (Plan 9.8).
 ## Mientras dura la llamada grupal de la historia (Plan 9.7), muestra su ícono en lugar del temporizador.
 
 signal pressed
@@ -36,8 +37,10 @@ const OFFLINE_KEY := "ENTRY_OFFLINE"
 const FLICKER_SECONDS := 0.12
 ## Qué tan atenuada queda la entrada al titilar, o mientras dura el aviso si se reducen los destellos.
 const DIM_ALPHA := 0.35
-## Cada cuántos segundos pita en alerta.
-const ALARM_SECONDS := 1.0
+## En alerta, cada cuántos segundos se enciende la luz y pita (2 veces por segundo; la animación del sprite iba a 5).
+const ALARM_PERIOD := 0.5
+## Lo que va junto al nombre si su chat tiene mensajes sin leer.
+const UNREAD_MARK := " •"
 ## El ícono de la llamada grupal (pixel art de Claude, art/ui/), a la derecha y en el color de la terminal.
 const CALL_ICON := preload("res://art/ui/chat_call.png")
 const CALL_ICON_COLOR := Color(0.25, 0.76, 0.79)
@@ -48,7 +51,7 @@ const Highlight := preload("res://scripts/ui/highlight.gd")
 	set(value):
 		display_name = value
 		if is_node_ready():
-			_name_label.text = value
+			_show_name()
 
 var state: State = State.IDLE
 ## La vida que muestra, de `max_health`. -1 hasta la primera vez.
@@ -84,8 +87,11 @@ var highlighted := false:
 			_highlight.active = value
 
 var _flicker_time := 0.0
-## El segundo del reloj común en que pitó o se miró por última vez; -1 antes de la primera.
-var _alarm_beat := -1
+## Cuánto lleva en alerta, y el último parpadeo en que pitó (-1 al entrar en alerta).
+var _alarm_time := 0.0
+var _alarm_cycle := -1
+## Su chat tiene mensajes sin leer.
+var _unread := false
 var _alarm_player: AudioStreamPlayer
 var _highlight: Highlight
 var _call_icon: Sprite2D
@@ -98,7 +104,7 @@ var _call_icon: Sprite2D
 
 
 func _ready() -> void:
-	_name_label.text = display_name
+	_show_name()
 	_alarm_player = AudioStreamPlayer.new()
 	_alarm_player.name = "Alarm"
 	_alarm_player.bus = &"Effects"
@@ -123,6 +129,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	advance_alarm(delta)
 	if not interference_warning:
 		return
 	_flicker_time += delta
@@ -131,28 +138,49 @@ func _process(delta: float) -> void:
 
 
 func set_state(new_state: State) -> void:
+	if new_state == State.WARNING and state != State.WARNING:
+		# Entra en alerta: pita ahora y su ritmo empieza aquí.
+		_alarm_time = 0.0
+		_alarm_cycle = -1
 	state = new_state
-	_background.play(&"warning" if new_state == State.WARNING else &"idle")
-	if reduce_flashes and new_state == State.WARNING:
-		# Fija en el cuadro de la alerta, sin parpadear.
+	if new_state == State.WARNING:
+		# La luz la mueve advance_alarm, al ritmo del pitido.
+		_background.animation = &"warning"
 		_background.pause()
 		_background.frame = 0
+	else:
+		_background.play(&"idle")
 	_background.modulate = STATE_MODULATE[new_state]
 
 
-## Mira el reloj común (`clock`, en segundos): al empezar cada segundo, si está en alerta y no está callada, pita y se
-## enciende en rojo. Devuelve si pitó.
-func ring(clock: float) -> bool:
-	var beat := floori(clock / ALARM_SECONDS)
-	var first := _alarm_beat < 0
-	var new_beat := beat != _alarm_beat
-	_alarm_beat = beat
-	if first or not new_beat or state != State.WARNING or muted or alarm == null:
+## En alerta, avanza `delta` segundos su alarma: la luz encendida la primera mitad de cada medio segundo (fija con
+## "Reducir destellos") y un pitido al empezar cada uno, salvo que esté callada. Devuelve si pitó.
+func advance_alarm(delta: float) -> bool:
+	if state != State.WARNING:
+		return false
+	var cycle := floori(_alarm_time / ALARM_PERIOD)
+	var lit := reduce_flashes or fmod(_alarm_time, ALARM_PERIOD) < ALARM_PERIOD / 2.0
+	_background.frame = 0 if lit else 1
+	_alarm_time += delta
+	if cycle == _alarm_cycle:
+		return false
+	_alarm_cycle = cycle
+	if muted or alarm == null:
 		return false
 	_alarm_player.play()
-	_background.frame = 0
-	_background.frame_progress = 0.0
 	return true
+
+
+## Su chat tiene mensajes sin leer: un "•" junto al nombre, que nunca parpadea.
+func set_unread(unread: bool) -> void:
+	if unread == _unread:
+		return
+	_unread = unread
+	_show_name()
+
+
+func _show_name() -> void:
+	_name_label.text = display_name + (UNREAD_MARK if _unread else "")
 
 
 ## Muestra los segundos restantes. Con un valor negativo, oculta el temporizador.

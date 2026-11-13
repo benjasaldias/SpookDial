@@ -130,37 +130,66 @@ func test_reducir_destellos() -> bool:
 	entry.reduce_flashes = true
 	entry.set_state(ChatEntry.State.WARNING)
 	check_eq(background.animation, &"warning", "alerta")
-	check(not background.is_playing(), "sin parpadear")
-	check_eq(background.frame, 0, "en el cuadro de la alerta")
+	for _i in 4:
+		entry.advance_alarm(0.15)
+		check_eq(background.frame, 0, "sin parpadear: siempre en el cuadro de la alerta")
 	entry.set_interference_warning(true)
 	for _i in 4:
 		entry._process(0.06)
 		check(is_equal_approx(entry.modulate.a, ChatEntry.DIM_ALPHA), "atenuada, sin titilar: %s" % entry.modulate.a)
 	entry.reduce_flashes = false
-	check(background.is_playing(), "al apagar la opción, vuelve a parpadear")
+	var frames := []
+	for _i in 4:
+		entry.advance_alarm(0.15)
+		frames.append(background.frame)
+	check(frames.has(1), "al apagar la opción, vuelve a parpadear: %s" % str(frames))
 	entry.free()
 	return true
 
 
-## La alarma (pedido de Benja, 12 de noviembre): una entrada en alerta pita una vez por segundo, en el segundo justo de
-## un reloj común a las 3, para que suenen juntas y hagan su acorde.
-func test_la_alarma_pita_cada_segundo_en_alerta() -> bool:
+## La alarma (pedido de Benja en el Plan 9.8): cada entrada pita con su propio ritmo, desde el instante en que entra en
+## alerta, y la luz parpadea con el pitido: encendida la primera mitad de cada medio segundo.
+func test_la_alarma_pita_al_entrar_en_alerta_y_cada_medio_segundo() -> bool:
 	var entry := _make_entry()
 	entry.alarm = load("res://audio/sfx/alarm_leon.wav")
-	check(not entry.ring(0.2), "la primera vez solo toma el reloj")
-	check(not entry.ring(1.3), "sin alerta no pita")
+	var background := entry.get_node("Background") as AnimatedSprite2D
+	check(not entry.advance_alarm(0.125), "sin alerta no pita")
 	entry.set_state(ChatEntry.State.WARNING)
-	check(not entry.ring(1.8), "dentro del mismo segundo, nada")
-	check(entry.ring(2.05), "al empezar el segundo, pita")
-	check_eq((entry.get_node("Background") as AnimatedSprite2D).frame, 0, "y la entrada se enciende en rojo con el pitido")
-	check(not entry.ring(2.5), "una vez por segundo")
-	check(entry.ring(3.0), "el siguiente")
+	# Cada paso dice cómo está al empezar: pitó y en qué cuadro quedó la luz.
+	var steps := []
+	for _i in 5:
+		var beeped: bool = entry.advance_alarm(0.125)
+		steps.append([beeped, background.frame])
+	check_eq(steps, [[true, 0], [false, 0], [false, 1], [false, 1], [true, 0]],
+			"pita al entrar en alerta y a los 0,5 s, con la luz encendida el primer cuarto de segundo")
 	entry.muted = true
-	check(not entry.ring(4.0), "callada no pita")
+	for _i in 5:
+		check(not entry.advance_alarm(0.125), "callada no pita")
 	entry.muted = false
 	entry.set_state(ChatEntry.State.SELECTED)
-	check(not entry.ring(5.0), "con su chat abierto no pita")
+	check(not entry.advance_alarm(0.6), "con su chat abierto no pita")
 	entry.free()
+	return true
+
+
+## Cada entrada lleva su ritmo: ya no suenan todas juntas.
+func test_cada_entrada_lleva_su_ritmo() -> bool:
+	var first := _make_entry()
+	var second := _make_entry()
+	for entry: Node2D in [first, second]:
+		entry.alarm = load("res://audio/sfx/alarm_leon.wav")
+	first.set_state(ChatEntry.State.WARNING)
+	var beeps := [[], []]
+	for step in 8:
+		if step == 2:
+			second.set_state(ChatEntry.State.WARNING)
+		if first.advance_alarm(0.125):
+			beeps[0].append(step)
+		if second.advance_alarm(0.125):
+			beeps[1].append(step)
+	check_eq(beeps, [[0, 4], [2, 6]], "cada una desde que entró en alerta")
+	first.free()
+	second.free()
 	return true
 
 
@@ -169,8 +198,21 @@ func test_la_alarma_pita_tambien_sin_destellos() -> bool:
 	entry.alarm = load("res://audio/sfx/alarm_leon.wav")
 	entry.reduce_flashes = true
 	entry.set_state(ChatEntry.State.WARNING)
-	entry.ring(0.5)
-	check(entry.ring(1.0), "con la alerta fija, el mismo ritmo")
+	check(entry.advance_alarm(0.25), "pita al entrar en alerta")
+	check(not entry.advance_alarm(0.25), "la luz fija, el mismo ritmo")
+	check(entry.advance_alarm(0.25), "a los 0,5 s, otra vez")
+	entry.free()
+	return true
+
+
+## Un mensaje sin leer en su chat (o en la llamada): un punto junto al nombre (Plan 9.8). Nunca parpadea.
+func test_el_punto_de_no_leido() -> bool:
+	var entry := _make_entry()
+	var label := entry.get_node("NameLabel") as Label
+	entry.set_unread(true)
+	check_eq(label.text, "León •", "con el punto")
+	entry.set_unread(false)
+	check_eq(label.text, "León", "sin el punto")
 	entry.free()
 	return true
 
