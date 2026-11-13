@@ -679,3 +679,24 @@ func test_el_golpe_de_la_ola_y_los_puntos() -> bool:
 	check(not (entries[0].get_node("NameLabel") as Label).text.ends_with("•"), "León no")
 	desk.free()
 	return true
+
+
+## Las líneas de la llamada sin leer marcan las 3 entradas mientras dura la llamada; separados, ya no se pueden ver y no
+## marcan nada (Plan 9.8).
+func test_la_llamada_sin_leer_marca_mientras_dura() -> bool:
+	var desk := _make_desk()
+	var manager := desk.get_node("RequestManager")
+	manager.story = StoryRunner.new(StoryData.new(), manager.catalog.friends, tr)
+	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	message.add_fragment("Hola")
+	manager.call_message_added.emit(0, message)
+	desk._process(0.0)
+	var entries := desk.get_node("DeskPlane/Entries").get_children()
+	check(entries.all(func(entry: Node) -> bool: return (entry.get_node("NameLabel") as Label).text.ends_with("•")),
+			"en llamada, las 3")
+	manager.story.together = false
+	desk._process(0.0)
+	check(not entries.any(func(entry: Node) -> bool: return (entry.get_node("NameLabel") as Label).text.ends_with("•")),
+			"separados, ninguna")
+	desk.free()
+	return true

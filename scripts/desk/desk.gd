@@ -333,7 +333,8 @@ func _refresh_entries() -> void:
 			entry.set_state(entry_state)
 		entry.set_health(friend.health, friend.max_health)
 		entry.muted = _mixer.is_playing() or _chat_panel.is_audio_playing()
-		entry.set_unread(_chat_panel.has_unread(index) or _chat_panel.has_unread_call())
+		# La llamada sin leer marca las 3 entradas, pero solo mientras se puede ver.
+		entry.set_unread(_chat_panel.has_unread(index) or (call and _chat_panel.has_unread_call()))
 		entry.set_signal(friend.signal_level)
 		var warning := state.interference_warning(index)
 		entry.set_interference_warning(warning)
