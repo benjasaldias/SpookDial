@@ -167,9 +167,19 @@ Difícil 5 (la referencia de S21k) tiene holgura 1,24, y Extremo 5, 1,01: con la
 **Archivos:** `data/nights/*/night_1.tres`, `test/test_balance.gd` y lo que haga falta ajustar.
 
 - Medir la noche 1 de los 3 modos y las noches 2 a 5 (por la final con 5 s), y ajustar la noche 1 hasta quedar cerca de las referencias.
-- `test_la_historia_no_regala_tiempo`: la holgura de cada noche 1 queda a lo más un 10 % sobre su referencia.
+- `test_la_historia_no_regala_tiempo`: la holgura de cada noche 1 queda a un 5 % de su referencia, y la batería a 1 punto.
 
 - [ ] **Paso 1:** medir, ajustar y anotar aquí cómo quedó.
+
+  **Cómo quedó** (20 semillas). Con la noche hasta las 06:30 y la historia en el horario, sin ajustar nada, la holgura subía: Normal 6,36 (+2,7 %), Difícil 5,28 (+7,8 %) y Extremo 2,15 (+12,6 %, y su batería de 41,4 a 44,4 %). Se ajustó la noche 1 de cada modo: Sanity baja lo mismo en total que antes (−1 cada 10,8 s en Normal y Difícil, 6,5 s en Extremo), y la señal cae un poco más rápido, lo que consume el tiempo libre que agrega la historia.
+
+  | Noche 1 | Señal (s por punto) | Holgura (antes) | Batería (antes) | Trust mínimo (antes) |
+  | --- | --- | --- | --- | --- |
+  | Normal | 2,9 a 5,8 (3 a 6) | 6,17 (6,19) | 10 % (10 %) | 90 (90) |
+  | Difícil | 2,8 a 5,6 (3 a 6) | 4,97 (4,90) | 10 % (10 %) | 83,2 (83,2) |
+  | Extremo | 2,5 a 5 (3 a 6) | 1,95 (1,91) | 41,4 % (41,4 %) | 88,2 (88,2) |
+
+  Las noches 2 a 5 no cambiaron (no tienen historia, y su final sigue con 10 s de holgura).
 - [ ] **Paso 2:** la prueba.
 - [ ] **Paso 3:** correr todas las pruebas: OK.
 - [ ] **Paso 4:** commit "La noche 1 con su historia queda con el equilibrio de antes".
