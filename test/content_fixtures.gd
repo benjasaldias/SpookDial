@@ -134,7 +134,7 @@ static func make_tutorial(catalog: ContentCatalog) -> NightData:
 	var beast: EntityData = catalog.nights()[0].new_entities[0]
 	tutorial.tutorial_requests.append(make_tutorial_request(catalog.friends[0], beast, {&"o1": &"yes"}, false))
 	var demo := make_tutorial_request(catalog.friends[1], beast, {}, false)
-	demo.demo_seconds = 15.0
+	demo.demo_seconds = 10.0
 	tutorial.tutorial_requests.append(demo)
 	return tutorial
 

@@ -382,7 +382,9 @@ func report(events: NightState.Events) -> void:
 	for friend_index: int in events.disconnected:
 		_add_notice(friend_index, MessageBuilder.SIGNAL_LOST_KEY, ChatMessage.Tone.DANGER)
 	for friend_index: int in events.videos.offered:
-		_add_friend_message(friend_index, MessageBuilder.video_sent(tr))
+		# En el tutorial, León ya dijo que mantengas apretada la barra: no repite que mandó un video.
+		if not night().is_tutorial():
+			_add_friend_message(friend_index, MessageBuilder.video_sent(tr))
 	for friend_index: int in events.videos.received:
 		_add_notice(friend_index, MessageBuilder.VIDEO_RECEIVED_KEY, ChatMessage.Tone.GOOD)
 		if friend_index == _tutorial_friend:

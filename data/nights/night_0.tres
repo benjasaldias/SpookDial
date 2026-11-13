@@ -35,7 +35,7 @@ script = ExtResource("3_tutorial")
 friend = ExtResource("12_gonzalo_friend")
 entity = ExtResource("6_gonzalo")
 with_hint = false
-demo_seconds = 15.0
+demo_seconds = 10.0
 
 [sub_resource type="Resource" id="Card_meters"]
 script = ExtResource("7_card")

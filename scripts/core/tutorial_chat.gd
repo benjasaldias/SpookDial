@@ -7,7 +7,7 @@ extends RefCounted
 ## 4. preguntar qué oye y escuchar el audio: las tripas de Gonzalo;
 ## 5. preguntar por el ambiente, marcar la otra y abrir la página con el nombre;
 ## 6. elegir la mejor decisión y después la peor, que manda un video para descargar.
-## Después Gonzalo escribe en su chat y muestra qué pasa si nadie contesta: 15 s reales y decide solo, sin efecto
+## Después Gonzalo escribe en su chat y muestra qué pasa si nadie contesta: 10 s reales y decide solo, sin efecto
 ## (decisión de Benja, D6). De vuelta con León, su señal baja y un mensaje llega tapado por la estática; después se le
 ## corta, hay que sincronizarlo y se despide.
 ## Cada paso dice qué parpadea (Focus) y qué se desbloquea del escritorio (Unlock): en la noche 0 solo funciona lo que
@@ -60,7 +60,6 @@ const GONZALO_KEY := "TUTORIAL_LEON_GONZALO"
 const NO_ANSWER_KEY := "TUTORIAL_LEON_NO_ANSWER"
 const STATIC_KEY := "TUTORIAL_LEON_STATIC"
 const STATIC_EXPLAIN_KEY := "TUTORIAL_LEON_STATIC_EXPLAIN"
-const SIGNAL_WARN_KEY := "TUTORIAL_LEON_SIGNAL_WARN"
 const SIGNAL_CUT_KEY := "TUTORIAL_LEON_SIGNAL_CUT"
 const BACK_KEY := "TUTORIAL_LEON_BACK"
 const READY_KEY := "TUTORIAL_LEON_READY"
@@ -73,7 +72,7 @@ const GONZALO_WATCH_KEY := "TUTORIAL_GONZALO_WATCH"
 const ALL_KEYS: Array[String] = [HELLO_KEY, GUESS_KEY, COST_KEY, MARK_KEY, DECOY_KEY, BLUE_KEY, ASK_SOUND_KEY,
 		LISTEN_KEY, HEARD_KEY, AMBIENT_KEY, NAME_KEY, DECIDE_KEY, BEST_KEY, RETRY_KEY, BEST_OK_KEY, WORST_KEY,
 		WORST_RETRY_KEY, WORST_OK_KEY, DOWNLOAD_KEY, VIDEO_OK_KEY, GONZALO_KEY, NO_ANSWER_KEY, STATIC_KEY,
-		STATIC_EXPLAIN_KEY, SIGNAL_WARN_KEY, SIGNAL_CUT_KEY, BACK_KEY, READY_KEY, GONZALO_HELP_KEY, GONZALO_ALONE_KEY,
+		STATIC_EXPLAIN_KEY, SIGNAL_CUT_KEY, BACK_KEY, READY_KEY, GONZALO_HELP_KEY, GONZALO_ALONE_KEY,
 		GONZALO_HURT_KEY, GONZALO_WATCH_KEY]
 
 ## La señal de León mientras enseña la estática: con 30 se ven las barritas en rojo y ámbar.
@@ -245,7 +244,7 @@ func chat_opened(demo_friend: bool) -> Reply:
 	elif step == Step.DEMO_DONE and not demo_friend:
 		step = Step.SIGNAL
 		reply.say(NO_ANSWER_KEY).then(Command.SET_SIGNAL, STATIC_SIGNAL).then(Command.STATIC_LINE, STATIC_KEY)
-		reply.say(STATIC_EXPLAIN_KEY).say(SIGNAL_WARN_KEY).say(SIGNAL_CUT_KEY).then(Command.CUT_SIGNAL)
+		reply.say(STATIC_EXPLAIN_KEY).say(SIGNAL_CUT_KEY).then(Command.CUT_SIGNAL)
 		reply.then(Command.UNLOCK, Unlock.MIXER).then(Command.FOCUS, Focus.SYNC)
 	return reply
 

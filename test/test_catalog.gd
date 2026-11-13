@@ -146,7 +146,7 @@ func test_el_tutorial() -> bool:
 	check_eq(data.demo_seconds, 0.0, "la de León se responde")
 	var demo := tutorial.tutorial_requests[1]
 	check_eq(demo.friend.id, &"gonzalo", "la demostración es de Gonzalo")
-	check_eq(demo.demo_seconds, 15.0, "con 15 s que corren de verdad (D6)")
+	check_eq(demo.demo_seconds, 10.0, "con 10 s que corren de verdad (D6)")
 	var hungry: ObservationData = data.entity.observations.filter(func(observation: ObservationData) -> bool:
 		return observation.id == &"hungry")[0]
 	check_eq(hungry.category, ClueCategory.Kind.SOUND, "el hambre se oye: las tripas (observación 9)")

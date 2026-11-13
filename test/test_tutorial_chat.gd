@@ -183,7 +183,7 @@ func test_la_estatica_y_la_senal() -> bool:
 	check_eq(chat.chat_opened(true).items, [], "en el chat de Gonzalo, nada")
 	var reply := chat.chat_opened(false)
 	check_eq(reply.lines(), [TutorialChat.NO_ANSWER_KEY, TutorialChat.STATIC_KEY, TutorialChat.STATIC_EXPLAIN_KEY,
-			TutorialChat.SIGNAL_WARN_KEY, TutorialChat.SIGNAL_CUT_KEY], "explica y se corta")
+			TutorialChat.SIGNAL_CUT_KEY], "explica y se corta")
 	check_eq(reply.value_of(TutorialChat.Command.SET_SIGNAL), TutorialChat.STATIC_SIGNAL, "su señal baja")
 	check_eq(reply.value_of(TutorialChat.Command.STATIC_LINE), TutorialChat.STATIC_KEY, "la línea con estática fija")
 	var commands := reply.items.map(func(item: TutorialChat.Item) -> TutorialChat.Command: return item.command)
