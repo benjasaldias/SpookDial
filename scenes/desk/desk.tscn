@@ -50,6 +50,7 @@
 [ext_resource type="AudioStream" path="res://audio/sfx/hand_creak.wav" id="creak_sound"]
 [ext_resource type="AudioStream" path="res://audio/sfx/phone_flash.wav" id="flash_sound"]
 [ext_resource type="AudioStream" path="res://audio/sfx/wave_stinger.wav" id="stinger_sound"]
+[ext_resource type="Script" path="res://scripts/desk/music_player.gd" id="music_script"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tutorial_cards.tscn" id="tutorial_cards"]
 
 [sub_resource type="ShaderMaterial" id="vignette_material"]
@@ -248,6 +249,9 @@ script = ExtResource("night_script")
 stream = ExtResource("static_sound")
 volume_db = -6.0
 bus = &"Effects"
+
+[node name="Music" type="Node" parent="."]
+script = ExtResource("music_script")
 
 [node name="WaveStinger" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("stinger_sound")

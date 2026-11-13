@@ -1143,3 +1143,30 @@ func test_la_llamada_sin_leer() -> bool:
 	check(not panel.has_unread_call(), "al verla, se leyó")
 	_free(panel)
 	return true
+
+
+## Al abrir una conversación con mensajes sin leer, una línea "── NUEVOS ──" marca dónde empezar (Plan 9.8). Hay una por
+## conversación, y se mueve con la tanda siguiente.
+func test_el_separador_de_no_leidos() -> bool:
+	var panel := _make_panel()
+	panel.open_for(0)
+	panel._process(0.0)
+	var first := _friend_view(panel, 1)
+	panel.open_for(1)
+	panel._process(0.0)
+	var list := first.get_parent()
+	var divider := list.get_child(first.get_index() - 1) as Label if first.get_index() > 0 else null
+	check(divider != null and divider.name.begins_with("UnreadDivider"), "la línea, antes del primer mensaje sin leer")
+	if divider != null:
+		check_eq(divider.text, "── %s ──" % tr("CHAT_UNREAD_DIVIDER").to_upper(), "dice que son nuevos")
+	panel.open_for(0)
+	panel._process(0.0)
+	var second := _friend_view(panel, 1)
+	panel.open_for(1)
+	panel._process(0.0)
+	check_eq(list.get_children().filter(func(node: Node) -> bool: return node.name.begins_with("UnreadDivider")).size(), 1,
+			"una sola por conversación")
+	check_eq(second.get_index() - 1, list.get_node("UnreadDivider").get_index(), "se movió antes del nuevo")
+	check_eq(panel.message_views(1).size(), 2, "los mensajes no la cuentan")
+	_free(panel)
+	return true

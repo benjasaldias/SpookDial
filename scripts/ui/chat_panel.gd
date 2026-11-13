@@ -27,7 +27,8 @@ extends Control
 ## grabando: su chat no muestra preguntas ni respuestas, y abajo dice "• REC · LEÓN ESTÁ GRABANDO" (salvo en la noche 0).
 ## Lo primero de una emergencia lleva antes una línea roja "▲ LEÓN PIDE AYUDA".
 ## Una línea que no es una emergencia y llega a una conversación que no se ve hace un "pop" suave (a lo más uno cada 2 s),
-## y el panel dice qué conversaciones tienen mensajes sin leer, para el punto de las entradas del PC.
+## y el panel dice qué conversaciones tienen mensajes sin leer, para el punto de las entradas del PC. Al ver una
+## conversación con mensajes sin leer, una línea "── NUEVOS ──" marca dónde empezar.
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
 ## Clic en el nombre de la entidad: el cuaderno abre su página.
@@ -141,6 +142,10 @@ const HELP_DIVIDER_KEY := "CHAT_HELP_DIVIDER"
 const HELP_DIVIDER_COLOR := Color(1.0, 0.3, 0.37)
 ## El "pop" del aviso suave suena a lo más una vez cada tantos segundos.
 const NOTIFY_GAP := 2.0
+## La línea antes del primer mensaje sin leer (ui.csv), en el color de la terminal.
+const UNREAD_DIVIDER_KEY := "CHAT_UNREAD_DIVIDER"
+## La conversación de la llamada, junto a las de los amigos, en _unread_from y _unread_dividers.
+const CALL_CONVERSATION := 3
 
 var selected_friend := 0
 ## La opción "Subtítulos de los audios": vale para los mensajes que llegan desde ahora.
@@ -200,6 +205,10 @@ var _call_sync_highlights: Array[Highlight] = []
 ## La llamada tiene líneas sin leer, y cuándo sonó el último "pop" (en segundos desde que empezó el juego).
 var _call_unread := false
 var _last_notify := -INF
+## Por conversación (los 3 amigos y la llamada): el primer mensaje sin leer desde la última vez que se vio, y su línea
+## "NUEVOS" (se crea la primera vez que hace falta).
+var _unread_from: Array[Node] = [null, null, null, null]
+var _unread_dividers: Array[Label] = [null, null, null, null]
 
 @onready var _panel: TextureRect = $Panel
 @onready var _layout: VBoxContainer = $Panel/Layout
@@ -424,11 +433,13 @@ func _update_status() -> void:
 		return
 	_update_call_mode()
 	if visible:
-		# Lo que se ve, se leyó.
+		# Lo que se ve, se leyó: la línea "NUEVOS" queda antes de lo que no se había leído.
 		if _call_mode:
 			_call_unread = false
+			_place_unread_divider(_call_list, CALL_CONVERSATION)
 		else:
 			_unread[selected_friend] = false
+			_place_unread_divider(_lists[selected_friend], selected_friend)
 	if _call_mode:
 		_update_call_sync()
 		return
@@ -792,11 +803,15 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 	if message.sender != ChatMessage.Sender.SYSTEM:
 		view.wait_for = _last_typed[friend_index]
 		_last_typed[friend_index] = view
+	var first: Node = view
 	if message.opens_help:
-		_lists[friend_index].add_child(_help_divider(friend_index))
+		first = _help_divider(friend_index)
+		_lists[friend_index].add_child(first)
 	_lists[friend_index].add_child(view)
 	if message.sender != ChatMessage.Sender.PLAYER and not (visible and not _call_mode and friend_index == selected_friend):
 		_unread[friend_index] = true
+		if _unread_from[friend_index] == null:
+			_unread_from[friend_index] = first
 		if message.sender == ChatMessage.Sender.FRIEND and not message.urgent:
 			_play_notify()
 
@@ -813,7 +828,31 @@ func _on_call_message_added(speaker: int, message: ChatMessage) -> void:
 	_call_list.add_child(view)
 	if not (visible and _call_mode):
 		_call_unread = true
+		if _unread_from[CALL_CONVERSATION] == null:
+			_unread_from[CALL_CONVERSATION] = view
 		_play_notify()
+
+
+## Pone la línea "── NUEVOS ──" de la conversación `index` (en `list`) justo antes de su primer mensaje sin leer, si
+## tiene. Hay una por conversación: se mueve con cada tanda.
+func _place_unread_divider(list: VBoxContainer, index: int) -> void:
+	var first := _unread_from[index]
+	_unread_from[index] = null
+	if first == null or not is_instance_valid(first) or first.get_parent() != list:
+		return
+	var divider := _unread_dividers[index]
+	if divider == null:
+		divider = Label.new()
+		divider.name = "UnreadDivider"
+		divider.text = "── %s ──" % tr(UNREAD_DIVIDER_KEY).to_upper()
+		divider.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		divider.add_theme_color_override(&"font_color", PLAYER_COLOR)
+		divider.mouse_filter = Control.MOUSE_FILTER_PASS
+		_unread_dividers[index] = divider
+	else:
+		list.remove_child(divider)
+	list.add_child(divider)
+	list.move_child(divider, first.get_index())
 
 
 ## El "pop" del aviso suave, a lo más uno cada NOTIFY_GAP segundos.

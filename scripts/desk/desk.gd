@@ -25,7 +25,8 @@ extends Node2D
 ## (decisión de Benja, 11 de noviembre).
 ## Desde el Plan 9.7, mientras dura la llamada grupal de la historia, las entradas muestran su ícono y cualquiera la abre.
 ## Desde el Plan 9.8, una noche con historia espera congelada a que se abra la llamada, con las 3 entradas parpadeando; al
-## empezar una ola suena un golpe, y una entrada muestra un "•" si su chat (o la llamada) tiene algo sin leer.
+## empezar una ola suena un golpe, y una entrada muestra un "•" si su chat (o la llamada) tiene algo sin leer. La música
+## (MusicPlayer, con las pistas de Benja) cambia entre la calma y las olas.
 
 ## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
 signal tutorial_skipped
@@ -49,6 +50,7 @@ const Screamer := preload("res://scripts/core/screamer.gd")
 const ScreamerManager := preload("res://scripts/desk/screamer_manager.gd")
 const HandManager := preload("res://scripts/desk/hand_manager.gd")
 const TutorialChat := preload("res://scripts/core/tutorial_chat.gd")
+const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 
 ## Videos recibidos, en el PC (ui.csv). Lleva {received} y {quota}. Si ya no alcanzan la cuota, el otro texto, en
 ## rojo (decisión de Benja, 11 de noviembre).
@@ -87,6 +89,7 @@ var unlocks_on_win: Array[DifficultyData] = []
 @onready var _phone_sprite: AnimatedSprite2D = $DeskPlane/Phone
 @onready var _pause_menu: Control = $Overlay/PauseMenu
 @onready var _tutorial_cards: Control = $Overlay/TutorialCards
+@onready var _music: Node = $Music
 
 ## Las opciones del jugador que se aplicaron; el menú de pausa las cambia.
 var _settings := GameSettings.new()
@@ -144,11 +147,13 @@ func _ready() -> void:
 	_pause_menu.resumed.connect(func() -> void: get_tree().paused = false)
 	_pause_menu.menu_pressed.connect(menu_requested.emit)
 	_pause_menu.settings_changed.connect(_on_pause_settings_changed)
+	_music.start()
 
 
 func _process(delta: float) -> void:
 	if _requests.waiting_for_call and _chat_panel.visible and _chat_panel.is_call_mode():
 		_requests.call_opened()
+	_music.intense = _requests.director.phase in [PacingDirector.Phase.WAVE, PacingDirector.Phase.FINALE]
 	# En el tutorial, qué chat se está mirando: el de Gonzalo echa a andar su demostración (Plan 9.5).
 	_requests.tutorial_view(_chat_panel.selected_friend if _chat_panel.visible else -1)
 	_refresh_locks()
