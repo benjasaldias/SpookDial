@@ -23,6 +23,9 @@ extends Control
 ## grupal (idea de Benja): en lugar de las pestañas, un encabezado con su ícono y, debajo, las barritas de los 3, que
 ## abren el mixer en su canal; una conversación aparte, donde cada línea lleva el nombre de quien habla, en su color, y
 ## suena con su voz. Sin identificación, preguntas ni respuestas. Si llega algo que jugar, la llamada se corta y se abre el chat de quien lo tiene.
+## Desde el Plan 9.8 (feedback de Benja: no se distinguía el vlog de una emergencia), un amigo sin nada que jugar está
+## grabando: su chat no muestra preguntas ni respuestas, y abajo dice "• REC · LEÓN ESTÁ GRABANDO" (salvo en la noche 0).
+## Lo primero de una emergencia lleva antes una línea roja "▲ LEÓN PIDE AYUDA".
 ## Se cierra con clic derecho; Esc y un clic fuera de los paneles los cierran desde el escritorio.
 
 ## Clic en el nombre de la entidad: el cuaderno abre su página.
@@ -129,6 +132,11 @@ const ENTITY_FONT_SIZE := 22
 const CALL_TITLE_KEY := "CHAT_CALL_TITLE"
 const CALL_SYNC_KEY := "CHAT_CALL_SYNC"
 const CALL_ICON_PIXELS := 11
+## El modo vlog (ui.csv): lo que dice la barra REC (lleva {friend}). La línea antes de una emergencia (lleva {friend}).
+const VLOG_KEY := "CHAT_VLOG_REC"
+const HELP_DIVIDER_KEY := "CHAT_HELP_DIVIDER"
+## La línea de la emergencia, en el rojo de los avisos.
+const HELP_DIVIDER_COLOR := Color(1.0, 0.3, 0.37)
 
 var selected_friend := 0
 ## La opción "Subtítulos de los audios": vale para los mensajes que llegan desde ahora.
@@ -192,6 +200,8 @@ var _call_sync_highlights: Array[Highlight] = []
 @onready var _call_header: HBoxContainer = %CallHeader
 @onready var _call_icon: TextureRect = %CallHeader/Icon
 @onready var _call_sync: HBoxContainer = %CallSync
+@onready var _vlog_bar: HBoxContainer = %VlogBar
+@onready var _vlog_text: Label = %VlogBar/Text
 @onready var _conversation_area: Control = %Conversations
 @onready var _download: Control = %Download
 @onready var _download_bar: ProgressBar = %Download/Bar
@@ -343,14 +353,22 @@ func is_audio_playing() -> bool:
 	return _audio_clip.playing
 
 
-## Mensajes de un amigo, en orden.
+## Mensajes de un amigo, en orden (sin las líneas que los separan).
 func message_views(friend_index: int) -> Array[Node]:
-	return _lists[friend_index].get_children()
+	return _views_of(_lists[friend_index])
 
 
 ## Los mensajes de la llamada grupal, en orden (Plan 9.7).
 func call_views() -> Array[Node]:
-	return _call_list.get_children()
+	return _views_of(_call_list)
+
+
+static func _views_of(list: Node) -> Array[Node]:
+	var views: Array[Node] = []
+	for child: Node in list.get_children():
+		if child is ChatMessageView:
+			views.append(child)
+	return views
 
 
 ## El chat muestra la llamada grupal.
@@ -398,6 +416,25 @@ func _update_status() -> void:
 	_update_answers()
 	_update_download()
 	_update_tutorial()
+	_update_vlog()
+
+
+## Sin nada que jugar, el amigo está grabando el vlog (Plan 9.8): no hay preguntas ni respuestas, y la barra REC lo dice.
+## En la noche 0, León dice qué apretar: no se usa.
+func _update_vlog() -> void:
+	var vlog := not _manager.is_tutorial() and not _has_something_to_play(selected_friend)
+	for control: Control in [_ask_title, _questions, _answer_title, _answer_area]:
+		control.visible = not vlog
+	_vlog_bar.visible = vlog
+	if vlog:
+		_vlog_text.text = tr(VLOG_KEY).format({"friend": _friend_names[selected_friend]}).to_upper()
+
+
+## El amigo tiene algo que jugar: una consulta, un accidente, una decisión, un video por descargar o un chat guionado que
+## espera la respuesta de Matías.
+func _has_something_to_play(friend_index: int) -> bool:
+	return _manager.requests[friend_index] != null or _manager.incidents[friend_index] != null \
+			or _manager.state.videos.offer_for(friend_index) != null or _manager.chat_script_reply(friend_index) != null
 
 
 func _select(friend_index: int) -> void:
@@ -432,6 +469,7 @@ func _update_call_mode() -> void:
 		control.visible = not call
 	if call:
 		_download.visible = false
+		_vlog_bar.visible = false
 	_show_conversation()
 	var playing := _first_playing_friend()
 	if not call and visible and playing >= 0:
@@ -441,8 +479,7 @@ func _update_call_mode() -> void:
 ## El primer amigo con una consulta, un accidente, una decisión o un video por descargar, o -1.
 func _first_playing_friend() -> int:
 	for index in _tabs.size():
-		if _manager.requests[index] != null or _manager.incidents[index] != null \
-				or _manager.state.videos.offer_for(index) != null:
+		if _has_something_to_play(index):
 			return index
 	return -1
 
@@ -731,6 +768,8 @@ func _on_message_added(friend_index: int, message: ChatMessage) -> void:
 	if message.sender != ChatMessage.Sender.SYSTEM:
 		view.wait_for = _last_typed[friend_index]
 		_last_typed[friend_index] = view
+	if message.opens_help:
+		_lists[friend_index].add_child(_help_divider(friend_index))
 	_lists[friend_index].add_child(view)
 	if message.sender != ChatMessage.Sender.PLAYER and not (visible and not _call_mode and friend_index == selected_friend):
 		_unread[friend_index] = true
@@ -756,6 +795,17 @@ func _on_call_letter_typed(letter: String, speaker: int) -> void:
 	_voice.stream = _voice_streams[speaker]
 	_voice.pitch_scale = pitch
 	_voice.play()
+
+
+## La línea roja antes de una emergencia: "── ▲ GONZALO PIDE AYUDA ──" (Plan 9.8).
+func _help_divider(friend_index: int) -> Label:
+	var divider := Label.new()
+	divider.name = "HelpDivider"
+	divider.text = "── ▲ %s ──" % tr(HELP_DIVIDER_KEY).format({"friend": _friend_names[friend_index]}).to_upper()
+	divider.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	divider.add_theme_color_override(&"font_color", HELP_DIVIDER_COLOR)
+	divider.mouse_filter = Control.MOUSE_FILTER_PASS
+	return divider
 
 
 ## Suena la voz del amigo que está escribiendo, si se está viendo su chat. No tapa un audio, que hay que oír.
@@ -868,7 +918,7 @@ func _update_tutorial() -> void:
 		return
 	_view_flags = flags
 	for list: VBoxContainer in _lists + ([_call_list] if _call_list != null else []):
-		for view: ChatMessageView in list.get_children():
+		for view: ChatMessageView in _views_of(list):
 			_apply_view_flags(view, flags)
 			view.refresh()
 

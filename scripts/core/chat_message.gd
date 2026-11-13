@@ -54,6 +54,11 @@ var request: FriendRequest
 var audio: AudioStream
 ## Qué se oye en el audio, para la opción "Subtítulos de los audios".
 var audio_caption := ""
+## Pide ayuda (Plan 9.8): el mensaje inicial de una consulta, las respuestas, un accidente y la pregunta de una decisión.
+## El chat lo marca con "▲" y la barra en rojo, para distinguirlo del vlog.
+var urgent := false
+## Es lo primero de una emergencia: el chat pone antes una línea "▲ LEÓN PIDE AYUDA".
+var opens_help := false
 
 
 func _init(message_sender: Sender, message_request: FriendRequest) -> void:

@@ -12,6 +12,8 @@ extends MarginContainer
 ## Cada letra que aparece se avisa, para la voz del amigo (decisión de Benja, 8 de noviembre).
 ## En la noche 0 (Plan 9.5), el chat apaga los enlaces de las frases hasta que León pide marcarlas, y entonces las hace
 ## latir (subrayadas, con "Reducir destellos"); lo mismo con el audio, que después se puede volver a escuchar.
+## Desde el Plan 9.8, lo que pide ayuda (ChatMessage.urgent) lleva "▲" antes del nombre y la barra izquierda en rojo, para
+## distinguirlo del vlog.
 
 signal clue_clicked(view: Node, clue_id: StringName)
 ## Clic en el audio del mensaje.
@@ -45,6 +47,8 @@ const STATIC_COLOR := "56637f"
 ## Los avisos del juego: los malos, como el de daño, y los buenos, como un video recibido.
 const DANGER_COLOR := "ff4d5e"
 const GOOD_COLOR := "7ee08a"
+## Lo que va antes del nombre en un mensaje que pide ayuda.
+const URGENT_MARK := "▲ "
 
 var message: ChatMessage
 ## Quién escribe, en mayúsculas ("LEÓN"), y su color. Sin nombre, el mensaje va sin etiqueta.
@@ -121,7 +125,7 @@ func _ready() -> void:
 		var bubble := get_node("Bubble") as PanelContainer
 		var style := bubble.get_theme_stylebox(&"panel").duplicate() as StyleBoxFlat
 		if style != null:
-			style.border_color = speaker_color
+			style.border_color = Color.html(DANGER_COLOR) if message.urgent else speaker_color
 			bubble.add_theme_stylebox_override(&"panel", style)
 	# El nombre se ve de una vez; el mensaje se escribe de a poco.
 	var start := _speaker_prefix_length()
@@ -181,6 +185,8 @@ func refresh() -> void:
 		return
 	var parts := PackedStringArray()
 	if not speaker.is_empty():
+		if message.urgent:
+			parts.append(_colored(URGENT_MARK, DANGER_COLOR))
 		parts.append(_colored(speaker + ":", speaker_color.to_html(false)) + " ")
 	for token: ChatMessage.Token in message.tokens:
 		parts.append(_token_bbcode(token))
@@ -247,9 +253,11 @@ func _attention(bbcode: String, wanted: bool) -> String:
 	return ATTENTION_OPEN + bbcode + ATTENTION_CLOSE
 
 
-## Cuántas letras ocupa "LEÓN: ", que se ven antes de que empiece a escribir.
+## Cuántas letras ocupa "LEÓN: " (y el "▲ " de lo urgente), que se ven antes de que empiece a escribir.
 func _speaker_prefix_length() -> int:
-	return 0 if speaker.is_empty() else speaker.length() + 2
+	if speaker.is_empty():
+		return 0
+	return speaker.length() + 2 + (URGENT_MARK.length() if message.urgent else 0)
 
 
 func _on_meta_clicked(meta: Variant) -> void:

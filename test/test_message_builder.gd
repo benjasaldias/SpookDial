@@ -254,3 +254,18 @@ func test_la_respuesta_marca_las_observaciones() -> bool:
 			.map(func(token: ChatMessage.Token) -> String: return token.text)
 	check_eq(marked, ["K_beast_O1_YES."], "solo la observación")
 	return true
+
+
+# --- La emergencia marcada (Plan 9.8): lo que pide ayuda se distingue del vlog.
+
+func test_lo_que_pide_ayuda_va_marcado() -> bool:
+	var request := _make_request()
+	var first := MessageBuilder.first_message(request, _translate)
+	check(first.urgent and first.opens_help, "el mensaje inicial pide ayuda y abre la emergencia")
+	var answer := MessageBuilder.answer(request, ClueCategory.Kind.SIGHT, _translate)
+	check(answer.urgent and not answer.opens_help, "la respuesta a una pregunta, urgente")
+	var incident := MessageBuilder.incident(Fixtures.make_incident(), _translate)
+	check(incident.urgent and incident.opens_help, "un accidente abre la emergencia")
+	var line := MessageBuilder.line(ChatMessage.Sender.FRIEND, "K_LINE", _translate)
+	check(not line.urgent and not line.opens_help, "una línea del vlog, no")
+	return true

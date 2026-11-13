@@ -713,6 +713,8 @@ func test_los_titulos_de_cada_bloque() -> bool:
 func test_la_descarga_acorta_la_conversacion() -> bool:
 	var panel := _make_panel()
 	panel.open_for(0)
+	# Con una consulta abierta, para que se vean las preguntas antes y después del video (sin nada, León graba: Plan 9.8).
+	_manager.start_request(0)
 	panel._process(0.0)
 	_layout(panel)
 	var conversations := panel.get_node("%Conversations") as Control
@@ -1060,5 +1062,42 @@ func test_en_llamada_el_chat_de_un_amigo_queda_sin_leer() -> bool:
 	_manager.start_request(1)
 	panel._process(0.0)
 	check(panel.get_node("%Tabs").get_child(0).text.ends_with(ChatPanelScript.UNREAD_MARK), "León tiene un mensaje sin leer")
+	_free(panel)
+	return true
+
+
+# --- El modo vlog y la emergencia (Plan 9.8).
+
+## Sin nada que jugar, el amigo está grabando: no hay preguntas ni respuestas, y abajo dice "● REC".
+func test_sin_nada_que_jugar_el_amigo_graba() -> bool:
+	var panel := _make_panel()
+	panel.open_for(1)
+	panel._process(0.0)
+	var bar := panel.get_node("%VlogBar") as Control
+	check(bar.visible, "la barra REC")
+	check((panel.get_node("%VlogBar/Text") as Label).text.contains(tr(_manager.catalog.friends[1].name_key).to_upper()),
+			"dice quién graba")
+	for path: String in ["%AskTitle", "%Questions", "%AnswerTitle", "%AnswerArea"]:
+		check(not (panel.get_node(path) as Control).visible, path + ": no se ve")
+	_manager.start_request(1)
+	panel._process(0.0)
+	check(not bar.visible, "con una consulta, deja de grabar")
+	for path: String in ["%AskTitle", "%Questions", "%AnswerTitle", "%AnswerArea"]:
+		check((panel.get_node(path) as Control).visible, path + ": vuelve")
+	_free(panel)
+	return true
+
+
+## Lo primero de una emergencia lleva antes una línea roja "▲ GONZALO PIDE AYUDA", que no cuenta como mensaje.
+func test_la_emergencia_se_separa_del_vlog() -> bool:
+	var panel := _make_panel()
+	_manager.start_request(1)
+	var list: Node = panel.message_views(1)[0].get_parent()
+	var divider := list.get_child(0) as Label
+	check(divider != null and divider.name.begins_with("HelpDivider"), "una línea antes del mensaje inicial")
+	if divider != null:
+		check(divider.text.contains(tr("CHAT_HELP_DIVIDER").format({"friend": tr(_manager.catalog.friends[1].name_key)}).to_upper()),
+				"dice quién pide ayuda: %s" % divider.text)
+	check_eq(panel.message_views(1).size(), 1, "los mensajes no la cuentan")
 	_free(panel)
 	return true

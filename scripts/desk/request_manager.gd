@@ -598,7 +598,11 @@ func _do_story(item: StoryRunner.Item) -> void:
 		StoryRunner.Command.DECISION:
 			incidents[item.friend] = FriendIncident.for_decision(item.decision, item.friend,
 					catalog.balance.incident_seconds * timer_scale) as FriendIncident
-			_add_friend_message(item.friend, MessageBuilder.line(ChatMessage.Sender.FRIEND, item.key, tr))
+			# La pregunta pide ayuda, como un accidente (Plan 9.8).
+			var question := MessageBuilder.line(ChatMessage.Sender.FRIEND, item.key, tr)
+			question.urgent = true
+			question.opens_help = true
+			_add_friend_message(item.friend, question)
 
 
 ## Terminó una decisión de la historia con `option`: Matías la respondió (`answered`) o se acabó el tiempo. El amigo

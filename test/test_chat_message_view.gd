@@ -343,3 +343,22 @@ func test_el_audio_late_y_se_puede_apagar() -> bool:
 	check(_label(view).text.contains("[pulse"), "y late")
 	view.free()
 	return true
+
+
+## Lo urgente lleva "▲" antes del nombre y la barra izquierda en rojo; el vlog, como siempre (Plan 9.8).
+func test_lo_urgente_se_marca() -> bool:
+	var message := _make_message(_make_request())
+	message.urgent = true
+	var view := ChatMessageView.new(message, "LEÓN", Color(0.9, 0.5, 0.7))
+	(Engine.get_main_loop() as SceneTree).root.add_child(view)
+	check(_label(view).get_parsed_text().begins_with("▲ LEÓN:"), "el ▲ antes del nombre: %s" % _label(view).get_parsed_text())
+	var style := (view.get_node("Bubble") as PanelContainer).get_theme_stylebox(&"panel") as StyleBoxFlat
+	check(style != null and style.border_color == Color.html(ChatMessageView.DANGER_COLOR), "la barra en rojo")
+	view.free()
+	var calm := ChatMessageView.new(_make_message(_make_request()), "LEÓN", Color(0.9, 0.5, 0.7))
+	(Engine.get_main_loop() as SceneTree).root.add_child(calm)
+	check(_label(calm).get_parsed_text().begins_with("LEÓN:"), "el vlog, sin ▲")
+	style = (calm.get_node("Bubble") as PanelContainer).get_theme_stylebox(&"panel") as StyleBoxFlat
+	check(style != null and style.border_color == Color(0.9, 0.5, 0.7), "con la barra de su color")
+	calm.free()
+	return true

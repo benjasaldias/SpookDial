@@ -59,6 +59,8 @@ const SIGNAL_BACK_KEY := "CHAT_SIGNAL_BACK"
 ## pregunta.
 static func first_message(request: FriendRequest, translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
+	message.urgent = true
+	message.opens_help = true
 	if not request.greeting_key.is_empty():
 		message.add_fragment(_text(translate, request.greeting_key))
 	if not request.predicament_key.is_empty():
@@ -76,6 +78,7 @@ static func first_message(request: FriendRequest, translate: Callable) -> ChatMe
 ## van marcadas, para que el chat las muestre en azul (decisión de Benja, 11 de noviembre).
 static func answer(request: FriendRequest, category: ClueCategory.Kind, translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, request)
+	message.urgent = true
 	for clue: TraitData in request.clues:
 		if clue.category == category:
 			message.add_fragment(_text(translate, request.text_key_for(clue)), clue.id)
@@ -133,9 +136,11 @@ static func damage_notice(request: FriendRequest, friend_name: String, health: i
 	return message
 
 
-## El amigo cuenta su accidente.
+## El amigo cuenta su accidente: abre una emergencia.
 static func incident(data: IncidentData, translate: Callable) -> ChatMessage:
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
+	message.urgent = true
+	message.opens_help = true
 	message.add_fragment(_text(translate, data.message_key))
 	return message
 

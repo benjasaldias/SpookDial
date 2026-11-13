@@ -1375,3 +1375,21 @@ func test_el_director_conoce_la_historia() -> bool:
 	check(not manager.director.story_needs.is_empty(), "con algo")
 	manager.free()
 	return true
+
+
+## La pregunta de una decisión de la historia pide ayuda: abre la emergencia, como un accidente (Plan 9.8). Las líneas del
+## vlog, no.
+func test_la_decision_pide_ayuda_y_el_vlog_no() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([Fixtures.make_line(catalog.friends[0], "K_A"), _decision_step(catalog)], false, catalog)
+	var events := []
+	_record(manager, events)
+	manager.advance(0.1)
+	manager.advance(5.0)
+	var messages := _messages(events)
+	check_eq(messages.size(), 2, "la línea y la pregunta")
+	if messages.size() == 2:
+		check(not (messages[0] as ChatMessage).urgent, "la línea del vlog no es urgente")
+		check((messages[1] as ChatMessage).urgent and (messages[1] as ChatMessage).opens_help, "la pregunta, sí")
+	manager.free()
+	return true
