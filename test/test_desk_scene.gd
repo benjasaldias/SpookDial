@@ -636,3 +636,26 @@ func test_las_entradas_abren_la_llamada() -> bool:
 	check(not (entries[1].get_node("CallIcon") as Sprite2D).visible, "con algo que jugar, el ícono se va")
 	desk.free()
 	return true
+
+
+## La noche 1 tiene historia: queda congelada, con las entradas parpadeando, hasta que se abre la llamada (Plan 9.8).
+func test_la_noche_espera_que_se_abra_la_llamada() -> bool:
+	var desk := DESK.instantiate()
+	var manager := desk.get_node("RequestManager")
+	manager.night_number = 1
+	manager.requests_arrive = false
+	(Engine.get_main_loop() as SceneTree).root.add_child(desk)
+	var night := desk.get_node("NightManager")
+	desk._process(0.0)
+	night.advance(5.0)
+	check_eq(manager.state.elapsed, 0.0, "congelada")
+	var entries := desk.get_node("DeskPlane/Entries").get_children()
+	check(entries.all(func(entry: Node) -> bool: return entry.highlighted), "las 3 entradas llaman")
+	entries[2].pressed.emit()
+	desk._process(0.0)
+	check(not manager.waiting_for_call, "se abrió la llamada")
+	check(not entries.any(func(entry: Node) -> bool: return entry.highlighted), "ya no llaman")
+	night.advance(5.0)
+	check_eq(manager.state.elapsed, 5.0, "la noche corre")
+	desk.free()
+	return true

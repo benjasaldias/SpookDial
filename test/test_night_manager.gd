@@ -213,3 +213,39 @@ func test_trust_baja_si_tardas_en_contestar() -> bool:
 	check_eq(_requests.state.trust, before, "respondida, deja de bajar")
 	_free(night)
 	return true
+
+
+# --- La noche espera la llamada (pedido de Benja, Plan 9.8): para leer la historia en vivo.
+
+func test_la_noche_espera_que_se_abra_la_llamada() -> bool:
+	var root := (Engine.get_main_loop() as SceneTree).root
+	_requests = RequestManager.new()
+	_requests.catalog = Fixtures.make_catalog()
+	_requests.night_number = 1
+	_requests.requests_arrive = false
+	_requests.night().story = Fixtures.make_story(_requests.catalog)
+	root.add_child(_requests)
+	var night := NightManager.new()
+	root.add_child(night)
+	night.setup(_requests)
+	check(_requests.waiting_for_call, "empieza esperando la llamada")
+	_advance(night, 10)
+	check_eq(_requests.state.elapsed, 0.0, "la hora no corre")
+	check_eq(_requests.state.sanity, 100.0, "Sanity no baja")
+	check(night.is_paused(), "cuenta como pausada: la Mano y los screamers esperan")
+	_requests.call_opened()
+	check(not _requests.waiting_for_call, "se abrió")
+	_advance(night, 10)
+	check_eq(_requests.state.elapsed, 10.0, "ahora sí corre")
+	check(not night.is_paused(), "ya no está pausada")
+	_free(night)
+	return true
+
+
+func test_sin_historia_no_espera() -> bool:
+	var night := _make_night()
+	check(not _requests.waiting_for_call, "sin historia, la noche empieza sola")
+	_advance(night, 5)
+	check_eq(_requests.state.elapsed, 5.0, "corre")
+	_free(night)
+	return true

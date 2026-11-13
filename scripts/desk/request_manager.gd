@@ -107,6 +107,9 @@ var tutorial_chat: TutorialChat
 var tutorial_focus := TutorialChat.Focus.NONE
 ## La historia de la noche en curso, o null si la noche no tiene (Plan 9.7).
 var story: StoryRunner
+## La noche espera que se abra la llamada para empezar (pedido de Benja, Plan 9.8): así la historia se lee en vivo.
+## NightManager no avanza mientras tanto. Solo en las noches con historia que empiezan con los 3 juntos.
+var waiting_for_call := false
 
 ## Segundos desde las 00:00, como la hora del estado de la noche: el director cuenta en esa hora.
 var _elapsed := 0.0
@@ -153,6 +156,7 @@ func _ready() -> void:
 		state.friends[index].signal_level = test_signal
 	if night().story != null and not night().is_tutorial():
 		story = StoryRunner.new(night().story, catalog.friends, tr, catalog.balance.incident_seconds)
+		waiting_for_call = night().story.starts_together
 	if current != null and not night().is_tutorial():
 		_wound_friends(current.wounded_friends, current.wounded_health)
 
@@ -526,6 +530,11 @@ func _follow_director() -> void:
 		state.interferences.add(rng.randi_range(0, friend_count - 1), time)
 	for time: float in beat.videos:
 		state.videos.release(rng.randi_range(0, friend_count - 1), time)
+
+
+## Se abrió la llamada: la noche empieza (Plan 9.8).
+func call_opened() -> void:
+	waiting_for_call = false
 
 
 ## La llamada grupal se ve: la historia tiene a los 3 juntos y no hay nada que jugar (docs/21 §2).

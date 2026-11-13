@@ -322,6 +322,8 @@ func test_el_susto_guionado_ensena_el_celular() -> bool:
 	desk.get_node("RequestManager").random_seed = 11
 	desk.get_node("RequestManager").requests_arrive = false
 	(Engine.get_main_loop() as SceneTree).root.add_child(desk)
+	# La noche 1 tiene historia y espera la llamada (Plan 9.8): esta prueba es del susto, así que empieza ya.
+	desk.get_node("RequestManager").call_opened()
 	var gonzalo := desk.get_node("DeskPlane/Entries/EntryGonzalo")
 	var phone := desk.get_node("DeskPlane/Phone")
 	var kinds := []

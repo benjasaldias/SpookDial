@@ -3,7 +3,8 @@ extends Node
 ## cuándo termina. Se gana a las 06:00 con la cuota cumplida. Se pierde apenas muere un amigo o
 ## Sanity, Trust o Connection llegan a 0, o a las 06:00 si falta contenido (diseño §5).
 ## Al terminar, todo se detiene: los temporizadores, la hora y los medidores. Mientras el jumpscare tapa la
-## pantalla, la noche se pausa (Plan 7, diseño §11).
+## pantalla, la noche se pausa (Plan 7, diseño §11). Una noche con historia no empieza hasta que se abre la llamada
+## (Plan 9.8): mientras tanto no avanza nada y cuenta como pausada.
 
 ## Se recibió un video del amigo `friend_index`: Matías terminó de descargarlo.
 signal video_received(friend_index: int)
@@ -42,12 +43,12 @@ func pause(seconds: float) -> void:
 
 
 func is_paused() -> bool:
-	return _pause_left > 0.0
+	return _pause_left > 0.0 or (requests != null and requests.waiting_for_call)
 
 
 ## Avanza la noche `delta` segundos, menos lo que quede de pausa. Cuando termina, ya no avanza más.
 func advance(delta: float) -> void:
-	if ended or requests == null:
+	if ended or requests == null or requests.waiting_for_call:
 		return
 	var paused := minf(_pause_left, delta)
 	_pause_left -= paused

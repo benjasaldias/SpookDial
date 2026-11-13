@@ -24,6 +24,7 @@ extends Node2D
 ## Desde el Plan 9.1, la Mano (HandManager) asoma por la derecha hacia un dial, y la linterna del celular la espanta
 ## (decisión de Benja, 11 de noviembre).
 ## Desde el Plan 9.7, mientras dura la llamada grupal de la historia, las entradas muestran su ícono y cualquiera la abre.
+## Desde el Plan 9.8, una noche con historia espera congelada a que se abra la llamada, con las 3 entradas parpadeando.
 
 ## Se apretó "Saltar tutorial": el juego pasa a la noche 1.
 signal tutorial_skipped
@@ -148,6 +149,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _requests.waiting_for_call and _chat_panel.visible and _chat_panel.is_call_mode():
+		_requests.call_opened()
 	_alarm_clock += delta
 	# En el tutorial, qué chat se está mirando: el de Gonzalo echa a andar su demostración (Plan 9.5).
 	_requests.tutorial_view(_chat_panel.selected_friend if _chat_panel.visible else -1)
@@ -364,7 +367,8 @@ func _refresh_locks() -> void:
 		_entries[index].enabled = unlocked
 		_chat_panel.set_tab_enabled(index, unlocked)
 		var calls := (_requests.tutorial_wants(TutorialChat.Focus.DEMO_ENTRY) and index == _requests.tutorial_demo_friend()) \
-				or (_requests.tutorial_wants(TutorialChat.Focus.GUIDE_ENTRY) and index == _requests.tutorial_guide())
+				or (_requests.tutorial_wants(TutorialChat.Focus.GUIDE_ENTRY) and index == _requests.tutorial_guide()) \
+				or _requests.waiting_for_call
 		_entries[index].highlighted = calls
 
 
