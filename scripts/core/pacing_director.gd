@@ -13,6 +13,9 @@ extends RefCounted
 ## cuando a la consulta anterior le quedan unos segundos o, si ya se respondió, un poco después. La última es la final.
 ## Desde el Plan 9.7 (la historia, docs/31), cuenta las olas y las calmas que empezaron, para que la historia sepa en qué
 ## momento va, y una ola espera mientras la historia cuenta algo antes de ella (story_hold), a lo más story_hold_limit s.
+## Desde el Plan 9.8, la historia está en el horario (story_needs): la primera ola llega cuando terminó lo de antes, cada
+## calma dura al menos lo que cuenta su historia, y una ola que ya no cabe antes de la reunión se salta. Así la espera
+## queda solo de seguro, y la historia no regala tiempo (pedido de Benja).
 ## Lógica pura: RequestManager la avanza y le pregunta por las solicitudes y los accidentes; ScreamerManager, por los
 ## screamers, y HandManager, por la Mano. Las reglas de justicia de los screamers las revisa Screamer.
 
@@ -89,6 +92,9 @@ var calms_started := 0
 ## La historia está contando algo antes de la próxima ola: en el silencio y en las calmas, la ola espera a lo más
 ## story_hold_limit segundos desde su hora (decisión de Benja, S21l). RequestManager lo pone antes de cada paso.
 var story_hold := false
+## Cuánto dura la historia de cada momento (StoryBeatData.Moment → segundos; StoryRunner.story_needs): el director se lo
+## deja en el horario. Vacío sin historia.
+var story_needs := {}
 
 var _balance: BalanceData
 var _rng: RandomNumberGenerator
@@ -104,9 +110,10 @@ var _wave_calm := Vector2.ZERO
 var _finale_started := false
 
 
-func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator) -> void:
+func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator, needs := {}) -> void:
 	_balance = balance
 	_rng = rng
+	story_needs = needs
 	_night_length = night.length(balance)
 	_decision_time = night.base_decision_time
 	_wave_calm = night.wave_calm if night.wave_calm != Vector2.ZERO else balance.wave_calm
@@ -118,6 +125,8 @@ func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator) -
 		_plan_from(night)
 	else:
 		_plan(night)
+	# La primera ola llega cuando terminaron el comienzo y lo de antes de ella.
+	next_at = maxf(next_at, _need(StoryBeatData.Moment.NIGHT_START) + _need(StoryBeatData.Moment.BEFORE_FIRST_WAVE))
 
 
 ## A qué hora llega la ola final: lo más tarde posible para que lo último que trae alcance a terminar antes del final de
@@ -395,7 +404,8 @@ func _start_calm(now: float, beat: Beat) -> void:
 	next_at = now + _rng.randf_range(calm.x, calm.y)
 	if wave_index < waves.size() and not waves[wave_index].finale:
 		next_at = maxf(next_at, waves[wave_index].planned)
-		if _has_finale() and next_at > finale_at - _wave_calm.x:
+		next_at = maxf(next_at, now + _calm_story(wave_index))
+		if _has_finale() and next_at > finale_at - maxf(_wave_calm.x, _finale_story()):
 			wave_index = waves.size() - 1
 	if wave_index < waves.size() and waves[wave_index].finale:
 		next_at = finale_at
@@ -420,6 +430,25 @@ func _start_calm(now: float, beat: Beat) -> void:
 	for creature: bool in kinds:
 		_queue_scare(time, creature)
 		time += _balance.scare_min_gap
+
+
+## Lo que dura la historia de `moment`, o 0.
+func _need(moment: StoryBeatData.Moment) -> float:
+	return float(story_needs.get(moment, 0.0))
+
+
+## Lo que cuenta la historia en la calma que empieza, antes de la ola común `next_index`: lo de después de la primera ola
+## (si es la primera calma) y lo de antes de la última ola común (si es esa).
+func _calm_story(next_index: int) -> float:
+	var need := _need(StoryBeatData.Moment.AFTER_FIRST_WAVE) if calms_started == 1 else 0.0
+	if next_index == last_regular_index():
+		need += _need(StoryBeatData.Moment.BEFORE_LAST_WAVE)
+	return need
+
+
+## Lo que cuenta la historia en la calma antes de la final: la reunión y lo de antes de la final.
+func _finale_story() -> float:
+	return _need(StoryBeatData.Moment.AFTER_LAST_WAVE) + _need(StoryBeatData.Moment.BEFORE_FINALE)
 
 
 ## Suelta `count` videos desde `now`, uno cada video_accept_seconds. El primero llega a más tardar a tiempo para

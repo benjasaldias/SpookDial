@@ -123,18 +123,21 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 		attention := REQUEST_ATTENTION, friends: Array[FriendData] = []) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
-	var director := PacingDirector.new(night, balance, rng)
+	var previous_locale := TranslationServer.get_locale()
+	var story_needs := {}
+	if night.story != null:
+		# Las líneas duran lo que se tarda en leer su texto en español.
+		TranslationServer.set_locale("es")
+		story_needs = StoryRunner.story_needs(night.story, Callable(TranslationServer, "translate"), balance.incident_seconds)
+	var director := PacingDirector.new(night, balance, rng, story_needs)
 	var result := {"missed": 0, "trust": 100.0, "requests": 0, "tasks": [], "waves": [], "calms": [],
 			"interferences": [], "videos": [], "scares": [], "load": [],
 			"story": {"finished": [], "skipped": [], "cut": []}, "story_hold": 0.0}
-	var previous_locale := TranslationServer.get_locale()
 	var story: StoryRunner = null
 	if night.story != null:
 		if friends.is_empty():
 			friends = (load("res://data/catalog.tres") as ContentCatalog).friends
-		# Las líneas tardan lo que tarda en escribirse su texto en español.
-		TranslationServer.set_locale("es")
-		story = StoryRunner.new(night.story, friends, Callable(TranslationServer, "translate"))
+		story = StoryRunner.new(night.story, friends, Callable(TranslationServer, "translate"), balance.incident_seconds)
 	## Los segundos que la historia le quitó a la próxima consulta de cada amigo.
 	var penalty: Array[float] = [0.0, 0.0, 0.0]
 	var open: Array[Dictionary] = []

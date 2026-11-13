@@ -7,7 +7,10 @@ extends RefCounted
 ##   En los dos casos se aplican sus pasos de separarse y reunirse, para que la historia siga teniendo sentido (si la
 ##   final llega encima de la ola 2, se reúnen solos: decisión de Benja, S21l).
 ## - **Dónde:** con los 3 juntos, las líneas van a la llamada grupal, y esperan a que se vea (sin nada que jugar);
-##   separados, al chat de quien habla. Cada línea espera lo que tarda en escribirse, más un momento para leerla.
+##   separados, al chat de quien habla. Cada línea espera lo que se tarda en leerla, a 15 letras por segundo (el doble de
+##   lento que antes: pedido de Benja, Plan 9.8).
+## - **El horario:** story_needs() dice cuánto dura cada momento, y el director lo deja en el horario (Plan 9.8). Un
+##   momento "antes de" una ola empieza lo que dura antes de ella (más 2 s), y nunca menos que su lead_seconds.
 ## - **Las decisiones** esperan a que su amigo esté libre y con señal; después, la respuesta de Matías (o que se acabe su
 ##   tiempo). La opción deja su marca, que eligen los pasos que siguen, y el amigo contesta.
 ## - **Mientras cuenta algo, la próxima ola espera** (holds), a lo más BalanceData.story_hold_limit segundos.
@@ -19,9 +22,11 @@ const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 ## Lo que hay que hacer: una línea en el chat de un amigo, una línea en la llamada o una decisión.
 enum Command { LINE, CALL_LINE, DECISION }
 
-## Las líneas se escriben a la velocidad del chat (ChatMessageView), y después queda un momento para leerlas.
-const CHARS_PER_SECOND := 60.0
-const LINE_PAUSE := 1.2
+## Una línea queda lo que se tarda en leerla (Plan 9.8): tantas letras por segundo, y nunca menos que MIN_LINE_SECONDS.
+const READING_CHARS_PER_SECOND := 15.0
+const MIN_LINE_SECONDS := 2.0
+## Un momento "antes de" una ola termina, al menos, tantos segundos antes de ella.
+const LEAD_MARGIN := 2.0
 
 
 ## Una orden de la historia.
@@ -59,16 +64,82 @@ var cut_beats: Array[int] = []
 
 var _friends: Array[FriendData] = []
 var _translate: Callable
-## Segundos hasta el próximo paso: lo que tarda en escribirse la última línea.
+## Segundos hasta el próximo paso: lo que tarda en leerse la última línea.
 var _wait := 0.0
+## Cuántos segundos antes de su ola empieza cada momento "antes de" (StoryBeatData → segundos).
+var _leads := {}
 
 
-## `friends`: los amigos del catálogo, en orden. `translate` recibe una clave y devuelve su texto.
-func _init(story: StoryData, friends: Array[FriendData], translate: Callable) -> void:
+## `friends`: los amigos del catálogo, en orden. `translate` recibe una clave y devuelve su texto. `decision_seconds`: lo
+## que dura una decisión, para calcular cuándo empieza un momento "antes de" que trae una.
+func _init(story: StoryData, friends: Array[FriendData], translate: Callable, decision_seconds := 15.0) -> void:
 	data = story
 	_friends = friends
 	_translate = translate
 	together = story.starts_together
+	for beat: StoryBeatData in story.beats:
+		if beat != null and beat.is_before_wave():
+			_leads[beat] = maxf(beat.lead_seconds, beat_seconds(beat, translate, decision_seconds) + LEAD_MARGIN)
+
+
+## Lo que queda una línea de `text`: lo que se tarda en leerla.
+static func line_seconds(text: String) -> float:
+	return maxf(text.length() / READING_CHARS_PER_SECOND, MIN_LINE_SECONDS)
+
+
+## Lo que dura `beat`: sus líneas y, por cada decisión, la pregunta, `decision_seconds` y la respuesta más larga. De los
+## pasos con una marca y los que van sin ella (que se excluyen), cuenta lo más largo.
+static func beat_seconds(beat: StoryBeatData, translate: Callable, decision_seconds: float) -> float:
+	var total := 0.0
+	## Por marca: [lo que dura con ella, lo que dura sin ella].
+	var by_flag := {}
+	for step: StoryStepData in beat.steps:
+		if step == null:
+			continue
+		var seconds := _step_seconds(step, translate, decision_seconds)
+		if not step.requires_flag.is_empty():
+			by_flag[step.requires_flag] = by_flag.get(step.requires_flag, [0.0, 0.0])
+			by_flag[step.requires_flag][0] += seconds
+		elif not step.unless_flag.is_empty():
+			by_flag[step.unless_flag] = by_flag.get(step.unless_flag, [0.0, 0.0])
+			by_flag[step.unless_flag][1] += seconds
+		else:
+			total += seconds
+	for pair: Array in by_flag.values():
+		total += maxf(pair[0], pair[1])
+	return total
+
+
+## Lo que dura cada momento de `story` (StoryBeatData.Moment → segundos), para el horario del director. A un momento
+## "antes de" se le suma LEAD_MARGIN, lo que lo separa de su ola.
+static func story_needs(story: StoryData, translate: Callable, decision_seconds: float) -> Dictionary:
+	var needs := {}
+	for beat: StoryBeatData in story.beats:
+		if beat == null:
+			continue
+		var seconds := beat_seconds(beat, translate, decision_seconds)
+		if beat.is_before_wave():
+			seconds += LEAD_MARGIN
+		needs[beat.moment] = float(needs.get(beat.moment, 0.0)) + seconds
+	return needs
+
+
+static func _step_seconds(step: StoryStepData, translate: Callable, decision_seconds: float) -> float:
+	if step.kind == StoryStepData.Kind.LINE:
+		return line_seconds(String(translate.call(step.text_key)))
+	if step.kind != StoryStepData.Kind.DECISION or step.decision == null:
+		return 0.0
+	var longest := 0.0
+	var options: Array[StoryOptionData] = step.decision.options.duplicate()
+	options.append(step.decision.no_answer)
+	for option: StoryOptionData in options:
+		if option == null:
+			continue
+		var replies := 0.0
+		for key: String in option.reply_keys:
+			replies += line_seconds(String(translate.call(key)))
+		longest = maxf(longest, replies)
+	return line_seconds(String(translate.call(step.decision.message_key))) + decision_seconds + longest
 
 
 func is_done() -> bool:
@@ -163,7 +234,7 @@ func _line(friend: int, key: String) -> Item:
 
 
 func _seconds(key: String) -> float:
-	return String(_translate.call(key)).length() / CHARS_PER_SECOND + LINE_PAUSE
+	return line_seconds(String(_translate.call(key)))
 
 
 ## El momento termina antes de tiempo: se aplican sus pasos de separarse y reunirse que faltan, sin líneas ni decisiones,
@@ -191,7 +262,7 @@ func _next_beat() -> void:
 
 ## Llegó la hora del momento.
 func _reached(beat: StoryBeatData, now: float, director: PacingDirector, busy: bool) -> bool:
-	var lead_reached := now >= director.next_at - beat.lead_seconds
+	var lead_reached := now >= director.next_at - float(_leads.get(beat, beat.lead_seconds))
 	match beat.moment:
 		StoryBeatData.Moment.NIGHT_START:
 			return true

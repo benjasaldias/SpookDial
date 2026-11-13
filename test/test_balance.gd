@@ -222,6 +222,7 @@ func test_la_mano() -> bool:
 # test/balance_model.gd.
 
 const BalanceModel := preload("res://test/balance_model.gd")
+const StoryRunner := preload("res://scripts/core/story_runner.gd")
 ## Semillas por noche: el director y la criatura cambian con cada una.
 const SEEDS := 20
 
@@ -316,6 +317,14 @@ func test_la_noche_1_de_normal() -> bool:
 	check_eq(night.place_chance, 0.8, "el lugar, 80 %")
 	check_eq(night.decoys_per_request, 1, "1 señuelo")
 	check_eq([night.audio_sync_beats, night.audio_sync_bpm], [4, 90.0], "Audio Sync de 4 aplausos a 90")
+	var first_at := 45.0
+	if night.story != null:
+		var previous := TranslationServer.get_locale()
+		TranslationServer.set_locale("es")
+		var needs := StoryRunner.story_needs(night.story, Callable(TranslationServer, "translate"),
+				catalog.balance.incident_seconds)
+		TranslationServer.set_locale(previous)
+		first_at = maxf(first_at, needs[StoryBeatData.Moment.NIGHT_START] + needs[StoryBeatData.Moment.BEFORE_FIRST_WAVE])
 	for seed_value in SEEDS:
 		var who := "semilla %d" % (seed_value + 1)
 		var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1)
@@ -326,7 +335,9 @@ func test_la_noche_1_de_normal() -> bool:
 		check_eq(videos.size(), 2, who + ": los 2 videos")
 		if requests.size() != 5 or videos.size() != 2:
 			continue
-		check(is_equal_approx(requests[0]["arrival"], 45.0), "%s: la primera, a los 45 s: %s" % [who, requests[0]["arrival"]])
+		# Con la historia en el horario (Plan 9.8), la primera llega a los 45 s o cuando terminan el saludo y el susto.
+		check(absf(requests[0]["arrival"] - first_at) <= 0.1, "%s: la primera, a los %.1f s: %s" % [who, first_at,
+				requests[0]["arrival"]])
 		check(videos[0] >= requests[0]["end"] and videos[0] - requests[0]["arrival"] <= 60.5,
 				who + ": el video de la ola 1 llega después de responder, y antes de que le queden 30 s")
 		var second_wave: float = requests[2]["arrival"] - requests[1]["arrival"]

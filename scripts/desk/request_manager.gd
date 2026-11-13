@@ -137,7 +137,11 @@ func _ready() -> void:
 	var current := current_difficulty()
 	balance = current.balance_for(catalog.balance) if current != null else catalog.balance
 	state = NightState.new(night(), balance, catalog.friends.size(), rng)
-	director = PacingDirector.new(night(), balance, rng)
+	# La historia está en el horario del director (Plan 9.8): le dice cuánto dura cada momento.
+	var story_needs := {}
+	if night().story != null and not night().is_tutorial():
+		story_needs = StoryRunner.story_needs(night().story, tr, catalog.balance.incident_seconds)
+	director = PacingDirector.new(night(), balance, rng, story_needs)
 	tutorial_queue.assign(night().tutorial_requests)
 	_next_tutorial_at = catalog.balance.first_request_delay
 	if night().is_tutorial():
@@ -148,7 +152,7 @@ func _ready() -> void:
 		_story_penalty.append(0.0)
 		state.friends[index].signal_level = test_signal
 	if night().story != null and not night().is_tutorial():
-		story = StoryRunner.new(night().story, catalog.friends, tr)
+		story = StoryRunner.new(night().story, catalog.friends, tr, catalog.balance.incident_seconds)
 	if current != null and not night().is_tutorial():
 		_wound_friends(current.wounded_friends, current.wounded_health)
 

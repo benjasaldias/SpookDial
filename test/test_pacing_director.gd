@@ -583,3 +583,57 @@ func test_no_empieza_una_consulta_que_no_alcanza_antes_del_final() -> bool:
 	check(director.request_due(430.0, 20.0), "a las 06:00 todavía alcanza, porque termina a las 06:30")
 	check(not director.request_due(440.0, 20.0), "pasadas las 06:30, no")
 	return true
+
+
+# --- La historia en el horario (Plan 9.8): el director deja a la historia su tiempo.
+
+func _story_director(night: NightData, needs: Dictionary, seed_value := 1) -> PacingDirector:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	return PacingDirector.new(night, BalanceData.new(), rng, needs)
+
+
+## Lleva al director por la primera ola: llegan sus consultas, quedan abiertas hasta `resolved` y ahí empieza la calma.
+func _resolve_first_wave(director: PacingDirector, resolved: float) -> void:
+	var time := director.next_at
+	while time < resolved:
+		director.advance(time, 1)
+		while director.request_due(time, 60.0):
+			director.request_started(time)
+		time += 0.5
+	director.advance(resolved, 0)
+
+
+func test_la_primera_ola_espera_lo_de_antes() -> bool:
+	var moment := StoryBeatData.Moment
+	var needs := {moment.NIGHT_START: 30.0, moment.BEFORE_FIRST_WAVE: 45.0}
+	check_eq(_story_director(_night(), needs).next_at, 75.0, "el saludo y el susto: 75 s, no 60")
+	check_eq(_story_director(_night(), {}).next_at, 60.0, "sin historia, a los 60 s")
+	check_eq(_story_director(_plan_night(), needs).next_at, 75.0, "con un plan de olas, igual")
+	return true
+
+
+func test_cada_calma_dura_su_historia() -> bool:
+	var night := _night()
+	night.wave_calm = Vector2(40, 40)
+	var director := _story_director(night, {StoryBeatData.Moment.AFTER_FIRST_WAVE: 70.0})
+	_resolve_first_wave(director, 80.0)
+	check_eq(director.phase, PacingDirector.Phase.CALM, "la ola se resolvió")
+	check(director.next_at >= 150.0, "la calma dura lo que cuenta la historia (70 s), no 40: %.1f" % director.next_at)
+	return true
+
+
+## La regla que salta una ola que ya no cabe cuenta la reunión y lo que va antes de la final.
+func test_la_calma_antes_de_la_final_cuenta_la_historia() -> bool:
+	var moment := StoryBeatData.Moment
+	for needs: Dictionary in [{}, {moment.AFTER_LAST_WAVE: 60.0, moment.BEFORE_FINALE: 15.0}]:
+		var night := _night()
+		night.wave_calm = Vector2(40, 40)
+		var director := _story_director(night, needs)
+		_resolve_first_wave(director, 250.0)
+		var skipped := director.wave_index == director.finale_index()
+		if needs.is_empty():
+			check(not skipped, "sin historia, la ola 2 cabe (llega a los 290 s, la final a los %.0f)" % director.finale_at)
+		else:
+			check(skipped, "con la reunión (75 s), ya no cabe: se salta")
+	return true

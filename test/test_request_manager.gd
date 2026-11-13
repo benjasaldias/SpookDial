@@ -1363,3 +1363,15 @@ func test_un_chat_guionado_corta_la_llamada() -> bool:
 	check(manager.call_active(), "respondió: vuelve")
 	manager.free()
 	return true
+
+
+
+## El manager mide la historia y se la pasa al director, que le deja su tiempo (Plan 9.8).
+func test_el_director_conoce_la_historia() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([Fixtures.make_line(catalog.friends[0], "K_A")], true, catalog)
+	var expected := StoryRunner.story_needs(manager.night().story, manager.tr, catalog.balance.incident_seconds)
+	check_eq(manager.director.story_needs, expected, "lo que dura cada momento")
+	check(not manager.director.story_needs.is_empty(), "con algo")
+	manager.free()
+	return true

@@ -7,8 +7,9 @@ const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const StoryRunner := preload("res://scripts/core/story_runner.gd")
 
 const STEP := 0.5
-## Cada texto de la traducción falsa tiene 48 letras: tarda 0,8 s en escribirse más 1,2 s para leerlo, 2 s.
-const LINE_SECONDS := 2.0
+## Cada texto de la traducción falsa tiene 45 letras: a 15 letras por segundo, se lee en 3 s (Plan 9.8).
+const LINE_SECONDS := 3.0
+const TEXT_LENGTH := 45
 
 
 ## La noche de los pasos de la historia: lo que pasa cada 0,5 s con el director real y un jugador que resuelve cada
@@ -88,7 +89,7 @@ func _sim(story: StoryData, night: NightData = null, seed_value := 3) -> Sim:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	sim.director = PacingDirector.new(sim.night, BalanceData.new(), rng)
-	var translate := func(key: String) -> String: return key.rpad(48, ".")
+	var translate := func(key: String) -> String: return key.rpad(TEXT_LENGTH, ".")
 	sim.runner = StoryRunner.new(story, _catalog.friends, translate)
 	return sim
 
@@ -220,14 +221,15 @@ func test_si_se_salta_la_ultima_ola_se_salta_lo_de_antes() -> bool:
 
 
 func test_un_momento_que_se_cierra_corta_sus_lineas_pero_se_reunen() -> bool:
+	# 40 líneas (120 s): empiezan apenas empieza la noche y no alcanzan, ni con los 45 s de espera.
 	var steps := []
-	for index in 30:
+	for index in 40:
 		steps.append(_line(0, "K_%d" % index))
 	steps.append(Fixtures.make_step(StoryStepData.Kind.JOIN))
 	var sim := _sim(_story(StoryBeatData.Moment.BEFORE_FIRST_WAVE, steps, false, 2.0))
 	sim.run_until(120.0)
-	check_eq(sim.wave_times[0], 58.0 + 45.0 + 2.0, "la ola espera 45 s y llega")
-	check(sim.lines().size() < 30, "las líneas que faltaban no llegan: %d" % sim.lines().size())
+	check_eq(sim.wave_times[0], 60.0 + 45.0, "la ola espera 45 s y llega")
+	check(sim.lines().size() < 40, "las líneas que faltaban no llegan: %d" % sim.lines().size())
 	check_eq(sim.runner.cut_beats, [0], "se cortó")
 	check(sim.runner.together, "pero se reunieron")
 	check(not sim.runner.holds(), "y ya no hace esperar")
@@ -324,11 +326,47 @@ func test_el_cierre_espera_a_que_no_quede_nada() -> bool:
 
 func test_mientras_cuenta_algo_la_ola_espera() -> bool:
 	var steps := []
-	for index in 40:
+	for index in 25:
 		steps.append(_line(0, "K_%d" % index))
 	var sim := _sim(_story(StoryBeatData.Moment.NIGHT_START, steps, false))
 	sim.run_until(100.0)
 	# La ola mira la historia antes de que avance: llega en el paso siguiente al que termina.
-	check_eq(sim.wave_times[0], 80.5, "la primera ola espera las 40 líneas (80 s)")
+	check_eq(sim.wave_times[0], 75.5, "la primera ola espera las 25 líneas (75 s)")
 	check(not sim.runner.holds(), "terminó y ya no hace esperar")
+	return true
+
+
+# --- La historia en el horario (Plan 9.8): el vlog al doble de lento y lo que dura cada momento.
+
+## Una línea dura lo que se tarda en leerla, a 15 letras por segundo, y nunca menos de 2 s.
+func test_una_linea_dura_lo_que_se_tarda_en_leerla() -> bool:
+	check_eq(StoryRunner.line_seconds("x".repeat(80)), 80.0 / 15.0, "80 letras: 5,3 s")
+	check_eq(StoryRunner.line_seconds("hola"), 2.0, "una corta, 2 s")
+	return true
+
+
+## Lo que dura cada momento: sus líneas y, por decisión, la pregunta, su tiempo completo y la respuesta más larga. De 2
+## pasos que se excluyen (uno con una marca y otro sin ella), cuenta el más largo. Un momento "antes de" suma 2 s.
+func test_lo_que_dura_cada_momento() -> bool:
+	var translate := func(key: String) -> String: return key.rpad(TEXT_LENGTH, ".")
+	var needs := StoryRunner.story_needs(Fixtures.make_story(_catalog), translate, 15.0)
+	var moment := StoryBeatData.Moment
+	check_eq(needs[moment.NIGHT_START], LINE_SECONDS, "el saludo")
+	check_eq(needs[moment.BEFORE_FIRST_WAVE], 2 * LINE_SECONDS + 2.0, "2 líneas, más 2 s antes de la ola")
+	# La pregunta, 15 s, la respuesta más larga, la línea de Agustín con la marca y la de Gonzalo.
+	check_eq(needs[moment.AFTER_LAST_WAVE], LINE_SECONDS + 15.0 + LINE_SECONDS + LINE_SECONDS + LINE_SECONDS,
+			"la decisión entera")
+	check_eq(needs[moment.AFTER_FINALE], LINE_SECONDS, "el cierre")
+	return true
+
+
+## Un momento "antes de" que dura más que su anticipación empieza antes: lo que dura, más 2 s.
+func test_un_momento_largo_empieza_antes() -> bool:
+	var steps := []
+	for index in 10:
+		steps.append(_line(0, "K_%d" % index))
+	var sim := _sim(_story(StoryBeatData.Moment.BEFORE_FIRST_WAVE, steps, false))
+	sim.run_until(70.0)
+	check_eq(sim.time_of("K_0"), 60.0 - 10 * LINE_SECONDS - 2.0, "32 s antes de la ola")
+	check_eq(sim.wave_times[0], 60.0, "y la ola no espera")
 	return true
