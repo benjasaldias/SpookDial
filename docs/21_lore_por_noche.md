@@ -3,6 +3,7 @@
 Sesión S21b, 12 de noviembre de 2026, con Benja. Es un documento de contenido, sin código: el plan de implementación sale de aquí, en otra sesión.
 
 - **La noche 1 está aprobada** por Benja, con sus textos corregidos, e **implementada en S21l** (Plan 9.7, `docs/31`), en los 3 modos.
+- **Después de probarla** (Plan 9.8, `docs/32`): un amigo sin nada que jugar está grabando ("• REC"), lo que pide ayuda va marcado en rojo, la noche espera a que se abra la llamada, el vlog va al doble de lento y la noche con historia termina a las 06:30.
 - **La noche 2 queda pospuesta:** el borrador está escrito, pero Benja no alcanzó a revisarlo, y no se implementa hasta que lo apruebe.
 - **Las noches 3 a 5 son un esquema** con las ideas de Benja, para detallar después de probar las noches 1 y 2.
 

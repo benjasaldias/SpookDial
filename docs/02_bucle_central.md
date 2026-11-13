@@ -228,7 +228,9 @@ Más exigente que Difícil en cada noche (pedido de Benja, 12 de noviembre; `doc
 | Visitas de la Mano | 2 | 2 | 2 | 3 | 3 |
 | Batería que pide jugando bien | 41 % | 61 % | 61 % | 90 % | 90 % |
 
-Lo demás: olas de 2 y la final de 3, 3 solicitudes a la vez, la señal que baja y Sanity −1 cada 6 s. Además, los castigos de la dificultad (`DifficultyData`, grupo **Castigos**):
+Lo demás: olas de 2 y la final de 3, 3 solicitudes a la vez, la señal que baja y Sanity −1 cada 6 s (la noche 1, cada 6,5 s).
+
+**La noche 1 de los 3 modos tiene historia** (Plan 9.8, `docs/32`): termina a las 06:30, y para quedar con el mismo equilibrio de antes, Sanity baja lo mismo en total (−1 cada 10,8 s en Normal y Difícil, cada 6,5 s en Extremo) y la señal cae un poco más rápido (cada amigo, entre 2,9 y 5,8 s por punto en Normal, 2,8 y 5,6 en Difícil, y 2,5 y 5 en Extremo). Además, los castigos de la dificultad (`DifficultyData`, grupo **Castigos**):
 
 - **Trust por error ×1,5** (`error_trust_scale`): incorrecta −22,5, mayor riesgo −30, sin respuesta −22,5 más y video perdido −15. Tardar en contestar no cambia.
 - **Un amigo al azar empieza cada noche con 1 de vida** (`wounded_friends` y `wounded_health`), y su chat lo avisa al empezar (`CHAT_WOUNDED_START`). Los accidentes no le tocan.
@@ -279,7 +281,7 @@ Lo demás: olas de 2 y la final de 3, 3 solicitudes a la vez, la señal que baja
 - Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync, un audio de un amigo ni un screamer.
 - Accidentes (decisión de Benja, 7 de noviembre): se reparten en la noche como los screamers, 15 s para responder (22,5 s con "Temporizadores ×1,5"). Solo le pasan a un amigo libre, con señal y con más de 1 PV; si la ola está llena, esperan.
 - El chat guionado: cada línea del amigo llega 2,5 s después de la anterior; las de Matías esperan su botón.
-- **La historia** (Plan 9.7, `docs/31`): cada línea espera lo que tarda en escribirse (60 letras por segundo) más 1,2 s para leerla. Los momentos "antes de" una ola empiezan 15 s antes (25 s el de antes de la ola 1 de la noche 1, que tiene 10 líneas). Mientras la historia cuenta algo, la ola espera a lo más 45 s (`story_hold_limit`, decisión de Benja). Una decisión dura lo que un accidente (15 s, 22,5 con "Temporizadores ×1,5"); Trust no baja de 1 por la historia, y los segundos que pierde la próxima consulta de un amigo nunca la dejan bajo 10 s. Los valores de las decisiones de la noche 1 (10 s menos, Trust −10 y −20) son de partida (`docs/21` §4). La prueba de equilibrio juega la historia: jugando bien, ninguna ola espera y la historia llega entera en los 3 modos.
+- **La historia** (Plan 9.7, `docs/31`; desde el Plan 9.8, `docs/32`): cada línea queda lo que se tarda en leerla, a 15 letras por segundo (mínimo 2 s). Un momento "antes de" una ola empieza lo que dura antes de ella, más 2 s (nunca menos que su `lead_seconds`), y el director pone la historia en su horario: la primera ola llega cuando terminaron el saludo y el susto, y cada calma dura al menos lo que cuenta su historia. Una noche con historia termina a las 06:30 (`NightData.overtime_minutes`, 30) y su final deja 5 s libres al final (`finale_margin`; las demás, 10). La noche no empieza hasta que se abre la llamada. Mientras la historia cuenta algo, la ola espera a lo más 45 s (`story_hold_limit`, decisión de Benja). Una decisión dura lo que un accidente (15 s, 22,5 con "Temporizadores ×1,5"); Trust no baja de 1 por la historia, y los segundos que pierde la próxima consulta de un amigo nunca la dejan bajo 10 s. Los valores de las decisiones de la noche 1 (10 s menos, Trust −10 y −20) son de partida (`docs/21` §4). La prueba de equilibrio juega la historia: jugando bien, ninguna ola espera y la historia llega entera en los 3 modos.
 
 ---
 
@@ -384,7 +386,8 @@ RuleData         conditions {id de observación → valor}, correct_action_id,
 EntityData       id, name_key, lore_key, sketch, place_keys[], traits[2-4], actions[4],
                  observations[2-3], rules[] (ordenadas; la última sin condiciones)
 FriendData       id, name_key, avatar, color
-NightData        number, place_key, new_entities[], requests_total, max_simultaneous,
+NightData        number, place_key, overtime_minutes (con historia, 30: hasta las 06:30), new_entities[], requests_total,
+                 max_simultaneous,
                  base_decision_time, first_hint_chance (probabilidad de pista en el mensaje inicial),
                  place_chance (probabilidad de que diga el lugar), decoys_per_request,
                  wave_size (solicitudes por ola común), finale_size (las de la ola final), hand_visits,

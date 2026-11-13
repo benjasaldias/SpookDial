@@ -18,6 +18,29 @@
 
 **Punto de partida:** 821 pruebas OK (commit `af84e5f`).
 
+**Resultado (12-nov, S21l, segunda parte):** ejecutado completo, en 8 commits. **851 pruebas OK.** Las capturas se revisaron a 1280×720 y 1920×1080 (`C:\dev\capturas\plan98_*.png`), y una prueba de humo jugó la noche 1 entera con el escritorio real en los 3 modos (2 semillas cada uno): se ganan las 6 a las 06:30, con la historia entera, y ninguna ola esperó a la historia.
+
+| Tarea | Commit | Pruebas |
+| --- | --- | --- |
+| 1. El horario: hasta las 06:30 y la final con 5 s | `a80d69b` | 826 |
+| 2. La historia en el horario | `4639cf3` | 833 |
+| 3. La noche espera la llamada | `01dd6cb` | 836 |
+| 4. El modo vlog y la emergencia marcada | `13f5f08` | 841 |
+| 5. La alarma, el aviso suave y el golpe de la ola | `84e1775` | 846 |
+| 6. El separador de no leídos y la música | `e99307f` | 849 |
+| 7. El equilibrio | `447d4c1` | 850 |
+| 8. Revisión | `4669a66` | 851 |
+
+**Lo que cambió al ejecutar:**
+
+- **"▲" en vez de "⚠", y "•" en vez de "●":** Departure Mono no tiene ni "⚠" ni "●" (se verían como un cuadrito). La emergencia lleva "▲" rojo antes del nombre y en su línea ("── ▲ LEÓN PIDE AYUDA ──"); la barra del vlog dice "• REC · LEÓN ESTÁ GRABANDO".
+- **Los 5 s de holgura de la final, solo en las noches con historia** (pregunta a Benja al ejecutar la Tarea 1): con 5 s en todas, Difícil 5 se ponía un pelo más difícil.
+- **Las alarmas y el pop se nivelan por RMS** (`short_master` en `make_sounds.py`), no en LUFS: la sonoridad en LUFS no sirve para sonidos de menos de 0,4 s, y con ella las 3 alarmas quedaban muy distintas. Las alarmas quedaron al nivel del aplauso de Audio Sync (RMS −24 dB; la de antes estaba a −34), y el pop a −30.
+- **El punto de la llamada sin leer** marca las 3 entradas solo mientras la llamada se puede ver: después de separarse, quedaba para siempre.
+- **La línea "▲ PIDE AYUDA" y la de "NUEVOS" son nodos aparte** del chat, no mensajes: `message_views()` devuelve solo los mensajes.
+- **La primera ola de la noche 1 de Normal llega a los 50 s** (antes 45): cuando terminan el saludo y el susto.
+- **En la noche 1, la señal cae un poco más rápido** (Tarea 7), para que el tiempo que agrega la historia no quede libre.
+
 ---
 
 ## El feedback de Benja (12 de noviembre, después de probar la noche 1)
@@ -82,11 +105,11 @@ Difícil 5 (la referencia de S21k) tiene holgura 1,24, y Extremo 5, 1,01: con la
 - `PacingDirector.finale_time()` y `request_due()`, `RequestManager.start_request()` y el modelo usan el largo de la noche.
 - `END_WON_TITLE` y `END_QUOTA` llevan `{time}`: la hora en que terminó.
 
-- [ ] **Paso 1:** pruebas: el reloj llega a 06:30 y la noche termina ahí (`test_night_state.gd`); la final con 5 s de holgura y en una noche más larga (`test_pacing_director.gd`); los títulos con la hora (`test_ending_text.gd`); los valores (`test_balance.gd` y `test_catalog.gd`).
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK (las que fijan horas de la final se actualizan a los 5 s).
-- [ ] **Paso 5:** commit "Las noches con historia terminan a las 06:30 y la final deja 5 s".
+- [x] **Paso 1:** pruebas: el reloj llega a 06:30 y la noche termina ahí (`test_night_state.gd`); la final con 5 s de holgura y en una noche más larga (`test_pacing_director.gd`); los títulos con la hora (`test_ending_text.gd`); los valores (`test_balance.gd` y `test_catalog.gd`).
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK (las que fijan horas de la final se actualizan a los 5 s).
+- [x] **Paso 5:** commit "Las noches con historia terminan a las 06:30 y la final deja 5 s".
 
 ### Tarea 2: La historia en el horario
 
@@ -100,11 +123,11 @@ Difícil 5 (la referencia de S21k) tiene holgura 1,24, y Extremo 5, 1,01: con la
   - la regla que salta una ola que ya no cabe cuenta ese tiempo.
 - `RequestManager` y el modelo miden la historia y se la pasan al director.
 
-- [ ] **Paso 1:** pruebas: la duración de una línea y de un momento, la anticipación calculada (`test_story_runner.gd`); la primera ola espera la historia, cada calma dura su historia, las olas se planean con la reunión y el salto la cuenta (`test_pacing_director.gd`); el manager se la pasa al director (`test_request_manager.gd`).
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La historia en el horario: el vlog más lento y las olas que le dejan su tiempo".
+- [x] **Paso 1:** pruebas: la duración de una línea y de un momento, la anticipación calculada (`test_story_runner.gd`); la primera ola espera la historia, cada calma dura su historia, las olas se planean con la reunión y el salto la cuenta (`test_pacing_director.gd`); el manager se la pasa al director (`test_request_manager.gd`).
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La historia en el horario: el vlog más lento y las olas que le dejan su tiempo".
 
 ### Tarea 3: La noche espera la llamada
 
@@ -114,11 +137,11 @@ Difícil 5 (la referencia de S21k) tiene holgura 1,24, y Extremo 5, 1,01: con la
 - `NightManager` no avanza mientras tanto, y `is_paused()` es verdadero (la Mano y los screamers esperan).
 - El escritorio avisa cuando se ve la llamada, y mientras se espera, las 3 entradas tienen el borde que parpadea.
 
-- [ ] **Paso 1:** pruebas: la noche congelada hasta abrir la llamada (`test_night_manager.gd`); abrir una entrada la abre y la noche corre; las entradas parpadean mientras tanto (`test_desk_scene.gd`).
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La noche espera a que se abra la llamada".
+- [x] **Paso 1:** pruebas: la noche congelada hasta abrir la llamada (`test_night_manager.gd`); abrir una entrada la abre y la noche corre; las entradas parpadean mientras tanto (`test_desk_scene.gd`).
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La noche espera a que se abra la llamada".
 
 ### Tarea 4: El modo vlog y la emergencia marcada
 
@@ -128,11 +151,11 @@ Difícil 5 (la referencia de S21k) tiene holgura 1,24, y Extremo 5, 1,01: con la
 - `ChatMessageView`: lo urgente lleva "⚠" antes del nombre y la barra en rojo; la línea va centrada entre "━━".
 - `ChatPanel`: sin nada que jugar (fuera de la llamada y de la noche 0), PREGUNTAR y RESPONDER se ocultan y se ve `%VlogBar`: "● REC · LEÓN ESTÁ GRABANDO" (`CHAT_VLOG_REC`).
 
-- [ ] **Paso 1:** pruebas en `test_message_builder.gd`, `test_chat_message_view.gd`, `test_request_manager.gd` y `test_chat_panel.gd`.
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar y reimportar los textos.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "El modo vlog y la emergencia marcada en el chat".
+- [x] **Paso 1:** pruebas en `test_message_builder.gd`, `test_chat_message_view.gd`, `test_request_manager.gd` y `test_chat_panel.gd`.
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar y reimportar los textos.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "El modo vlog y la emergencia marcada en el chat".
 
 ### Tarea 5: La alarma, el aviso suave y el golpe de la ola
 
@@ -143,11 +166,11 @@ Difícil 5 (la referencia de S21k) tiene holgura 1,24, y Extremo 5, 1,01: con la
 - **El "pop":** el chat lo toca cuando llega a una conversación que no se ve una línea de un amigo que no es urgente, o una de la llamada, a lo más uno cada 2 s.
 - **El golpe:** `RequestManager.wave_started` y el escritorio lo toca.
 
-- [ ] **Paso 1:** pruebas en `test_chat_entry.gd` (el ritmo, que empieza al entrar en alerta, que cada una lleva el suyo y el punto), `test_chat_panel.gd` (el pop y los no leídos) y `test_desk_scene.gd` (el golpe y los puntos).
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar y generar solo esos sonidos con `make_sounds.py`.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "La alarma de cada amigo con su ritmo, el aviso suave y el golpe de la ola".
+- [x] **Paso 1:** pruebas en `test_chat_entry.gd` (el ritmo, que empieza al entrar en alerta, que cada una lleva el suyo y el punto), `test_chat_panel.gd` (el pop y los no leídos) y `test_desk_scene.gd` (el golpe y los puntos).
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar y generar solo esos sonidos con `make_sounds.py`.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "La alarma de cada amigo con su ritmo, el aviso suave y el golpe de la ola".
 
 ### Tarea 6: El separador de no leídos y la música
 
@@ -156,11 +179,11 @@ Difícil 5 (la referencia de S21k) tiene holgura 1,24, y Extremo 5, 1,01: con la
 - **El separador:** cada conversación recuerda su primer mensaje sin leer; al verla, la línea "── NUEVOS ──" (`CHAT_UNREAD_DIVIDER`) queda justo antes. Hay una por conversación, y se mueve con la siguiente tanda.
 - **`MusicPlayer`:** 2 reproductores en el bus "Ambience", con `audio/music/calm.ogg` y `wave.ogg` si existen; `intense` elige cuál, con un fundido de 2 s. El escritorio lo pone en las olas (y en la final). Sin las pistas, no suena nada.
 
-- [ ] **Paso 1:** pruebas en `test_chat_panel.gd` (el separador) y `test_music_player.gd` (nuevo: el fundido y sin pistas).
-- [ ] **Paso 2:** correrlas y ver que fallan.
-- [ ] **Paso 3:** implementar.
-- [ ] **Paso 4:** correr todas las pruebas: OK.
-- [ ] **Paso 5:** commit "El separador de no leídos y la música por momento".
+- [x] **Paso 1:** pruebas en `test_chat_panel.gd` (el separador) y `test_music_player.gd` (nuevo: el fundido y sin pistas).
+- [x] **Paso 2:** correrlas y ver que fallan.
+- [x] **Paso 3:** implementar.
+- [x] **Paso 4:** correr todas las pruebas: OK.
+- [x] **Paso 5:** commit "El separador de no leídos y la música por momento".
 
 ### Tarea 7: El equilibrio
 
@@ -169,7 +192,7 @@ Difícil 5 (la referencia de S21k) tiene holgura 1,24, y Extremo 5, 1,01: con la
 - Medir la noche 1 de los 3 modos y las noches 2 a 5 (por la final con 5 s), y ajustar la noche 1 hasta quedar cerca de las referencias.
 - `test_la_historia_no_regala_tiempo`: la holgura de cada noche 1 queda a un 5 % de su referencia, y la batería a 1 punto.
 
-- [ ] **Paso 1:** medir, ajustar y anotar aquí cómo quedó.
+- [x] **Paso 1:** medir, ajustar y anotar aquí cómo quedó.
 
   **Cómo quedó** (20 semillas). Con la noche hasta las 06:30 y la historia en el horario, sin ajustar nada, la holgura subía: Normal 6,36 (+2,7 %), Difícil 5,28 (+7,8 %) y Extremo 2,15 (+12,6 %, y su batería de 41,4 a 44,4 %). Se ajustó la noche 1 de cada modo: Sanity baja lo mismo en total que antes (−1 cada 10,8 s en Normal y Difícil, 6,5 s en Extremo), y la señal cae un poco más rápido, lo que consume el tiempo libre que agrega la historia.
 
@@ -180,15 +203,15 @@ Difícil 5 (la referencia de S21k) tiene holgura 1,24, y Extremo 5, 1,01: con la
   | Extremo | 2,5 a 5 (3 a 6) | 1,95 (1,91) | 41,4 % (41,4 %) | 88,2 (88,2) |
 
   Las noches 2 a 5 no cambiaron (no tienen historia, y su final sigue con 10 s de holgura).
-- [ ] **Paso 2:** la prueba.
-- [ ] **Paso 3:** correr todas las pruebas: OK.
-- [ ] **Paso 4:** commit "La noche 1 con su historia queda con el equilibrio de antes".
+- [x] **Paso 2:** la prueba.
+- [x] **Paso 3:** correr todas las pruebas: OK.
+- [x] **Paso 4:** commit "La noche 1 con su historia queda con el equilibrio de antes".
 
 ### Tarea 8: Revisión y documentos
 
-- [ ] **Paso 1:** capturas a 1280×720 y 1080p (`test/capture_plan98.gd`): la llamada en espera, el modo vlog, la emergencia marcada con su línea, el separador y las entradas con el punto. Una prueba de humo con la noche 1 entera en los 3 modos.
-- [ ] **Paso 2:** correr todas las pruebas: OK. Commit "Revisión de la historia clara".
-- [ ] **Paso 3:** documentos (`CLAUDE.md`, el diseño v2, `docs/02`, `docs/04` (la sección X), `sonidos_pendiente.md`, este plan, `docs/00_log.md` y `resumen.md`). Commit.
+- [x] **Paso 1:** capturas a 1280×720 y 1080p (`test/capture_plan98.gd`): la llamada en espera, el modo vlog, la emergencia marcada con su línea, el separador y las entradas con el punto. Una prueba de humo con la noche 1 entera en los 3 modos.
+- [x] **Paso 2:** correr todas las pruebas: OK. Commit "Revisión de la historia clara".
+- [x] **Paso 3:** documentos (`CLAUDE.md`, el diseño v2, `docs/02`, `docs/04` (la sección X), `sonidos_pendiente.md`, este plan, `docs/00_log.md` y `resumen.md`). Commit.
 
 ---
 

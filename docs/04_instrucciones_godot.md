@@ -28,7 +28,8 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **U.** Probar Normal y Difícil (Plan 9.4) | ⬜ Pendiente (unos 20 minutos) |
 | **V.** Probar la noche 0 nueva y los pedidos del 12 de noviembre (Plan 9.5) | ⬜ Pendiente (unos 20 minutos) |
 | **W.** Probar Extremo (Plan 9.6) | ⬜ Pendiente (unos 30 minutos, o más si quieres ganarlo) |
-| **X.** Probar la historia de la noche 1 (Plan 9.7) | ⬜ Pendiente (unos 25 minutos: la noche 1 en Normal y, si alcanzas, en Difícil) |
+| **X.** Probar la historia de la noche 1 (planes 9.7 y 9.8) | ⬜ Pendiente (unos 25 minutos: la noche 1 en Normal y, si alcanzas, en Difícil) |
+| **Y.** Poner la música de la noche (Plan 9.8) | ⬜ Pendiente: cuando tengas las 2 pistas |
 | Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
@@ -843,9 +844,19 @@ Todos en `data/text/ui.csv`: `DIFFICULTY_EXTREME`, `DIFFICULTY_EXTREME_INFO` y `
 
 ---
 
-## X. Probar la historia de la noche 1 (Plan 9.7)
+## X. Probar la historia de la noche 1 (planes 9.7 y 9.8)
 
-Del 12 de noviembre (sesión S21l). Avísale a Claude antes de abrir Godot. Son unos 25 minutos: la noche 1 en Normal y, si alcanzas, en Difícil (dura 7 minutos cada una). La historia es la misma en los 3 modos.
+Del 12 de noviembre (sesión S21l). Avísale a Claude antes de abrir Godot. Son unos 25 minutos: la noche 1 en Normal y, si alcanzas, en Difícil (dura unos 7 minutos y medio cada una: termina a las 06:30). La historia es la misma en los 3 modos.
+
+**Lo nuevo después de tu primera prueba (Plan 9.8):**
+
+- la noche **espera congelada a las 00:00** hasta que abres la llamada (las 3 entradas tienen un borde que parpadea);
+- un amigo sin nada que jugar está **grabando**: su chat no tiene preguntas ni respuestas, y abajo dice **"• REC · LEÓN ESTÁ GRABANDO"**;
+- lo que **pide ayuda** va en rojo: una línea **"── ▲ LEÓN PIDE AYUDA ──"**, y "▲" antes del nombre con la barra izquierda roja;
+- cada amigo tiene **su alarma** (León un doble bip, Gonzalo un zumbido, Agustín un trino), cada medio segundo y con su propio ritmo;
+- una línea del vlog en un chat que no estás mirando hace un **"pop" suave** y pone un **"•"** junto al nombre en el PC; al abrir el chat, **"── NUEVOS ──"** marca dónde empezar;
+- un **golpe de sonido** al empezar cada ola;
+- el vlog va **al doble de lento**, y la noche termina a las **06:30**.
 
 ### Llegar a la noche 1
 
@@ -854,7 +865,7 @@ Del 12 de noviembre (sesión S21l). Avísale a Claude antes de abrir Godot. Son 
 
 ### Qué verificar
 
-1. **Al empezar (00:00):** las 3 entradas del PC muestran un **auricular celeste** a la derecha. Haz clic en cualquiera: el chat dice **LLAMADA GRUPAL**, no tiene pestañas, arriba están las barritas de los 3 y León, Gonzalo y Agustín presentan el capítulo de **Acá Penan**, cada uno con su color y su voz.
+1. **Al empezar (00:00):** la hora no corre, las 3 entradas del PC tienen un borde que parpadea y un **auricular celeste** a la derecha. Haz clic en cualquiera: el chat dice **LLAMADA GRUPAL**, no tiene pestañas, arriba están las barritas de los 3 y León, Gonzalo y Agustín presentan el capítulo de **Acá Penan**, cada uno con su color y su voz. **Verifica:** la hora del celular empieza a correr recién ahí.
 2. **Unos 25 s antes de la primera ola:** el susto ("???? qué fue eso" hasta "Escóndanse!! Nos reunimos en la cabaña!!"). La llamada termina, vuelven las pestañas y cada uno escribe en su chat dónde se escondió (el punto en la pestaña marca lo que no leíste).
 3. **Al terminar la ola 1:** León muestra el establo, Gonzalo la cocina, Agustín se siente en una película y León pregunta si lo llamaste. **15 s antes de la ola 2,** cada uno escribe que algo se acerca.
 4. **Al terminar la ola 2, la reunión:** Gonzalo prende la luz del pórtico y después **León decide** (con alarma, 15 s y 4 opciones en su chat). Después **decide Agustín**: en plural si León fue a las luces blancas. Prueba al menos una vez no contestar.
@@ -869,7 +880,8 @@ Del 12 de noviembre (sesión S21l). Avísale a Claude antes de abrir Godot. Son 
 - si la historia **se deja, se modifica o se quita**;
 - si se entiende que es una llamada (y que no se puede cambiar de chat);
 - si las decisiones se sienten justas y si los castigos se notan (10 s menos, Trust −10 o −20);
-- si se lee bien sin perder el hilo de las consultas.
+- si se lee bien sin perder el hilo de las consultas;
+- **lo más importante:** si ahora se distingue cuándo un amigo graba y cuándo pide ayuda, y si las alarmas suenan a alarma sin cansar (si molestan, se bajan con `ALARM_RMS` en `tools/make_sounds.py`).
 
 ### Dónde se cambia
 
@@ -880,4 +892,15 @@ Del 12 de noviembre (sesión S21l). Avísale a Claude antes de abrir Godot. Son 
 ### Los textos nuevos para corregir (antes del 25 de noviembre)
 
 - **Borradores de Claude** (el guion no los tenía), en `messages.csv`: lo que contesta León a las opciones malas (`STORY_N1_LEON_STABLE_REPLY` y `STORY_N1_LEON_SHOUT_REPLY`) y lo que le responde Matías a Agustín (`STORY_N1_AGUSTIN_HIDE`, `_RUN`, `STORY_N1_DUO_HIDE` y `_RUN`).
-- En `ui.csv`: `CHAT_CALL_TITLE` y `CHAT_CALL_SYNC` (lleva `{friend}`).
+- En `ui.csv`: `CHAT_CALL_TITLE` y `CHAT_CALL_SYNC` (lleva `{friend}`); y los del Plan 9.8: `CHAT_VLOG_REC` y `CHAT_HELP_DIVIDER` (llevan `{friend}`), `CHAT_UNREAD_DIVIDER`, y `END_WON_TITLE` y `END_QUOTA`, que ahora llevan `{time}` (la hora en que terminó la noche).
+
+---
+
+## Y. Poner la música de la noche (Plan 9.8)
+
+Cuando tengas las 2 pistas (las especificaciones están en `sonidos_pendiente.md`, "Faltan"). Avísale a Claude antes de abrir Godot.
+
+1. En el Explorador de Windows, crea la carpeta `audio\music\` dentro del proyecto y deja ahí las 2 pistas con estos nombres exactos: `calm.ogg` (la eerie, para las calmas) y `wave.ogg` (la tensa, para las olas).
+2. Abre Godot: las importa solo. No hace falta marcar nada más: el juego las repite sin pausa.
+3. **Verifica:** juega la noche 1. Al abrir la llamada suena la pista de calma; al empezar la primera ola cambia a la tensa (con un fundido de 2 s), y al terminar la ola vuelve la de calma. Su volumen es el de **Ambiente** en las opciones.
+4. Anota de dónde salió cada pista, con su licencia, en `audio/source/creditos.md`.

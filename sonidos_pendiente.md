@@ -76,17 +76,26 @@ Suenan mientras el amigo escribe, como en Undertale. Desde el 10 de noviembre ca
 
 Sin cambiar los archivos, se ajustan en `data/friends/*.tres`, en el Inspector, grupo **Voice**: `Voice Pitch`, `Voice Spread` y `Voice Every`. Su volumen es `Volume Db` del nodo `Voice` en `scenes/ui/chat_panel.tscn` (−8).
 
-## La alarma de las entradas del PC (pedido de Benja, 12 de noviembre)
+## La alarma de las entradas del PC (Plan 9.8: que suene a alarma)
 
-Una entrada en alerta (una consulta, un accidente o un video que espera) pita **una vez por segundo**, y se enciende en rojo con el pitido. Las 3 entradas usan un reloj común, así que pitan juntas, y sus notas forman **el acorde disminuido de si**. Se callan durante Audio Sync y mientras suena un audio de un amigo.
+Una entrada en alerta (una consulta, un accidente, una decisión o un video que espera) pita **cada medio segundo, desde el instante en que entra en alerta**, cada una con su propio ritmo, y su luz se enciende en rojo con el pitido (pedido de Benja, 12 de noviembre, después de probar la noche 1; antes pitaban juntas, una vez por segundo, en un acorde). Se callan durante Audio Sync y mientras suena un audio de un amigo.
 
-| Archivo | Quién | Nota | Dura |
+| Archivo | Quién | Cómo suena | Dura |
 | --- | --- | --- | --- |
-| `alarm_leon.wav` | León | Si (988 Hz) | 0,26 s, con la cola |
-| `alarm_gonzalo.wav` | Gonzalo | Re (1175 Hz) | Ídem |
-| `alarm_agustin.wav` | Agustín | Fa (1397 Hz) | Ídem |
+| `alarm_leon.wav` | León | Un doble bip agudo, como un monitor | 0,27 s |
+| `alarm_gonzalo.wav` | Gonzalo | Un zumbido grave y áspero, como un timbre viejo | 0,25 s |
+| `alarm_agustin.wav` | Agustín | Un trino rápido entre 2 notas agudas | 0,25 s |
 
-Son un seno con un poco de su octava, de 0,14 s, por el parlante del PC y a −28 LUFS, para que se oigan mucho rato sin cansar. Cada amigo tiene la suya en `data/friends/*.tres` (`Alarm`). Si molestan, se bajan en la receta (`alarm()` en `make_sounds.py`). Si se quiere que pite cada más tiempo, se cambia `ALARM_SECONDS` en `scripts/ui/chat_entry.gd`.
+Suenan por el parlante del PC, a un RMS de −24 dB (como el aplauso de Audio Sync; la alarma de antes estaba a −34). Las recetas son `alarm_double_beep()`, `alarm_buzz()` y `alarm_trill()` en `make_sounds.py`, y su volumen es `ALARM_RMS`. El ritmo es `ALARM_PERIOD` en `scripts/ui/chat_entry.gd` (0,5 s).
+
+## El aviso suave y el golpe de la ola (Plan 9.8)
+
+| Archivo | Cuándo | Cómo suena | Dura |
+| --- | --- | --- | --- |
+| `chat_notify.wav` | Llega una línea que no es una emergencia a un chat que no se está mirando (a lo más uno cada 2 s) | Un "pop" suave de 2 notas que suben, a RMS −30 dB | 0,3 s |
+| `wave_stinger.wav` | Empieza una ola | Un golpe grave con un acorde disonante que se apaga, a −18 LUFS | 2,2 s |
+
+Las recetas son `chat_notify()` y `wave_stinger()` en `make_sounds.py`. Para generar solo estos: `/usr/bin/python3 tools/make_sounds.py alarm_leon alarm_gonzalo alarm_agustin chat_notify wave_stinger`.
 
 ## La criatura en la ventana
 
@@ -148,5 +157,6 @@ Son del Plan 10 (sonido y pulido):
 - Cuando llega un video y cuando se recibe.
 - Los clics del menú, de los botones y del chat.
 - La música o el ambiente del menú principal.
+- **La música de la noche** (Plan 9.8, la consigue Benja): `audio/music/calm.ogg` (eerie, para el silencio y las calmas) y `audio/music/wave.ogg` (tensa, para las olas). Que se puedan repetir sin corte, de 1 a 3 minutos, en Ogg Vorbis, con una licencia que permita publicar el juego (CC0 o similar; anota de dónde salen en `audio/source/creditos.md`). Basta con dejarlas ahí con esos nombres: el escritorio las encuentra solo y cambia entre las 2 con un fundido de 2 s. Van en el volumen "Ambiente" de las opciones.
 - La pantalla final: ganar una noche, perderla y la victoria.
 - Los pasos de los amigos, si los quieres.
