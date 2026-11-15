@@ -7,7 +7,7 @@
 - El detalle de la mecánica central (reglas, valores numéricos, modelo de datos) está en `docs/02_bucle_central.md`.
 - El orden de trabajo y el calendario están en `docs/05_plan_produccion.md`.
 
-Última actualización: 12 de noviembre de 2026.
+Última actualización: 14 de noviembre de 2026.
 
 - 26 de octubre: identificación por características, acción de mayor riesgo y cuota cubierta por los envíos. En la sesión 8, señuelos, barra de identificación, estática por frase y preguntas con 5 s o menos.
 - 30 y 31 de octubre (sesión 10): el cuaderno a la derecha e independiente del chat, el celular y el mixer como modos exclusivos, y el cuaderno que vuelve al índice con cada solicitud nueva.
@@ -28,6 +28,7 @@
 - 12 de noviembre (S21l, `docs/31`): **la historia de la noche 1 se juega** en los 3 modos. La ola espera a la historia a lo más 45 s, y la historia no baja Trust de 1.
 - 12 de noviembre, después de probar la noche 1 (S21l, `docs/32`): **vlog o emergencia.** Un amigo sin nada que jugar está grabando ("• REC", sin preguntas ni respuestas); lo que pide ayuda va marcado en rojo. Una alarma distinta por amigo, con su propio ritmo; un aviso suave para lo demás; la línea de nuevos; un golpe al empezar cada ola y la música (de Benja). La noche con historia espera a que se abra la llamada, termina a las 06:30 y lleva la historia en su horario, más lenta, sin regalar tiempo.
 - 12 de noviembre (S21k, `docs/30`): **un tercer modo, Extremo**, que se desbloquea al terminar Difícil: olas más seguidas, menos tiempo, más obstrucciones, Trust por error ×1,5 y un amigo al azar que empieza cada noche con 1 de vida. Se gana jugando como experto.
+- 14 de noviembre (S21n, `docs/33`), tras la segunda prueba de la noche 1: **la noche termina cuando se acaba**, con las olas en cadena y sin saltarse ninguna; la historia se lee más lento; una **nota S, A, B o C** al ganar cada noche, y Difícil 5 con 9 consultas.
 
 ---
 
@@ -98,24 +99,24 @@ Durante cinco noches tiene que hacer cuatro cosas:
   - después aparecen **4 tarjetas, cada una con un video del juego**: los medidores y cómo baja cada uno, el celular y Sanity, la sombra en la ventana y la cortina, y la Mano con el flash. Desde el 12 de noviembre van **en viñetas, con Connection en verde, Sanity en rojo y Trust en amarillo** (el color de su aguja) y lo importante en ámbar. "Siguiente" pasa de una a otra, y la última empieza la noche 1;
   - el tiempo para responder no corre solo, el plazo del video espera, nadie sale herido y Trust no baja;
   - "Nueva partida" en Normal empieza en la noche 0, y "Saltar tutorial" está en la pausa (`Esc`); las tarjetas tienen su propio "Saltar". Difícil no tiene noche 0.
-- **5 noches.** Cada una va de las **00:00 a las 06:00** (formato de 24 horas) en unos **7 minutos reales**.
+- **5 noches.** El reloj va de las **00:00 a las 06:00** (formato de 24 horas) en **7 minutos reales**, pero desde el 14 de noviembre (decisión de Benja, S21n, `docs/33`) **la noche no termina a una hora: termina cuando se acaba**, cuando la ola final se resolvió, no queda nada abierto ni videos por recibir, la historia terminó de contarse y pasaron 3 s. Jugar rápido la acorta. El reloj sigue a la misma velocidad y marca cuándo terminaron ("Llegaste a las 04:52"); alguien lento puede pasar de las 06:00.
 - **Ritmo de la noche: olas de verdad** (decisiones de Benja, sesión 16 y 11 de noviembre):
   - **el primer minuto es de silencio;**
   - las solicitudes llegan en **olas de 2**, con 4 a 8 segundos de diferencia;
-  - cuando se resuelven todas las de una ola viene una **calma de verdad**, de 40 a 60 segundos, para sincronizar, descargar videos, mirar el celular o revisar la ventana. Las olas están planeadas parejo, así que si una ola se resuelve rápido, la calma dura hasta la hora de la siguiente;
-  - la **ola final** es el clímax: los **3 amigos piden ayuda a la vez**, lo más tarde posible para que se alcance a responder antes de las 06:00 (entre las 04:29 y las 04:59), y desde la noche 2 llega también la criatura;
-  - una ola que ya no cabe antes de la final se salta;
+  - cuando se resuelven todas las de una ola viene una **calma de verdad**, de 40 a 60 segundos (o lo que cuente la historia, si es más), para sincronizar, descargar videos, mirar el celular o revisar la ventana. Desde el 14 de noviembre las olas van **en cadena**: cada una llega cuando pasa su calma desde que se resolvió la anterior;
+  - la **ola final** es el clímax: los **3 amigos piden ayuda a la vez**, tras su calma, como las demás olas, y desde la noche 2 llega también la criatura;
+  - **ninguna ola se salta** (hasta el 14 de noviembre, una ola que ya no cabía antes de la final se saltaba);
   - **en las olas** caen las interferencias, los accidentes (no en la final) y la Mano; **en las calmas**, los videos y los screamers;
-  - cuando un amigo queda herido, lo que falta se atrasa unos segundos, y nunca empieza una solicitud que no alcanza a terminar antes de las 06:00.
-- **Se gana la noche** al llegar a las 06:00 **con la cuota de contenido cumplida**.
+  - cuando un amigo queda herido, lo que falta se atrasa unos segundos.
+- **Se gana la noche** cuando termina **con la cuota de contenido cumplida**.
 - **Se pierde la noche** en cualquiera de estos casos:
   - Sanity, Trust o Connection llegan a 0;
   - un amigo muere;
-  - son las 06:00 y no se cumplió la cuota.
+  - la noche termina sin la cuota cumplida.
 - **Al perder:** una pantalla explica qué pasó y la noche se reinicia desde el comienzo. La noche se vuelve a generar, así que no se repite de memoria.
 - **Guardado:** al comienzo de cada noche y al ganarla, con la noche siguiente, así que volver al menú no hace repetir una noche ganada. Cuando León se despide en la noche 0 se guarda la noche 1, para no repetir el tutorial si se sale en las tarjetas (tras el primer testeo, 11 de noviembre). La partida guarda también su dificultad; una guardada antes de que existieran los modos se lee como Normal. **El progreso** (qué modos se terminaron) va en su propio archivo, porque la partida se borra al ganar la noche 5.
 - **Pausa** (decisión de Benja, sesión 18): sin ningún panel abierto, `Esc` pausa la noche y abre un menú con Continuar, Opciones y Volver al menú. Volver al menú pierde la noche, que se retoma desde su comienzo.
-- **Entre noches:** un resumen (contenido obtenido y páginas nuevas del cuaderno), y después una cinemática opcional.
+- **Entre noches:** un resumen (contenido obtenido y páginas nuevas del cuaderno) y, desde el 14 de noviembre, **la nota de la noche**, como en Cuphead: S, A, B o C, según lo que esperaron los amigos y las vidas que perdieron. La espera promedio de cada pedido de ayuda (consulta, accidente o decisión de la historia) se compara con la meta del modo (Normal 15 s, Difícil 20 s, Extremo 15 s): hasta la meta da 3 puntos, hasta 1,5 veces 2, hasta el doble 1. Ninguna vida perdida da 3 puntos, una 2 y dos 1 (la herida con que empieza un amigo en Extremo no cuenta). S con 5 o 6 puntos, A con 4, B con 2 o 3 y C con 0 o 1. La nota no se guarda. Después, una cinemática opcional.
 - **Final único:** sobrevivir las 5 noches, como en FNAF.
 
 ## 6. El escritorio
@@ -437,10 +438,10 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
 - **las decisiones** llegan como un accidente (alarma y 15 s) y pueden bajar Trust, quitar segundos a la próxima consulta de un amigo o hacerle daño, sin matarlo nunca;
 - **las consultas no cambian:** la criatura y el lugar siguen al azar, aunque la historia hable de las criaturas de la noche. Cada criatura nueva de la noche sale al menos una vez, y solo se fuerza cuando falta;
 - va igual en los 3 modos y se repite igual al perder una noche;
-- **la ola espera a la historia** mientras cuenta algo antes de ella, a lo más 45 s (decisión de Benja, S21l): jugando bien nunca espera. Si la ola final llega encima de la ola anterior, lo que iba antes de ella se salta (las decisiones también), pero los amigos se reúnen igual;
+- **la ola espera a la historia** mientras cuenta algo antes de ella, a lo más 45 s (decisión de Benja, S21l): jugando bien nunca espera. Si la ola final llegaba encima de la ola anterior, lo que iba antes de ella se saltaba (las decisiones también), pero los amigos se reunían igual; desde el 14 de noviembre ya no pasa, porque la final espera a que se resuelva la ola anterior;
 - **la historia nunca hace perder:** su daño no le quita vida a quien tiene 1, y Trust no baja de 1 por ella (decisión de Benja, S21l);
 - **vlog o emergencia** (pedidos de Benja después de probar la noche 1, `docs/32`): un amigo sin nada que jugar está grabando, y su chat no muestra preguntas ni respuestas, sino "• REC · LEÓN ESTÁ GRABANDO". Lo que pide ayuda (el mensaje inicial, las respuestas, un accidente y la pregunta de una decisión) lleva "▲" y la barra en rojo, y una línea "▲ LEÓN PIDE AYUDA" lo separa del vlog. Las líneas del vlog que llegan a un chat que no se mira suenan con un "pop" suave y marcan la entrada con un "•"; al abrir un chat, una línea "NUEVOS" dice dónde empezar. Un golpe de sonido marca el inicio de cada ola, y la música cambia entre la calma y las olas (las pistas las consigue Benja);
-- **la historia se lee en vivo:** la noche espera congelada a que se abra la llamada, y cada línea queda lo que se tarda en leerla (15 letras por segundo). Para que eso no regale tiempo, **una noche con historia termina a las 06:30**, el director pone la historia en su horario (la primera ola llega cuando terminó el susto y cada calma dura lo que cuenta) y la final deja 5 s al final; la noche se equilibra para quedar como antes (`docs/32`);
+- **la historia se lee en vivo:** la noche espera congelada a que se abra la llamada, y cada línea queda lo que se tarda en leerla: desde el 14 de noviembre, lo que tarda en escribirse, 3,5 palabras por segundo y 1 s (antes, 15 letras por segundo). El director pone la historia en su horario (la primera ola llega cuando terminó el susto y cada calma dura lo que cuenta). Del 12 al 14 de noviembre, una noche con historia terminaba a las 06:30 para no regalar tiempo; desde el 14 (`docs/33`), toda noche termina cuando se acaba, también la historia;
 - la noche 1 está escrita, aprobada e implementada (S21l, `docs/31`); la noche 2, pospuesta, y las noches 3 a 5, en esquema (`docs/21`).
 
 **Las cinemáticas opcionales** (introducción y final), basadas en la versión Twine:
