@@ -5,6 +5,7 @@ const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const NightManager := preload("res://scripts/desk/night_manager.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
+const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
@@ -82,25 +83,31 @@ func test_avisa_cuando_se_recibe_un_video() -> bool:
 	return true
 
 
-func test_a_las_06_con_la_cuota_se_gana() -> bool:
+## La noche termina cuando se completa (Plan 9.9): la ola final resuelta (aquí, a mano), nada abierto y los videos
+## recibidos, y 3 s después. Con la cuota, se gana.
+func test_al_completarse_con_la_cuota_se_gana() -> bool:
 	var night := _make_night()
 	var endings := []
 	_record_endings(night, endings)
-	_advance_downloading(night, 419)
-	check(endings.is_empty(), "a los 419 s sigue")
+	_advance_downloading(night, 420)
+	check(endings.is_empty(), "a las 06:00 sigue: la ola final no ha terminado")
+	_requests.director.phase = PacingDirector.Phase.DONE
+	_advance_downloading(night, 2)
+	check(endings.is_empty(), "completa, espera 3 s")
 	_advance_downloading(night, 1)
-	check_eq(endings, [[NightState.Ending.WON, null]], "ganó a las 06:00")
+	check_eq(endings, [[NightState.Ending.WON, null]], "ganó")
 	check(night.ended, "terminó")
 	_free(night)
 	return true
 
 
-func test_a_las_06_sin_la_cuota_se_pierde() -> bool:
+func test_al_completarse_sin_la_cuota_se_pierde() -> bool:
 	var night := _make_night()
 	var endings := []
 	_record_endings(night, endings)
 	night.state().videos.pending.clear()
-	_advance(night, 420)
+	_requests.director.phase = PacingDirector.Phase.DONE
+	_advance(night, 3)
 	check_eq(endings, [[NightState.Ending.QUOTA, null]], "faltó contenido")
 	_free(night)
 	return true

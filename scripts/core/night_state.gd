@@ -60,6 +60,9 @@ var asked := 0
 ## La meta de espera por pedido de la dificultad (DifficultyData.wait_goal), con la que la nota compara average_wait().
 ## La pone RequestManager.
 var wait_goal := 15.0
+## La noche se completó hace end_pause s: la ola final se resolvió, no queda nada abierto ni videos por recibir y la
+## historia terminó (Plan 9.9). Lo pone RequestManager. Desde ahí se gana o, sin la cuota, se pierde.
+var finished := false
 
 ## Segundos que todavía cuentan como scroll del celular.
 var _scroll_left := 0.0
@@ -236,9 +239,9 @@ func vignette_strength() -> float:
 	return clampf((balance.vignette_start - sanity) / balance.vignette_start, 0.0, 1.0)
 
 
-## Cómo termina la noche, o NONE si sigue. Se pierde apenas muere un amigo o un dial llega a 0.
-## A las 06:00 se gana si se cumplió la cuota (diseño §5). El tutorial no termina solo: termina cuando se
-## completa (decisión de Benja).
+## Cómo termina la noche, o NONE si sigue. Se pierde apenas muere un amigo o un dial llega a 0. Cuando la noche se
+## completó (finished), se gana si se cumplió la cuota (Plan 9.9; antes, a las 06:00). El tutorial no termina solo:
+## termina cuando León se despide (decisión de Benja).
 func ending() -> Ending:
 	if night.is_tutorial():
 		return Ending.NONE
@@ -251,7 +254,7 @@ func ending() -> Ending:
 		return Ending.TRUST
 	if connection() <= 0.0:
 		return Ending.CONNECTION
-	if elapsed >= length:
+	if finished:
 		return Ending.WON if videos.is_quota_met() else Ending.QUOTA
 	return Ending.NONE
 

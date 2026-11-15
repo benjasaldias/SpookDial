@@ -18,3 +18,4 @@ nights = Array[ExtResource("2_night")]([ExtResource("3_night_1"), ExtResource("4
 first_night = 1
 highlights = false
 unlocked_by = ExtResource("8_normal")
+wait_goal = 20.0

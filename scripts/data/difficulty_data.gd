@@ -32,6 +32,12 @@ extends Resource
 ## …y con cuánta vida. La vida máxima sigue siendo la de balance.tres.
 @export_range(1, 3) var wounded_health := 1
 
+@export_group("Nota")
+## La meta de espera por pedido de ayuda, en segundos: hasta aquí, la espera da 3 puntos de la nota (decisión de Benja, 14
+## de noviembre; Plan 9.9). Es lo que logra quien juega bien (test/balance_model.gd): 15 en Normal, 20 en Difícil y 15
+## en Extremo.
+@export var wait_goal := 15.0
+
 ## Los castigos por error que escala error_trust_scale (BalanceData).
 const ERROR_TRUST := ["wrong_trust", "risky_trust", "no_answer_trust", "lost_video_trust"]
 

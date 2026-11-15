@@ -1,7 +1,8 @@
 extends Node
 ## El reloj de la noche (Plan 5): avanza las solicitudes y el estado de la noche, en ese orden, y decide
-## cuándo termina. Se gana a las 06:00 con la cuota cumplida. Se pierde apenas muere un amigo o
-## Sanity, Trust o Connection llegan a 0, o a las 06:00 si falta contenido (diseño §5).
+## cuándo termina. Desde el Plan 9.9, la noche termina cuando se completa (RequestManager.night_complete): con la cuota
+## cumplida se gana y, sin ella, se pierde. Se pierde apenas muere un amigo o Sanity, Trust o Connection llegan a 0
+## (diseño §5).
 ## Al terminar, todo se detiene: los temporizadores, la hora y los medidores. Mientras el jumpscare tapa la
 ## pantalla, la noche se pausa (Plan 7, diseño §11). Una noche con historia no empieza hasta que se abre la llamada
 ## (Plan 9.8): mientras tanto no avanza nada y cuenta como pausada.
@@ -59,6 +60,7 @@ func advance(delta: float) -> void:
 	if ended:
 		return
 	requests.state.impatient = requests.impatient_count()
+	requests.state.waiting = requests.waiting_count()
 	var events := requests.state.advance(delta)
 	requests.report(events)
 	for friend_index: int in events.videos.received:

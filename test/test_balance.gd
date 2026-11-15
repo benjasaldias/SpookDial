@@ -84,6 +84,7 @@ func test_valores_del_director_y_los_screamers() -> bool:
 	check_eq(balance.calm_event_delay, Vector2(5, 15), "lo de una calma llega de 5 a 15 s después de empezar")
 	check_eq(balance.hurt_respite, 10.0, "un amigo herido atrasa las solicitudes 10 s")
 	check_eq(balance.story_hold_limit, 45.0, "una ola espera a la historia a lo más 45 s (decisión de Benja, S21l)")
+	check_eq(balance.end_pause, 3.0, "la noche termina 3 s después de completarse (Plan 9.9)")
 	check_eq(balance.finale_margin, 5.0, "la ola final deja 5 s libres al final (decisión de Benja, Plan 9.8)")
 	check_eq(balance.scare_warning, 1.0, "señal previa de 1 s")
 	check_eq(balance.scare_margin, 5.0, "nunca en los últimos 5 s de una decisión")
@@ -97,6 +98,15 @@ func test_valores_del_director_y_los_screamers() -> bool:
 	check_eq(balance.hallucination_start, 50.0, "alucinaciones con Sanity bajo 50")
 	check_eq(balance.hallucination_slowest, 40.0, "una cada 40 s al empezar")
 	check_eq(balance.hallucination_fastest, 10.0, "una cada 10 s con Sanity en 0")
+	return true
+
+
+## La meta de espera de la nota en cada modo (decisión de Benja, 14 de noviembre): lo que logra quien juega bien.
+func test_la_meta_de_espera_de_cada_modo() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	check_eq(catalog.find_difficulty(&"normal").wait_goal, 15.0, "Normal")
+	check_eq(catalog.find_difficulty(&"hard").wait_goal, 20.0, "Difícil")
+	check_eq(catalog.find_difficulty(&"extreme").wait_goal, 15.0, "Extremo")
 	return true
 
 

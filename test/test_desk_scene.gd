@@ -6,6 +6,7 @@ const ChatEntry := preload("res://scripts/ui/chat_entry.gd")
 const ChatMessage := preload("res://scripts/core/chat_message.gd")
 const InterferenceSchedule := preload("res://scripts/core/interference_schedule.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
+const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
 const POSITIONS := {
@@ -600,12 +601,16 @@ func test_la_pantalla_final_pide_seguir_reintentar_o_volver_al_menu() -> bool:
 	return true
 
 
-## Al ganar, el resumen dice qué páginas suma el cuaderno la noche siguiente.
+## Al ganar, el resumen dice qué páginas suma el cuaderno la noche siguiente. Desde el Plan 9.9 se gana al completarse la
+## noche (la ola final resuelta, los videos recibidos y 3 s después), no a una hora.
 func test_al_ganar_el_resumen_dice_las_paginas_nuevas() -> bool:
 	var desk := _make_desk()
-	_state(desk).videos.received = _state(desk).videos.quota
-	_state(desk).elapsed = 419.5
-	desk.get_node("NightManager").advance(1.0)
+	var videos := _state(desk).videos
+	videos.unreleased = 0
+	videos.pending.clear()
+	videos.received = videos.quota
+	desk.get_node("RequestManager").director.phase = PacingDirector.Phase.DONE
+	desk.get_node("NightManager").advance(3.0)
 	var body := (desk.get_node("Overlay/EndScreen/Center/Box/Body") as RichTextLabel).text
 	var pages := ", ".join(PackedStringArray([TranslationServer.translate("ENTITY_BASILISCO_NAME"),
 			TranslationServer.translate("ENTITY_IMBUNCHE_NAME")]))

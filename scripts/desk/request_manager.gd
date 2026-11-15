@@ -19,6 +19,9 @@ extends Node
 ## Una decisión de la historia llega como un accidente, y su opción baja Trust (nunca bajo 1), quita segundos a la próxima
 ## consulta de un amigo y hiere (nunca mata). Mientras la historia cuenta algo, la próxima ola espera. Además, cada
 ## criatura nueva de la noche sale al menos una vez, y con los 3 juntos nadie dice que está solo (docs/21 §1 y §2).
+## Desde el Plan 9.9 (docs/33), dice cuándo se completa la noche (night_complete: la ola final resuelta, nada abierto,
+## los videos recibidos y la historia contada) y, end_pause s después, la termina (NightState.finished). También cuenta
+## los pedidos de ayuda para la nota.
 ## En el escritorio lo avanza NightManager, junto con el estado de la noche.
 
 signal message_added(friend_index: int, message: ChatMessage)
@@ -132,6 +135,8 @@ var _story_penalty: Array[float] = []
 ## Las entidades que ya llegaron esta noche, y cuántas consultas empezaron: para que cada criatura nueva salga.
 var _seen_entities: Array[EntityData] = []
 var _requests_started := 0
+## Segundos que lleva completa la noche: a los end_pause, termina (Plan 9.9).
+var _complete_seconds := 0.0
 
 
 func _ready() -> void:
@@ -142,6 +147,8 @@ func _ready() -> void:
 	var current := current_difficulty()
 	balance = current.balance_for(catalog.balance) if current != null else catalog.balance
 	state = NightState.new(night(), balance, catalog.friends.size(), rng)
+	if current != null:
+		state.wait_goal = current.wait_goal
 	# La historia está en el horario del director (Plan 9.8): le dice cuánto dura cada momento.
 	var story_needs := {}
 	if night().story != null and not night().is_tutorial():
@@ -205,6 +212,23 @@ func impatient_count() -> int:
 	return count
 
 
+## Los pedidos de ayuda abiertos: consultas, accidentes y decisiones de la historia. Con ellos se mide la espera de la
+## nota (Plan 9.9).
+func waiting_count() -> int:
+	return active_count() + incidents.size() - incidents.count(null)
+
+
+## La noche se completó (Plan 9.9): la ola final llegó entera, no queda nada abierto (consultas, accidentes ni
+## decisiones), ningún video espera llegar ni descargarse, y la historia terminó de contarse. El tutorial nunca: termina
+## cuando León se despide.
+func night_complete() -> bool:
+	if night().is_tutorial() or director.phase != PacingDirector.Phase.DONE:
+		return false
+	if _story_busy() or not state.videos.is_settled():
+		return false
+	return story == null or story.is_done()
+
+
 ## Avanza `delta` segundos: los temporizadores, la espera de identificación y la llegada de solicitudes. En el primer paso
 ## avisa qué amigos empezaron heridos: el chat ya está conectado.
 func advance(delta: float) -> void:
@@ -237,6 +261,8 @@ func advance(delta: float) -> void:
 			_maybe_start_request()
 			_maybe_start_incident()
 	_advance_story(delta)
+	_complete_seconds = _complete_seconds + delta if night_complete() else 0.0
+	state.finished = _complete_seconds >= balance.end_pause
 
 
 ## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una o un accidente, si no está
@@ -257,6 +283,7 @@ func start_request(friend_index: int) -> FriendRequest:
 				maxf(request.time_left - _story_penalty[friend_index], STORY_MIN_DECISION_TIME))
 		_story_penalty[friend_index] = 0.0
 	_requests_started += 1
+	state.asked += 1
 	if not _seen_entities.has(request.entity):
 		_seen_entities.append(request.entity)
 	requests[friend_index] = request
@@ -273,6 +300,7 @@ func start_incident(friend_index: int) -> FriendIncident:
 	var data := catalog.incidents[rng.randi_range(0, catalog.incidents.size() - 1)]
 	var incident := FriendIncident.new(data, friend_index, catalog.balance.incident_seconds * timer_scale, rng)
 	incidents[friend_index] = incident
+	state.asked += 1
 	_add_friend_message(friend_index, MessageBuilder.incident(data, tr))
 	return incident
 
@@ -604,6 +632,7 @@ func _do_story(item: StoryRunner.Item) -> void:
 		StoryRunner.Command.DECISION:
 			incidents[item.friend] = FriendIncident.for_decision(item.decision, item.friend,
 					catalog.balance.incident_seconds * timer_scale) as FriendIncident
+			state.asked += 1
 			# La pregunta pide ayuda, como un accidente (Plan 9.8).
 			var question := MessageBuilder.line(ChatMessage.Sender.FRIEND, item.key, tr)
 			question.urgent = true

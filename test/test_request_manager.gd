@@ -1393,3 +1393,92 @@ func test_la_decision_pide_ayuda_y_el_vlog_no() -> bool:
 		check((messages[1] as ChatMessage).urgent and (messages[1] as ChatMessage).opens_help, "la pregunta, sí")
 	manager.free()
 	return true
+
+
+# --- La noche termina cuando se completa, y los pedidos de ayuda de la nota (Plan 9.9, docs/33).
+
+## La noche se completa cuando la ola final llegó entera, no queda nada abierto ni videos por recibir y la historia
+## terminó. 3 s después (end_pause), termina.
+func test_la_noche_se_completa_cuando_no_queda_nada() -> bool:
+	var manager := _make_manager()
+	manager.state.videos.unreleased = 0
+	check(not manager.night_complete(), "con olas por llegar, no")
+	manager.director.phase = PacingDirector.Phase.DONE
+	check(manager.night_complete(), "sin nada pendiente, sí")
+	var request := manager.start_request(0)
+	check(not manager.night_complete(), "con una consulta abierta, no")
+	manager.answer(0, request.entity.actions[0])
+	manager.state.videos.release(1, 0.0)
+	check(not manager.night_complete(), "con un video en camino, no")
+	manager.state.videos.pending.clear()
+	check(manager.night_complete(), "respondida y sin videos, sí")
+	manager.advance(2.9)
+	check(not manager.state.finished, "a los 2,9 s, todavía no termina")
+	manager.advance(0.2)
+	check(manager.state.finished, "a los 3 s, termina")
+	manager.free()
+	return true
+
+
+## El tutorial termina cuando León se despide, nunca solo (decisión de Benja).
+func test_el_tutorial_no_se_completa_solo() -> bool:
+	var manager := _make_manager()
+	manager.state.videos.unreleased = 0
+	manager.director.phase = PacingDirector.Phase.DONE
+	manager.night_number = 0
+	check(not manager.night_complete(), "en la noche 0, no")
+	manager.free()
+	return true
+
+
+## Con historia, la noche espera a que terminen de contarla: el cierre del vlog.
+func test_con_historia_espera_que_terminen_de_contarla() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([Fixtures.make_line(catalog.friends[0], "K_A")], false, catalog)
+	manager.state.videos.unreleased = 0
+	manager.director.phase = PacingDirector.Phase.DONE
+	check(not manager.night_complete(), "la historia no ha terminado")
+	for _step in 30:
+		manager.advance(0.1)
+	check(manager.story.is_done(), "terminaron de contarla")
+	check(manager.night_complete(), "y la noche se completa")
+	manager.free()
+	return true
+
+
+## Los pedidos de ayuda de la nota: consultas, accidentes y decisiones de la historia. Se cuentan al llegar, y los
+## abiertos suman espera.
+func test_cuenta_los_pedidos_de_ayuda() -> bool:
+	var manager := _make_manager()
+	manager.catalog.incidents.append(Fixtures.make_incident())
+	check_eq(manager.waiting_count(), 0, "nada abierto")
+	manager.start_request(0)
+	manager.start_incident(1)
+	check_eq(manager.waiting_count(), 2, "una consulta y un accidente")
+	check_eq(manager.state.asked, 2, "2 pedidos")
+	manager.free()
+	var catalog := Fixtures.make_catalog()
+	var story_manager := _story_manager([_decision_step(catalog)], false, catalog)
+	story_manager.advance(0.1)
+	check_eq([story_manager.waiting_count(), story_manager.state.asked], [1, 1], "la decisión de la historia, también")
+	story_manager.free()
+	return true
+
+
+## La meta de espera de la nota es la de la dificultad.
+func test_la_meta_de_espera_es_la_de_la_dificultad() -> bool:
+	var manager := _make_manager()
+	check_eq(manager.state.wait_goal, 15.0, "sin dificultad elegida, la de por defecto")
+	manager.free()
+	var catalog := Fixtures.make_catalog()
+	var hard := Fixtures.add_hard(catalog)
+	hard.wait_goal = 20.0
+	manager = RequestManager.new()
+	manager.catalog = catalog
+	manager.difficulty = hard
+	manager.night_number = 1
+	manager.requests_arrive = false
+	(Engine.get_main_loop() as SceneTree).root.add_child(manager)
+	check_eq(manager.state.wait_goal, 20.0, "la de Difícil")
+	manager.free()
+	return true

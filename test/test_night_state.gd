@@ -168,14 +168,18 @@ func test_cada_dial_en_0_pierde_la_noche() -> bool:
 	return true
 
 
-func test_a_las_06_gana_si_cumplio_la_cuota() -> bool:
+## La noche no termina por la hora (Plan 9.9): cuando se completa, gana si cumplió la cuota y, si no, pierde.
+func test_al_completarse_gana_si_cumplio_la_cuota() -> bool:
 	var state := _make_state()
 	_advance_downloading(state, 420)
 	check_eq(state.videos.received, 2, "descargó los 2 envíos")
+	check_eq(state.ending(), NightState.Ending.NONE, "a las 06:00 la noche sigue")
+	state.finished = true
 	check_eq(state.ending(), NightState.Ending.WON, "ganó")
 	state = _make_state()
 	_advance(state, 420)
 	check_eq(state.videos.lost, 2, "sin descargarlos, se pierden")
+	state.finished = true
 	check_eq(state.ending(), NightState.Ending.QUOTA, "pierde por la cuota")
 	return true
 
@@ -289,7 +293,7 @@ func test_en_el_tutorial_no_se_pierde() -> bool:
 	check(state.videos.patient, "su plazo espera")
 	state.sanity = 0.0
 	state.trust = 0.0
-	state.elapsed = catalog.balance.night_seconds
+	state.finished = true
 	check_eq(state.ending(), NightState.Ending.NONE, "no termina solo")
 	return true
 
@@ -401,24 +405,6 @@ func test_en_connection_baja_las_3_senales() -> bool:
 	check_eq(state.friends[1].signal_level, 70.0, "Gonzalo −30")
 	check_eq(state.friends[2].signal_level, 15.0, "Agustín, hasta 15")
 	check_eq(state.dial_value(NightState.Dial.CONNECTION), state.connection(), "el dial es el promedio")
-	return true
-
-
-## Una noche con historia termina a las 06:30 (decisión de Benja, S21l; Plan 9.8): el reloj sigue a la misma velocidad.
-func test_una_noche_con_historia_termina_a_las_06_30() -> bool:
-	var catalog := Fixtures.make_catalog()
-	var night := catalog.nights()[0]
-	check_eq(night.length(catalog.balance), 420.0, "sin minutos de más, hasta las 06:00")
-	night.overtime_minutes = 30
-	check_eq(night.length(catalog.balance), 455.0, "con 30 minutos de juego más, 35 s más")
-	var state := NightState.new(night, catalog.balance, 3, RandomNumberGenerator.new())
-	state.advance(420.0)
-	check_eq(state.clock_text(), "06:00", "a los 420 s, las 06:00")
-	check_eq(state.ending(), NightState.Ending.NONE, "y la noche sigue")
-	state.advance(100.0)
-	check_eq(state.clock_text(), "06:30", "no pasa de las 06:30")
-	check_eq(state.elapsed, 455.0, "segundos")
-	check(state.ending() != NightState.Ending.NONE, "a las 06:30 termina")
 	return true
 
 

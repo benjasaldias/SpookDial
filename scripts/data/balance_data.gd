@@ -136,6 +136,9 @@ extends Resource
 ## Mientras la historia cuenta algo antes de una ola (unas líneas o una decisión), la ola espera a lo más tantos segundos
 ## (decisión de Benja, S21l; docs/31). Jugando bien, casi nunca espera.
 @export var story_hold_limit := 45.0
+## Segundos entre que la noche se completa (la ola final resuelta, nada abierto y la historia contada) y su final: lo
+## justo para leer lo último (decisión de Benja, 14 de noviembre; Plan 9.9).
+@export var end_pause := 3.0
 
 @export_group("Screamers")
 ## Segundos de la señal previa: las luces parpadean y baja el sonido ambiente (diseño §11).
