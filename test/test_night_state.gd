@@ -420,3 +420,28 @@ func test_una_noche_con_historia_termina_a_las_06_30() -> bool:
 	check_eq(state.elapsed, 455.0, "segundos")
 	check(state.ending() != NightState.Ending.NONE, "a las 06:30 termina")
 	return true
+
+
+## La espera de la nota (Plan 9.9): cada segundo suma los pedidos de ayuda abiertos, y el promedio es por pedido.
+func test_la_espera_de_los_pedidos() -> bool:
+	var state := _make_state()
+	check_eq(state.average_wait(), 0.0, "sin pedidos, 0")
+	state.asked = 3
+	state.waiting = 2
+	state.advance(10.0)
+	state.waiting = 1
+	state.advance(10.0)
+	check_eq(state.waited, 30.0, "10 s con 2 abiertos y 10 s con 1")
+	check_eq(state.average_wait(), 10.0, "30 s entre 3 pedidos")
+	check_eq(state.wait_goal, 15.0, "la meta por defecto, la de Normal")
+	return true
+
+
+## Las vidas perdidas de la nota: las heridas de las consecuencias y de los accidentes.
+func test_las_vidas_perdidas() -> bool:
+	var state := _make_state()
+	check_eq(state.lives_lost(), 0, "al empezar, ninguna")
+	state.apply(0, _consequence(2, -15.0))
+	state.injure(1)
+	check_eq(state.lives_lost(), 3, "2 de León y 1 de Gonzalo")
+	return true

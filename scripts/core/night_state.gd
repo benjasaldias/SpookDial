@@ -50,6 +50,16 @@ var holding_download := -1
 ## Lo pone NightManager antes de cada paso.
 var impatient := 0
 var interferences: InterferenceSchedule
+## Los pedidos de ayuda abiertos (consultas, accidentes y decisiones de la historia): lo pone NightManager antes de cada
+## paso, como impatient. Mientras están abiertos, suman a la espera de la nota (Plan 9.9).
+var waiting := 0
+## Los segundos que esperaron los pedidos de ayuda, sumados: dos abiertos a la vez suman el doble.
+var waited := 0.0
+## Cuántos pedidos de ayuda llegaron en la noche. Los cuenta RequestManager al empezar cada uno.
+var asked := 0
+## La meta de espera por pedido de la dificultad (DifficultyData.wait_goal), con la que la nota compara average_wait().
+## La pone RequestManager.
+var wait_goal := 15.0
 
 ## Segundos que todavía cuentan como scroll del celular.
 var _scroll_left := 0.0
@@ -78,6 +88,7 @@ func _init(night_data: NightData, balance_data: BalanceData, friend_count: int, 
 func advance(delta: float) -> Events:
 	var events := Events.new()
 	elapsed = minf(elapsed + delta, length)
+	waited += delta * waiting
 	var online: Array[bool] = []
 	for friend: FriendState in friends:
 		online.append(friend.is_online())
@@ -199,6 +210,19 @@ func connection() -> float:
 	for friend: FriendState in friends:
 		total += friend.signal_level
 	return total / friends.size()
+
+
+## Cuánto esperó en promedio cada pedido de ayuda, en segundos (0 si no hubo ninguno).
+func average_wait() -> float:
+	return waited / asked if asked > 0 else 0.0
+
+
+## Las vidas que perdieron los amigos en la noche, sin la herida con que empieza uno en Extremo.
+func lives_lost() -> int:
+	var lost := 0
+	for friend: FriendState in friends:
+		lost += friend.health_lost
+	return lost
 
 
 ## La hora del celular, de "00:00" a "06:00" (o a "06:30", con historia): night_seconds son 6 horas.

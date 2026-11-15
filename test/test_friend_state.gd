@@ -67,3 +67,17 @@ func test_aturdido_no_envia_videos() -> bool:
 	friend.hurt(1, 15.0)
 	check(friend.is_online() and not friend.can_send(), "aturdido: no envía")
 	return true
+
+
+## La nota cuenta la vida que se perdió en la noche (Plan 9.9): lo que quitó cada herida, sin pasar de la que tenía.
+func test_cuenta_la_vida_perdida() -> bool:
+	var friend := FriendState.new(3)
+	check_eq(friend.health_lost, 0, "al empezar, nada")
+	friend.hurt(1, 15.0)
+	check_eq(friend.health_lost, 1, "una herida de 1")
+	friend.hurt(5, 15.0)
+	check_eq(friend.health_lost, 3, "una de 5 le quita las 2 que le quedaban")
+	var wounded := FriendState.new(3)
+	wounded.health = 1
+	check_eq(wounded.health_lost, 0, "empezar herido (Extremo) no cuenta")
+	return true

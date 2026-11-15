@@ -13,6 +13,9 @@ var stun_left := 0.0
 var signal_level := SIGNAL_MAX
 ## Segundos por cada punto de señal que pierde con el tiempo. Con 0, la señal no baja (noche 1).
 var signal_decay_interval := 0.0
+## La vida que perdió en la noche, para la nota (Plan 9.9). La herida con que empieza en Extremo no cuenta, porque no pasa
+## por hurt().
+var health_lost := 0
 
 
 func _init(start_health: int) -> void:
@@ -46,6 +49,7 @@ func can_send() -> bool:
 
 ## Pierde `damage` de vida. Si sobrevive, queda aturdido `stun_seconds`.
 func hurt(damage: int, stun_seconds: float) -> void:
+	health_lost += mini(damage, health)
 	health = maxi(health - damage, 0)
 	stun_left = stun_seconds if is_alive() else 0.0
 

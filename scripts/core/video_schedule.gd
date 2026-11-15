@@ -132,6 +132,12 @@ func is_quota_met() -> bool:
 	return received >= quota
 
 
+## Ya no queda ningún video por llegar ni por descargar: los programados se soltaron, todos llegaron y ninguno espera su
+## descarga (Plan 9.9). Antes, la noche no se completa.
+func is_settled() -> bool:
+	return unreleased == 0 and pending.is_empty() and offers.is_empty()
+
+
 ## Cuántos videos puede tener la noche todavía: los recibidos, los que esperan su descarga y los que faltan llegar.
 func potential() -> int:
 	return received + offers.size() + pending.size() + unreleased

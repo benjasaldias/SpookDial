@@ -208,3 +208,20 @@ func test_en_el_tutorial_nunca_faltan() -> bool:
 	schedule.patient = true
 	check(not schedule.is_short(), "no avisa")
 	return true
+
+
+## La noche no se completa con videos por llegar o por descargar (Plan 9.9).
+func test_asentado_cuando_no_queda_nada_por_llegar() -> bool:
+	var schedule := _schedule(1)
+	var friends := _friends()
+	check(not schedule.is_settled(), "el programado no se ha soltado")
+	schedule.release(0, 1.0)
+	check(not schedule.is_settled(), "en camino")
+	_advance(schedule, friends, 0.0, 1, -1)
+	check_eq(schedule.offers.size(), 1, "llegó: espera su descarga")
+	check(not schedule.is_settled(), "por descargar")
+	_advance(schedule, friends, 1.0, 10, 0)
+	check_eq(schedule.received, 1, "descargado")
+	check(schedule.is_settled(), "ya no queda nada")
+	check(_schedule(0).is_settled(), "sin cuota, nada que esperar")
+	return true
