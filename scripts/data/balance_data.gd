@@ -176,3 +176,12 @@ extends Resource
 @export var hallucination_slowest := 40.0
 ## …y con Sanity en 0. En el medio, el espacio se acorta parejo.
 @export var hallucination_fastest := 10.0
+
+@export_group("Nota")
+## La nota de cada noche ganada (decisiones de Benja, 14 de noviembre; Plan 9.9): la espera da 3 puntos hasta la meta de
+## la dificultad (DifficultyData.wait_goal), 2 hasta x veces la meta y 1 hasta y veces; más, 0.
+@export var grade_wait_factors := Vector2(1.5, 2.0)
+## Desde cuántos puntos (de 6: 3 por la espera y 3 por las vidas) la nota es S, A o B; con menos, C.
+@export var grade_s_points := 5
+@export var grade_a_points := 4
+@export var grade_b_points := 2

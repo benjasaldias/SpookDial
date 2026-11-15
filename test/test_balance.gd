@@ -237,6 +237,7 @@ func test_la_mano() -> bool:
 
 const BalanceModel := preload("res://test/balance_model.gd")
 const StoryRunner := preload("res://scripts/core/story_runner.gd")
+const NightGrade := preload("res://scripts/core/night_grade.gd")
 ## Semillas por noche: el director y la criatura cambian con cada una.
 const SEEDS := 20
 
@@ -593,4 +594,27 @@ func test_ninguna_noche_termina_antes_de_las_04_30() -> bool:
 			var average := total / SEEDS
 			check(average >= earliest, "%s, noche %d: termina a las %s" % [difficulty.id, night.number,
 					BalanceModel.clock(average, catalog.balance)])
+	return true
+
+
+## Los valores de la nota (decisiones de Benja, 14 de noviembre).
+func test_valores_de_la_nota() -> bool:
+	var balance: BalanceData = load(BALANCE_PATH)
+	check_eq(balance.grade_wait_factors, Vector2(1.5, 2.0), "la espera da 2 puntos hasta 1,5 veces la meta y 1 hasta 2")
+	check_eq([balance.grade_s_points, balance.grade_a_points, balance.grade_b_points], [5, 4, 2], "S desde 5, A con 4, B con 2")
+	return true
+
+
+## Jugando bien se saca S en toda noche (Plan 9.9): sin perder vidas y con una espera de 2 o 3 puntos.
+func test_jugando_bien_se_saca_s() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	for difficulty: DifficultyData in catalog.difficulties:
+		for night: NightData in difficulty.nights:
+			for seed_value in 5:
+				var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1,
+						BalanceModel.attention_for(difficulty), catalog.friends)
+				var wait := BalanceModel.average_wait(result)
+				var points := NightGrade.wait_points(wait, difficulty.wait_goal, catalog.balance) + NightGrade.life_points(0)
+				check_eq(NightGrade.letter(points, catalog.balance), "S", "%s, noche %d, semilla %d: %.1f s por pedido"
+						% [difficulty.id, night.number, seed_value + 1, wait])
 	return true

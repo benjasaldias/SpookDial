@@ -64,3 +64,7 @@ hand_floor = 15.0
 hallucination_start = 50.0
 hallucination_slowest = 40.0
 hallucination_fastest = 10.0
+grade_wait_factors = Vector2(1.5, 2)
+grade_s_points = 5
+grade_a_points = 4
+grade_b_points = 2

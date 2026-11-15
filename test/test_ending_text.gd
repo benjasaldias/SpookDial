@@ -18,6 +18,9 @@ const FORMATS := {
 	"END_CHOSEN_ALONE": "{friend} eligió solo: {action}.",
 	"END_CHOSEN_OFFLINE": "{friend} sin señal eligió: {action}.",
 	"END_UNLOCKED": "Desbloqueaste {difficulty}.",
+	"END_GRADE": "Nota {grade}",
+	"END_WAIT": "Esperaron {seconds} de {goal}.",
+	"END_LIVES": "Vidas: {lives}.",
 }
 const FRIENDS: Array[String] = ["León", "Gonzalo", "Agustín"]
 
@@ -116,7 +119,7 @@ func test_sus_textos_existen() -> bool:
 			EndingText.RULE_KEY, EndingText.CORRECT_KEY, EndingText.CHOSEN_BY_PLAYER_KEY, EndingText.CHOSEN_ALONE_KEY,
 			EndingText.CHOSEN_OFFLINE_KEY, EndingText.TUTORIAL_TITLE_KEY, EndingText.VICTORY_TITLE_KEY,
 			EndingText.TUTORIAL_KEY, EndingText.VICTORY_KEY, EndingText.NEW_PAGES_KEY, EndingText.NO_NEW_PAGES_KEY,
-			"END_NEXT", "END_MENU", EndingText.UNLOCKED_KEY]
+			"END_NEXT", "END_MENU", EndingText.UNLOCKED_KEY, EndingText.GRADE_KEY, EndingText.WAIT_KEY, EndingText.LIVES_KEY]
 	keys.append_array(EndingText.REASON_KEYS.values())
 	for key: String in keys:
 		check(String(TranslationServer.translate(key)) != key, "falta %s en ui.csv" % key)
@@ -132,6 +135,9 @@ func test_sus_textos_existen() -> bool:
 		"END_CHOSEN_ALONE": ["{friend}", "{action}"],
 		"END_CHOSEN_OFFLINE": ["{friend}", "{action}"],
 		"END_UNLOCKED": ["{difficulty}"],
+		"END_GRADE": ["{grade}"],
+		"END_WAIT": ["{seconds}", "{goal}"],
+		"END_LIVES": ["{lives}"],
 	}
 	for key: String in placeholders:
 		for placeholder: String in placeholders[key]:
@@ -182,4 +188,16 @@ func test_la_victoria_avisa_lo_desbloqueado() -> bool:
 	check_eq(_plain(EndingText.summary(EndingText.LAST_NIGHT, state, none, _translate, unlocked)),
 			"Ganaste con 2 de 2.\n\nEND_VICTORY\n\nDesbloqueaste Difícil.", "la victoria y el aviso")
 	check(not EndingText.summary(3, state, none, _translate, unlocked).contains("Desbloqueaste"), "no antes de la última")
+	return true
+
+
+## La nota al ganar (Plan 9.9): la letra, la espera por pedido contra la meta y las vidas perdidas.
+func test_la_nota() -> bool:
+	check_eq(EndingText.grade_title("A", _translate), "Nota A", "la letra")
+	var state := _make_state()
+	state.asked = 2
+	state.waited = 37.0
+	state.wait_goal = 20.0
+	state.friends[0].hurt(2, 0.0)
+	check_eq(EndingText.grade_detail(state, _translate), "Esperaron 19 de 20.\nVidas: 2.", "18,5 s se redondea a 19")
 	return true

@@ -122,3 +122,31 @@ func test_la_victoria_avisa_lo_desbloqueado() -> bool:
 	check(body.contains(String(tr("END_UNLOCKED")).format({"difficulty": "Difícil"})), "avisa: " + body)
 	screen.free()
 	return true
+
+
+## Al ganar una noche, la nota (Plan 9.9): la letra grande y, al final del resumen, la espera y las vidas.
+func test_al_ganar_la_nota() -> bool:
+	var screen := _make_screen()
+	var state := _make_state()
+	state.videos.received = 2
+	state.asked = 4
+	state.waited = 40.0
+	screen.show_ending(NightState.Ending.WON, state, null, FRIENDS)
+	var grade := screen.get_node("Center/Box/Grade") as Label
+	check(grade.visible, "se ve")
+	check_eq(grade.text, _translated("END_GRADE").format({"grade": "S"}), "10 s por pedido y ninguna vida perdida: S")
+	var body := (screen.get_node("Center/Box/Body") as RichTextLabel).get_parsed_text()
+	check(body.contains(_translated("END_WAIT").format({"seconds": 10, "goal": 15})), "la espera: " + body)
+	check(body.contains(_translated("END_LIVES").format({"lives": 0})), "las vidas: " + body)
+	screen.free()
+	return true
+
+
+func test_sin_nota_al_perder_ni_en_el_tutorial() -> bool:
+	var screen := _make_screen()
+	screen.show_ending(NightState.Ending.SANITY, _make_state(), null, FRIENDS)
+	check(not (screen.get_node("Center/Box/Grade") as Label).visible, "al perder, no")
+	screen.show_ending(NightState.Ending.WON, _make_state(), null, FRIENDS, 0)
+	check(not (screen.get_node("Center/Box/Grade") as Label).visible, "en el tutorial, no")
+	screen.free()
+	return true

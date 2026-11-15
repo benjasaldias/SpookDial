@@ -22,6 +22,11 @@ const NEW_PAGES_KEY := "END_NEW_PAGES"
 const NO_NEW_PAGES_KEY := "END_NO_NEW_PAGES"
 ## Al terminar una dificultad, la que se desbloqueó (ui.csv; lleva {difficulty}).
 const UNLOCKED_KEY := "END_UNLOCKED"
+## La nota al ganar una noche (Plan 9.9; ui.csv): END_GRADE lleva {grade}; END_WAIT, {seconds} y {goal}; END_LIVES,
+## {lives}.
+const GRADE_KEY := "END_GRADE"
+const WAIT_KEY := "END_WAIT"
+const LIVES_KEY := "END_LIVES"
 ## La última noche: al ganarla, el juego termina (diseño §5).
 const LAST_NIGHT := 5
 ## Por qué terminó la noche (ui.csv). END_WON y END_QUOTA llevan {received} y {quota}, y END_QUOTA también {time};
@@ -81,6 +86,17 @@ static func summary(night_number: int, state: NightState, new_pages: Array[Strin
 		var pages := ", ".join(PackedStringArray(new_pages.map(_escape)))
 		lines.append(_line(translate, NEW_PAGES_KEY, {"night": night_number + 1, "pages": pages}))
 	return "\n".join(lines)
+
+
+## El título de la nota: "Nota A" (Plan 9.9).
+static func grade_title(grade: String, translate: Callable) -> String:
+	return _text(translate, GRADE_KEY).format({"grade": grade})
+
+
+## Lo que dio la nota: cuánto esperaron los amigos por pedido, contra la meta, y las vidas que perdieron.
+static func grade_detail(state: NightState, translate: Callable) -> String:
+	var wait := _line(translate, WAIT_KEY, {"seconds": roundi(state.average_wait()), "goal": roundi(state.wait_goal)})
+	return wait + "\n" + _line(translate, LIVES_KEY, {"lives": state.lives_lost()})
 
 
 ## Por qué terminó la noche y, si murió un amigo, qué pasó en `fatal_request`.
