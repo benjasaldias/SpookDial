@@ -7,8 +7,8 @@ extends RefCounted
 ##   En los dos casos se aplican sus pasos de separarse y reunirse, para que la historia siga teniendo sentido (si la
 ##   final llega encima de la ola 2, se reúnen solos: decisión de Benja, S21l).
 ## - **Dónde:** con los 3 juntos, las líneas van a la llamada grupal, y esperan a que se vea (sin nada que jugar);
-##   separados, al chat de quien habla. Cada línea espera lo que se tarda en leerla, a 15 letras por segundo (el doble de
-##   lento que antes: pedido de Benja, Plan 9.8).
+##   separados, al chat de quien habla. Cada línea espera lo que tarda en escribirse y en leerse, por sus palabras, más
+##   una pausa (line_seconds; pedidos de Benja en los planes 9.8 y 9.9).
 ## - **El horario:** story_needs() dice cuánto dura cada momento, y el director lo deja en el horario (Plan 9.8). Un
 ##   momento "antes de" una ola empieza lo que dura antes de ella (más 2 s), y nunca menos que su lead_seconds.
 ## - **Las decisiones** esperan a que su amigo esté libre y con señal; después, la respuesta de Matías (o que se acabe su
@@ -22,8 +22,13 @@ const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 ## Lo que hay que hacer: una línea en el chat de un amigo, una línea en la llamada o una decisión.
 enum Command { LINE, CALL_LINE, DECISION }
 
-## Una línea queda lo que se tarda en leerla (Plan 9.8): tantas letras por segundo, y nunca menos que MIN_LINE_SECONDS.
-const READING_CHARS_PER_SECOND := 15.0
+## Una línea queda lo que tarda en escribirse, lo que se tarda en leerla y una pausa (pedido de Benja, Plan 9.9: el inicio
+## se sentía rápido): se escribe a TYPING_CHARS_PER_SECOND letras por segundo (lo mismo que el chat,
+## ChatMessageView.CHARS_PER_SECOND), se lee a READING_WORDS_PER_SECOND palabras por segundo y después espera LINE_PAUSE.
+## Nunca menos que MIN_LINE_SECONDS.
+const TYPING_CHARS_PER_SECOND := 60.0
+const READING_WORDS_PER_SECOND := 3.5
+const LINE_PAUSE := 1.0
 const MIN_LINE_SECONDS := 2.0
 ## Un momento "antes de" una ola termina, al menos, tantos segundos antes de ella.
 const LEAD_MARGIN := 2.0
@@ -82,9 +87,11 @@ func _init(story: StoryData, friends: Array[FriendData], translate: Callable, de
 			_leads[beat] = maxf(beat.lead_seconds, beat_seconds(beat, translate, decision_seconds) + LEAD_MARGIN)
 
 
-## Lo que queda una línea de `text`: lo que se tarda en leerla.
+## Lo que queda una línea de `text`: lo que tarda en escribirse, en leerse (por sus palabras) y la pausa.
 static func line_seconds(text: String) -> float:
-	return maxf(text.length() / READING_CHARS_PER_SECOND, MIN_LINE_SECONDS)
+	var typing := text.length() / TYPING_CHARS_PER_SECOND
+	var reading := text.split(" ", false).size() / READING_WORDS_PER_SECOND
+	return maxf(typing + reading + LINE_PAUSE, MIN_LINE_SECONDS)
 
 
 ## Lo que dura `beat`: sus líneas y, por cada decisión, la pregunta, `decision_seconds` y la respuesta más larga. De los
