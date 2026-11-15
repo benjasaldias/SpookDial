@@ -41,7 +41,7 @@ Un tester jugó la noche 1 con la historia. Le sobró mucho tiempo: la ola final
 
 - **El tiempo muerto al final de cada noche:** la final se programaba para el peor caso. Con el Plan 9.8 (las 06:30) se notó más en la noche 1.
 - **Difícil 5 se saltaba una ola:** Benja probó una noche de 9 a 11 consultas, no de 11. Por eso baja a 9.
-- **Una copia que no hacía falta:** Claude armó un prototipo en `C:\dev\plan99` (fuera del proyecto) para medir. Benja aclaró que se trabaja en la carpeta de OneDrive, y el plan se escribió ahí, sin programarlo antes. La copia quedó y se puede borrar. El código del plan no se corrió: las pruebas de cada tarea lo verifican al ejecutarlo, y las cuentas de pruebas están sumadas a mano.
+- **Una copia que no hacía falta:** Claude armó un prototipo en `C:\dev\plan99` (fuera del proyecto) para medir. Benja aclaró que se trabaja en la carpeta de OneDrive, y el plan se escribió ahí, sin programarlo antes. La copia se borró al cerrar, con el permiso de Benja. El código del plan no se corrió: las pruebas de cada tarea lo verifican al ejecutarlo, y las cuentas de pruebas están sumadas a mano.
 
 ### Pendientes Código
 
@@ -100,7 +100,7 @@ Un tester jugó la noche 1 con la historia. Le sobró mucho tiempo: la ola final
 - [ ] Si al probar las respuestas delatan demasiado las características: agregarles señuelos (`docs/10`, "Fuera de este plan").
 - [ ] Si Benja las quiere: varias versiones de cada reacción, para que no se repitan.
 - [ ] Si al probar se siente seco o lento: una demora de "escribiendo…" en las respuestas del amigo.
-- [ ] Borrar `~/godot-games/spook-dial` y las copias `C:\dev\plan8`, `C:\dev\plan8_check`, `C:\dev\plan9`, `C:\dev\plan9_check` y `C:\dev\plan99` (el prototipo de S21n) cuando Benja lo pida.
+- [ ] Borrar `~/godot-games/spook-dial` y las copias `C:\dev\plan8`, `C:\dev\plan8_check`, `C:\dev\plan9` y `C:\dev\plan9_check` cuando Benja lo pida (`C:\dev\plan99`, el prototipo de S21n, ya se borró).
 
 ### Pendientes Externos
 
