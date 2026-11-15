@@ -3,7 +3,7 @@ extends SceneTree
 ## tools/plot_waves.py. No es una prueba.
 ## Uso: ~/tools/godot-wsl.sh --headless --path "$PWD" -s res://test/dump_waves.gd -- <noche> <semilla> <archivo.json> \
 ##     [dificultad]
-## La dificultad es "normal" (por defecto) o "hard".
+## La dificultad es "normal" (por defecto), "hard" o "extreme".
 
 const BalanceModel := preload("res://test/balance_model.gd")
 
@@ -17,9 +17,10 @@ func _initialize() -> void:
 	result["night"] = night.number
 	result["difficulty"] = String(difficulty.id)
 	result["seed"] = int(args[1])
-	result["night_seconds"] = catalog.balance.night_seconds
-	result["battery"] = BalanceModel.battery_needed(night, catalog.balance)
-	result["free_time_needed"] = BalanceModel.free_time_needed(night, catalog.balance)
+	# Lo que duró la noche (Plan 9.9: termina cuando se completa): tools/plot_waves.py dibuja hasta ahí.
+	result["night_seconds"] = result["end"]
+	result["battery"] = BalanceModel.battery_needed(night, catalog.balance, result["end"])
+	result["free_time_needed"] = BalanceModel.free_time_needed(night, catalog.balance, result["end"])
 	var file := FileAccess.open(args[2], FileAccess.WRITE)
 	file.store_string(JSON.stringify(result))
 	file.close()

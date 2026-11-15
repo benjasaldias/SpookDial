@@ -29,4 +29,4 @@ content_quota = 4
 scare_count = 6
 creature_visits = 3
 hand_visits = 3
-wave_calm = Vector2(20, 30)
+wave_calm = Vector2(30, 40)

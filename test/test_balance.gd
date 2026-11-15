@@ -139,7 +139,9 @@ func test_identificacion_por_preguntas() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	check_eq(catalog.balance.question_cost, 5.0, "preguntar cuesta 5 s")
 	check(catalog.greeting_keys.size() >= 5, "el amigo tiene varios saludos: %d" % catalog.greeting_keys.size())
-	var requests := [7, 7, 9, 9, 11]
+	# Difícil 5 baja de 11 a 9 (decisión de Benja, 14 de noviembre): antes se saltaba una ola que no cabía, y con las olas
+	# en cadena (Plan 9.9) llegarían las 11.
+	var requests := [7, 7, 9, 9, 9]
 	var times := [80.0, 65.0, 55.0, 50.0, 45.0]
 	var hints := [1.0, 0.75, 0.0, 0.0, 0.0]
 	var decoys := [1, 2, 3, 3, 4]
@@ -171,6 +173,9 @@ func test_mantenimiento_de_cada_noche() -> bool:
 		check_eq(night.interference_count, interferences[index], who + ": interferencias")
 		check_eq(night.audio_sync_beats, beats[index], who + ": aplausos de Audio Sync")
 		check_eq(night.audio_sync_bpm, bpms[index], who + ": golpes por minuto de Audio Sync")
+	check_eq(nights.map(func(night: NightData) -> Vector2: return night.wave_calm),
+			[Vector2.ZERO, Vector2(65, 85), Vector2.ZERO, Vector2.ZERO, Vector2(45, 65)],
+			"las calmas de Difícil (Plan 9.9: la noche 2 terminaba muy temprano y la 5 se quedaba sin holgura)")
 	return true
 
 
@@ -238,12 +243,14 @@ const SEEDS := 20
 
 
 ## La batería de los flashes, más la que hace falta para reponer Sanity jugando bien, no pasa de 100 %, en las 5 noches
-## de cada dificultad.
+## de cada dificultad. Desde el Plan 9.9, la noche dura lo que tarda en completarse.
 func test_la_bateria_alcanza_en_cada_noche() -> bool:
 	var catalog: ContentCatalog = load("res://data/catalog.tres")
 	for difficulty: DifficultyData in catalog.difficulties:
+		var attention := BalanceModel.attention_for(difficulty)
 		for night: NightData in difficulty.nights:
-			var needed := BalanceModel.battery_needed(night, catalog.balance)
+			var length := BalanceModel.night_length(night, catalog.balance, attention)
+			var needed := BalanceModel.battery_needed(night, catalog.balance, length)
 			check(needed <= 100.0, "%s, noche %d: pide %.1f %% de batería" % [difficulty.id, night.number, needed])
 	return true
 
@@ -259,8 +266,7 @@ func test_jugando_bien_nada_vence() -> bool:
 				var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1,
 						BalanceModel.attention_for(difficulty))
 				check_eq(result["missed"], 0, who + ": tareas vencidas")
-				check(result["requests"] >= night.total_requests() - 2, "%s: llegan casi todas: %d"
-						% [who, result["requests"]])
+				check_eq(result["requests"], night.total_requests(), who + ": llegan todas (Plan 9.9: ninguna ola se salta)")
 	return true
 
 
@@ -380,6 +386,8 @@ func test_valores_de_normal() -> bool:
 		"audio_sync_beats": [4, 4, 4, 8],
 		"content_quota": [2, 3, 3, 4],
 		"scare_count": [4, 4, 5, 6],
+		# Las noches que, en cadena, terminaban antes de las 04:30 (Plan 9.9): sus calmas son más largas.
+		"wave_calm": [Vector2(75, 95), Vector2(45, 65), Vector2.ZERO, Vector2.ZERO],
 	}
 	for index in range(1, nights.size()):
 		var night := nights[index]
@@ -472,11 +480,11 @@ func test_valores_de_extremo() -> bool:
 		var who := "noche %d" % night.number
 		for property: String in expected:
 			check_eq(night.get(property), expected[property][index], "%s: %s" % [who, property])
-		check_eq(night.wave_calm, Vector2(20, 30), who + ": calma de 20 a 30 s")
+		check_eq(night.wave_calm, Vector2(30, 40), who + ": calma de 30 a 40 s (Plan 9.9: sin el tiempo muerto del final hacía falta más holgura)")
 		check_eq([night.wave_size, night.finale_size, night.max_simultaneous], [2, 3, 3], who + ": olas de 2, la final de 3")
 		check_eq(night.first_hint_chance, 0.0, who + ": sin pista")
 		check_eq(night.audio_sync_beats, 8, who + ": 8 aplausos")
-		# La noche 1 dura hasta las 06:30 (Plan 9.8): baja lo mismo en total, −1 cada 6,5 s.
+		# La noche 1 tiene −1 cada 6,5 s (Plan 9.8, cuando duraba hasta las 06:30).
 		check_eq(night.sanity_drain_interval, 6.5 if night.number == 1 else 6.0, who + ": Sanity −1 cada 6 s")
 		check(night.signal_decays, who + ": la señal baja")
 	return true
@@ -500,7 +508,9 @@ func test_extremo_es_mas_duro_que_dificil() -> bool:
 		for property: String in ["base_decision_time", "first_hint_chance", "place_chance"]:
 			check(extreme[index].get(property) <= hard[index].get(property), "%s: %s, a lo más como Difícil" % [who, property])
 		check(extreme[index].base_decision_time < hard[index].base_decision_time, who + ": menos tiempo para responder")
-		check(extreme[index].wave_calm.y < calm.x, who + ": calmas más cortas")
+		var hard_calm: Vector2 = hard[index].wave_calm if hard[index].wave_calm != Vector2.ZERO else calm
+		check(extreme[index].wave_calm.x < hard_calm.x and extreme[index].wave_calm.y < hard_calm.y,
+				who + ": calmas más cortas")
 	return true
 
 
@@ -538,4 +548,50 @@ func test_jugando_bien_la_final_casi_no_espera() -> bool:
 						BalanceModel.attention_for(difficulty), catalog.friends)["story_hold"]
 				check(hold <= 10.0, "%s, noche %d, semilla %d: una ola esperó %.1f s" % [difficulty.id, night.number,
 						seed_value + 1, hold])
+	return true
+
+
+
+# --- La noche termina cuando se acaba (decisiones de Benja, 14 de noviembre; Plan 9.9, docs/33).
+
+## Jugando bien, la noche no deja tiempo muerto al final (el tester de la segunda prueba esperó 1:20 sin nada): termina
+## end_pause s después de lo último que había que hacer o, con historia, de que terminan de despedirse.
+func test_la_noche_termina_cuando_se_acaba() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var previous := TranslationServer.get_locale()
+	TranslationServer.set_locale("es")
+	for difficulty: DifficultyData in catalog.difficulties:
+		for night: NightData in difficulty.nights:
+			var outro := 0.0
+			if night.story != null:
+				var needs := StoryRunner.story_needs(night.story, Callable(TranslationServer, "translate"),
+						catalog.balance.incident_seconds)
+				outro = float(needs.get(StoryBeatData.Moment.AFTER_FINALE, 0.0))
+			for seed_value in 5:
+				var result := BalanceModel.simulate(night, catalog.balance, seed_value + 1,
+						BalanceModel.attention_for(difficulty), catalog.friends)
+				var last := 0.0
+				for task: Dictionary in result["tasks"]:
+					last = maxf(last, task["end"])
+				var dead: float = result["end"] - last
+				check(dead <= outro + catalog.balance.end_pause + 1.0, "%s, noche %d, semilla %d: %.1f s después de lo último"
+						% [difficulty.id, night.number, seed_value + 1, dead])
+	TranslationServer.set_locale(previous)
+	return true
+
+
+## Jugando bien, ninguna noche termina antes de las 04:30 en promedio (decisión de Benja, 14 de noviembre): donde las olas
+## en cadena la dejaban muy corta, sus calmas son más largas.
+func test_ninguna_noche_termina_antes_de_las_04_30() -> bool:
+	var catalog: ContentCatalog = load("res://data/catalog.tres")
+	var earliest := catalog.balance.night_seconds * 4.5 / 6.0
+	for difficulty: DifficultyData in catalog.difficulties:
+		var attention := BalanceModel.attention_for(difficulty)
+		for night: NightData in difficulty.nights:
+			var total := 0.0
+			for seed_value in SEEDS:
+				total += BalanceModel.simulate(night, catalog.balance, seed_value + 1, attention, catalog.friends)["end"]
+			var average := total / SEEDS
+			check(average >= earliest, "%s, noche %d: termina a las %s" % [difficulty.id, night.number,
+					BalanceModel.clock(average, catalog.balance)])
 	return true

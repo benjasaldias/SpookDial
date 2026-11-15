@@ -14,6 +14,9 @@ extends RefCounted
 ## (es opcional), pero cada decisión sí, como un accidente, y ocupa a su amigo. Quien juega bien elige la buena opción que
 ## más Trust cuesta, y su castigo vale: Trust y los segundos menos de la próxima consulta de cada castigado. Mientras la
 ## historia cuenta algo, la próxima ola espera, como en el juego.
+## Desde el Plan 9.9 (docs/33), la noche no termina a una hora: el modelo la corre hasta que se completa (la ola final
+## llegó entera, no queda nada abierto salvo la Mano, los videos llegaron y la historia terminó) y end_pause s más, como
+## el juego. Sanity, la batería y la holgura se miden con lo que dura.
 
 const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 const RequestGenerator := preload("res://scripts/core/request_generator.gd")
@@ -41,6 +44,8 @@ const SANITY_MARGIN := 10.0
 const FRIENDS := 3
 ## Cada cuánto avanza la simulación.
 const STEP := 0.1
+## Un tope de seguridad, en segundos: ninguna noche jugada bien dura tanto. Si una llega aquí, no se completó.
+const MAX_NIGHT_SECONDS := 1200.0
 
 
 ## Los segundos por consulta de quien juega bien en `difficulty`: guiado (Normal), leyendo (Difícil) o un experto que
@@ -61,49 +66,60 @@ static func sync_seconds(night: NightData, balance: BalanceData) -> float:
 	return total
 
 
-## Los segundos que quien juega bien necesita fuera de las tareas: sincronizar a los amigos (lo que pierden de señal con
-## el tiempo, a su ritmo promedio, y con las interferencias) y scrollear para reponer Sanity.
-static func free_time_needed(night: NightData, balance: BalanceData) -> float:
+## Lo que dura la noche de quien juega bien: la más larga de `seeds` semillas (Plan 9.9: ya no tiene hora de término).
+static func night_length(night: NightData, balance: BalanceData, attention: float, seeds := 5) -> float:
+	var longest := 0.0
+	for seed_value in seeds:
+		longest = maxf(longest, float(simulate(night, balance, seed_value + 1, attention)["end"]))
+	return longest
+
+
+## Los segundos que quien juega bien necesita fuera de las tareas en una noche de `length` s: sincronizar a los amigos
+## (lo que pierden de señal con el tiempo, a su ritmo promedio, y con las interferencias) y scrollear para reponer Sanity.
+static func free_time_needed(night: NightData, balance: BalanceData, length: float) -> float:
 	var loss := night.total_interferences() * balance.interference_damage
 	if night.signal_decays:
 		var decay := (night.signal_decay_interval.x + night.signal_decay_interval.y) / 2.0
-		loss += FRIENDS * night.length(balance) / decay
-	var scroll := scroll_battery(night, balance) / 100.0 * balance.phone_battery_seconds
+		loss += FRIENDS * length / decay
+	var scroll := scroll_battery(night, balance, length) / 100.0 * balance.phone_battery_seconds
 	return loss / SYNC_RECOVERY * sync_seconds(night, balance) + scroll
 
 
 ## La holgura de la noche con `attention` segundos por consulta: el menor tiempo libre (sin tareas abiertas, desde la
-## primera ola) entre `seeds` semillas, dividido por lo que se necesita fuera de las tareas. Con 1 o más, cabe.
+## primera ola hasta que la noche termina) entre `seeds` semillas, dividido por lo que se necesita fuera de las tareas en
+## la noche más larga. Con 1 o más, cabe.
 static func free_time_ratio(night: NightData, balance: BalanceData, attention: float, seeds: int) -> float:
 	var free := INF
+	var length := 0.0
 	for seed_value in seeds:
 		var result := simulate(night, balance, seed_value + 1, attention)
+		length = maxf(length, result["end"])
 		var first: float = result["waves"][0][0] if not result["waves"].is_empty() else 0.0
 		var idle := 0.0
 		for second in result["load"].size():
 			if second >= first and result["load"][second] == 0:
 				idle += 1.0
 		free = minf(free, idle)
-	var needed := free_time_needed(night, balance)
+	var needed := free_time_needed(night, balance, length)
 	return INF if needed <= 0.0 else free / needed
 
 
-## La batería que gasta quien juega bien en la noche, en %: la que hace falta para reponer Sanity, más un flash por
-## cada visita de la Mano. Tiene que ser 100 o menos.
-static func battery_needed(night: NightData, balance: BalanceData) -> float:
-	return scroll_battery(night, balance) + night.total_hands() * balance.flash_cost
+## La batería que gasta quien juega bien en una noche de `length` s, en %: la que hace falta para reponer Sanity, más un
+## flash por cada visita de la Mano. Tiene que ser 100 o menos.
+static func battery_needed(night: NightData, balance: BalanceData, length: float) -> float:
+	return scroll_battery(night, balance, length) + night.total_hands() * balance.flash_cost
 
 
-## La batería que hace falta para reponer Sanity, en %.
-static func scroll_battery(night: NightData, balance: BalanceData) -> float:
-	var to_recover := maxf(sanity_loss(night, balance) - (100.0 - SANITY_MARGIN), 0.0)
+## La batería que hace falta para reponer Sanity en una noche de `length` s, en %.
+static func scroll_battery(night: NightData, balance: BalanceData, length: float) -> float:
+	var to_recover := maxf(sanity_loss(night, balance, length) - (100.0 - SANITY_MARGIN), 0.0)
 	return to_recover / balance.scroll_sanity_per_second / balance.phone_battery_seconds * 100.0
 
 
-## Cuánta Sanity pierde quien juega bien: con el tiempo, con los screamers y con la criatura (con la cortina abierta
-## hasta cerrarla, cerrada mientras se queda y abierta en cada revisión).
-static func sanity_loss(night: NightData, balance: BalanceData) -> float:
-	var loss := night.length(balance) / night.sanity_drain_interval
+## Cuánta Sanity pierde quien juega bien en una noche de `length` s: con el tiempo, con los screamers y con la criatura
+## (con la cortina abierta hasta cerrarla, cerrada mientras se queda y abierta en cada revisión).
+static func sanity_loss(night: NightData, balance: BalanceData, length: float) -> float:
+	var loss := length / night.sanity_drain_interval
 	loss += (night.total_scares() - night.total_creatures()) * balance.scare_sanity
 	loss += night.total_creatures() * balance.jumpscare_sanity
 	var open := (CREATURE_REACTION + CREATURE_CHECKS * CHECK_SECONDS) * balance.creature_sanity
@@ -111,13 +127,32 @@ static func sanity_loss(night: NightData, balance: BalanceData) -> float:
 	return loss
 
 
+## La espera promedio por pedido de ayuda (consultas, accidentes y decisiones) de una noche simulada, como la de la nota
+## (Plan 9.9).
+static func average_wait(result: Dictionary) -> float:
+	var total := 0.0
+	var count := 0
+	for task: Dictionary in result["tasks"]:
+		if task["kind"] in ["request", "incident", "decision"]:
+			total += task["end"] - task["arrival"]
+			count += 1
+	return total / count if count > 0 else 0.0
+
+
+## La hora del reloj a los `seconds` de la noche, como en el celular: "04:52".
+static func clock(seconds: float, balance: BalanceData) -> String:
+	var minutes := int(seconds / balance.night_seconds * 360.0)
+	return "%02d:%02d" % [floori(minutes / 60.0), minutes % 60]
+
+
 ## Corre la noche con el director real y quien juega bien, que dedica `attention` segundos a cada consulta
-## (attention_for). Devuelve "missed" (las tareas que vencieron sin atender),
+## (attention_for), hasta que se completa. Devuelve "missed" (las tareas que vencieron sin atender),
 ## "trust" (Trust al final: baja por las solicitudes que esperan más de la cuenta y por las decisiones de la historia),
 ## "requests" (cuántas llegaron), "tasks" (cada una con su tipo, su llegada, su fin y su plazo), "waves" y "calms" (las
 ## horas en que empezó cada una), "interferences", "videos", "scares" ([hora, es la criatura]), "load" (cuántas tareas
 ## había abiertas, cada segundo), "story" (los índices de los momentos de la historia enteros, saltados y cortados:
-## "finished", "skipped" y "cut") y "story_hold" (lo más que esperó una ola a la historia, en segundos).
+## "finished", "skipped" y "cut"), "story_hold" (lo más que esperó una ola a la historia, en segundos) y "end" (a qué hora
+## terminó la noche: end_pause s después de completarse).
 ## `friends`: los amigos del catálogo, para la historia (sin ellos, los de data/catalog.tres).
 static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 		attention := REQUEST_ATTENTION, friends: Array[FriendData] = []) -> Dictionary:
@@ -132,7 +167,7 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 	var director := PacingDirector.new(night, balance, rng, story_needs)
 	var result := {"missed": 0, "trust": 100.0, "requests": 0, "tasks": [], "waves": [], "calms": [],
 			"interferences": [], "videos": [], "scares": [], "load": [],
-			"story": {"finished": [], "skipped": [], "cut": []}, "story_hold": 0.0}
+			"story": {"finished": [], "skipped": [], "cut": []}, "story_hold": 0.0, "end": 0.0}
 	var story: StoryRunner = null
 	if night.story != null:
 		if friends.is_empty():
@@ -147,7 +182,9 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 	var pending_videos: Array[float] = []
 	var time := 0.0
 	var next_sample := 0.0
-	while time < night.length(balance):
+	## Desde qué hora está completa la noche, o -1.
+	var complete_at := -1.0
+	while time < MAX_NIGHT_SECONDS:
 		var active := open.filter(func(task: Dictionary) -> bool: return task["kind"] == "request").size()
 		if story != null:
 			director.story_hold = story.holds()
@@ -168,8 +205,7 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 				result["videos"].append(video_time)
 				open.append(_task("video", time, time + balance.video_accept_seconds + VIDEO_ATTENTION, VIDEO_ATTENTION, -1))
 		var trust: float = result["trust"]
-		while director.request_due(time) and busy.has(false) \
-				and active < night.max_simultaneous:
+		while director.request_due(time) and busy.has(false) and active < night.max_simultaneous:
 			director.request_started(time)
 			var friend := busy.find(false)
 			busy[friend] = true
@@ -199,11 +235,30 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 		if time >= next_sample:
 			result["load"].append(open.size())
 			next_sample += 1.0
+		if _complete(director, open, pending_videos, story):
+			if complete_at < 0.0:
+				complete_at = time
+			if time >= complete_at + balance.end_pause:
+				break
+		else:
+			complete_at = -1.0
 		time += STEP
+	result["end"] = time
 	if story != null:
 		TranslationServer.set_locale(previous_locale)
 		result["story"] = {"finished": story.finished_beats, "skipped": story.skipped_beats, "cut": story.cut_beats}
 	return result
+
+
+## La noche está completa, como en RequestManager.night_complete(): la ola final llegó entera, no queda nada abierto
+## (salvo la Mano, que no la detiene), ningún video espera llegar y la historia terminó.
+static func _complete(director: PacingDirector, open: Array[Dictionary], pending_videos: Array[float],
+		story: StoryRunner) -> bool:
+	if director.phase != PacingDirector.Phase.DONE or not pending_videos.is_empty():
+		return false
+	if open.any(func(task: Dictionary) -> bool: return task["kind"] != "hand"):
+		return false
+	return story == null or story.is_done()
 
 
 ## La historia avanza: con consultas, accidentes o decisiones abiertas está ocupada; la llamada se ve sin eso y sin videos
