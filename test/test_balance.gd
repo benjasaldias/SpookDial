@@ -85,7 +85,6 @@ func test_valores_del_director_y_los_screamers() -> bool:
 	check_eq(balance.hurt_respite, 10.0, "un amigo herido atrasa las solicitudes 10 s")
 	check_eq(balance.story_hold_limit, 45.0, "una ola espera a la historia a lo más 45 s (decisión de Benja, S21l)")
 	check_eq(balance.end_pause, 3.0, "la noche termina 3 s después de completarse (Plan 9.9)")
-	check_eq(balance.finale_margin, 5.0, "la ola final deja 5 s libres al final (decisión de Benja, Plan 9.8)")
 	check_eq(balance.scare_warning, 1.0, "señal previa de 1 s")
 	check_eq(balance.scare_margin, 5.0, "nunca en los últimos 5 s de una decisión")
 	check_eq(balance.scare_min_gap, 25.0, "al menos 25 s entre dos screamers")

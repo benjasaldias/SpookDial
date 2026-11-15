@@ -13,7 +13,8 @@ enum Dial { CONNECTION, SANITY, TRUST }
 ## Cómo termina la noche. NONE: todavía no termina.
 enum Ending { NONE, WON, FRIEND_DIED, SANITY, TRUST, CONNECTION, QUOTA }
 
-## La noche va de las 00:00 a las 06:00.
+## Las 6 horas del reloj, de las 00:00 a las 06:00, duran night_seconds (70 s por hora). Desde el Plan 9.9 la noche no
+## termina a una hora: el reloj sigue hasta que se completa.
 const NIGHT_HOURS := 6
 ## Sanity, Trust y la señal van de 0 a 100.
 const METER_MAX := 100.0
@@ -29,8 +30,6 @@ class Events:
 
 var night: NightData
 var balance: BalanceData
-## Cuánto dura la noche: hasta las 06:00 o, con historia, hasta las 06:30 (Plan 9.8).
-var length := 0.0
 ## Segundos desde las 00:00.
 var elapsed := 0.0
 var sanity := METER_MAX
@@ -71,7 +70,6 @@ var _scroll_left := 0.0
 func _init(night_data: NightData, balance_data: BalanceData, friend_count: int, rng: RandomNumberGenerator) -> void:
 	night = night_data
 	balance = balance_data
-	length = night.length(balance)
 	for _index in friend_count:
 		var friend := FriendState.new(balance.friend_health)
 		if night.signal_decays:
@@ -90,7 +88,7 @@ func _init(night_data: NightData, balance_data: BalanceData, friend_count: int, 
 ## Devuelve lo que pasó, para avisarlo en el chat.
 func advance(delta: float) -> Events:
 	var events := Events.new()
-	elapsed = minf(elapsed + delta, length)
+	elapsed += delta
 	waited += delta * waiting
 	var online: Array[bool] = []
 	for friend: FriendState in friends:
@@ -228,7 +226,7 @@ func lives_lost() -> int:
 	return lost
 
 
-## La hora del celular, de "00:00" a "06:00" (o a "06:30", con historia): night_seconds son 6 horas.
+## La hora del celular: night_seconds son 6 horas, y después de las 06:00 sigue (Plan 9.9).
 func clock_text() -> String:
 	var minutes := int(elapsed / balance.night_seconds * NIGHT_HOURS * 60)
 	return "%02d:%02d" % [floori(minutes / 60.0), minutes % 60]

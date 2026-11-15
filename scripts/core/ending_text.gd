@@ -10,7 +10,7 @@ const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 
-## Títulos (ui.csv). END_WON_TITLE lleva {time}, la hora en que terminó la noche (06:00, o 06:30 con historia).
+## Títulos (ui.csv). END_WON_TITLE lleva {time}, la hora del reloj en que terminó la noche (Plan 9.9).
 const WON_TITLE_KEY := "END_WON_TITLE"
 const LOST_TITLE_KEY := "END_LOST_TITLE"
 const TUTORIAL_TITLE_KEY := "END_TUTORIAL_TITLE"

@@ -267,7 +267,7 @@ func advance(delta: float) -> void:
 
 ## Empieza una solicitud para el amigo `friend_index`. Devuelve null si ya tiene una o un accidente, si no está
 ## disponible (aturdido o muerto) o si no hay entidades. Con Trust bajo, el temporizador es más corto, y con la
-## opción "Temporizadores ×1,5", más largo, pero nunca pasa de las 06:00. Si la historia le quitó segundos a la próxima
+## opción "Temporizadores ×1,5", más largo, sin tope (Plan 9.9). Si la historia le quitó segundos a la próxima
 ## consulta del amigo, se los quita a esta. Con los 3 juntos en la historia, el amigo no dice que está solo, y si quedan
 ## tantas consultas como criaturas nuevas que todavía no salieron, la entidad es una de ellas.
 func start_request(friend_index: int) -> FriendRequest:
@@ -277,7 +277,7 @@ func start_request(friend_index: int) -> FriendRequest:
 			_forced_entities())
 	if request == null:
 		return null
-	request.time_left = minf(request.time_left * timer_scale, maxf(state.length - _elapsed, 0.0))
+	request.time_left *= timer_scale
 	if _story_penalty[friend_index] > 0.0:
 		request.time_left = minf(request.time_left,
 				maxf(request.time_left - _story_penalty[friend_index], STORY_MIN_DECISION_TIME))

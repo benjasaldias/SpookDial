@@ -49,7 +49,6 @@ hurt_respite = 10.0
 first_request_delay = 5.0
 story_hold_limit = 45.0
 end_pause = 3.0
-finale_margin = 5.0
 scare_warning = 1.0
 scare_margin = 5.0
 scare_min_gap = 25.0

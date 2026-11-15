@@ -246,13 +246,14 @@ func test_las_olas_traen_interferencias_y_las_calmas_videos() -> bool:
 	return true
 
 
-## Con "Temporizadores ×1,5", una solicitud nunca pasa de las 06:00.
-func test_con_temporizadores_lentos_no_pasa_de_las_06() -> bool:
+## Con "Temporizadores ×1,5", una solicitud dura 1,5 veces, también tarde en la noche: ya no hay hora de término (Plan
+## 9.9).
+func test_con_temporizadores_lentos_la_consulta_dura_mas() -> bool:
 	var manager := _make_manager()
 	manager.timer_scale = 1.5
 	manager.advance(400.0)
 	var request := manager.start_request(0)
-	check_eq(request.time_left, 20.0, "le quedan 20 s a la noche")
+	check_eq(request.time_left, 67.5, "45 s × 1,5")
 	manager.free()
 	return true
 

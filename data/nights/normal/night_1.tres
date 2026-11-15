@@ -33,7 +33,6 @@ spacing = Vector2(30, 45)
 [resource]
 script = ExtResource("1_night")
 number = 1
-overtime_minutes = 30
 place_key = "NIGHT_1_PLACE"
 new_entities = Array[ExtResource("2_entity")]([ExtResource("3_tue_tue"), ExtResource("4_calchona")])
 requests_total = 5

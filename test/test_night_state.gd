@@ -53,15 +53,16 @@ func test_empieza_a_las_00_con_todo_lleno() -> bool:
 	return true
 
 
-func test_el_reloj_va_de_00_a_06() -> bool:
+## El reloj va a 70 s por hora y sigue después de las 06:00: la noche termina cuando se completa (Plan 9.9).
+func test_el_reloj_sigue_despues_de_las_06() -> bool:
 	var state := _make_state()
 	state.advance(210.0)
 	check_eq(state.clock_text(), "03:00", "a la mitad")
 	state.advance(1.2)
 	check_eq(state.clock_text(), "03:01", "un minuto de juego son 1,17 s")
-	state.advance(500.0)
-	check_eq(state.clock_text(), "06:00", "no pasa de las 06:00")
-	check_eq(state.elapsed, 420.0, "segundos")
+	state.advance(210.0)
+	check_eq(state.clock_text(), "06:01", "no se detiene a las 06:00")
+	check(is_equal_approx(state.elapsed, 421.2), "segundos: %s" % state.elapsed)
 	return true
 
 

@@ -4,9 +4,6 @@ extends Resource
 ## La noche 0 es el tutorial (decisión de Benja): sus solicitudes son fijas y no se puede perder.
 
 @export_range(0, 5) var number := 1
-## Minutos de juego después de las 06:00: una noche con historia termina a las 06:30, para que la historia quepa sin
-## regalar tiempo libre (decisión de Benja, Plan 9.8). El reloj sigue a la misma velocidad.
-@export_range(0, 60) var overtime_minutes := 0
 ## Dónde están los amigos esa noche, en ui.csv (para el resumen entre noches).
 @export var place_key: String
 ## Entidades que aparecen por primera vez esta noche. Las de noches anteriores siguen apareciendo.
@@ -95,12 +92,6 @@ extends Resource
 
 func is_tutorial() -> bool:
 	return number == 0
-
-
-## Cuánto dura la noche, en segundos reales: hasta las 06:00 (BalanceData.night_seconds) más sus minutos de más, a la
-## misma velocidad del reloj.
-func length(balance: BalanceData) -> float:
-	return balance.night_seconds * (360.0 + overtime_minutes) / 360.0
 
 
 ## La noche tiene sus olas armadas a mano.
