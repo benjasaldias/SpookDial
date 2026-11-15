@@ -30,6 +30,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **W.** Probar Extremo (Plan 9.6) | ⬜ Pendiente (unos 30 minutos, o más si quieres ganarlo) |
 | **X.** Probar la historia de la noche 1 (planes 9.7 y 9.8) | ⬜ Pendiente (unos 25 minutos: la noche 1 en Normal y, si alcanzas, en Difícil) |
 | **Y.** Poner la música de la noche (Plan 9.8) | ⬜ Pendiente: cuando tengas las 2 pistas |
+| **AA.** Probar la noche que termina cuando se acaba, y la nota (Plan 9.9) | ⬜ Pendiente (unos 25 minutos) |
 | Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
@@ -904,3 +905,60 @@ Cuando tengas las 2 pistas (las especificaciones están en `sonidos_pendiente.md
 2. Abre Godot: las importa solo. No hace falta marcar nada más: el juego las repite sin pausa.
 3. **Verifica:** juega la noche 1. Al abrir la llamada suena la pista de calma; al empezar la primera ola cambia a la tensa (con un fundido de 2 s), y al terminar la ola vuelve la de calma. Su volumen es el de **Ambiente** en las opciones.
 4. Anota de dónde salió cada pista, con su licencia, en `audio/source/creditos.md`.
+
+---
+
+## Z. Publicar en itch.io: versión web y descarga para Windows
+
+**Estado: pendiente.** El código ya está listo para web (se oculta el botón «Salir», que no cierra una pestaña); falta lo que se hace en Godot y en itch.io. Las carpetas de salida van **fuera de OneDrive y fuera del proyecto**, por ejemplo `C:\dev\builds\web\` y `C:\dev\builds\windows\` (créalas en el Explorador).
+
+### 1. Instalar las plantillas de Web (solo hay las de Windows)
+
+1. Godot, menú **Editor > Manage Export Templates…**.
+2. Arriba debe decir **4.7.2.stable**. Pulsa **Download** (en 4.7 puedes elegir solo **Web** para no bajar todo) y espera a que termine.
+3. **Verifica:** la lista muestra Web y Windows Desktop como instalados.
+
+### 2. Crear el preset Web
+
+1. **Project > Export…** > **Add… > Web**.
+2. A la derecha, **Options**: deja **Thread Support** y **Extensions Support** **apagados** (así no hace falta ninguna cabecera especial en itch.io).
+3. Abajo, **Export Path**: pulsa la carpeta, ve a `C:\dev\builds\web\` y escribe el nombre **`index.html`** (tiene que llamarse así).
+4. Pulsa **Export Project…**, desmarca **Export With Debug** y guarda.
+5. **Verifica:** en esa carpeta hay `index.html`, `index.js`, `index.wasm`, `index.pck` y algunos más. Ábrelos con un servidor local (el doble clic a `index.html` **no** funciona en los navegadores): en esa carpeta, `python -m http.server 8000` y entra a `http://localhost:8000`.
+
+### 3. Crear el preset Windows (la descarga)
+
+Igual que en la guía anterior: **Add… > Windows Desktop**, **Binary Format > Embed PCK** activado, **Export Path** `C:\dev\builds\windows\SpookDial.exe`, **Export With Debug** apagado.
+
+### 4. Empaquetar
+
+- **Web:** selecciona **todo el contenido** de `builds\web\` (no la carpeta) > clic derecho > *Enviar a > Carpeta comprimida*; renómbralo `SpookDial_web.zip`. Debe tener `index.html` en la raíz del zip.
+- **Windows:** comprime `SpookDial.exe` (no el `.console.exe`) con `OFL.txt` y `audio/source/creditos.md`; llámalo `SpookDial_windows.zip`.
+
+### 5. Subir a itch.io (un solo proyecto con las dos)
+
+1. **Kind of project: HTML** (permite también archivos descargables).
+2. En **Uploads**, sube los 2 zips.
+3. En `SpookDial_web.zip` marca **This file will be played in the browser**. En `SpookDial_windows.zip`, la plataforma **Windows**.
+4. **Embed options:** **Viewport dimensions** 1280 × 720, **Fullscreen button** activado, **Click to launch in fullscreen** a tu gusto. **SharedArrayBuffer support:** apagado.
+5. Guarda en **Draft**, prueba la página y recién ahí pon **Public**.
+6. **Verifica en el navegador:** que se oigan los sonidos (el primer clic los activa), que se vean la letra y los videos de la noche 0, que «Continuar» recuerde la partida tras cerrar y reabrir la pestaña, y que no aparezca el botón «Salir».
+
+---
+
+## AA. Probar la noche que termina cuando se acaba, y la nota (Plan 9.9)
+
+**Estado: pendiente.** Unos 25 minutos.
+
+1. **El inicio de la noche 1.** Empieza una partida nueva en Normal y salta el tutorial (`Esc` > «Saltar tutorial»). Abre la llamada y lee la intro y el susto sin apurarte. **Dime** si ahora alcanzas a leer todo, o si se hace lento.
+2. **El final.** Juega la noche 1 entera. Cuando se resuelve la ola final y se despiden en el vlog, la noche termina unos 3 s después. **Verifica:** la pantalla dice «Llegaste a las HH:MM», con la hora a la que terminó, y ya no queda tiempo muerto al final.
+3. **La nota.** En el resumen aparecen la letra grande («Nota A»), cuánto esperaron tus amigos por pedido de ayuda (con la meta) y las vidas perdidas. **Dime** si la nota se siente justa para cómo jugaste.
+4. **Más rápido o más lento.** Vuelve a jugar la noche 1 (desde el menú, «Continuar» repite la noche 2; para repetir la 1, pierde una noche a propósito o empieza de nuevo), una vez respondiendo rápido y otra tomándote tu tiempo. **Verifica:** jugando rápido la noche termina antes y la nota sube.
+5. **La noche 2 de Normal.** Sus calmas son de 75 a 95 s (las de siempre son de 40 a 60) para que, jugando bien, no termine antes de las 04:30. **Dime** si alguna calma se hace larga.
+
+**Si quieres ajustar la nota**, en Godot:
+- La meta de espera de cada modo: panel **FileSystem** (abajo a la izquierda) > doble clic en `data/difficulty/normal.tres` (o `hard.tres`, `extreme.tres`) > en el **Inspector** (a la derecha), sección **Nota** > **Wait Goal** (en segundos). Guarda con `Ctrl+S`.
+- Cuánto pide cada letra: doble clic en `data/balance.tres` > **Inspector** > sección **Nota**: **Grade Wait Factors** (x: hasta cuántas veces la meta da 2 puntos; y: hasta cuántas da 1) y **Grade S Points**, **Grade A Points** y **Grade B Points** (desde cuántos puntos, de 6, es cada letra).
+- **Verifica:** gana una noche y mira si la letra cambió como esperabas.
+
+**Corrige los textos nuevos** en `data/text/ui.csv`: `END_GRADE`, `END_WAIT` y `END_LIVES`.

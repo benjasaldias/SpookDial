@@ -2743,4 +2743,83 @@ git commit -m "Documentos del Plan 9.9: la noche que termina cuando se acaba y l
 
 ## Resultado
 
-*Se completa al ejecutar el plan (Tarea 8, Paso 1).*
+*Ejecutado en S21o (15 de noviembre de 2026, Sonnet 5.5), 7 commits en `main` (los de las Tareas 1 a 7; los documentos, en el octavo).* De **851** pruebas OK al empezar a **866** al terminar, las que predice el plan. Las mediciones son del modelo de `test/balance_model.gd`, con 20 semillas por noche (`test/dump_night_lengths.gd`). Nombres como "Normal 2" = la noche 2 de ese modo. Los máximos de la primera medición del plan (10 semillas, Difícil 5 todavía con 11) coinciden con los de aquí en Normal y en Extremo; en Difícil 3 y 4 difieren en 1 minuto, por las semillas extra.
+
+### Antes de calibrar
+
+Con las olas en cadena, la lectura nueva y Difícil 5 con 9 consultas, pero con las calmas de siempre (Extremo, de 20 a 30 s):
+
+| Noche | Termina (promedio; más temprana a más tarde) | Holgura | Batería | Espera por pedido | Calma |
+| --- | --- | --- | --- | --- | --- |
+| normal 1 | 05:16 (05:10 a 05:24) | 4.72 | 10 % | 10.2 s | plan |
+| normal 2 | 03:31 (03:15 a 03:43) | 1.77 | 18 % | 15.4 s | 40 a 60 s |
+| normal 3 | 04:24 (04:06 a 04:39) | 2.43 | 23 % | 14.5 s | 40 a 60 s |
+| normal 4 | 04:37 (04:21 a 04:53) | 1.80 | 54 % | 16.2 s | 40 a 60 s |
+| normal 5 | 04:50 (04:34 a 05:04) | 1.04 | 59 % | 16.8 s | 40 a 60 s |
+| hard 1 | 04:55 (04:52 a 05:02) | 3.31 | 10 % | 16.6 s | 40 a 60 s |
+| hard 2 | 03:48 (03:34 a 04:03) | 1.21 | 20 % | 19.8 s | 40 a 60 s |
+| hard 3 | 05:05 (04:47 a 05:15) | 1.78 | 52 % | 19.8 s | 40 a 60 s |
+| hard 4 | 05:06 (04:49 a 05:19) | 1.06 | 57 % | 19.7 s | 40 a 60 s |
+| hard 5 | 05:17 (04:58 a 05:31) | 0.92 | 87 % | 20.1 s | 40 a 60 s |
+| extreme 1 | 05:45 (05:38 a 05:53) | 1.45 | 38 % | 13.3 s | 20 a 30 s |
+| extreme 2 | 04:57 (04:48 a 05:07) | 0.90 | 55 % | 14.5 s | 20 a 30 s |
+| extreme 3 | 05:02 (04:55 a 05:09) | 0.84 | 56 % | 14.4 s | 20 a 30 s |
+| extreme 4 | 05:46 (05:36 a 05:57) | 0.88 | 90 % | 14.6 s | 20 a 30 s |
+| extreme 5 | 05:48 (05:34 a 06:00) | 0.78 | 90 % | 14.7 s | 20 a 30 s |
+
+Las 2 reglas del Paso 6 fallaban en: **Extremo 2 a 5** (holgura 0,90, 0,84, 0,88 y 0,78: menos de 1), **Normal 2** (03:31), **Normal 3** (04:24) y **Difícil 2** (03:48), que terminaban antes de las 04:30. Y una que el plan no preveía: **Difícil 5** (holgura 0,92).
+
+### Después de calibrar
+
+| Noche | Termina (promedio; más temprana a más tarde) | Holgura | Batería | Espera por pedido | Calma |
+| --- | --- | --- | --- | --- | --- |
+| normal 1 | 05:16 (05:10 a 05:24) | 4.72 | 10 % | 10.2 s | plan |
+| normal 2 | 04:30 (04:15 a 04:43) | 2.89 | 24 % | 15.4 s | 75 a 95 s |
+| normal 3 | 04:37 (04:19 a 04:52) | 2.66 | 25 % | 14.5 s | 45 a 65 s |
+| normal 4 | 04:37 (04:21 a 04:53) | 1.80 | 54 % | 16.2 s | 40 a 60 s |
+| normal 5 | 04:50 (04:34 a 05:04) | 1.04 | 59 % | 16.8 s | 40 a 60 s |
+| hard 1 | 04:55 (04:52 a 05:02) | 3.31 | 10 % | 16.6 s | 40 a 60 s |
+| hard 2 | 04:31 (04:17 a 04:46) | 2.03 | 24 % | 19.8 s | 65 a 85 s |
+| hard 3 | 05:05 (04:47 a 05:15) | 1.78 | 52 % | 19.8 s | 40 a 60 s |
+| hard 4 | 05:06 (04:49 a 05:19) | 1.06 | 57 % | 19.7 s | 40 a 60 s |
+| hard 5 | 05:30 (05:11 a 05:44) | 1.04 | 88 % | 20.1 s | 45 a 65 s |
+| extreme 1 | 06:08 (05:59 a 06:18) | 1.60 | 40 % | 13.3 s | 30 a 40 s |
+| extreme 2 | 05:40 (05:31 a 05:49) | 1.31 | 60 % | 14.5 s | 30 a 40 s |
+| extreme 3 | 05:45 (05:38 a 05:52) | 1.24 | 60 % | 14.4 s | 30 a 40 s |
+| extreme 4 | 06:37 (06:27 a 06:49) | 1.29 | 95 % | 14.6 s | 30 a 40 s |
+| extreme 5 | 06:40 (06:25 a 06:51) | 1.19 | 95 % | 14.7 s | 30 a 40 s |
+
+### Las calmas elegidas
+
+Con un script temporal que probaba cada calma en memoria (de 5 en 5, la primera que cumple; no se commiteó), y después se pusieron en los `.tres`:
+
+| Noche | Calma | Por qué |
+| --- | --- | --- |
+| Extremo 1 a 5 | **30 a 40 s** (antes 20 a 30) | Con 25 a 35 s, la noche 5 queda en 0,99 de holgura. Con 30 a 40, la noche 5 en 1,19 y las demás sobre 1,24. Batería de Extremo 4 y 5: 95 %. |
+| Normal 2 | **75 a 95 s** | Termina a las 04:30 (con 70 a 90 s, 04:22). Solo tiene 2 calmas en toda la noche, por eso necesita una grande. |
+| Normal 3 | **45 a 65 s** | Termina a las 04:37 (con 40 a 60 s, 04:24). |
+| Difícil 2 | **65 a 85 s** | Termina a las 04:31 (con 60 a 80 s, 04:23). |
+| Difícil 5 | **45 a 65 s** | Ver abajo: la holgura era 0,92. |
+
+Normal 1 va armada a mano (termina a las 05:16, con la historia) y no se tocó. Las demás (Normal 4 y 5, Difícil 1, 3 y 4) ya terminaban a las 04:30 o después.
+
+### La holgura de Difícil 5
+
+Con 9 consultas y las calmas de siempre, la holgura de Difícil 5 midió **0,92**, y la garantía es 1 o más (el plan esperaba entre 1 y 1,5). Siguiendo la regla del plan (sube la calma de esa noche de 5 en 5 y no debilites la garantía), con 45 a 65 s queda en **1,04** (batería 88 %), dentro del rango 1 a 1,5 de `test_dificil_5_es_la_referencia`, que no hizo falta cambiar. Benja la había probado con el horario viejo (1,24), así que esta noche queda un poco distinta a la que probó: 9 consultas en vez de entre 9 y 11, y 5 s más de calma.
+
+### Pruebas que fallaron sin estar previstas
+
+| Cuándo | Prueba | Qué pasaba | Qué se hizo |
+| --- | --- | --- | --- |
+| Tareas 1 a 4 | `test_balance :: test_jugando_bien_nada_vence` | Difícil 5, semillas 15 y 20: llegaban 8 de 11 consultas. El modelo todavía corría hasta los 420 s y, en cadena, la ola final de 11 consultas ya no llegaba. Es el valor medido con el horario viejo que describe el plan. | No se tocó: la Tarea 5 corre el modelo hasta que la noche se completa y Difícil 5 baja a 9. Las Tareas 1 a 3 se commitearon con esa falla anotada en el mensaje. Desde la Tarea 4 en adelante no hubo fallas. |
+| Tarea 4 | `test_night_state :: test_una_noche_con_historia_termina_a_las_06_30` | Comprobaba que el reloj termina la noche a las 06:30, algo que la Tarea 4 quita. | Se borró en la Tarea 4, no en la 6 como decía el plan (en la Tarea 6 ya no estaba). Para que la cuenta no cambie: 856 pruebas en la Tarea 4, 858 en la 5, 857 en la 6 y 866 en la 7. |
+| Tarea 4 | `test_desk_scene :: test_al_ganar_el_resumen_dice_las_paginas_nuevas` | Ganaba la noche con `elapsed = 419.5`, es decir, por reloj. | Ahora completa la noche de verdad (ola final en `DONE`, videos asentados, `advance(3.0)`). Poner `state.finished = true` no sirve, porque `RequestManager.advance()` lo recalcula en cada paso. |
+
+Además: el `.uid` de `test/dump_night_lengths.gd`, que Godot crea al correr el script de la Tarea 5, se commiteó con la Tarea 7. Y el comentario del encabezado de `StoryRunner` decía que la final podía llegar encima de la ola 2: desde este plan ya no puede, y se corrigió.
+
+### Lo que queda abierto para Benja
+
+- **Normal 2 con calmas de 75 a 95 s** es lo que pide la regla de las 04:30. Es una calma larga: si no te gusta, la alternativa es dejar que termine antes de las 04:30 en esa noche (cambiar `test_ninguna_noche_termina_antes_de_las_04_30` para Normal 2) o sumarle una ola más.
+- **Extremo 4 y 5 terminan, jugando bien, hacia las 06:37 y 06:40**, con batería de 95 %: son las noches más largas del juego.
+- **Los textos nuevos** (`END_GRADE`, `END_WAIT` y `END_LIVES`) son borradores de Claude.
+- **Jugando bien se saca S en las 15 noches** (`test_jugando_bien_se_saca_s`): no hubo que usar la excepción que prevé el plan. La espera de quien juega bien va de 10 a 20 s por pedido, bajo la meta de cada modo.

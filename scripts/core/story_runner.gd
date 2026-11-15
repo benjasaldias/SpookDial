@@ -5,7 +5,7 @@ extends RefCounted
 ##   calma y al cerrar. En Extremo, la "ola 2" de la historia es la última ola común. Un momento cuya ola ya empezó, o
 ##   que ya no puede llegar porque llegó uno posterior, se salta; uno que estaba contando cuando empezó su ola, se corta.
 ##   En los dos casos se aplican sus pasos de separarse y reunirse, para que la historia siga teniendo sentido (si la
-##   final llega encima de la ola 2, se reúnen solos: decisión de Benja, S21l).
+##   final llegara encima de la ola 2, se reunirían solos: decisión de Benja, S21l; desde el Plan 9.9 la final espera a la ola 2 y ya no llega encima).
 ## - **Dónde:** con los 3 juntos, las líneas van a la llamada grupal, y esperan a que se vea (sin nada que jugar);
 ##   separados, al chat de quien habla. Cada línea espera lo que tarda en escribirse y en leerse, por sus palabras, más
 ##   una pausa (line_seconds; pedidos de Benja en los planes 9.8 y 9.9).

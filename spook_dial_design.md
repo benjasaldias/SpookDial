@@ -81,7 +81,7 @@ Durante cinco noches tiene que hacer cuatro cosas:
   - **en Difícil se identifica leyendo** (§8.3).
 - **Un tercer modo, Extremo** (pedido de Benja, 12 de noviembre; `docs/30`), más exigente que Difícil, pero que se puede ganar de verdad:
   - **se desbloquea al terminar Difícil**, empieza en la noche 1 y se identifica leyendo, como Difícil;
-  - **olas más seguidas:** más consultas, en olas de 2 con calmas de 20 a 30 s (en vez de 40 a 60), y menos tiempo para responder que Difícil en cada noche;
+  - **olas más seguidas:** más consultas, en olas de 2 con calmas de 30 a 40 s (en vez de 40 a 60; eran 20 a 30 hasta el Plan 9.9), y menos tiempo para responder que Difícil en cada noche;
   - **más obstrucciones:** más interferencias, Manos, visitas de la criatura, screamers, accidentes y señuelos; sin pista, y Audio Sync de 8 aplausos más rápido;
   - **cada error baja Trust ×1,5:** una respuesta incorrecta −22,5, la de mayor riesgo −30, sin respuesta −22,5 más y un video perdido −15. Tardar en contestar no cambia;
   - **cada noche, un amigo al azar empieza con 1 de vida** (de 3), y su chat lo avisa en rojo al empezar. Con él no se puede fallar, y la acción de mayor riesgo es una apuesta mortal. Los accidentes no le tocan, porque nunca matan;
@@ -425,7 +425,7 @@ Siete criaturas del folclore chileno, con la plantilla de `docs/02`. Desde la se
   Hay 90 s para responder, la cuota es de 2 y no hay accidente: los accidentes empiezan en la noche 2.
 - **Las noches 2 a 5 de Normal** tienen más tiempo para responder, menos consultas, menos señuelos, accidentes, interferencias, Manos y visitas de la criatura, y un Audio Sync más lento. Los screamers son los mismos: son el terror, no la dificultad.
 
-**Extremo** (§5; `data/nights/extreme/`) es más duro que Difícil en cada noche: de 11 a 15 consultas en olas de 2 con calmas de 20 a 30 s, de 45 a 38 s para responder, y más interferencias, Manos, visitas de la criatura, screamers, accidentes y señuelos. Su noche 1 se gana al ritmo de Difícil, y desde la noche 2 pide jugar como experto. Los valores están en `docs/02` §6.
+**Extremo** (§5; `data/nights/extreme/`) es más duro que Difícil en cada noche: de 11 a 15 consultas en olas de 2 con calmas de 30 a 40 s, de 45 a 38 s para responder, y más interferencias, Manos, visitas de la criatura, screamers, accidentes y señuelos. Su noche 1 se gana al ritmo de Difícil, y desde la noche 2 pide jugar como experto. Los valores están en `docs/02` §6.
 
 **Toda noche se puede ganar** (requisito de Benja): la prueba de equilibrio lo comprueba en los 3 modos con quien juega bien (12 s por consulta en Normal, 14 en Difícil y 11 en Extremo), y revisa que el tiempo libre alcance para sincronizar a los amigos y reponer Sanity con el celular. La referencia es Difícil 5, que Benja probó: difícil pero ganable.
 

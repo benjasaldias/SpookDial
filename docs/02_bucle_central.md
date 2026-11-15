@@ -32,12 +32,11 @@ Los valores numéricos (§6) son un punto de partida para el prototipo; se ajust
    - **Olas de verdad** (decisión de Benja, 11 de noviembre; reemplaza a las olas con respiro del 2-nov):
      - el primer minuto es de silencio, y la primera ola llega a los 60 s;
      - las solicitudes de una ola (2) llegan con 4 a 8 s de diferencia;
-     - cuando se resuelven todas, empieza una calma de 40 a 60 s. Las olas están planeadas parejo entre los 60 s y la ola final, así que si una ola se resuelve rápido, la calma dura hasta la hora de la siguiente;
-     - la **ola final**, de 3 (los 3 amigos a la vez), llega a `06:00 − tiempo para responder − 2 × 8 s − 10 s`, para que su última solicitud alcance a terminar aunque lleguen con el mayor espacio y aunque un amigo quede herido antes;
-     - una ola común que empezaría a menos de 40 s de la final se salta, con las que siguen. Si la final llega con una ola sin resolver, empieza igual.
+     - cuando se resuelven todas, empieza una calma de 40 a 60 s (o la que traiga la noche, `wave_calm`, o lo que cuente la historia, si es más);
+     - **las olas van en cadena** (decisión de Benja, 14 de noviembre, Plan 9.9; reemplaza las olas planeadas parejo y la final "lo más tarde posible"): cada ola, también la **ola final**, de 3 (los 3 amigos a la vez), llega cuando pasa su calma desde que se resolvió la anterior. **Ninguna ola se salta**: un jugador lento recibe todas las consultas y su noche se alarga.
    - **Qué cae en cada momento:** en las olas, las interferencias (las que sobran, hacia el final), los accidentes (en las comunes, los que sobran hacia el comienzo) y la Mano (en las comunes, las que sobran hacia el final), de 3 a 15 s después de empezar la ola. En las calmas, los videos (si es la última calma, todos los que faltan) y los screamers, desde 5 a 15 s después de empezar la calma. Un video de una calma llega a más tardar 25 s antes de la ola siguiente. Una visita de la criatura llega en la ola final.
    - Si no hay a quién darle una solicitud (todos ocupados o aturdidos, o ya están las simultáneas de la noche), espera. Cuando un amigo queda herido, lo que falta se atrasa 10 s.
-   - Nunca empieza una solicitud que no alcanza a terminar antes de las 06:00, y con "Temporizadores ×1,5" su tiempo no pasa de las 06:00: por eso el total de la noche es aproximado.
+   - **No hay hora de término** (Plan 9.9): una solicitud llega aunque sea tarde, y con "Temporizadores ×1,5" dura 1,5 veces sin tope. La noche **termina cuando se acaba**: la ola final resuelta, sin consultas, accidentes ni decisiones abiertas, sin videos por recibir o descargar y con la historia contada (`RequestManager.night_complete()`), y 3 s después (`end_pause`) se gana con la cuota cumplida o, sin ella, se pierde. El reloj sigue a 70 s por hora y marca cuándo terminó ("Llegaste a las 04:52"); puede pasar de las 06:00. El tutorial termina cuando León se despide.
 2. **Se generan los datos de la situación:**
    - la entidad, entre las conocidas en esa noche;
    - el lugar, el saludo, lo que le pasa al amigo y si el mensaje dice el lugar;
@@ -158,11 +157,11 @@ Los valores que valen para todas las noches y los dos modos están en `data/bala
 
 ### Por noche, en Difícil
 
-Son los valores de antes del primer testeo.
+Son los valores de antes del primer testeo, salvo la noche 5, que pasa de 11 a 9 consultas (decisión de Benja, 14 de noviembre: antes se saltaba una ola que no cabía y Benja jugó de 9 a 11; en cadena llegarían las 11), y las calmas de las noches 2 y 5 (Plan 9.9, abajo).
 
 | Parámetro | N1 | N2 | N3 | N4 | N5 |
 | --- | --- | --- | --- | --- | --- |
-| Solicitudes por noche (aprox.) | 7 | 7 | 9 | 9 | 11 |
+| Solicitudes por noche | 7 | 7 | 9 | 9 | 9 |
 | Solicitudes simultáneas máx. | 3 | 3 | 3 | 3 | 3 |
 | Tiempo base para responder (s) | 80 | 65 | 55 | 50 | 45 |
 | Probabilidad de que el mensaje inicial diga el lugar (noche 0: siempre) | 60 % | 55 % | 50 % | 45 % | 40 % |
@@ -179,7 +178,8 @@ Son los valores de antes del primer testeo.
 | Screamers (sin contar las alucinaciones) | 2 | 4 | 4 | 5 | 6 |
 | Cuántos de ellos son la criatura de la ventana (el antiguo jumpscare) | 0 | 1 | 2 | 2 | 3 |
 | Visitas de la Mano (la noche 0 la enseña aparte) | 1 | 1 | 2 | 2 | 3 |
-| Batería que pide jugando bien (flashes y Sanity; `test_balance.gd`) | 10 % | 31 % | 57 % | 61 % | 90 % |
+| Calma entre olas (`wave_calm`; Plan 9.9) | 40 a 60 s | 65 a 85 s | 40 a 60 s | 40 a 60 s | 45 a 65 s |
+| Batería que pide jugando bien (flashes y Sanity; `test_balance.gd`) | 10 % | 24 % | 52 % | 57 % | 88 % |
 | Susto guionado (va en la noche 0 cuando exista) | A los 60 s | — | — | — | — |
 
 ### Por noche, en Normal
@@ -202,7 +202,8 @@ Es una curva más suave (decisiones de Benja tras el primer testeo, 11 de noviem
 | Screamers | 2 | 4 | 4 | 5 | 6 |
 | Visitas de la criatura | 0 | 1 | 1 | 2 | 2 |
 | Visitas de la Mano | 1 (plan) | 1 | 1 | 2 | 2 |
-| Batería que pide jugando bien (`test_balance.gd`) | 10 % | 31 % | 31 % | 61 % | 65 % |
+| Calma entre olas (`wave_calm`; Plan 9.9) | plan | 75 a 95 s | 45 a 65 s | 40 a 60 s | 40 a 60 s |
+| Batería que pide jugando bien (`test_balance.gd`) | 10 % | 24 % | 25 % | 54 % | 59 % |
 
 Lo demás (olas de 2, 3 solicitudes a la vez, la señal que baja y Sanity) es igual que en Difícil.
 
@@ -214,7 +215,7 @@ Más exigente que Difícil en cada noche (pedido de Benja, 12 de noviembre; `doc
 | --- | --- | --- | --- | --- | --- |
 | Solicitudes por noche | 11 | 13 | 13 | 15 | 15 |
 | Tiempo base para responder (s) | 45 | 42 | 40 | 40 | 38 |
-| Calma entre olas (`wave_calm`) | 20 a 30 s | 20 a 30 s | 20 a 30 s | 20 a 30 s | 20 a 30 s |
+| Calma entre olas (`wave_calm`) | 30 a 40 s | 30 a 40 s | 30 a 40 s | 30 a 40 s | 30 a 40 s |
 | Probabilidad de que diga el lugar | 40 % | 35 % | 30 % | 25 % | 20 % |
 | Probabilidad de pista | 0 % | 0 % | 0 % | 0 % | 0 % |
 | Señuelos por solicitud | 3 | 3 | 4 | 4 | 4 |
@@ -226,11 +227,13 @@ Más exigente que Difícil en cada noche (pedido de Benja, 12 de noviembre; `doc
 | Screamers | 4 | 5 | 5 | 6 | 6 |
 | Visitas de la criatura | 1 | 2 | 2 | 3 | 3 |
 | Visitas de la Mano | 2 | 2 | 2 | 3 | 3 |
-| Batería que pide jugando bien | 41 % | 61 % | 61 % | 90 % | 90 % |
+| Batería que pide jugando bien | 40 % | 60 % | 60 % | 95 % | 95 % |
 
 Lo demás: olas de 2 y la final de 3, 3 solicitudes a la vez, la señal que baja y Sanity −1 cada 6 s (la noche 1, cada 6,5 s).
 
-**La noche 1 de los 3 modos tiene historia** (Plan 9.8, `docs/32`): termina a las 06:30, y para quedar con el mismo equilibrio de antes, Sanity baja lo mismo en total (−1 cada 10,8 s en Normal y Difícil, cada 6,5 s en Extremo) y la señal cae un poco más rápido (cada amigo, entre 2,9 y 5,8 s por punto en Normal, 2,8 y 5,6 en Difícil, y 2,5 y 5 en Extremo). Además, los castigos de la dificultad (`DifficultyData`, grupo **Castigos**):
+**Las calmas del Plan 9.9** (`docs/33`): sin el tiempo muerto del final, la holgura de Extremo caía a 0,78 a 0,90 en las noches 2 a 5, así que la calma pasó de 20 a 30 s a **30 a 40 s** (con 25 a 35 s, la noche 5 queda en 0,99). Y las noches que, jugando bien, terminaban antes de las 04:30 en promedio se alargaron solo donde faltaba: Normal 2 (75 a 95 s), Normal 3 (45 a 65 s) y Difícil 2 (65 a 85 s). Difícil 5, con 9 consultas, tenía holgura 0,92, y con 45 a 65 s de calma queda en 1,04.
+
+**La noche 1 de los 3 modos tiene historia** (Plan 9.8, `docs/32`): cuando terminaba a las 06:30 (desde el Plan 9.9 termina cuando se acaba), y para quedar con el mismo equilibrio de antes, Sanity baja lo mismo en total (−1 cada 10,8 s en Normal y Difícil, cada 6,5 s en Extremo) y la señal cae un poco más rápido (cada amigo, entre 2,9 y 5,8 s por punto en Normal, 2,8 y 5,6 en Difícil, y 2,5 y 5 en Extremo). Además, los castigos de la dificultad (`DifficultyData`, grupo **Castigos**):
 
 - **Trust por error ×1,5** (`error_trust_scale`): incorrecta −22,5, mayor riesgo −30, sin respuesta −22,5 más y video perdido −15. Tardar en contestar no cambia.
 - **Un amigo al azar empieza cada noche con 1 de vida** (`wounded_friends` y `wounded_health`), y su chat lo avisa al empezar (`CHAT_WOUNDED_START`). Los accidentes no le tocan.
@@ -245,7 +248,7 @@ Lo demás: olas de 2 y la final de 3, 3 solicitudes a la vez, la señal que baja
 
 - Las llegadas de una ola se alternan: consulta, video, consulta.
 - Un video llega cuando a la consulta anterior le quedan 30 s (`video_time_left`) o, si ya no queda ninguna abierta, 3 a 6 s después (`video_after_answer`).
-- La última ola del plan es la final y llega lo más tarde posible para que su última consulta termine antes de las 06:00: en la noche 1 de Normal, a las 03:04.
+- La última ola del plan es la final y, como las demás, llega cuando pasa su calma (Plan 9.9; antes llegaba lo más tarde posible, en la noche 1 de Normal a las 03:04).
 - Los videos del plan tienen que sumar la cuota (lo revisa `test_catalog.gd`).
 
 ### Medidores
@@ -267,7 +270,7 @@ Lo demás: olas de 2 y la final de 3, 3 solicitudes a la vez, la señal que baja
 - Descarga: 10 s manteniendo presionada la barra del chat (15 s si la señal de ese amigo está bajo 50; sin señal no avanza). Si se suelta, se pausa.
 - Audio Sync: la base va en los golpes por minuto de cada noche, y cada ronda va un 15 % más rápida que la anterior. Tras un compás de cuenta, el amigo aplaude 4 veces en corcheas (el primer aplauso al comienzo) y Matías lo repite en el compás siguiente. Las noches de 8 aplausos son 2 rondas de 4 seguidas, cada una con su cuenta y su patrón; si se falla la segunda, se vuelve a la primera con patrones nuevos (decisión de Benja, 4 de noviembre). Tolerancia de cada golpe: ±150 ms.
 - Scroll del celular: cada movimiento de la rueda cuenta 0,3 s de scroll.
-- Director de ritmo (decisión de Benja, 11 de noviembre; §2): silencio hasta los 60 s (`first_wave_at`); de 4 a 8 s entre las solicitudes de una ola (`wave_spacing`); calma de 40 a 60 s (`wave_calm`); lo de una ola, de 3 a 15 s después de empezar (`wave_event_delay`), y lo de una calma, de 5 a 15 s (`calm_event_delay`); un amigo herido atrasa 10 s lo que falta. En la noche 0, la primera solicitud llega a los 5 s (`first_request_delay`).
+- Director de ritmo (decisión de Benja, 11 de noviembre; §2): silencio hasta los 60 s (`first_wave_at`); de 4 a 8 s entre las solicitudes de una ola (`wave_spacing`); calma de 40 a 60 s (`wave_calm`), en cadena y sin saltarse ninguna ola (Plan 9.9); lo de una ola, de 3 a 15 s después de empezar (`wave_event_delay`), y lo de una calma, de 5 a 15 s (`calm_event_delay`); un amigo herido atrasa 10 s lo que falta. En la noche 0, la primera solicitud llega a los 5 s (`first_request_delay`).
 - Screamers (decisión de Benja, 11 de noviembre: en las calmas, con las reglas de justicia):
   - en las calmas, con al menos 25 s entre dos, y una visita de la criatura en la ola final;
   - la señal previa dura 1 s: las luces parpadean (el sonido ambiente no baja: pedido de Benja, 12-nov);
@@ -276,12 +279,13 @@ Lo demás: olas de 2 y la final de 3, 3 solicitudes a la vez, la señal que baja
   - la criatura de la ventana (el antiguo jumpscare) solo se arma con el chat o el mixer abiertos, que tapan la ventana, y no mientras la Mano está en la pared; se ve apenas se cierran y se queda entre 15 y 40 s al azar desde que llega (`creature_stay`), aunque se cierren las cortinas. No tapa nada ni pausa la noche (decisiones de Benja, 4, 7 y 11 de noviembre).
 - La Mano (decisión de Benja, 11 de noviembre): tarda 12 s en llegar al dial (`hand_approach_seconds`), a tirones de 0,5 a 0,7 s (`hand_step_seconds`); agarrado, el dial baja 6 por segundo (`hand_drain`) hasta 15 (`hand_floor`); cada flash gasta 10 % de la batería (`flash_cost`). No llega mientras la criatura está cerca.
 - Videos que ya no alcanzan la cuota (decisión de Benja, 11 de noviembre): aviso en rojo en el chat, una vez por video perdido, y los videos del PC en rojo.
-- **Toda noche se puede ganar** (requisito de Benja, 11 de noviembre): `test/test_balance.gd` lo comprueba con un modelo de "jugar bien" (`test/balance_model.gd`: 12 s y 2 preguntas por solicitud, 14 s en Difícil, donde se lee y se busca la página, y 11 s en Extremo, donde juega un experto; la Mano espantada antes de que agarre, la cortina cerrada a los 3 s de llegar la criatura). La batería alcanza, nada vence y Trust termina sobre 75 en las 5 noches de cada modo. Con 15 s por solicitud en Difícil, la noche 5 ya no se puede ganar, y en Extremo, con 12 s, las noches 4 y 5: están en el límite.
-- **La holgura** (Plan 9.6): el modelo no cuenta como tareas las sincronizaciones ni el scroll del celular. En toda noche, el tiempo libre (sin tareas abiertas, desde la primera ola) tiene que alcanzar para sincronizar a los amigos (lo que pierden de señal con el tiempo y las interferencias, 70 por sincronización, más 2 s por abrir el mixer) y para reponer Sanity. La referencia es Difícil 5, que Benja probó: su holgura es 1,24. En Extremo, la noche 5 queda en 1,01.
+- **Toda noche se puede ganar** (requisito de Benja, 11 de noviembre): `test/test_balance.gd` lo comprueba con un modelo de "jugar bien" (`test/balance_model.gd`: 12 s y 2 preguntas por solicitud, 14 s en Difícil, donde se lee y se busca la página, y 11 s en Extremo, donde juega un experto; la Mano espantada antes de que agarre, la cortina cerrada a los 3 s de llegar la criatura). Desde el Plan 9.9 el modelo corre cada noche hasta que se completa (`result["end"]`, con `end_pause`) y mide Sanity, batería y holgura con lo que dura. La batería alcanza, nada vence, llegan todas las consultas y Trust termina sobre 75 en las 5 noches de cada modo, y ninguna noche deja tiempo muerto al final ni termina antes de las 04:30 en promedio (`test/dump_night_lengths.gd` las mide para calibrar las calmas). Con 15 s por solicitud en Difícil, la noche 5 ya no se puede ganar, y en Extremo, con 12 s, las noches 4 y 5: están en el límite.
+- **La holgura** (Plan 9.6): el modelo no cuenta como tareas las sincronizaciones ni el scroll del celular. En toda noche, el tiempo libre (sin tareas abiertas, desde la primera ola) tiene que alcanzar para sincronizar a los amigos (lo que pierden de señal con el tiempo y las interferencias, 70 por sincronización, más 2 s por abrir el mixer) y para reponer Sanity. La referencia es Difícil 5, que Benja probó: con el horario viejo su holgura era 1,24; con 9 consultas y las olas en cadena queda en 1,04. En Extremo, la noche 5 queda en 1,19.
+- **La nota** (decisiones de Benja, 14 de noviembre; Plan 9.9, `docs/33`): al ganar una noche de la 1 a la 5, la pantalla final muestra S, A, B o C, y no se guarda. Suma 2 partes de 0 a 3 puntos: **la espera**, el promedio de segundos que estuvo abierto cada pedido de ayuda (consulta, accidente o decisión de la historia) contra la meta de la dificultad (`DifficultyData.wait_goal`: Normal 15 s, Difícil 20 y Extremo 15): hasta la meta 3 puntos, hasta 1,5 veces 2, hasta el doble 1 y más 0 (`grade_wait_factors`); y **las vidas perdidas** esa noche (ninguna 3, una 2, dos 1, más 0; la herida con que empieza un amigo en Extremo no cuenta). **S** con 5 o 6 puntos, **A** con 4, **B** con 2 o 3 y **C** con 0 o 1 (`grade_s_points`, `grade_a_points` y `grade_b_points`). Jugando bien se saca S en las 15 noches (`test_jugando_bien_se_saca_s`).
 - Alucinaciones (decisión de Benja, sesión 16): con Sanity bajo 50, una cada 40 s, y cada vez más seguidas hasta una cada 10 s con Sanity en 0 (±25 % al azar); más fuertes mientras más baja. No restan Sanity y no suenan durante Audio Sync, un audio de un amigo ni un screamer.
 - Accidentes (decisión de Benja, 7 de noviembre): se reparten en la noche como los screamers, 15 s para responder (22,5 s con "Temporizadores ×1,5"). Solo le pasan a un amigo libre, con señal y con más de 1 PV; si la ola está llena, esperan.
 - El chat guionado: cada línea del amigo llega 2,5 s después de la anterior; las de Matías esperan su botón.
-- **La historia** (Plan 9.7, `docs/31`; desde el Plan 9.8, `docs/32`): cada línea queda lo que se tarda en leerla, a 15 letras por segundo (mínimo 2 s). Un momento "antes de" una ola empieza lo que dura antes de ella, más 2 s (nunca menos que su `lead_seconds`), y el director pone la historia en su horario: la primera ola llega cuando terminaron el saludo y el susto, y cada calma dura al menos lo que cuenta su historia. Una noche con historia termina a las 06:30 (`NightData.overtime_minutes`, 30) y su final deja 5 s libres al final (`finale_margin`; las demás, 10). La noche no empieza hasta que se abre la llamada. Mientras la historia cuenta algo, la ola espera a lo más 45 s (`story_hold_limit`, decisión de Benja). Una decisión dura lo que un accidente (15 s, 22,5 con "Temporizadores ×1,5"); Trust no baja de 1 por la historia, y los segundos que pierde la próxima consulta de un amigo nunca la dejan bajo 10 s. Los valores de las decisiones de la noche 1 (10 s menos, Trust −10 y −20) son de partida (`docs/21` §4). La prueba de equilibrio juega la historia: jugando bien, ninguna ola espera y la historia llega entera en los 3 modos.
+- **La historia** (Plan 9.7, `docs/31`; desde el Plan 9.8, `docs/32`): cada línea queda lo que tarda en escribirse (60 letras por segundo, como el chat), lo que se tarda en leer sus palabras (3,5 por segundo) y 1 s más, y nunca menos de 2 s (Plan 9.9; pedido de Benja: el inicio se sentía rápido; el tutorial no cambia). Un momento "antes de" una ola empieza lo que dura antes de ella, más 2 s (nunca menos que su `lead_seconds`), y el director pone la historia en su horario: la primera ola llega cuando terminaron el saludo y el susto, y cada calma dura al menos lo que cuenta su historia. Una noche con historia ya no termina a las 06:30 (se quitaron `overtime_minutes` y `finale_margin` en el Plan 9.9): termina cuando termina la historia. La noche no empieza hasta que se abre la llamada. Mientras la historia cuenta algo, la ola espera a lo más 45 s (`story_hold_limit`, decisión de Benja). Una decisión dura lo que un accidente (15 s, 22,5 con "Temporizadores ×1,5"); Trust no baja de 1 por la historia, y los segundos que pierde la próxima consulta de un amigo nunca la dejan bajo 10 s. Los valores de las decisiones de la noche 1 (10 s menos, Trust −10 y −20) son de partida (`docs/21` §4). La prueba de equilibrio juega la historia: jugando bien, ninguna ola espera y la historia llega entera en los 3 modos.
 
 ---
 
@@ -386,7 +390,7 @@ RuleData         conditions {id de observación → valor}, correct_action_id,
 EntityData       id, name_key, lore_key, sketch, place_keys[], traits[2-4], actions[4],
                  observations[2-3], rules[] (ordenadas; la última sin condiciones)
 FriendData       id, name_key, avatar, color
-NightData        number, place_key, overtime_minutes (con historia, 30: hasta las 06:30), new_entities[], requests_total,
+NightData        number, place_key, new_entities[], requests_total,
                  max_simultaneous,
                  base_decision_time, first_hint_chance (probabilidad de pista en el mensaje inicial),
                  place_chance (probabilidad de que diga el lugar), decoys_per_request,
@@ -406,7 +410,7 @@ StoryStepData    kind (LINE/SEPARATE/JOIN/DECISION), speaker, text_key, decision
 StoryDecisionData friend, message_key, options[] (StoryOptionData), no_answer
 StoryOptionData  label_key, good, reply_keys[], trust_change, penalty_seconds + penalized[], damage +
                  damage_candidates[], sets_flag
-BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust, también el video perdido), vignette_start, el scroll del celular, las fotos perturbadoras (`disturbing_post_*`), la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`) y la espera de "Matías piensa" (`thinking_seconds`), el director (silencio, olas y calmas), los screamers (señal previa, justicia, Sanity, la criatura y la tinta), la Mano y el flash, y las alucinaciones
+BalanceData      night_seconds, friend_health, stun_seconds, consecuencias (probabilidad, daño y Trust, también el video perdido), vignette_start, el scroll del celular, las fotos perturbadoras (`disturbing_post_*`), la señal (interferencias y Trust sin señal), Audio Sync (tempo y tolerancia), los videos (plazos y descarga), el costo de preguntar (`question_cost`) y la espera de "Matías piensa" (`thinking_seconds`), el director (silencio, olas y calmas, y `end_pause`), la nota (`grade_*`), los screamers (señal previa, justicia, Sanity, la criatura y la tinta), la Mano y el flash, y las alucinaciones
 PhonePostData    picture (la foto, de 232×232; las cuentas no tienen nombre ni texto)
 ContentCatalog   friends[3], nights[5], tutorial (la noche 0), decoys[], greeting_keys[] (saludos),
                  predicament_keys[] (lo que le pasa al amigo), alone_predicament_keys[] (las de uno solo), balance,
