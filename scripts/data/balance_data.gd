@@ -114,13 +114,13 @@ extends Resource
 
 @export_group("Director")
 ## Olas de verdad (decisión de Benja, 11 de noviembre): un minuto de silencio, olas que llegan juntas, una calma
-## cuando se resuelven y una ola final grande, lo más tarde posible.
+## cuando se resuelven y una ola final grande. Desde el Plan 9.9, en cadena: cada ola llega cuando pasa su calma.
 ## Segundos de silencio al empezar la noche: la primera ola llega a esta hora.
 @export var first_wave_at := 60.0
 ## Segundos entre dos solicitudes de una misma ola (mínimo y máximo, al azar).
 @export var wave_spacing := Vector2(4, 8)
-## Segundos de calma sin solicitudes nuevas desde que se resuelve una ola (mínimo y máximo, al azar). Si la ola
-## siguiente estaba planeada para más tarde, la calma dura hasta entonces.
+## Segundos de calma sin solicitudes nuevas desde que se resuelve una ola (mínimo y máximo, al azar), o lo que cuente
+## la historia, si es más (Plan 9.9).
 @export var wave_calm := Vector2(40, 60)
 ## Cuántos segundos después de empezar una ola llegan sus interferencias, sus accidentes y la Mano.
 @export var wave_event_delay := Vector2(3, 15)

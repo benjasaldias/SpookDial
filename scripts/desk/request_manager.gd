@@ -660,10 +660,9 @@ func _story_damage_target(option: StoryOptionData) -> int:
 
 
 ## Cuando el director lo pide, le da una solicitud a un amigo libre al azar, sin pasar de las simultáneas.
-## Si no hay a quién dársela, espera. El director decide si alcanza a terminar antes de las 06:00 con el tiempo sin
-## alargar: con "Temporizadores ×1,5", start_request lo corta a las 06:00.
+## Si no hay a quién dársela, espera.
 func _maybe_start_request() -> void:
-	if not director.request_due(_elapsed, RequestGenerator.decision_time(night(), state.trust)):
+	if not director.request_due(_elapsed):
 		return
 	if active_count() >= night().max_simultaneous:
 		return

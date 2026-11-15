@@ -2,20 +2,20 @@ extends RefCounted
 ## El director de ritmo (diseño §5 y §11; decisiones de Benja, 2 y 11 de noviembre): decide cuándo llega cada
 ## solicitud y qué pasa en cada momento de la noche.
 ## La noche empieza con un minuto de silencio. Después llegan olas: las solicitudes de una ola llegan juntas, con pocos
-## segundos de diferencia, y cuando se resuelven todas viene una calma de verdad. Las olas están planeadas parejo hasta
-## la ola final, la más grande, que llega lo más tarde posible para que se alcance a responder antes de las 06:00: es
-## el clímax de la noche. Una ola que ya no cabe antes de la final se salta.
+## segundos de diferencia, y cuando se resuelven todas viene una calma de verdad.
+## Desde el Plan 9.9 (docs/33; decisión de Benja, 14 de noviembre) las olas van en cadena: cada una, también la final
+## (la más grande, el clímax), llega cuando pasa su calma desde que se resolvió la anterior. Ninguna se salta, y no hay
+## hora de término: la noche se completa cuando se resuelve la final (RequestManager.night_complete), así que jugar
+## rápido la acorta.
 ## Las interferencias, los accidentes y la Mano caen en las olas; los videos y los screamers, en las calmas, y una
-## visita de la criatura, en la ola final. Un amigo herido atrasa lo que falta, y nunca empieza una solicitud que no
-## alcanza a terminar antes de las 06:00.
+## visita de la criatura, en la ola final. Un amigo herido atrasa lo que falta.
 ## Una noche puede traer sus olas armadas a mano (NightData.wave_plan, desde el Plan 9.4: la noche 1 de Normal). Cada ola
 ## dice cuántas consultas y videos trae, separados cuánto, y la calma que la precede. Sus videos llegan dentro de la ola:
 ## cuando a la consulta anterior le quedan unos segundos o, si ya se respondió, un poco después. La última es la final.
 ## Desde el Plan 9.7 (la historia, docs/31), cuenta las olas y las calmas que empezaron, para que la historia sepa en qué
 ## momento va, y una ola espera mientras la historia cuenta algo antes de ella (story_hold), a lo más story_hold_limit s.
-## Desde el Plan 9.8, la historia está en el horario (story_needs): la primera ola llega cuando terminó lo de antes, cada
-## calma dura al menos lo que cuenta su historia, y una ola que ya no cabe antes de la reunión se salta. Así la espera
-## queda solo de seguro, y la historia no regala tiempo (pedido de Benja).
+## Desde el Plan 9.8, la historia está en el horario (story_needs): la primera ola llega cuando terminó lo de antes, y
+## cada calma dura al menos lo que cuenta su historia. Así la espera queda solo de seguro.
 ## Lógica pura: RequestManager la avanza y le pregunta por las solicitudes y los accidentes; ScreamerManager, por los
 ## screamers, y HandManager, por la Mano. Las reglas de justicia de los screamers las revisa Screamer.
 
@@ -40,8 +40,6 @@ class Wave:
 	## Lo que llega, en orden: false es una consulta y true, un video (solo en las olas de un plan).
 	var arrivals: Array[bool] = []
 	var finale := false
-	## A qué hora le toca, si la anterior se resolvió a tiempo (solo en las olas automáticas).
-	var planned := 0.0
 	## Segundos entre dos llegadas seguidas.
 	var spacing := Vector2.ZERO
 	## Segundos de calma antes de la ola (solo en un plan; las automáticas usan BalanceData.wave_calm).
@@ -65,8 +63,6 @@ var phase := Phase.SILENCE
 var waves: Array[Wave] = []
 ## La ola en curso o, en el silencio y en las calmas, la que sigue.
 var wave_index := 0
-## A qué hora llega la ola final.
-var finale_at := 0.0
 ## Desde qué hora puede llegar lo próximo de la ola o, en el silencio y en las calmas, la próxima ola.
 var next_at := 0.0
 ## Lo que todavía no llega de la ola en curso, en orden: false es una consulta y true, un video.
@@ -98,8 +94,6 @@ var story_needs := {}
 
 var _balance: BalanceData
 var _rng: RandomNumberGenerator
-## Cuánto dura la noche (hasta las 06:00 o, con historia, hasta las 06:30).
-var _night_length := 0.0
 ## Segundos para responder de la noche (sin el factor de Trust): un video de una ola llega antes de que se acaben.
 var _decision_time := 0.0
 ## Ya no había consultas abiertas cuando el próximo video de la ola esperaba: llega un poco después.
@@ -114,7 +108,6 @@ func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator, n
 	_balance = balance
 	_rng = rng
 	story_needs = needs
-	_night_length = night.length(balance)
 	_decision_time = night.base_decision_time
 	_wave_calm = night.wave_calm if night.wave_calm != Vector2.ZERO else balance.wave_calm
 	videos_left = night.content_quota
@@ -129,34 +122,6 @@ func _init(night: NightData, balance: BalanceData, rng: RandomNumberGenerator, n
 	next_at = maxf(next_at, _need(StoryBeatData.Moment.NIGHT_START) + _need(StoryBeatData.Moment.BEFORE_FIRST_WAVE))
 
 
-## A qué hora llega la ola final: lo más tarde posible para que lo último que trae alcance a terminar antes del final de
-## la noche (su última consulta, o la descarga de su último video), aunque todo llegue con la mayor demora. Deja libres al
-## final los segundos que atrasa un amigo herido (hurt_respite) o, en una noche con historia, finale_margin (5 s;
-## decisión de Benja en el Plan 9.8: así no cambian las noches que todavía no tienen historia).
-static func finale_time(night: NightData, balance: BalanceData) -> float:
-	var arrivals: Array[bool] = []
-	var spacing := balance.wave_spacing
-	var video_time_left := 0.0
-	if night.has_wave_plan():
-		var last: WaveData = night.wave_plan[-1]
-		arrivals = last.arrivals()
-		spacing = last.spacing
-		video_time_left = last.video_time_left
-	else:
-		for _index in clampi(night.finale_size, 0, night.requests_total):
-			arrivals.append(false)
-	var time := 0.0
-	var end := night.base_decision_time if arrivals.is_empty() else 0.0
-	for index in arrivals.size():
-		if index > 0:
-			var video_after_request := arrivals[index] and not arrivals[index - 1]
-			time += maxf(night.base_decision_time - video_time_left, 0.0) if video_after_request else spacing.y
-		var lasts := balance.video_accept_seconds + balance.download_seconds if arrivals[index] \
-				else night.base_decision_time
-		end = maxf(end, time + lasts)
-	var margin := balance.finale_margin if night.story != null else balance.hurt_respite
-	return night.length(balance) - end - margin
-
 
 ## Avanza hasta `now`, con `active` solicitudes abiertas. Empieza la ola que toca o, cuando se resuelve la ola en
 ## curso, su calma. Devuelve lo que empezó.
@@ -170,14 +135,6 @@ func advance(now: float, active: int) -> Beat:
 			_advance_video(now, active, beat)
 			if pending.is_empty() and active == 0:
 				_start_calm(now, beat)
-			elif _has_finale() and now >= finale_at:
-				# La final llega a su hora, aunque la ola no se haya resuelto. Si la ola tenía videos por llegar, llegan
-				# ahora: son de la cuota.
-				for is_video: bool in pending:
-					if is_video:
-						beat.videos.append(now)
-				wave_index = waves.size() - 1
-				_start_wave(now, beat)
 		Phase.FINALE:
 			_advance_video(now, active, beat)
 			if pending.is_empty():
@@ -205,15 +162,11 @@ func _held_by_story(now: float) -> bool:
 	return story_hold and now < next_at + _balance.story_hold_limit
 
 
-## Toca empezar una solicitud de la ola en curso. Si ya no alcanza a terminar antes de las 06:00 (dura
-## `decision_seconds`), la ola pierde las consultas que le faltan; sus videos llegan igual.
-func request_due(now: float, decision_seconds: float) -> bool:
-	if not (phase == Phase.WAVE or phase == Phase.FINALE) or pending.is_empty() or pending[0] or now < next_at:
-		return false
-	if now + decision_seconds > _night_length:
-		pending.assign(pending.filter(func(is_video: bool) -> bool: return is_video))
-		return false
-	return true
+## Toca empezar una solicitud de la ola en curso: lo próximo que trae es una consulta y llegó su hora. Desde el Plan 9.9
+## no hay hora de término, así que nunca se corta.
+func request_due(now: float) -> bool:
+	return (phase == Phase.WAVE or phase == Phase.FINALE) and not pending.is_empty() and not pending[0] \
+			and now >= next_at
 
 
 ## Empezó la solicitud que tocaba. Lo siguiente de la ola llega unos segundos después o, si es un video, cuando a esta
@@ -295,17 +248,12 @@ func _plan(night: NightData) -> void:
 	var regular := total - finale_size
 	var wave_size := maxi(night.wave_size, 1)
 	var regular_count := ceili(regular / float(wave_size))
-	finale_at = finale_time(night, _balance)
-	var span := (finale_at - _balance.first_wave_at) / maxi(regular_count, 1)
 	for index in regular_count:
-		var wave := _requests_wave(mini(wave_size, regular - index * wave_size))
-		wave.planned = _balance.first_wave_at + index * span
-		waves.append(wave)
+		waves.append(_requests_wave(mini(wave_size, regular - index * wave_size)))
 	var regular_waves := waves.duplicate()
 	if finale_size > 0:
 		var finale := _requests_wave(finale_size)
 		finale.finale = true
-		finale.planned = finale_at
 		finale.creature = night.creature_visits > 0
 		waves.append(finale)
 	_spread(night.interference_count, waves, "interferences", true)
@@ -325,7 +273,7 @@ func _requests_wave(size: int) -> Wave:
 	return wave
 
 
-## Arma las olas del plan de la noche, tal como vienen. La última es la final, a su hora; la primera llega a su calma
+## Arma las olas del plan de la noche, tal como vienen. La última es la final; la primera llega a su calma
 ## previa, contada desde las 00:00. Los videos del plan llegan en sus olas, y las calmas sueltan solo los que falten
 ## para la cuota.
 func _plan_from(night: NightData) -> void:
@@ -342,9 +290,7 @@ func _plan_from(night: NightData) -> void:
 		wave.calm_scares = data.calm_scares
 		wave.calm_creatures = data.calm_creatures
 		waves.append(wave)
-	finale_at = finale_time(night, _balance)
 	waves[-1].finale = true
-	waves[-1].planned = finale_at
 	next_at = _rng.randf_range(waves[0].calm_before.x, waves[0].calm_before.y)
 	videos_left = maxi(night.content_quota - night.total_videos(), 0)
 
@@ -390,8 +336,8 @@ func _start_wave(now: float, beat: Beat) -> void:
 		_release_videos(now, videos_left, beat)
 
 
-## La ola se resolvió: empieza su calma, con sus videos y sus screamers. La ola siguiente llega después de la calma o
-## a la hora que tenía planeada, la que sea más tarde. Si ya no cabe antes de la final, se salta.
+## La ola se resolvió: empieza su calma, con sus videos y sus screamers. La ola siguiente, también la final, llega cuando
+## pasa la calma o cuando termina lo que cuenta la historia, lo que sea más tarde (Plan 9.9: ninguna se salta).
 func _start_calm(now: float, beat: Beat) -> void:
 	var finished := waves[wave_index]
 	phase = Phase.CALM
@@ -402,14 +348,10 @@ func _start_calm(now: float, beat: Beat) -> void:
 	if wave_index < waves.size() and waves[wave_index].calm_before != Vector2.ZERO:
 		calm = waves[wave_index].calm_before
 	next_at = now + _rng.randf_range(calm.x, calm.y)
-	if wave_index < waves.size() and not waves[wave_index].finale:
-		next_at = maxf(next_at, waves[wave_index].planned)
-		next_at = maxf(next_at, now + _calm_story(wave_index))
-		if _has_finale() and next_at > finale_at - maxf(_wave_calm.x, _finale_story()):
-			wave_index = waves.size() - 1
-	if wave_index < waves.size() and waves[wave_index].finale:
-		next_at = finale_at
-	elif wave_index >= waves.size():
+	if wave_index < waves.size():
+		var need := _finale_story() if waves[wave_index].finale else _calm_story(wave_index)
+		next_at = maxf(next_at, now + need)
+	else:
 		phase = Phase.DONE
 	var calms_left := 1
 	for index in range(wave_index, waves.size()):

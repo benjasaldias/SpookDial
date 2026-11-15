@@ -1,6 +1,7 @@
 extends "res://test/test_case.gd"
 ## El director de olas (decisión de Benja, 11 de noviembre): un minuto de silencio, olas que llegan juntas, una calma
-## de verdad cuando se resuelven y una ola final grande, lo más tarde posible.
+## de verdad cuando se resuelven y una ola final grande. Desde el Plan 9.9 (docs/33), en cadena: cada ola, también la
+## final, llega cuando pasa su calma desde que se resolvió la anterior, y ninguna se salta.
 
 const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 
@@ -33,11 +34,12 @@ func _director(night: NightData, seed_value := 1) -> PacingDirector:
 ## Corre la noche de a 0,5 s con un jugador que resuelve cada solicitud `answer_after` segundos después de que llega
 ## (con amigos de sobra). Devuelve "arrivals" (las horas de llegada), "waves" ([hora, índice, es la final]), "calms"
 ## (las horas en que empezó cada calma), "interferences" y "videos" (las horas que trajo cada una).
-func _run(director: PacingDirector, night: NightData, answer_after: float) -> Dictionary:
+## Con `until`, corre hasta esa hora (en cadena, una noche lenta dura más de 420 s).
+func _run(director: PacingDirector, night: NightData, answer_after: float, until := NIGHT_SECONDS) -> Dictionary:
 	var result := {"arrivals": [], "waves": [], "calms": [], "interferences": [], "videos": []}
 	var open: Array[float] = []
 	var time := 0.0
-	while time < NIGHT_SECONDS:
+	while time < until:
 		open = open.filter(func(end: float) -> bool: return end > time)
 		var beat := director.advance(time, open.size())
 		if beat.wave_started >= 0:
@@ -46,7 +48,7 @@ func _run(director: PacingDirector, night: NightData, answer_after: float) -> Di
 			result["calms"].append(time)
 		result["interferences"].append_array(beat.interferences)
 		result["videos"].append_array(beat.videos)
-		while director.request_due(time, night.base_decision_time):
+		while director.request_due(time):
 			director.request_started(time)
 			result["arrivals"].append(time)
 			open.append(time + answer_after)
@@ -59,9 +61,9 @@ func test_el_primer_minuto_es_de_silencio() -> bool:
 	var director := _director(night)
 	for second in 120:
 		director.advance(second * 0.5, 0)
-		check(not director.request_due(second * 0.5, 60.0), "a los %s s, nada" % (second * 0.5))
+		check(not director.request_due(second * 0.5), "a los %s s, nada" % (second * 0.5))
 	director.advance(60.0, 0)
-	check(director.request_due(60.0, 60.0), "a los 60 s llega la primera ola")
+	check(director.request_due(60.0), "a los 60 s llega la primera ola")
 	return true
 
 
@@ -74,8 +76,8 @@ func test_las_solicitudes_de_una_ola_llegan_juntas() -> bool:
 	return true
 
 
-## La calma se cuenta desde que se resuelve la ola, y dura entre 40 y 60 s (o más, si la ola siguiente estaba
-## planeada para más tarde).
+## La calma se cuenta desde que se resuelve la ola, y dura entre 40 y 60 s (Plan 9.9: ya no hay olas planeadas a una
+## hora, así que tampoco dura más).
 func test_la_calma_empieza_cuando_se_resuelve_la_ola() -> bool:
 	for seed_value in 10:
 		var result := _run(_director(_night(), seed_value), _night(), 30.0)
@@ -83,49 +85,49 @@ func test_la_calma_empieza_cuando_se_resuelve_la_ola() -> bool:
 		var calms: Array = result["calms"]
 		var resolved: float = arrivals[1] + 30.0
 		check(absf(calms[0] - resolved) <= 0.5, "semilla %d: la calma empieza al resolverse: %s" % [seed_value, calms[0]])
-		var next: float = arrivals[2]
-		check(next - calms[0] >= 40.0, "semilla %d: al menos 40 s de calma: %s" % [seed_value, next - calms[0]])
+		var calm: float = arrivals[2] - calms[0]
+		check(calm >= 40.0 and calm <= 60.5, "semilla %d: de 40 a 60 s de calma: %s" % [seed_value, calm])
 	return true
 
 
-func test_la_ola_final_es_de_3_y_llega_al_final() -> bool:
+## La ola final es de 3 y llega como las demás: cuando pasa su calma desde que se resolvió la última ola común (Plan 9.9;
+## antes llegaba a una hora fija, lo más tarde posible).
+func test_la_ola_final_es_de_3_y_llega_tras_su_calma() -> bool:
 	var night := _night()
-	var finale_at := PacingDirector.finale_time(night, BalanceData.new())
-	check_eq(finale_at, NIGHT_SECONDS - 60.0 - 2.0 * 8.0 - 10.0, "la última llega a tiempo, con margen para un herido")
 	for seed_value in 10:
 		var result := _run(_director(night, seed_value), night, 30.0)
 		var arrivals: Array = result["arrivals"]
 		var waves: Array = result["waves"]
+		var calms: Array = result["calms"]
 		check_eq(arrivals.size(), 7, "semilla %d: las 7 solicitudes" % seed_value)
 		var last_wave: Array = waves[-1]
 		check(last_wave[2], "semilla %d: la última es la final" % seed_value)
-		check(absf(last_wave[0] - finale_at) <= 0.5, "semilla %d: a su hora: %s" % [seed_value, last_wave[0]])
+		var calm: float = last_wave[0] - calms[-1]
+		check(calm >= 40.0 and calm <= 60.5, "semilla %d: tras su calma de 40 a 60 s: %.1f" % [seed_value, calm])
 		var finale: Array = arrivals.slice(4)
 		check_eq(finale.size(), 3, "semilla %d: 3 en la final" % seed_value)
 		check(finale[-1] - finale[0] <= 17.0, "semilla %d: juntas" % seed_value)
-		check(finale[-1] + 60.0 <= NIGHT_SECONDS, "semilla %d: la última alcanza a terminar" % seed_value)
 	return true
 
 
-## Si el jugador tarda, la ola que ya no cabe antes de la final se salta. La final llega igual.
-func test_una_ola_que_no_cabe_se_salta() -> bool:
+## Un jugador lento no pierde olas (Plan 9.9): cada ola espera a que se resuelva la anterior, aunque la noche se alargue.
+func test_ninguna_ola_se_salta() -> bool:
 	var night := _night()
 	night.requests_total = 11
-	var result := _run(_director(night, 3), night, 60.0)
-	var arrivals: Array = result["arrivals"]
-	check(arrivals.size() < 11, "no llegan todas: %d" % arrivals.size())
-	var waves: Array = result["waves"]
-	check(waves[-1][2], "la final llega igual")
-	check_eq(arrivals.size() % 2, 1, "las comunes de a 2 y la final de 3")
+	var result := _run(_director(night, 3), night, 60.0, 1500.0)
+	check_eq(result["arrivals"].size(), 11, "llegan las 11")
+	check_eq(result["waves"].size(), 5, "4 olas comunes y la final")
+	check(result["waves"][-1][2], "la última es la final")
 	return true
 
 
-func test_nunca_empieza_una_que_no_alcanza() -> bool:
-	var night := _night()
-	var director := _director(night)
-	director.advance(60.0, 0)
-	check(not director.request_due(60.0, 361.0), "a los 60 s, una de 361 s no alcanza")
-	check(not director.request_due(60.0, 30.0), "la ola se cortó")
+## Ya no hay hora de término (Plan 9.9): una consulta llega aunque sea muy tarde.
+func test_una_consulta_llega_aunque_sea_tarde() -> bool:
+	var director := _director(_night())
+	director.phase = PacingDirector.Phase.FINALE
+	director.pending.assign([false])
+	director.next_at = 0.0
+	check(director.request_due(1000.0), "a los 1000 s, llega igual")
 	return true
 
 
@@ -168,19 +170,20 @@ func test_videos_en_las_calmas() -> bool:
 ## empezar y 10 de descarga), o al empezar la calma, si es corta.
 func test_el_video_no_llega_encima_de_la_ola() -> bool:
 	var night := _night()
+	night.wave_calm = Vector2(14, 14)
 	var director := _director(night, 12)
 	var balance := BalanceData.new()
 	director.advance(60.0, 0)
 	director.request_started(60.0)
 	director.request_started(65.0)
-	# La ola se resuelve tarde: la final llega 14 s después de que empieza la calma.
-	var calm_start := director.finale_at - 14.0
+	# La última ola común se resuelve, y su calma, corta, dura 14 s antes de la final.
 	director.wave_index = director.waves.size() - 2
-	var beat := director.advance(calm_start, 0)
+	var beat := director.advance(100.0, 0)
 	check(beat.calm_started, "empezó la calma")
+	check_eq(director.next_at, 114.0, "la final, 14 s después")
 	check_eq(beat.videos.size(), 2, "la última calma suelta los 2 videos")
 	if beat.videos.size() == 2:
-		check_eq(beat.videos[0], calm_start, "con la calma corta, el primero llega enseguida")
+		check_eq(beat.videos[0], 100.0, "con la calma corta, el primero llega enseguida")
 	var window := balance.video_accept_seconds + balance.download_seconds
 	var long_calm := _run(_director(_night(), 4), _night(), 30.0)
 	for index in long_calm["videos"].size():
@@ -379,20 +382,16 @@ func test_la_calma_entre_olas_planeadas() -> bool:
 	return true
 
 
-## La final llega lo más tarde posible: su última consulta llega a más tardar 60 + 45 s después de empezar (el video
-## cuando a la primera le quedan 30 s, y la segunda 45 s después) y tiene 90 s, con 10 s de margen para un herido.
-func test_la_final_del_plan_llega_lo_mas_tarde_posible() -> bool:
-	var night := _plan_night()
-	var finale_at := PacingDirector.finale_time(night, BalanceData.new())
-	check_eq(finale_at, NIGHT_SECONDS - (60.0 + 45.0 + 90.0) - 10.0, "a las 03:04")
+## La final del plan llega como las demás olas: tras su calma (calm_before) desde que se resolvió la ola 2 (Plan 9.9).
+func test_la_final_del_plan_llega_tras_su_calma() -> bool:
 	for seed_value in 5:
-		var result := _run(_director(night, seed_value), night, 20.0)
+		var night := _plan_night()
+		var result := _run(_director(night, seed_value), night, 20.0, 600.0)
 		var finale: Array = result["waves"][-1]
 		check(finale[2], "semilla %d: es la final" % seed_value)
-		check_eq(finale[0], finale_at, "semilla %d: a su hora" % seed_value)
-		var arrivals: Array = result["arrivals"]
-		check_eq(arrivals.size(), 5, "semilla %d: las 5 consultas" % seed_value)
-		check(arrivals[-1] + 90.0 <= NIGHT_SECONDS, "semilla %d: la última alcanza a terminar" % seed_value)
+		var calm: float = finale[0] - result["calms"][-1]
+		check(calm >= 30.0 and calm <= 45.5, "semilla %d: tras su calma de 30 a 45 s: %.1f" % [seed_value, calm])
+		check_eq(result["arrivals"].size(), 5, "semilla %d: las 5 consultas" % seed_value)
 	return true
 
 
@@ -401,7 +400,7 @@ func test_la_final_del_plan_llega_lo_mas_tarde_posible() -> bool:
 func test_en_la_final_nada_llega_junto() -> bool:
 	for seed_value in 5:
 		var night := _plan_night()
-		var result := _run(_director(night, seed_value), night, 80.0)
+		var result := _run(_director(night, seed_value), night, 80.0, 800.0)
 		var start: float = result["waves"][-1][0]
 		var video: float = result["videos"][1]
 		check_eq(video, start + 60.0, "semilla %d: el video, a los 60 s" % seed_value)
@@ -446,8 +445,7 @@ func test_un_plan_no_suelta_videos_en_las_calmas() -> bool:
 	return true
 
 
-## Una noche puede traer su propia calma entre olas (Plan 9.6: Extremo, de 20 a 30 s), en vez de la de balance.tres. La
-## ola se resuelve después de la hora planeada de la siguiente, para que mande la calma.
+## Una noche puede traer su propia calma entre olas (Plan 9.6: Extremo, de 20 a 30 s), en vez de la de balance.tres.
 func test_la_noche_puede_traer_su_calma() -> bool:
 	for seed_value in 10:
 		var night := _night()
@@ -468,8 +466,7 @@ func test_sin_calma_propia_se_usa_la_del_equilibrio() -> bool:
 	return true
 
 
-## Los segundos de calma después de la primera ola, si se resuelve a las 02:00 (140 s), pasada la hora planeada de la
-## siguiente.
+## Los segundos de calma después de la primera ola, si se resuelve a las 02:00 (140 s).
 func _calm_after_late_wave(night: NightData, seed_value: int) -> float:
 	var director := _director(night, seed_value)
 	director.advance(60.0, 0)
@@ -533,55 +530,27 @@ func test_la_espera_dura_a_lo_mas_45_s() -> bool:
 	return true
 
 
-func test_la_final_espera_a_la_historia() -> bool:
-	var night := _night()
-	var director := _director(night)
+## Resuelve cada ola común apenas llega todo lo que trae, hasta la calma antes de la final. Devuelve la hora en que
+## empezó esa calma.
+func _reach_calm_before_finale(director: PacingDirector) -> float:
 	var time := 0.0
-	# Las olas comunes se resuelven enseguida, hasta la calma antes de la final.
 	while not (director.phase == PacingDirector.Phase.CALM and director.wave_index == director.finale_index()):
 		director.advance(time, 0)
-		while director.request_due(time, night.base_decision_time):
+		while director.request_due(time):
 			director.request_started(time)
 		time += 0.5
-	var finale_at := director.finale_at
+	return time - 0.5
+
+
+func test_la_final_espera_a_la_historia() -> bool:
+	var director := _director(_night())
+	_reach_calm_before_finale(director)
+	var finale_at := director.next_at
 	director.story_hold = true
 	check_eq(director.advance(finale_at, 0).wave_started, -1, "a su hora, espera")
 	director.story_hold = false
 	var beat := director.advance(finale_at + 20.0, 0)
 	check(beat.wave_started == director.finale_index() and beat.finale_started, "llega cuando la historia termina")
-	return true
-
-
-# --- El horario (Plan 9.8): la noche con historia hasta las 06:30, y la final con 5 s de holgura (decisiones de Benja).
-
-## Con historia, la final deja 5 s libres al final en vez de 10 (decisión de Benja: solo en las noches con historia).
-func test_con_historia_la_final_deja_5_s() -> bool:
-	var night := _night()
-	var without := PacingDirector.finale_time(night, BalanceData.new())
-	night.story = StoryData.new()
-	check_eq(PacingDirector.finale_time(night, BalanceData.new()), without + 5.0, "5 s más tarde")
-	return true
-
-
-func test_en_una_noche_mas_larga_la_final_llega_despues() -> bool:
-	var night := _night()
-	var short := PacingDirector.finale_time(night, BalanceData.new())
-	night.overtime_minutes = 30
-	check_eq(PacingDirector.finale_time(night, BalanceData.new()), short + 35.0, "35 s más tarde")
-	var director := _director(night)
-	check_eq(director.finale_at, short + 35.0, "el director la planea ahí")
-	return true
-
-
-func test_no_empieza_una_consulta_que_no_alcanza_antes_del_final() -> bool:
-	var night := _night()
-	night.overtime_minutes = 30
-	var director := _director(night)
-	director.phase = PacingDirector.Phase.FINALE
-	director.pending.assign([false])
-	director.next_at = 0.0
-	check(director.request_due(430.0, 20.0), "a las 06:00 todavía alcanza, porque termina a las 06:30")
-	check(not director.request_due(440.0, 20.0), "pasadas las 06:30, no")
 	return true
 
 
@@ -598,7 +567,7 @@ func _resolve_first_wave(director: PacingDirector, resolved: float) -> void:
 	var time := director.next_at
 	while time < resolved:
 		director.advance(time, 1)
-		while director.request_due(time, 60.0):
+		while director.request_due(time):
 			director.request_started(time)
 		time += 0.5
 	director.advance(resolved, 0)
@@ -623,17 +592,15 @@ func test_cada_calma_dura_su_historia() -> bool:
 	return true
 
 
-## La regla que salta una ola que ya no cabe cuenta la reunión y lo que va antes de la final.
+## La calma antes de la final dura lo que cuentan la reunión y lo de antes de la final, si es más que la calma (Plan 9.9:
+## ya no se salta ninguna ola por eso).
 func test_la_calma_antes_de_la_final_cuenta_la_historia() -> bool:
 	var moment := StoryBeatData.Moment
 	for needs: Dictionary in [{}, {moment.AFTER_LAST_WAVE: 60.0, moment.BEFORE_FINALE: 15.0}]:
 		var night := _night()
 		night.wave_calm = Vector2(40, 40)
 		var director := _story_director(night, needs)
-		_resolve_first_wave(director, 250.0)
-		var skipped := director.wave_index == director.finale_index()
-		if needs.is_empty():
-			check(not skipped, "sin historia, la ola 2 cabe (llega a los 290 s, la final a los %.0f)" % director.finale_at)
-		else:
-			check(skipped, "con la reunión (75 s), ya no cabe: se salta")
+		var calm_start := _reach_calm_before_finale(director)
+		var expected := 40.0 if needs.is_empty() else 75.0
+		check_eq(director.next_at - calm_start, expected, "%.0f s de calma antes de la final" % expected)
 	return true

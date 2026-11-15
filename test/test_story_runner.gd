@@ -41,7 +41,7 @@ class Sim:
 				wave_times.append(time)
 			if beat.calm_started:
 				calm_times.append(time)
-			while director.request_due(time, night.base_decision_time):
+			while director.request_due(time):
 				director.request_started(time)
 				open.append(time + answer_after)
 			var busy := not open.is_empty() or busy_override
@@ -201,8 +201,9 @@ func test_en_extremo_las_olas_del_medio_no_tienen_historia() -> bool:
 	return true
 
 
-## Si el director salta a la final, lo que venía antes de la última ola común se salta, pero sus cambios valen: se reúnen.
-func test_si_se_salta_la_ultima_ola_se_salta_lo_de_antes() -> bool:
+## Con las olas en cadena (Plan 9.9), un jugador lento no se salta ninguna ola: lo de antes de la última ola común llega
+## igual, y se reúnen ahí.
+func test_un_jugador_lento_no_se_salta_la_historia() -> bool:
 	var night := _night(11)
 	var story := StoryData.new()
 	story.starts_together = false
@@ -211,10 +212,10 @@ func test_si_se_salta_la_ultima_ola_se_salta_lo_de_antes() -> bool:
 	story.beats.append(Fixtures.make_beat(StoryBeatData.Moment.AFTER_LAST_WAVE, [_line(1, "K_C")]))
 	var sim := _sim(story, night)
 	sim.answer_after = 40.0
-	sim.run_until(420.0)
-	check(sim.wave_times.size() < 5, "el director se saltó una ola: %d olas" % sim.wave_times.size())
-	check_eq(sim.time_of("K_B"), -1.0, "lo de antes de la última ola común no llega")
-	check_eq(sim.runner.skipped_beats, [0], "se saltó")
+	sim.run_until(1200.0)
+	check_eq(sim.wave_times.size(), 5, "las 5 olas: ninguna se salta")
+	check(sim.time_of("K_B") >= 0.0, "lo de antes de la última ola común llega")
+	check_eq(sim.runner.skipped_beats, [], "nada se salta")
 	var after := sim.item_of("K_C")
 	check(after != null and after.command == StoryRunner.Command.CALL_LINE, "se reunieron: la llamada en la calma antes de la final")
 	return true
@@ -236,17 +237,16 @@ func test_un_momento_que_se_cierra_corta_sus_lineas_pero_se_reunen() -> bool:
 	return true
 
 
-## Si la final llega encima de la ola 2 (un jugador lento en Normal), las decisiones se saltan y se reúnen solos
-## (decisión de Benja, S21l).
-func test_si_la_final_llega_encima_se_saltan_las_decisiones_y_se_reunen() -> bool:
+## Con las olas en cadena (Plan 9.9), la final ya no llega encima de la ola 2: espera a que se resuelva. Aun un jugador
+## muy lento recibe la reunión y su decisión (antes se saltaban; decisión de Benja en S21l).
+func test_un_jugador_muy_lento_igual_recibe_la_decision() -> bool:
 	var sim := _sim(Fixtures.make_story(_catalog))
-	sim.answer_after = 400.0
-	sim.run_until(420.0)
-	check(sim.calm_times.is_empty(), "nunca hubo una calma")
+	sim.answer_after = 200.0
+	sim.run_until(1500.0)
+	check_eq(sim.calm_times.size(), 2, "las 2 calmas")
 	check_eq(sim.items.filter(func(entry: Array) -> bool: return entry[1].command == StoryRunner.Command.DECISION).size(),
-			0, "sin decisiones")
-	check(sim.runner.skipped_beats.has(2), "la reunión se saltó")
-	check(sim.runner.together, "se reunieron")
+			1, "la decisión llega")
+	check(not sim.runner.skipped_beats.has(2), "la reunión no se salta")
 	return true
 
 

@@ -28,7 +28,7 @@ extends Resource
 ## Solicitudes por ola común: llegan juntas, con pocos segundos de diferencia, y cuando se resuelven viene una calma
 ## (decisiones de Benja, 2 y 11 de noviembre).
 @export var wave_size := 3
-## Solicitudes de la ola final, la más grande, que llega lo más tarde posible (decisión de Benja, 11 de noviembre).
+## Solicitudes de la ola final, la más grande (decisión de Benja, 11 de noviembre). Llega tras su calma (Plan 9.9).
 ## Con 3, los 3 amigos piden ayuda a la vez.
 @export var finale_size := 3
 ## Segundos de calma después de una ola común (mínimo y máximo, al azar). Con (0, 0), la de balance.tres (40 a 60 s). Extremo

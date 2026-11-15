@@ -529,26 +529,3 @@ func test_jugando_bien_la_final_casi_no_espera() -> bool:
 				check(hold <= 10.0, "%s, noche %d, semilla %d: una ola esperó %.1f s" % [difficulty.id, night.number,
 						seed_value + 1, hold])
 	return true
-
-
-
-# --- La historia no regala tiempo (pedido de Benja, Plan 9.8): con la noche hasta las 06:30 y la historia en el horario,
-# la noche 1 de cada modo queda con el equilibrio de antes.
-
-## Las referencias, medidas antes del Plan 9.8 (20 semillas): la holgura y la batería de la noche 1 de cada modo.
-const STORY_NIGHT_REFERENCES := {&"normal": [6.19, 10.0], &"hard": [4.90, 10.0], &"extreme": [1.91, 41.4]}
-
-
-func test_la_historia_no_regala_tiempo() -> bool:
-	var catalog: ContentCatalog = load("res://data/catalog.tres")
-	for difficulty_id: StringName in STORY_NIGHT_REFERENCES:
-		var difficulty := catalog.find_difficulty(difficulty_id)
-		var night := difficulty.nights[0]
-		var reference: Array = STORY_NIGHT_REFERENCES[difficulty_id]
-		var ratio := BalanceModel.free_time_ratio(night, catalog.balance, BalanceModel.attention_for(difficulty), SEEDS)
-		check(absf(ratio / reference[0] - 1.0) <= 0.05, "%s, noche 1: holgura %.2f (antes %.2f)" % [difficulty_id, ratio,
-				reference[0]])
-		var battery := BalanceModel.battery_needed(night, catalog.balance)
-		check(absf(battery - reference[1]) <= 1.0, "%s, noche 1: batería %.1f %% (antes %.1f %%)" % [difficulty_id, battery,
-				reference[1]])
-	return true

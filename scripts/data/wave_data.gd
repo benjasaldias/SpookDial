@@ -3,8 +3,7 @@ extends Resource
 ## Una ola armada a mano, en el plan de olas de una noche (NightData.wave_plan; docs/26 §3.2). Así se arma la noche 1 de
 ## Normal, para que lo que llega no llegue todo junto (pedido de Benja tras el primer testeo, 11 de noviembre).
 ## Las llegadas se alternan: consulta, video, consulta… Lo que sobra va al final.
-## La última ola del plan es la final: llega lo más tarde posible, para que su última consulta alcance a terminar antes de
-## las 06:00.
+## La última ola del plan es la final: como las demás, llega cuando pasa su calma (Plan 9.9).
 
 @export_group("Llegadas")
 ## Consultas de la ola.
@@ -18,7 +17,7 @@ extends Resource
 ## …o, si ya no queda ninguna consulta abierta, estos segundos después (mínimo y máximo, al azar).
 @export var video_after_answer := Vector2(3, 6)
 ## Segundos de calma antes de la ola (mínimo y máximo, al azar): la primera los cuenta desde las 00:00, y las demás desde
-## que se resolvió la anterior. La final no los usa.
+## que se resolvió la anterior, también la final (Plan 9.9).
 @export var calm_before := Vector2(40, 60)
 
 @export_group("En la ola")

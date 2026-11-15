@@ -168,7 +168,7 @@ static func simulate(night: NightData, balance: BalanceData, seed_value: int,
 				result["videos"].append(video_time)
 				open.append(_task("video", time, time + balance.video_accept_seconds + VIDEO_ATTENTION, VIDEO_ATTENTION, -1))
 		var trust: float = result["trust"]
-		while director.request_due(time, RequestGenerator.decision_time(night, trust)) and busy.has(false) \
+		while director.request_due(time) and busy.has(false) \
 				and active < night.max_simultaneous:
 			director.request_started(time)
 			var friend := busy.find(false)
