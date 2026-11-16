@@ -19,6 +19,7 @@ place_chance = 0.6
 decoys_per_request = 1
 wave_size = 2
 finale_size = 3
+wave_calm = Vector2(45, 65)
 incident_count = 1
 signal_decays = true
 signal_decay_interval = Vector2(2.8, 5.6)

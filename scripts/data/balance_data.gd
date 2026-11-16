@@ -136,6 +136,9 @@ extends Resource
 ## Segundos entre que la noche se completa (la ola final resuelta, nada abierto y la historia contada) y su final: lo
 ## justo para leer lo último (decisión de Benja, 14 de noviembre; Plan 9.9).
 @export var end_pause := 3.0
+## Segundos que Matías se queda en el chat del amigo al que acaba de ayudar, para leer cómo le fue, antes de que se vea la
+## llamada grupal (pedido de Benja, Plan 9.10). Lo mismo esperan las líneas de la llamada.
+@export var call_delay := 3.0
 
 @export_group("Screamers")
 ## Segundos de la señal previa: las luces parpadean y baja el sonido ambiente (diseño §11).

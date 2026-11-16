@@ -31,6 +31,9 @@ const SOUNDS := {
 	"alarm_agustin": 0.25,
 	"chat_notify": 0.3,
 	"wave_stinger": 2.2,
+	# El chime de una respuesta correcta y el obturador de la calavera (Plan 9.10).
+	"request_correct": 0.5,
+	"photo_shutter": 0.4,
 	"voice_leon": 0.05,
 	"voice_gonzalo": 0.066,
 	"voice_agustin": 0.034,

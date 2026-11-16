@@ -1171,6 +1171,136 @@ func test_la_llamada_se_corta_con_algo_que_jugar() -> bool:
 	return true
 
 
+## Una historia con la llamada a la vista (empieza con los 3 juntos), que ya dijo todo lo suyo y dejó pasar el tiempo.
+func _quiet_call_manager() -> RequestManager:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([Fixtures.make_line(catalog.friends[1], "K_A")], true, catalog)
+	manager.advance(0.1)
+	manager.advance(10.0)
+	return manager
+
+
+## Pedido de Benja (noche 1): al resolver una consulta con la ola en curso, no se vuelve a la llamada, donde no hay nada
+## nuevo, y se alcanza a leer cómo le fue al amigo.
+func test_resolver_una_consulta_en_la_ola_no_vuelve_a_la_llamada() -> bool:
+	var manager := _quiet_call_manager()
+	check(manager.call_active(), "la llamada, con sus líneas")
+	manager.director.phase = PacingDirector.Phase.FINALE
+	var request := manager.start_request(0)
+	manager.advance(0.1)
+	check(not manager.call_active(), "con una consulta, se corta")
+	manager.answer(0, _correct_action(manager, 0))
+	check(request.finished, "se respondió")
+	for step in 40:
+		manager.advance(0.5)
+	check(not manager.call_active(), "20 s después, con la ola en curso y nada nuevo, sigue en el chat del amigo")
+	manager.free()
+	return true
+
+
+## Terminada la ola, tampoco vuelve si la historia no tiene nada más que decir en la llamada.
+func test_sin_linea_nueva_no_vuelve_a_la_llamada() -> bool:
+	var manager := _quiet_call_manager()
+	manager.start_request(0)
+	manager.advance(0.1)
+	manager.answer(0, _correct_action(manager, 0))
+	for step in 40:
+		manager.advance(0.5)
+	check(manager.director.phase == PacingDirector.Phase.SILENCE, "la ola ya terminó (no hay ola en curso)")
+	check(not manager.call_active(), "la ola terminó pero no hay mensaje nuevo: no vuelve")
+	manager.free()
+	return true
+
+
+## Con una línea nueva y la ola terminada, vuelve, pero no antes de call_delay segundos de leer cómo le fue al amigo.
+func test_con_una_linea_nueva_vuelve_a_la_llamada_tras_la_espera() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([Fixtures.make_line(catalog.friends[1], "K_A")], true, catalog)
+	manager.night().story.beats.append(Fixtures.make_beat(StoryBeatData.Moment.AFTER_FIRST_WAVE,
+			[Fixtures.make_line(catalog.friends[0], "K_B")]))
+	manager.advance(0.1)
+	manager.advance(10.0)
+	manager.director.phase = PacingDirector.Phase.WAVE
+	manager.start_request(2)
+	manager.advance(0.1)
+	check(not manager.call_active(), "con la consulta, se corta")
+	manager.answer(2, _correct_action(manager, 2))
+	manager.director.phase = PacingDirector.Phase.CALM
+	manager.director.calms_started = 1
+	var calls := []
+	_record_call(manager, calls)
+	manager.advance(0.1)
+	manager.advance(0.1)
+	check(calls.is_empty(), "la línea nueva espera a que Matías lea cómo le fue")
+	check(not manager.call_active(), "sigue en el chat del amigo")
+	var waited := 0.0
+	while waited < 10.0 and not manager.call_active():
+		manager.advance(0.25)
+		waited += 0.25
+	check(waited >= manager.balance.call_delay - 0.3, "no antes de call_delay: %.2f s" % waited)
+	check(waited <= manager.balance.call_delay + 1.0, "y enseguida: %.2f s" % waited)
+	check_eq(calls.size(), 1, "la línea nueva llegó")
+	check(manager.call_active(), "ahora sí, la llamada")
+	manager.free()
+	return true
+
+
+## Sin historia o con los amigos separados nunca hay llamada.
+func test_la_llamada_no_vuelve_mientras_la_ola_no_termina() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([Fixtures.make_line(catalog.friends[1], "K_A")], true, catalog)
+	manager.night().story.beats.append(Fixtures.make_beat(StoryBeatData.Moment.AFTER_FIRST_WAVE,
+			[Fixtures.make_line(catalog.friends[0], "K_B")]))
+	manager.advance(0.1)
+	manager.advance(10.0)
+	manager.director.phase = PacingDirector.Phase.WAVE
+	manager.director.calms_started = 1
+	for step in 40:
+		manager.advance(0.5)
+	check(not manager.call_active(), "con la ola en curso, aunque no haya nada que jugar")
+	manager.free()
+	return true
+
+
+## Las respuestas de una decisión de la historia sí se ven enseguida, sin la espera: son su resultado.
+func test_las_respuestas_de_una_decision_se_ven_enseguida() -> bool:
+	var catalog := Fixtures.make_catalog()
+	var manager := _story_manager([_decision_step(catalog)], true, catalog)
+	manager.advance(0.1)
+	check(manager.incidents[0] != null, "la decisión espera a Matías")
+	manager.answer_incident(0, 0)
+	manager.advance(0.1)
+	check(manager.call_active(), "las respuestas del amigo, en la llamada, sin esperar")
+	manager.free()
+	return true
+
+
+## Resolver bien un accidente avisa (suena el chime); resolverlo mal, no.
+func test_resolver_bien_un_accidente_avisa() -> bool:
+	var catalog := Fixtures.make_catalog()
+	catalog.incidents.append(Fixtures.make_incident())
+	var manager := _make_manager(catalog)
+	var solved := []
+	manager.incident_solved.connect(func(friend_index: int) -> void: solved.append(friend_index))
+	var bad := manager.start_incident(1)
+	var good := manager.start_incident(2)
+	check(bad != null and good != null, "2 accidentes")
+	var wrong := 0
+	for index in bad.options.size():
+		if not bad.is_correct(index):
+			wrong = index
+	manager.answer_incident(1, wrong)
+	check(solved.is_empty(), "mal respondido, no avisa")
+	var right := 0
+	for index in good.options.size():
+		if good.is_correct(index):
+			right = index
+	manager.answer_incident(2, right)
+	check_eq(solved, [2], "bien respondido, avisa")
+	manager.free()
+	return true
+
+
 ## Una decisión llega como un accidente: en el chat de quien pregunta, con el tiempo de un accidente y sus opciones.
 func test_la_decision_llega_como_un_accidente() -> bool:
 	var catalog := Fixtures.make_catalog()

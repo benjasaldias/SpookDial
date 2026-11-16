@@ -8,10 +8,10 @@ const StoryRunner := preload("res://scripts/core/story_runner.gd")
 const ChatMessageView := preload("res://scripts/ui/chat_message_view.gd")
 
 const STEP := 0.5
-## Cada texto de la traducción falsa tiene 60 letras y 7 palabras: se escribe en 1 s, se lee en 2 s (3,5 palabras por
-## segundo) y espera 1 s más (Plan 9.9).
-const LINE_TEXT := "xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxx"
-const LINE_SECONDS := 4.0
+## Cada texto de la traducción falsa tiene 60 letras y 10 palabras: se escribe en 1 s, se lee en 2 s (5 palabras por
+## segundo) y espera 0,5 s más (Plan 9.10).
+const LINE_TEXT := "xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxx xxxxxx"
+const LINE_SECONDS := 3.5
 
 
 ## La noche de los pasos de la historia: lo que pasa cada 0,5 s con el director real y un jugador que resuelve cada
@@ -333,7 +333,7 @@ func test_mientras_cuenta_algo_la_ola_espera() -> bool:
 	var sim := _sim(_story(StoryBeatData.Moment.NIGHT_START, steps, false))
 	sim.run_until(130.0)
 	# La ola mira la historia antes de que avance: llega en el paso siguiente al que termina.
-	check_eq(sim.wave_times[0], 100.5, "la primera ola espera las 25 líneas (100 s)")
+	check_eq(sim.wave_times[0], 25 * LINE_SECONDS + STEP, "la primera ola espera las 25 líneas (%s s)" % (25 * LINE_SECONDS))
 	check(not sim.runner.holds(), "terminó y ya no hace esperar")
 	return true
 
@@ -341,11 +341,11 @@ func test_mientras_cuenta_algo_la_ola_espera() -> bool:
 # --- La historia en el horario (Plan 9.8): el vlog al doble de lento y lo que dura cada momento.
 
 ## Una línea dura lo que tarda en escribirse (60 letras por segundo, como el chat), lo que se tarda en leer sus palabras
-## (3,5 por segundo) y 1 s más, y nunca menos de 2 s (pedido de Benja, Plan 9.9: el inicio se sentía rápido).
+## (5 por segundo) y 0,5 s más, y nunca menos de 2 s (Plan 9.10: pedido de Benja, quedaba esperando después de leer).
 func test_una_linea_dura_lo_que_se_tarda_en_leerla() -> bool:
-	check_eq(StoryRunner.line_seconds(LINE_TEXT), LINE_SECONDS, "60 letras y 7 palabras: 1 + 2 + 1 s")
+	check_eq(StoryRunner.line_seconds(LINE_TEXT), LINE_SECONDS, "60 letras y 10 palabras: 1 + 2 + 0,5 s")
 	var intro := "Hoy vamos a una cabaña en medio del campo, donde dicen que penan el Tue Tué y la Calchona"
-	var expected := intro.length() / 60.0 + 19 / 3.5 + 1.0
+	var expected := intro.length() / 60.0 + 19 / 5.0 + 0.5
 	check(is_equal_approx(StoryRunner.line_seconds(intro), expected), "19 palabras: %.1f s" % StoryRunner.line_seconds(intro))
 	check_eq(StoryRunner.line_seconds("hola"), 2.0, "una corta, 2 s")
 	check_eq(StoryRunner.TYPING_CHARS_PER_SECOND, ChatMessageView.CHARS_PER_SECOND, "se escribe como en el chat")

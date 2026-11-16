@@ -6,20 +6,22 @@ Estados: ✅ completada · ▶ siguiente · ⏳ pendiente · ✏️ modificada �
 
 ---
 
-## ▶ Siguiente sesión: S21m — La historia de la noche 2 (cuando Benja apruebe su guion)
+## ▶ Siguiente sesión: F1 — Caza de errores, en Fable 5.2 (`docs/35`)
 
 | | |
 | --- | --- |
-| **Qué se hace** | Escribir con `superpowers:writing-plans` y ejecutar el plan de la noche 2 de la historia (`docs/21` §5), sobre el sistema de S21l (`docs/31`) y el horario nuevo de S21o (`docs/33`): un amigo inconsciente (sin consultas ni accidentes), una decisión que daña a otro amigo, cortar la señal de un amigo a propósito, y el guion en los 3 modos. La noche espera sola a que termine la historia: ya no necesita `overtime_minutes`. |
-| **Cuándo** | **Solo cuando Benja apruebe el guion de la noche 2** en el documento compartido. Si no alcanza antes del 20 de noviembre, se salta y sigue S22 (la noche 2 queda con el mínimo de `docs/05`: la intro y el cierre del vlog). |
-| **Tipo** | Plan y ejecución. |
-| **Modelo** | **Opus 5.5** |
+| **Qué se hace** | Una prueba que juega la escena real al azar (muchas semillas, las noches 0 a 5 de los 3 modos) y comprueba que toda noche termina, sin errores de script; cada error encontrado se corrige con su prueba. Es la sesión F1 del audit `docs/34_audit_fable.md`. |
+| **Cuándo** | **Del 17 al 21 de noviembre**, antes de las pruebas con personas (23). No depende de nada tuyo. |
+| **Tipo** | Diagnóstico, pruebas y correcciones. |
+| **Modelo** | **Fable 5.2** |
 | **Esfuerzo** | **xhigh** |
-| **Qué escribirle a Claude** | `Lee docs/21_lore_por_noche.md y escribe y ejecuta el plan de la noche 2 de la historia.` |
-| **Tu parte antes** | Probar la noche 1 con su historia y el horario nuevo (`docs/04`, X y AA: el vlog contra la emergencia, la lectura del inicio, el final sin tiempo muerto y la nota); revisar y aprobar el guion de la noche 2 (y confirmar lo que asusta a Agustín: algo en el agua). La noche 2 de Normal tiene calmas de 75 a 95 s: dime si se hacen largas, porque la historia las llena. |
-| **Está terminada cuando** | La noche 2 se juega con su historia en los 3 modos y `test_balance` sigue en verde. |
+| **Qué escribirle a Claude** | `Lee docs/35_prompts_fable.md y haz la sesión F1.` |
+| **Tu parte antes** | Commitear los cambios de S21p (19 archivos sin commitear) y los tuyos de la versión web, o decirle a Claude que los commitee. Tener el editor de Godot cerrado. |
+| **Está terminada cuando** | La prueba al azar corre al menos 200 noches sin una noche que no termine, y todas las pruebas pasan. |
 
-**Antes del 25 de noviembre** (congelamiento del contenido). Después: S22, las pruebas con personas.
+**En paralelo:** F2 (las 7 criaturas como puzzles, Fable 5.2 · high, también antes del 21) y **S21m** (la noche 2 de la historia, Opus 5.5 · xhigh), que sigue esperando que apruebes su guion: `Lee docs/21_lore_por_noche.md y escribe y ejecuta el plan de la noche 2 de la historia.` Las demás sesiones de Fable (F0 y F3 a F8) y su calendario están en `docs/34` §4.
+
+**Todo esto, antes del 25 de noviembre** (congelamiento del contenido). Después: S22, las pruebas con personas.
 
 ---
 
@@ -30,6 +32,8 @@ Solo se ejecutan los documentos `docs/NN_plan_*.md` que **no** son hojas de ruta
 | Documento | Qué es | ¿Se ejecuta? |
 | --- | --- | --- |
 | `docs/00_log.md` | Este registro: qué sesión toca | — |
+| `docs/35_prompts_fable.md` | Prompts de las sesiones de Fable 5.2 (F0 a F8) | Sí, uno por sesión ⏳ |
+| `docs/34_audit_fable.md` | Audit de Claude: qué le falta al juego y qué sesión de Fable lo resuelve, con el calendario | No (referencia; de aquí salen F0 a F8) |
 | `docs/33_plan_tiempo_y_nota.md` | **Plan 9.9**: la noche que termina cuando se acaba, las olas en cadena, la historia más lenta de leer, la nota S, A, B o C y las calmas calibradas, con las mediciones en "Resultado" | Ya ejecutado (S21o) ✅ |
 | `docs/32_plan_historia_clara.md` | **Plan 9.8**: vlog o emergencia, la noche que espera la llamada y la historia en el horario hasta las 06:30 | Ya ejecutado (S21l) ✅ |
 | `docs/31_plan_historia.md` | **Plan 9.7**: la historia en el chat y la noche 1, con lo que mide la prueba de equilibrio y lo que cambió al ejecutarlo | Ya ejecutado (S21l) ✅ |
@@ -109,13 +113,23 @@ Hay dos tipos de sesión, que se alternan:
 | S21l | 12 nov | La historia: el sistema y la noche 1 (Plan 9.7, `docs/31`) | Plan y ejecución | Opus 5.5 · xhigh | Probar la noche 1 (`docs/04`, X); corregir los textos nuevos | ✅ |
 | S21n | 14–15 nov | Planificar la noche que termina cuando se acaba y la nota (`docs/33`, Plan 9.9), tras la segunda prueba de la noche 1 | Diseño y plan | Opus 5.5 | 7 decisiones del tiempo y la nota | ✅ |
 | S21o | 15 nov | Ejecutar el Plan 9.9 (`docs/33`): la noche que termina cuando se acaba, y la nota | Ejecución | Sonnet 5.5 · high | Probar (`docs/04`, AA); corregir `END_GRADE`, `END_WAIT` y `END_LIVES` | ✅ |
-| **S21m** | Antes del 20 nov | **La historia de la noche 2** (cuando Benja apruebe su guion) | Plan y ejecución | **Opus 5.5 · xhigh** | Aprobar el guion de la noche 2; autorizar commits | ▶ |
+| S21p | 15 nov | Ajustes tras probar la noche 1: la espera de la intro, la llamada que se robaba el chat y los sonidos de respuesta | Ejecución, sin plan | Sonnet 5.5 · high | Probar (`docs/04`, AB) | ✅ |
+| **S21m** | Antes del 20 nov | **La historia de la noche 2** (cuando Benja apruebe su guion) | Plan y ejecución | **Opus 5.5 · xhigh** | Aprobar el guion de la noche 2; autorizar commits | ⏳ (espera el guion) |
+| S21q | 16 nov | Audit para Fable 5.2 (`docs/34`) y los prompts de sus sesiones (`docs/35`) | Diseño | Opus 5.5 | Elegir qué sesiones de Fable hacer | ✅ |
+| **F1** | 17–21 nov | **Caza de errores: la noche que no termina y los estados cruzados** (`docs/35`) | Diagnóstico y correcciones | **Fable 5.2 · xhigh** | Commitear S21p; autorizar commits | ▶ |
+| F2 | 17–21 nov | Las 7 criaturas como puzzles (`docs/35`) | Análisis y borradores | Fable 5.2 · high | Corregir los textos antes del 25 | ⏳ |
+| F0 | Cuando quieras | `CLAUDE.md` más liviano (opcional, `docs/35`) | Mantenimiento | Fable 5.2 · medium | Aprobar el cambio | ⏳ |
+| F5a | 18–22 nov | La versión para los testers, solo si juegan en itch.io (`docs/35`, F5) | Código y exportación | Fable 5.2 · high | Subir a itch.io | ⏳ |
+| F3 | 18–22 nov | La historia: borradores de las noches 3 a 5 y su versión mínima (`docs/35`) | Diseño narrativo | Fable 5.2 · high | Los "Por decidir" de `docs/21` §6 | ⏳ |
 | S21c | 9 nov | Red social que imita a una real (`docs/20`) | Diseño y ejecución | Opus 5.5 · high (se adelantó a S21b) | Probar (`docs/04`, P); confirmar de dónde son las fotos | ✅ |
 | S21d | 10 nov | Pulir el arte y los sonidos de Claude (pedido de Benja, sin plan aparte) | Diseño y ejecución | Opus 5.5 | Escuchar los sonidos y revisar el arte (`docs/04`, Q); corregir los textos del Imbunche | ✅ |
 | S22 | 23–29 nov | Correcciones tras las pruebas con personas (contenido congelado el 25) | Corrección | Opus 5.5 · high | Pruebas con 3 a 5 personas | ⏳ |
-| S23 | 30 nov | Escribir el Plan 10: sonido, pulido y versión | Plan | Opus 5.5 · high | Los sonidos que faltan (`sonidos_pendiente.md`); los de S21d ya no son de relleno | ⏳ |
-| S24 | 1–5 dic | Ejecutar el Plan 10 → versión candidata | Ejecución | Sonnet 5.5 · high | — | ⏳ |
+| S23 | 30 nov | Escribir el Plan 10: sonido, pulido y versión (propuesta: lo hace F4 en Fable 5.2 · high, `docs/35`) | Plan | Opus 5.5 · high | Los sonidos que faltan (`sonidos_pendiente.md`); los de S21d ya no son de relleno | ⏳ |
+| S24 | 1–5 dic | Ejecutar el Plan 10 → versión candidata (propuesta: F4, y F5b para la versión) | Ejecución | Sonnet 5.5 · high | — | ⏳ |
+| F6 | 1–8 dic | El juego en inglés, si alcanza (`docs/35`) | Traducción | Fable 5.2 · high | El glosario | ⏳ |
 | S25 | 6–10 dic | Correcciones finales y entrega | Corrección | Opus 5.5 · high | — | ⏳ |
+| F7 | Después del 10 dic | Ordenar `RequestManager` y `ChatPanel` (`docs/35`) | Reestructuración | Fable 5.2 · xhigh | Autorizar la rama | ⏳ |
+| F8 | Después del 10 dic | Diseñar la versión siguiente (`docs/35`) | Diseño | Fable 5.2 · high | Decidir | ⏳ |
 
 **Si una sesión de ejecución no termina su plan**, la siguiente sesión la continúa (se anota como ✏️) antes de pasar a la que sigue en la tabla.
 
@@ -125,6 +139,7 @@ Hay dos tipos de sesión, que se alternan:
 
 | Fecha | Cambio |
 | --- | --- |
+| 16-nov | ✏️ **S21q, nueva:** Benja pidió un audit de lo que le falta al juego, para dárselo a Fable 5.2 en sesiones separadas. Claude lo escribió en `docs/34` (14 hallazgos) y los prompts de 9 sesiones en `docs/35` (F0 a F8). **F1 (la caza de errores) pasa a ser la siguiente**, porque S21m sigue esperando el guion de la noche 2; F2 va en paralelo. Se propone que F4 escriba y ejecute el Plan 10 (en vez de S23 y S24) y que F7 y F8 vayan después de la entrega. Nada de esto cambia una decisión. Detalle en `resumen.md`, Sesión 21q. |
 | 15-nov | ✏️ **S21o se hizo el mismo 15 de noviembre**, en Sonnet 5.5 · high y con `superpowers:executing-plans`, como proponía el registro. Benja autorizó todos los commits directo en `main` y, al cerrar, que `docs/04` entrara con su sección Z. El Plan 9.9 (`docs/33`) se ejecutó tal como está escrito, con 4 ajustes que anota su sección "Resultado": una prueba roja de la Tarea 1 a la 4 (el modelo todavía corría hasta los 420 s), la prueba de las 06:30 borrada en la Tarea 4 en vez de en la 6, una prueba de la escena del escritorio que ganaba por reloj, y la calma de Difícil 5 (45 a 65 s, porque con 9 consultas su holgura era 0,92). 8 commits en `main`, de 851 a 866 pruebas OK. **S21m es la siguiente.** Detalle en `resumen.md`, Sesión 21o. |
 | 15-nov | ✏️ **S21n y S21o, nuevas:** en la segunda prueba de la noche 1, al tester le sobró 1:20 de nada al final y el inicio se le hizo rápido. Benja propuso que la noche termine con la última ola y su diálogo, y una nota al estilo de Cuphead. Contestó 2 rondas de preguntas (7 decisiones) y aprobó el diseño. Claude escribió el Plan 9.9 (`docs/33`) sin ejecutarlo. **S21o (Sonnet 5.5 · high) lo ejecuta y va antes de S21m.** Detalle en `resumen.md`, Sesión 21n. |
 | 12-nov | ✏️ **S21l siguió con el Plan 9.8** (`docs/32`): Benja probó la noche 1 y trajo 6 observaciones (sobre todo, que no se distinguía el vlog de una emergencia). Contestó 3 rondas de preguntas, propuso que la noche con historia termine a las 06:30 para no regalar tiempo, y aprobó el diseño. El plan se escribió y se ejecutó en la misma sesión: 8 commits más en `main`, de 821 a 851 pruebas OK. **S21m sigue siendo la siguiente.** Detalle en `resumen.md`, Sesión 21l (continuación). |
@@ -200,5 +215,7 @@ Hay dos tipos de sesión, que se alternan:
 | S21g | 11-nov | Feedback del primer testeo: 16 observaciones ordenadas, 8 decisiones de Benja (modos Normal y Difícil, Gonzalo en el tutorial, la noche 1 de Normal) y 3 sesiones planificadas (`docs/26`) | `resumen.md`, Sesión 21g |
 | S21b | 12-nov | La historia por noche (`docs/21`): la regla 9 enmendada, la llamada grupal, el canal Acá Penan, los personajes, el guion aprobado de la noche 1, el borrador de la noche 2 (pospuesto) y el esquema de las noches 3 a 5 | `resumen.md`, Sesión 21b |
 | S21h | 11-nov | Plan 9.3 escrito y ejecutado (`docs/27`): 661 pruebas OK, en 11 commits. Las preguntas muestran su costo y no se repiten salvo con estática, lo decisivo en azul (también en el cuaderno), el chat en bloques con las respuestas como hojas del cuaderno y la señal en barritas que parpadea sin señal, "Matías piensa" 2 s, los señuelos sin costo, la descarga que responde aunque el clic empiece antes de que aparezca la barra, y la noche ganada que se guarda. `docs/04`, T | `resumen.md`, Sesión 21h |
+| S21p | 15-nov | Ajustes tras probar la noche 1 (872 pruebas OK): la historia se lee a 5 palabras por segundo y 0,5 s (Difícil 1, con calma de 45 a 65 s), la llamada grupal solo entra con la ola terminada, una línea nueva y 3 s (`call_delay`), y los sonidos `request_correct` y `photo_shutter` al responder. Sin plan aparte. | Sigue S21m |
 | S21o | 15-nov | Plan 9.9 ejecutado (`docs/33`): 866 pruebas OK, en 8 commits. Las olas en cadena (ninguna se salta), la historia más lenta de leer, la noche que termina cuando se completa (la ola final, los videos y la historia, y 3 s) sin hora de término, el modelo de equilibrio corrido hasta que se completa, las calmas calibradas (Extremo 30 a 40 s; Normal 2, Normal 3, Difícil 2 y Difícil 5) y la nota S, A, B o C en la pantalla final. Capturas revisadas. `docs/04`, AA | `resumen.md`, Sesión 21o |
+| S21q | 16-nov | Audit para Fable 5.2 (`docs/34`): la noche que podría no terminar, las criaturas sin medir como puzzles, la historia de las noches 3 a 5, la versión publicable, el inglés, el código mezclado y la profundidad. Prompts de F0 a F8 (`docs/35`) | Sigue F1 |
 | S15 | 2-nov | Plan 6 ejecutado: 326 pruebas OK. La señal de cada amigo con interferencias, las reglas de un amigo sin señal, los avisos de videos y señal en el chat, la descarga en el chat, Audio Sync en el mixer (también con «Sincronizar»), el celular con su feed y 7 sonidos provisionales. Capturas del mixer, de la descarga y del celular revisadas. `docs/04`, J | `resumen.md`, Sesión 15 |

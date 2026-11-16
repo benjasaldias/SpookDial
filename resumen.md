@@ -4,6 +4,63 @@ La entrada más reciente va arriba, y sus listas de pendientes son la lista vige
 
 ---
 
+## Sesión 21q — 16 de noviembre de 2026 — Audit para Fable 5.2 y los prompts de sus sesiones
+
+Benja pidió un audit de dónde puede mejorar el juego o le falta desarrollo, para dárselo a Fable 5.2 en sesiones separadas que usen las skills disponibles. Sesión de diseño, sin código, en Opus 5.5.
+
+### Realizado
+
+- **`docs/34_audit_fable.md`:** 14 hallazgos por área, con su evidencia, su impacto y si agregan alcance. Lo principal: la noche termina solo cuando todo se resolvió y nada prueba los estados cruzados (una noche podría no terminar nunca); las 7 criaturas nunca se midieron como puzzles; faltan los guiones de las noches 3 a 5; no hay créditos (la OFL los pide), ni pantalla completa, ni guardados seguros, y la web no se ha probado; hay 0 de 546 textos en inglés; `RequestManager` y `ChatPanel` hacen demasiado; las secciones B a D de `docs/22` siguen sin discutir, y `CLAUDE.md` pesa 55 KB con 93 decisiones, muchas reemplazadas.
+- **`docs/35_prompts_fable.md`:** lo común a todas las sesiones (lo aprobado, lo que se pregunta, terminar el trabajo y el cierre) y 9 prompts: F0 (`CLAUDE.md` más liviano, opcional), **F1 (la caza de errores, con una prueba que juega al azar)**, **F2 (las criaturas como puzzles)**, F3 (la historia de las noches 3 a 5), F4 (sensación y legibilidad: el Plan 10), F5 (la versión publicable), F6 (el inglés), F7 (ordenar el código, después de la entrega) y F8 (diseñar la versión siguiente, después de la entrega). Cada uno dice su esfuerzo, sus skills y cuándo está terminado.
+- `docs/00_log.md`: F1 es la siguiente (S21m sigue esperando el guion), con F2 en paralelo y las demás en el calendario. `CLAUDE.md`: los 2 documentos nuevos en la tabla.
+
+### Errores encontrados
+
+- Ninguno en el código: el audit no lo cambió. Lo de la noche que no termina es una sospecha que F1 tiene que confirmar o descartar.
+
+### Pendientes Código
+
+- [ ] **F1** (Fable 5.2 · xhigh, del 17 al 21 de noviembre) y **F2** (Fable 5.2 · high, antes del 21). Las demás, según `docs/34` §4.
+- Siguen abiertos todos los pendientes de las sesiones 21p y 21o, incluida **S21m**.
+
+### Pendientes Externos
+
+- [ ] **Commitear los cambios de S21p** (19 archivos, más los 2 sonidos nuevos) y los tuyos de la versión web antes de abrir F1, o pedírselo a Claude.
+- [ ] Elegir qué sesiones de Fable haces. El mínimo recomendado es F1 y F2. Dime si los testers juegan en itch.io: si es así, F5a va antes del 22.
+- Siguen abiertos todos los pendientes externos de las sesiones 21p y 21o.
+
+---
+
+## Sesión 21p — 15 de noviembre de 2026 — Ajustes tras probar la noche 1: la espera, la llamada que se robaba el chat y los sonidos de respuesta
+
+Benja probó el juego tras el Plan 9.9 y trajo 3 pedidos, sin plan aparte (cambios chicos), en Sonnet 5.5 · high con el editor de Godot cerrado. 872 pruebas OK.
+
+### Realizado
+
+- **La espera de la intro.** La historia se lee a 5 palabras por segundo y espera 0,5 s después (antes 3,5 y 1 s; `READING_WORDS_PER_SECOND` y `LINE_PAUSE` en `story_runner.gd`). Una línea de 10 palabras pasa de 4,4 s a 3,5 s. Acortar la historia dejó a **Difícil 1** en 04:28, bajo la regla de las 04:30; su calma pasó a 45 a 65 s (`data/nights/hard/night_1.tres`; 04:33). Normal 1 (04:34) y Extremo 1 (05:42) siguen bien.
+- **El bug de la llamada grupal.** Causa raíz: `RequestManager.call_active()` era verdadero apenas no había nada que jugar, sin mirar si la ola seguía ni si había algo nuevo en la llamada; en la ola final, al resolver una consulta quedaba un hueco sin nada que jugar y el chat saltaba a la llamada, sin tiempo para leer la reacción del amigo. Ahora la llamada **solo entra** si los 3 siguen juntos, no hay nada que jugar, la ola terminó (el director no está en WAVE ni FINALE), llegó una línea nueva y pasaron `call_delay` (3 s, `balance.tres`) desde lo último que jugó Matías. Una vez a la vista sigue mientras no haya nada que jugar y no empiece una ola. Las líneas de la llamada esperan lo mismo (antes esperaban solo que no hubiera nada que jugar). Lo que contesta el amigo a una decisión se ve enseguida. La noche empieza con la llamada a la vista, como antes. Sin línea nueva, Matías se queda en el chat del amigo, que dice "REC".
+- **Los sonidos de respuesta.** `request_correct.wav` (chime de 2 notas, 0,5 s, RMS −26 dB) al completar bien una consulta o un accidente (señal nueva `incident_solved`), y `photo_shutter.wav` (obturador de cámara, 0,4 s, RMS −22 dB) al elegir la calavera. Si el amigo decide solo, no suena nada. Los genera `tools/make_sounds.py`; están en `sonidos_pendiente.md`.
+- 7 pruebas nuevas en `test_request_manager.gd` (la llamada no vuelve con la ola en curso, ni sin línea nueva, ni antes de `call_delay`; las respuestas de una decisión se ven enseguida; el accidente avisa) y las de `test_story_runner`, `test_sounds`, `test_desk_scene` y `test_balance` puestas al día. Pasos de prueba para Benja: `docs/04`, AB.
+
+### Errores encontrados
+
+- Mi primera versión de la llamada dejaba una "línea nueva" pendiente desde el comienzo de la noche, y la llamada volvía sola tras la primera ola: la prueba nueva lo mostró y se arregló marcando la línea como vista cuando la llamada ya está a la vista.
+- Con las líneas más cortas, Difícil 1 terminaba a las 04:28 (la prueba de las 04:30 falló).
+
+### Pendientes Código
+
+- [ ] **Según lo que diga Benja** (`docs/04`, AB): si la lectura de la intro ya no deja espera, si los 3 s de `call_delay` bastan para leer la reacción del amigo, y el volumen de los 2 sonidos nuevos.
+- [ ] Menor: si se prefiere que la llamada **no** se corte al empezar una ola con la llamada a la vista (hoy se cierra, y la ola trae su primera consulta enseguida), habría que quitar `_wave_over()` de `call_active()`.
+- Siguen abiertos todos los pendientes de la sesión 21o (más abajo), incluida **S21m** (la historia de la noche 2).
+
+### Pendientes Externos
+
+- [ ] Probar `docs/04`, AB (unos 10 minutos), y seguir con AA, X y las demás.
+- [ ] Corregir los textos nuevos del Plan 9.9 (`END_GRADE`, `END_WAIT` y `END_LIVES` en `data/text/ui.csv`).
+- [ ] Aprobar el guion de la noche 2 (`docs/21`) para que corra S21m.
+
+---
+
 ## Sesión 21o — 15 de noviembre de 2026 — Plan 9.9 ejecutado: la noche que termina cuando se acaba, y la nota
 
 Se ejecutó el Plan 9.9 (`docs/33`) en esta sesión, con `superpowers:executing-plans` en Sonnet 5.5 · high y el editor de Godot cerrado. Benja autorizó todos los commits directo en `main` al empezar (y, al cerrar, que `docs/04` entrara con su sección Z). **De 851 a 866 pruebas OK**, en 8 commits. Nunca se hizo push.

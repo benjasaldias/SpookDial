@@ -30,6 +30,8 @@ signal request_started(friend_index: int, request: FriendRequest)
 signal request_changed(friend_index: int, request: FriendRequest)
 ## Terminó una solicitud, con su consecuencia ya aplicada al estado de la noche.
 signal request_finished(friend_index: int, request: FriendRequest)
+## Matías resolvió bien un accidente (Plan 9.10): suena el chime, como con una consulta correcta.
+signal incident_solved(friend_index: int)
 ## Terminó el chat guionado (Plan 7).
 signal chat_script_finished(chat: ChatScript)
 ## León terminó el tutorial de la noche 0 y se despidió (Plan 9.2).
@@ -137,6 +139,13 @@ var _seen_entities: Array[EntityData] = []
 var _requests_started := 0
 ## Segundos que lleva completa la noche: a los end_pause, termina (Plan 9.9).
 var _complete_seconds := 0.0
+## La llamada grupal está a la vista (Plan 9.10). Empieza a la vista si la noche empieza con los 3 juntos; después, solo
+## vuelve cuando llega una línea nueva y ya terminó la ola (call_active).
+var _call_shown := false
+## Llegó una línea a la llamada que todavía no se vio.
+var _call_news := false
+## Segundos sin nada que jugar: la llamada espera call_delay para que Matías lea cómo le fue a su amigo.
+var _idle_seconds := 0.0
 
 
 func _ready() -> void:
@@ -166,6 +175,8 @@ func _ready() -> void:
 	if night().story != null and not night().is_tutorial():
 		story = StoryRunner.new(night().story, catalog.friends, tr, catalog.balance.incident_seconds)
 		waiting_for_call = night().story.starts_together
+		_call_shown = waiting_for_call
+	_idle_seconds = balance.call_delay
 	if current != null and not night().is_tutorial():
 		_wound_friends(current.wounded_friends, current.wounded_health)
 
@@ -261,6 +272,7 @@ func advance(delta: float) -> void:
 			_maybe_start_request()
 			_maybe_start_incident()
 	_advance_story(delta)
+	_update_call(delta)
 	_complete_seconds = _complete_seconds + delta if night_complete() else 0.0
 	state.finished = _complete_seconds >= balance.end_pause
 
@@ -318,6 +330,7 @@ func answer_incident(friend_index: int, option: int) -> bool:
 	if incident.is_correct(option):
 		incidents[friend_index] = null
 		_add_friend_message(friend_index, MessageBuilder.line(ChatMessage.Sender.FRIEND, MessageBuilder.INCIDENT_GOOD_KEY, tr))
+		incident_solved.emit(friend_index)
 	else:
 		_incident_hurts(friend_index, MessageBuilder.INCIDENT_BAD_KEY)
 	return true
@@ -571,9 +584,45 @@ func call_opened() -> void:
 	waiting_for_call = false
 
 
-## La llamada grupal se ve: la historia tiene a los 3 juntos y no hay nada que jugar (docs/21 §2).
+## La llamada grupal se ve (docs/21 §2; Plan 9.10): la historia tiene a los 3 juntos, no hay nada que jugar y entró a la
+## vista. **Entra** cuando llega una línea nueva y ya terminó la ola, y pasaron call_delay segundos desde lo último que
+## jugó Matías: así, al resolver una consulta con la ola en curso, o cuando no hay nada nuevo que esperar en la llamada,
+## se queda en el chat de su amigo y alcanza a leer cómo le fue (pedido de Benja, noche 1). Una vez a la vista, sigue
+## mientras no haya nada que jugar y no empiece una ola.
 func call_active() -> bool:
-	return _together() and _nothing_to_play()
+	return _call_shown and _together() and _nothing_to_play() and _wave_over()
+
+
+## La llamada puede recibir líneas y entrar a la vista: sin nada que jugar, con la ola terminada y pasado el tiempo para
+## leer cómo le fue al amigo.
+func _call_ready() -> bool:
+	return _nothing_to_play() and _wave_over() and _idle_seconds >= balance.call_delay
+
+
+## La ola en curso terminó: no hay una ola ni la final llegando o a medio llegar (cuando se resuelve la última de la
+## final, el director ya está en DONE).
+func _wave_over() -> bool:
+	return director.phase != PacingDirector.Phase.WAVE and director.phase != PacingDirector.Phase.FINALE
+
+
+## Cuenta el tiempo sin nada que jugar y mete la llamada a la vista cuando llegó una línea nueva y se puede.
+func _update_call(delta: float) -> void:
+	if not _together():
+		_call_shown = false
+		_call_news = false
+		return
+	if not _nothing_to_play():
+		_call_shown = false
+		_idle_seconds = 0.0
+		return
+	_idle_seconds += delta
+	if not _wave_over():
+		_call_shown = false
+	elif _call_shown:
+		_call_news = false
+	elif _call_news and _call_ready():
+		_call_shown = true
+		_call_news = false
 
 
 ## Los 3 amigos están juntos en la historia.
@@ -615,7 +664,7 @@ func _advance_story(delta: float) -> void:
 		return
 	var can_decide := func(friend_index: int) -> bool:
 		return _is_free(friend_index) and state.friends[friend_index].is_online()
-	for item: StoryRunner.Item in story.advance(delta, _elapsed, director, _story_busy(), _nothing_to_play(), can_decide):
+	for item: StoryRunner.Item in story.advance(delta, _elapsed, director, _story_busy(), _call_ready(), can_decide):
 		_do_story(item)
 
 
@@ -628,6 +677,7 @@ func _do_story(item: StoryRunner.Item) -> void:
 		StoryRunner.Command.CALL_LINE:
 			var message := MessageBuilder.line(ChatMessage.Sender.FRIEND, item.key, tr)
 			ChatStatic.apply(message, state.friends[item.friend].signal_level, rng)
+			_call_news = true
 			call_message_added.emit(item.friend, message)
 		StoryRunner.Command.DECISION:
 			incidents[item.friend] = FriendIncident.for_decision(item.decision, item.friend,
@@ -647,6 +697,8 @@ func _resolve_decision(friend_index: int, option: StoryOptionData, answered: boo
 	if answered:
 		message_added.emit(friend_index, MessageBuilder.line(ChatMessage.Sender.PLAYER, option.label_key, tr))
 	if story != null:
+		# Lo que contesta el amigo es el resultado de la decisión: se ve enseguida, sin la espera de call_delay.
+		_idle_seconds = balance.call_delay
 		for item: StoryRunner.Item in story.decided(option):
 			_do_story(item)
 	_apply_story_option(option)

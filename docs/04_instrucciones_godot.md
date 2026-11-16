@@ -31,6 +31,7 @@ Pasos que conviene que hagas tú en la interfaz de Godot (o en Windows). Hacerlo
 | **X.** Probar la historia de la noche 1 (planes 9.7 y 9.8) | ⬜ Pendiente (unos 25 minutos: la noche 1 en Normal y, si alcanzas, en Difícil) |
 | **Y.** Poner la música de la noche (Plan 9.8) | ⬜ Pendiente: cuando tengas las 2 pistas |
 | **AA.** Probar la noche que termina cuando se acaba, y la nota (Plan 9.9) | ⬜ Pendiente (unos 25 minutos) |
+| **AB.** Probar la llamada que no se roba el chat, la lectura más rápida y los sonidos de respuesta (S21p) | ⬜ Pendiente (unos 10 minutos) |
 | Importar `hand_sprite` con Aseprite Wizard | ✅ Hecho por Claude (11-11-2026): animación `default`, 3 cuadros de 319×81 |
 | **H.** Probar el cuaderno (Plan 4) | ⬜ Pendiente (unos 10 minutos) |
 | **I.** Probar la noche (Plan 5) | ⬜ Pendiente (unos 15 minutos) |
@@ -962,3 +963,16 @@ Igual que en la guía anterior: **Add… > Windows Desktop**, **Binary Format > 
 - **Verifica:** gana una noche y mira si la letra cambió como esperabas.
 
 **Corrige los textos nuevos** en `data/text/ui.csv`: `END_GRADE`, `END_WAIT` y `END_LIVES`.
+
+
+## AB. Probar la llamada que no se roba el chat, la lectura más rápida y los sonidos de respuesta (S21p)
+
+**Estado: pendiente.** Unos 10 minutos, en la noche 1 de Normal (o Difícil).
+
+1. **La espera de la intro.** Abre la llamada y lee la intro. Cada línea espera ahora lo que tardas en escribirla y leerla a 5 palabras por segundo, más 0,5 s. **Dime** si sigue quedando espera, o si ahora llega antes de que termines de leer.
+2. **El chat del amigo al resolver.** En las olas, resuelve una consulta con otras todavía por llegar (sobre todo en la ola final). **Verifica:** te quedas en el chat del amigo al que ayudaste y alcanzas a leer su reacción; no te lleva a la llamada. Al terminar la ola, la llamada vuelve solo si hay una línea nueva, unos 3 s después de la última respuesta. Si no tienen nada más que decir, te quedas en el chat del amigo (con su cartel "REC").
+3. **Los sonidos.** Responde bien una consulta: suena un chime breve y suave. Elige la calavera: suena una cámara de fotos. Una respuesta incorrecta, o dejar que el amigo decida solo, no suena nada. **Dime** si el chime agobia al repetirse, o si el volumen de alguno no te convence.
+
+**Si quieres ajustar algo**, en Godot:
+- **Los 3 s antes de volver a la llamada:** panel **FileSystem** > doble clic en `data/balance.tres` > **Inspector** > sección **Director** > **Call Delay** (en segundos). Guarda con `Ctrl+S`. **Verifica:** resuelve una consulta con una línea de la llamada por llegar y mira cuánto tarda en volver.
+- **El volumen de los sonidos:** en `tools/make_sounds.py`, las recetas `request_correct()` y `photo_shutter()` fijan su RMS al final (−26 y −22); un número más bajo suena más suave. Después, `/usr/bin/python3 tools/make_sounds.py request_correct photo_shutter` con el editor cerrado.

@@ -629,6 +629,7 @@ func test_las_entradas_abren_la_llamada() -> bool:
 	var desk := _make_desk()
 	var manager := desk.get_node("RequestManager")
 	manager.story = StoryRunner.new(StoryData.new(), manager.catalog.friends, tr)
+	manager._call_shown = true  # la llamada ya entró a la vista (Plan 9.10)
 	desk._process(0.0)
 	var entries := desk.get_node("DeskPlane/Entries").get_children()
 	for entry: Node in entries:
@@ -692,6 +693,7 @@ func test_la_llamada_sin_leer_marca_mientras_dura() -> bool:
 	var desk := _make_desk()
 	var manager := desk.get_node("RequestManager")
 	manager.story = StoryRunner.new(StoryData.new(), manager.catalog.friends, tr)
+	manager._call_shown = true  # la llamada ya entró a la vista (Plan 9.10)
 	var message := ChatMessage.new(ChatMessage.Sender.FRIEND, null)
 	message.add_fragment("Hola")
 	manager.call_message_added.emit(0, message)

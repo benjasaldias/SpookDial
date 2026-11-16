@@ -68,6 +68,7 @@ func _ready() -> void:
 	_new_game.text = tr(TEXT_KEYS["NewGame"])
 	_options_button.text = tr(TEXT_KEYS["Options"])
 	_quit.text = tr(TEXT_KEYS["Quit"])
+	_quit.visible = _can_quit()
 	(_confirm.get_node("Question") as Label).text = tr(TEXT_KEYS["Question"])
 	var yes := _confirm.get_node("Buttons/Yes") as Button
 	var no := _confirm.get_node("Buttons/No") as Button
@@ -181,8 +182,14 @@ func _show_main() -> void:
 
 
 func _set_main_visible(shown: bool) -> void:
-	for button: Button in [_continue, _new_game, _options_button, _quit]:
+	for button: Button in [_continue, _new_game, _options_button]:
 		button.visible = shown
+	_quit.visible = shown and _can_quit()
+
+
+## En el navegador no se puede cerrar el juego desde adentro: la pestaña la cierra el jugador.
+func _can_quit() -> bool:
+	return not OS.has_feature("web")
 
 
 ## Empezar con la dificultad marcada: sin partida guardada, al tiro; con una, primero pregunta, porque se borra.

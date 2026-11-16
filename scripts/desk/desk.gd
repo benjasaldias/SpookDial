@@ -43,6 +43,7 @@ const DialGauge := preload("res://scripts/desk/dial_gauge.gd")
 const FriendRequest := preload("res://scripts/core/friend_request.gd")
 const GameSettings := preload("res://scripts/core/game_settings.gd")
 const NightManager := preload("res://scripts/desk/night_manager.gd")
+const RuleEvaluator := preload("res://scripts/core/rule_evaluator.gd")
 const NightState := preload("res://scripts/core/night_state.gd")
 const NotebookMemory := preload("res://scripts/core/notebook_memory.gd")
 const RequestManager := preload("res://scripts/desk/request_manager.gd")
@@ -84,6 +85,8 @@ var unlocks_on_win: Array[DifficultyData] = []
 @onready var _mixer: Control = $UI/MixerView
 @onready var _phone: Control = $UI/PhoneView
 @onready var _interference_sound: AudioStreamPlayer = $InterferenceSound
+@onready var _correct_sound: AudioStreamPlayer = $CorrectSound
+@onready var _shutter_sound: AudioStreamPlayer = $ShutterSound
 @onready var _screamers: ScreamerManager = $Screamers
 @onready var _hands: HandManager = $Hands
 @onready var _phone_sprite: AnimatedSprite2D = $DeskPlane/Phone
@@ -128,6 +131,8 @@ func _ready() -> void:
 	_chat_panel.sync_requested.connect(open_mixer_for)
 	_requests.request_started.connect(_on_request_started)
 	_requests.wave_started.connect(func(_finale: bool) -> void: ($WaveStinger as AudioStreamPlayer).play())
+	_requests.request_finished.connect(_on_request_answered_sound)
+	_requests.incident_solved.connect(func(_friend_index: int) -> void: _correct_sound.play())
 	_requests.chat_script_finished.connect(_on_chat_script_finished)
 	_night.night_ended.connect(_on_night_ended)
 	_end_screen.retry_pressed.connect(_on_retry_pressed)
@@ -295,6 +300,18 @@ func _on_night_ended(ending: NightState.Ending, fatal_request: FriendRequest) ->
 		for difficulty: DifficultyData in unlocks_on_win:
 			unlocked.append(tr(difficulty.name_key))
 	_end_screen.show_ending(ending, _requests.state, fatal_request, names, night_number, pages, unlocked)
+
+
+## Matías respondió una consulta (Plan 9.10: pedido de Benja): un chime breve si fue la correcta y el obturador de una
+## cámara si eligió la calavera (la de mayor riesgo, que da un video). Si el amigo decidió solo, no suena nada.
+func _on_request_answered_sound(_friend_index: int, request: FriendRequest) -> void:
+	if not request.answered_by_player:
+		return
+	match request.outcome:
+		RuleEvaluator.Outcome.CORRECT:
+			_correct_sound.play()
+		RuleEvaluator.Outcome.RISKY:
+			_shutter_sound.play()
 
 
 ## La noche empieza de nuevo y se vuelve a generar, así que no se repite de memoria (diseño §5). La reinicia

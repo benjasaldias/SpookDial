@@ -97,6 +97,15 @@ Suenan por el parlante del PC, a un RMS de −24 dB (como el aplauso de Audio Sy
 
 Las recetas son `chat_notify()` y `wave_stinger()` en `make_sounds.py`. Para generar solo estos: `/usr/bin/python3 tools/make_sounds.py alarm_leon alarm_gonzalo alarm_agustin chat_notify wave_stinger`.
 
+## Respuestas del chat (Plan 9.10)
+
+| Archivo | Cuándo | Cómo suena | Dura |
+| --- | --- | --- | --- |
+| `request_correct.wav` | Matías completa bien una consulta (la acción correcta) o un accidente | Dos notas de campanilla que suben (A5 y E6), suaves, a RMS −26 dB | 0,5 s |
+| `photo_shutter.wav` | Matías elige la opción de la calavera (la de mayor riesgo, que da un video) | El golpe seco del espejo de una cámara y el doble clic de su obturador, a RMS −22 dB | 0,4 s |
+
+Si el amigo decide solo (se acabó el tiempo), no suena ninguno. Las recetas son `request_correct()` y `photo_shutter()`; para generar solo estos: `/usr/bin/python3 tools/make_sounds.py request_correct photo_shutter`.
+
 ## La criatura en la ventana
 
 | Archivo | Dura | Cómo suena |

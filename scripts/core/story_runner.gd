@@ -22,13 +22,13 @@ const PacingDirector := preload("res://scripts/core/pacing_director.gd")
 ## Lo que hay que hacer: una línea en el chat de un amigo, una línea en la llamada o una decisión.
 enum Command { LINE, CALL_LINE, DECISION }
 
-## Una línea queda lo que tarda en escribirse, lo que se tarda en leerla y una pausa (pedido de Benja, Plan 9.9: el inicio
-## se sentía rápido): se escribe a TYPING_CHARS_PER_SECOND letras por segundo (lo mismo que el chat,
-## ChatMessageView.CHARS_PER_SECOND), se lee a READING_WORDS_PER_SECOND palabras por segundo y después espera LINE_PAUSE.
-## Nunca menos que MIN_LINE_SECONDS.
+## Una línea queda lo que tarda en escribirse, lo que se tarda en leerla y una pausa: se escribe a TYPING_CHARS_PER_SECOND
+## letras por segundo (lo mismo que el chat, ChatMessageView.CHARS_PER_SECOND), se lee a READING_WORDS_PER_SECOND palabras
+## por segundo y después espera LINE_PAUSE. Nunca menos que MIN_LINE_SECONDS. El Plan 9.9 la alargó (el inicio se sentía
+## rápido: 3,5 palabras por segundo y 1 s) y el Plan 9.10 la acortó (quedaba esperando después de leer: 5 y 0,5 s).
 const TYPING_CHARS_PER_SECOND := 60.0
-const READING_WORDS_PER_SECOND := 3.5
-const LINE_PAUSE := 1.0
+const READING_WORDS_PER_SECOND := 5.0
+const LINE_PAUSE := 0.5
 const MIN_LINE_SECONDS := 2.0
 ## Un momento "antes de" una ola termina, al menos, tantos segundos antes de ella.
 const LEAD_MARGIN := 2.0

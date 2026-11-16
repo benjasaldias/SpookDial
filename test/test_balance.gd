@@ -173,8 +173,8 @@ func test_mantenimiento_de_cada_noche() -> bool:
 		check_eq(night.audio_sync_beats, beats[index], who + ": aplausos de Audio Sync")
 		check_eq(night.audio_sync_bpm, bpms[index], who + ": golpes por minuto de Audio Sync")
 	check_eq(nights.map(func(night: NightData) -> Vector2: return night.wave_calm),
-			[Vector2.ZERO, Vector2(65, 85), Vector2.ZERO, Vector2.ZERO, Vector2(45, 65)],
-			"las calmas de Difícil (Plan 9.9: la noche 2 terminaba muy temprano y la 5 se quedaba sin holgura)")
+			[Vector2(45, 65), Vector2(65, 85), Vector2.ZERO, Vector2.ZERO, Vector2(45, 65)],
+			"las calmas de Difícil (Plan 9.9: la noche 2 terminaba muy temprano y la 5 se quedaba sin holgura; Plan 9.10: la 1, con la historia más corta de leer)")
 	return true
 
 

@@ -517,6 +517,32 @@ def wave_stinger():
     return master(fade(reverb(pad(out, 0.6), CABIN, 0.25), 0.0, 0.3), -18)
 
 
+# --- Feedback de una respuesta (Plan 9.10: pedido de Benja) ----------------------------------------------------------
+
+def request_correct():
+    """Matías completó bien una consulta: dos notas de campanilla que suben, breves y suaves, para no agobiar."""
+    out = silence(0.4)
+    for index, (frequency, at) in enumerate(((880.0, 0.0), (1318.5, 0.09))):
+        t = timeline(0.3)
+        note = (np.sin(2 * np.pi * frequency * t) + 0.1 * np.sin(4 * np.pi * frequency * t)
+                + 0.25 * np.sin(2 * np.pi * 2.76 * frequency * t) * np.exp(-t / 0.05))
+        place(out, note * attack_decay(0.3, 0.004, 0.09 + 0.05 * index), at, 1.0 - 0.15 * index)
+    return short_master(fade(reverb(pad(lowpass(out, 6500), 0.1), CABIN, 0.1), 0.0, 0.1), -26)
+
+
+def photo_shutter():
+    """Matías eligió la opción de la calavera (la de mayor riesgo, que da un video): el sonido de una cámara de fotos,
+    el golpe seco del espejo y el doble clic de la cortina del obturador. Distinto del flash del celular."""
+    out = silence(0.3)
+    mirror = strike(0.09, [(240, 0.012, 1.0), (520, 0.008, 0.6), (1100, 0.004, 0.35)], 0.001, seed=321, brightness=0.35)
+    place(out, mirror, 0.0, 0.9)
+    for index, at in enumerate((0.035, 0.095)):
+        click = strike(0.04, [(2900, 0.004, 1.0), (4700, 0.003, 0.7), (6800, 0.002, 0.4)], 0.0005, seed=322 + index,
+                       brightness=0.7)
+        place(out, click, at, 0.8 - 0.25 * index)
+    return short_master(fade(reverb(pad(out, 0.1), CABIN, 0.08), 0.0, 0.05), -22)
+
+
 # --- Voces de los amigos --------------------------------------------------------------------------------------------
 
 def murmur(seconds, f0, vowel, nasal, seed):
@@ -844,6 +870,8 @@ SFX_SOUNDS = {
     "alarm_agustin": alarm_trill,
     "chat_notify": chat_notify,
     "wave_stinger": wave_stinger,
+    "request_correct": request_correct,
+    "photo_shutter": photo_shutter,
     # León: tono medio; Gonzalo: grave y redondo; Agustín: agudo y nasal.
     "voice_leon": lambda: murmur(0.05, 135, VOWELS["a"], 0.3, 1),
     "voice_gonzalo": lambda: murmur(0.066, 100, VOWELS["o"], 0.35, 2),
